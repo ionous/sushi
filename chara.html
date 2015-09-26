@@ -1,0 +1,10 @@
+<div class="charLayer" ng-controller="LayerController"  ng-hide="layer.hidden">
+  <div class="charWrapper" ng-style="{'left':layer.bounds.min.x+'px','top':layer.bounds.min.y+'px','height':layerSize.y+'px'}">
+    <canvas id="{{layerPath}}" class="charCanvas" width="{{layerSize.x}}" height="{{layerSize.y}}" ng-controller="CharController">
+    </canvas>
+    <div class="bubble" ng-controller="CharTalkController" ng-style="{'bottom':layerSize.y+'px'}" ng-show="charText">
+      {{charText}}
+      <!-- <span>{{charText}}</span> -->
+    </div>
+  </div>
+</div>

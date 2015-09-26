@@ -1,0 +1,193 @@
+header,
+footer {
+  display: block;
+}
+
+#main {
+  margin: 0;
+  padding: 0;
+}
+
+#objectPopup {
+  position: absolute;
+  z-index: 100;
+  width: 25rem;
+  background-color: white;
+  opacity: 75%;
+  border-color: black;
+  border-style: double;
+  padding: 0.5rem;
+}
+
+#status-bar {
+  background-color: black;
+  color: white;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+#status-right {
+  float: right;
+}
+
+#view {
+  position: relative;
+  float: left;
+  min-width: 512px;
+  min-height: 512px;
+}
+
+#side {
+  overflow-x: auto;
+  height: 512px;
+  border: solid black;
+  margin: 32px;
+  position: relative;
+}
+
+#f {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 95%;
+  margin: 0.25rem;
+}
+
+form > * {
+  width: 100%;
+}
+
+#text {
+  overflow-y: scroll;
+  width: 100%;
+  height: 90%;
+}
+
+#info {
+  padding: 1em;
+  margin: 0px;
+  overflow-y: scroll;
+}
+
+#info ul {
+  margin: 0;
+}
+
+.smallText {
+  font-size: 76%;
+}
+
+#text ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#text li {
+  margin-top: 0.5em;
+}
+
+.mapLayer,
+.charLayer {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.speaker {
+  font-size: large;
+  color: red;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.lineFade.ng-enter {
+  /*-webkit-transition: all linear 0.5s;
+  transition: all linear 0.5s;*/
+  /* standard transition code */
+  transition: 1s linear all;
+  opacity: 0;
+}
+
+
+/* this will have a 100ms delay between each successive leave animation 
+in case the stagger doesn't work then the duration value
+   must be set to 0 to avoid an accidental CSS inheritance 
+.lineFade.ng-enter-stagger {
+  transition-delay: 0.1s;
+  transition-duration: 0s;
+}
+*/
+
+.lineFade.ng-enter.ng-enter-active {
+  opacity: 1;
+}
+
+.charCanvas {
+  position: absolute;
+}
+
+.char-text:after {
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  /* value = - border-top-width - border-bottom-width */
+  left: 50px;
+  /* controls horizontal position */
+  border-width: 20px 0 0 20px;
+  /* vary these values to change the angle of the vertex */
+  border-style: solid;
+  border-color: #075698 transparent;
+  /* reduce the damage in FF3.0 */
+  display: block;
+  width: 0;
+}
+
+.charWrapper {
+  position: absolute;
+}
+
+.bubble {
+  position: absolute;
+  z-index: 1000;
+  min-width: 150px;
+  text-align: justify-all;
+  margin: 0;
+  padding: 10px;
+  color: #fff;
+  background: #075698;
+  /* default background for browsers without gradient support */
+  /* css3 */
+  background: -webkit-gradient(linear, 0 0, 0 100%, from(#2e88c4), to(#075698));
+  background: -moz-linear-gradient(#2e88c4, #075698);
+  background: -o-linear-gradient(#2e88c4, #075698);
+  background: linear-gradient(#2e88c4, #075698);
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  left: -25px;
+}
+
+.bubble:after {
+  content: "";
+  position: absolute;
+  /* value = - border-top-width - border-bottom-width */
+  bottom: -15px;
+  /* controls horizontal position */
+  left: 60px;
+  /* vary these values to change the angle of the vertex */
+  border-width: 0 0 15px 18px;
+  border-style: solid;
+  border-color: transparent #075698;
+}
+
+div.overgrey {
+  opacity:    0.3; 
+  background: white; 
+  width:      100%;
+  height:     100%; 
+  z-index:    100;
+  top:        0; 
+  left:       0; 
+  position:   fixed; 
+}
