@@ -7,12 +7,9 @@ angular.module('demo')
     function(EventService, TextService, $log, $scope) {
       var display = TextService.getDisplay();
       $scope.display = display;
-      // why is say on display and not on the speaker???
-      var ch = EventService.listen(display, "say", function(src) {
-        var speaker = src.data.attr['speaker']
-        var lines = src.data.attr['lines'];
+      var ch = EventService.listen(display.id, "print", function(evt) {
+        var lines = evt.data;
         TextService.addLines({
-          speaker: speaker,
           text: lines
         });
       });

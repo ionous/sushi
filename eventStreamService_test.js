@@ -1,27 +1,32 @@
 'use strict';
 
-describe("RunService", function() {
+describe("EventStreamService", function() {
   beforeEach(module('demo'));
+  // these "events" are actually "actions" in the new format;
+  // the test is no longer representative of actual game data.
   var events = [{
-    "set-initial-position": {
+    evt: "set-initial-position",
+    tgt: {
       id: "player",
       type: "actors",
     }
   }, {
-    "say": {
+    evt: "say",
+    tgt: {
       id: "_display_",
       type: "_sys_",
     }
   }, {
-    "x-set": {
+    evt: "x-set",
+    tgt: {
       id: "lab",
       type: "rooms",
     }
   }];
 
-  var RunService, EventService, $log, $rootScope;
-  beforeEach(inject(function(_RunService_, _EventService_, _$log_, _$rootScope_) {
-    RunService = _RunService_;
+  var EventStreamService, EventService, $log, $rootScope;
+  beforeEach(inject(function(_EventStreamService_, _EventService_, _$log_, _$rootScope_) {
+    EventStreamService = _EventStreamService_;
     EventService = _EventService_;
     $log = _$log_;
     $rootScope = _$rootScope_; // for digest/processing of promises
@@ -32,25 +37,18 @@ describe("RunService", function() {
     var callback = function(data, evt, ident) {
       ++count;
     };
-    EventService.listen({
-      id: "player",
-      type: "actors"
-    }, [
+    EventService.listen("player", [
       "set-initial-position", "say", "x-set"
     ], callback);
-    EventService.listen({
-      id: "lab",
-      type: "rooms"
-    }, [
+    EventService.listen("lab", [
       "set-initial-position", "say", "x-set"
     ], callback);
     // allow it to skip the third event
-    RunService.handleEvents(0, events);
+    EventStreamService.queueEvents(0, events).handleEvents();
     expect(count).toEqual(2);
   });
 
   describe("promise handling", function() {
-
     var $q;
     beforeEach(inject(function(_$q_) {
       $q = _$q_;
@@ -65,13 +63,13 @@ describe("RunService", function() {
           resolve();
         });
       };
-      EventService.listen({
-        id: "player",
-        type: "actors"
-      }, [
+      EventService.listen("player", [
         "set-initial-position",
       ], returnsPromise);
-      RunService.handleEvents(0, events).then(handler);
+      EventStreamService
+        .queueEvents(0, events)
+        .handleEvents()
+        .then(handler);
 
       expect(handler).not.toHaveBeenCalled();
       $rootScope.$digest();
@@ -87,67 +85,63 @@ describe("RunService", function() {
 
       // NOTE: runService parses the array of event data 
       // using the JsonService
-      var delay = [{
-        "testDelay": {
+      var testEvents = [{
+        evt: "testDelay",
+        tgt: {
           'id': "thing",
           'type': "type",
-          'attributes': {
-            'value': "delay-one"
-          }
-        }
+        },
+        data: "delay-one",
       }, {
-        "fillSpace": {
+        evt: "fillSpace",
+        tgt: {
           'id': "thing",
           'type': "type",
-          'attributes': {
-            'value': "set"
-          },
-        }
+        },
+        data: "set",
       }, {
-        "testDelay": {
+        evt: "testDelay",
+        tgt: {
           'id': "thing",
           'type': "type",
-          'attributes': {
-            'value': "delay-two"
-          }
-        }
+        },
+        data: "delay-two",
       }, {
-        "fillSpace": {
+        evt: "fillSpace",
+        tgt: {
           'id': "thing",
           'type': "type",
-          'attributes': {
-            'value': "other"
-          }
-        }
+        },
+        data: "other",
       }];
 
       it('should delay', function() {
         var space = "";
         var testDelay = function(served) {
+          if (!served) {
+            throw new Error("served is null");
+          }
           return $interval(function() {
-            $log.debug(served.data.attr['value']);
+            $log.debug(served.data);
+            
           }, 100, 1);
         };
-        var fillSpace = function(served, evt, ident) {
-          expect(ident.id).toEqual("thing");
+        var fillSpace = function(served, evt, target) {
+          expect(target).toEqual("thing");
           expect(served.data).not.toBeUndefined();
-          expect(served.data.attr['value']).not.toBeUndefined();
-          space = space + served.data.attr.value;
+          expect(served.data).not.toBeUndefined();
+          space = space + served.data;
         };
 
-        EventService.listen({
-          id: "thing",
-          type: "type"
-        }, "testDelay", testDelay);
-        EventService.listen({
-          id: "thing",
-          type: "type"
-        }, "fillSpace", fillSpace);
+        EventService.listen("thing", "testDelay", testDelay);
+        EventService.listen("thing", "fillSpace", fillSpace);
 
         //  create our spy/promise/trigger
         var handler = jasmine.createSpy('success');
-        RunService.handleEvents(0, delay).then(handler);
-
+        EventStreamService
+          .queueEvents(0, testEvents)
+          .handleEvents()
+          .then(handler);
         // we should be stuck at first wait
         //console.log("before wait...");
         expect(handler).not.toHaveBeenCalled();

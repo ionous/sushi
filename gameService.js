@@ -11,9 +11,9 @@ angular.module('demo')
     EntityService,
     EventService,
     JsonService,
-    RunService,
+    EventStreamService,
     $http, $log, $q) {
-    var frame = 0;
+    var currentFrame = 0;
     //
     var processing;
     /** 
@@ -21,24 +21,24 @@ angular.module('demo')
      */
     var processFrame = function(game, doc) {
       if (processing) {
-        throw "frame in progress";
+        throw new Error("frame in progress");
       }
       var newFrame = doc.meta['frame'];
-      if (newFrame <= frame) {
-        throw "invalid frame";
+      if (newFrame <= currentFrame) {
+        throw new Error("invalid frame");
       }
       // merge any data abou the game itself.
       game.updateData(newFrame, doc.data);
 
-      // update the events in the frame old frame.
+      // update the events in the old frame.
       var events = doc.data.attr["events"] || [];
-      var handleEvents = RunService.handleEvents(frame, events);
+      var handleEvents = EventStreamService.queueEvents(newFrame,events).handleEvents();
 
       // when done, add the new objects at the start of the new frame.
       processing = handleEvents.then(function() {
-        frame = newFrame;
+        currentFrame = newFrame;
         doc.includes.map(function(obj) {
-          return EntityService.getRef(obj).create(frame, obj);
+          return EntityService.getRef(obj).create(currentFrame, obj);
         });
         processing = null;
       });
@@ -54,12 +54,12 @@ angular.module('demo')
       $http.post(url, what).then(function(resp) {
         var doc = JsonService.parseObjectDoc(resp.data, 'startup');
         if (!doc.data) {
-          throw "invalid game";
+          throw new Error("invalid game");
         }
         var gameData = doc.data;
-        var game = EntityService.getRef(gameData).createOrUpdate(frame, gameData);
+        var game = EntityService.getRef(gameData).createOrUpdate(currentFrame, gameData);
         if (!game) {
-          throw "youve got no game";
+          throw new Error("youve got no game");
         }
         game.postGameData= function(what) {
           return post(game.id, what);
@@ -73,6 +73,9 @@ angular.module('demo')
     var promisedGame = post("new", {});
     
     var gameService = {
+      getCurrentFrame: function() {
+        return currentFrame;
+      },
       getPromisedGame: function() {
         return promisedGame;
       }

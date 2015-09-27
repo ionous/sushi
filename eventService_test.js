@@ -9,25 +9,21 @@ describe("EventService", function() {
     $log = _$log_;
   }));
 
-  var obja = {
-    id: "a",
-    type: "type"
-  };
-  var objb = {
-    id: "b",
-    type: "type"
-  };
+  var obja = "obja";
+  var objb = "objb";
 
-  var make = function(name) {
-    return function(data, evt, ident) {
-      return [name, evt, data].join(".");
+  // an event callback function which returns a string:
+  // userName.eventName.eventData
+  var eventStringCallback = function(userName) {
+    return function(eventData, eventName) {
+      return [userName, eventName, eventData].join(".");
     };
   };
 
   it('should add and raise various events', function() {
-    EventService.listen(obja, "*", make("1"));
-    EventService.listen(obja, "test", make("2"));
-    var ch = EventService.listen(obja, ["test", "magic"], make("3"));
+    EventService.listen(obja, "*", eventStringCallback("1"));
+    EventService.listen(obja, "test", eventStringCallback("2"));
+    var ch = EventService.listen(obja, ["test", "magic"], eventStringCallback("3"));
     //
     expect(ch).not.toBeUndefined();
     expect(ch.length).toBe(3);
@@ -81,9 +77,10 @@ describe("EventService", function() {
   });
 
   it('should add and remove during a callback', function() {
-    var removes = make("removes");
-    var keeps = make("keeps");
-    var adds = make("adds");
+    var removes = eventStringCallback("removes");
+    var keeps = eventStringCallback("keeps");
+    var adds = eventStringCallback("adds");
+    
     var r = EventService.listen(obja, "event", removes);
     EventService.listen(obja, "event", keeps);
 

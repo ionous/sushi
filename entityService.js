@@ -15,7 +15,7 @@ angular.module('demo')
        */
       var Entity = function(id, type) {
         if (!id) {
-          throw "missing id";
+          throw new Error("missing id");
         }
         /**
          * Unique id.
@@ -78,7 +78,7 @@ angular.module('demo')
        */
       Entity.prototype.create = function(frame, data) {
         if (this.frame >= 0) {
-          throw "multiple creates received for:" + this.id;
+          throw new Error("multiple creates received for:" + this.id);
         }
 
         // setup data
@@ -91,11 +91,20 @@ angular.module('demo')
 
         // subscribe to events
         var that = this;
-        EventService.listen(this, "x-set", function(src) {
-          that._handleSet(src);
+        EventService.listen(this.id, "x-set", function(evt) {
+          that._handleSet(evt);
         });
-        EventService.listen(this, ["x-txt", "x-num"], function(src) {
-          that.updateData(src.frame, src.data);
+        EventService.listen(this.id, ["x-txt", "x-num"], function(evt) {
+          // mimic a json-object so we can merge in the data chnges
+          var obj = {
+            id: evt.tgt.id,
+            type: evt.tgt.type,
+            attr: {},
+          };
+          var p = evt.data['prop'];
+          var v = evt.data['value'];
+          obj.attr[p] = v;
+          that.updateData(evt.frame, obj);
         });
 
         // finalize create
@@ -104,30 +113,36 @@ angular.module('demo')
         return this;
       };
 
-      // triggered via runService())
-      Entity.prototype._handleSet = function(src) {
-        // FIX: when do we update this object's frame -- wouldnt that be something global, not per object?
-        if (src.frame < this.frame) {
-          $log.warn("skipping events for frame:", src.frame, ", this:", this.frame);
-        } else {
-          var data = src.data;
-          var meta = data.meta;
-          var v = meta["change-states"];
-          if (v) {
-            var was = v[0];
-            var now = v[1];
-            this.states = this.states.filter(function(value) {
-              return value != was;
-            });
-            this.states.push(now);
+      // triggered via EventStreamService())
+      /*{ "act": "x-set",
+          "tgt": {
+            "id": "glass-jar",
+            "type": "containers"
+          },
+          "data": {
+            "prop": "open-property",
+            "prev": "closed",
+            "next": "open"
           }
+        }*/
+      Entity.prototype._handleSet = function(evt) {
+        // FIX: when do we update this object's frame -- wouldnt that be something global, not per object?
+        if (evt.frame < this.frame) {
+          $log.warn("skipping events for frame:", evt.frame, ", this:", this.frame);
+        } else {
+          var was = evt.data['prev'];
+          var now = evt.data['next'];          
+          this.states = this.states.filter(function(value) {
+            return value != was;
+          });
+          this.states.push(now);
         } // else, frame
       }; // handle event;
 
       Entity.prototype._validate = function(obj, reason) {
         if ((obj.id != this.id) || (obj.type != this.type)) {
-          throw "mismatched ids! " + reason + " was:" + this.id + " " + this.type +
-            ", now:" + obj.id + " " + obj.type;
+          throw new Error("mismatched ids! " + reason + " was:" + this.id + " " + this.type +
+            ", now:" + obj.id + " " + obj.type);
         }
       };
 
@@ -138,7 +153,7 @@ angular.module('demo')
        * @returns {Object|undefined} promise.
        */
       Entity.prototype.updateData = function(frame, obj) {
-        // _validate data
+        // validate data
         this._validate(obj, "updateData");
 
         // silent ignore events in frames before the object is fully created.
@@ -159,7 +174,7 @@ angular.module('demo')
       };
 
       /**Object.<string, Entity>*/
-      var entities= {};
+      var entities = {};
 
       var entityService = {
         // create, ensure the existance of an object box.
@@ -172,7 +187,7 @@ angular.module('demo')
             obj = new Entity(id, type);
             entities[id] = obj;
           } else if (obj.type != type) {
-            throw "type conflict detected!";
+            throw new Error("type conflict detected!");
           }
           return obj;
         },
@@ -182,7 +197,7 @@ angular.module('demo')
         getById: function(id) {
           return entities[id];
         },
-     
+
       }; // entityService.
 
       return entityService;

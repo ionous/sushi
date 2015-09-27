@@ -33,30 +33,25 @@ angular.module('demo')
         return deferredSync.promise;
       };
 
-      EventService.listen(player, 'locationChanged', syncLocation);
-
-      /*
-      "x-rel": {"id": "player", "type": "actors","meta": { "rel": "whereabouts"}}
-      */
-      /*data":[{"id":"other-hallway","type":"rooms"}]
-        "meta": {"frame": 6},
-        "included": [{
-          "id": "other-hallway","type": "rooms",
-          "attributes": {
-            "description": "The bower like hallway curves slightly away from the floor, with no perfect right angle on any edge.\nThe hallway is blocked by a fallen limb.\nIf you cant see the door -- describe it here",
-            "printed-name": "Hallway",
-            "south-rev-via": {}, 
-            // ... might want to remove empty dictionaries and arrays during serialization.
+      /*{ "act": "x-rel",
+          "tgt": {
+            "id": "glass-jar",
+            "type": "containers"
           },
-          "meta": { "name": "OtherHallway", 
-          "states": ["singular-named", "visited", "common-named"]
+          "data": {
+            "prop": "owner",
+            "other": "inventory",
+            "next": {
+              "id": "player",
+              "type": "actors"
+            }}
       */
-      EventService.listen(player, "x-rel", function(e) {
-        if (e.data.meta['rel'] == "whereabouts") {
+      EventService.listen("player", "x-rel", function(evt) {
+        if (evt.data.prop['rel'] == "whereabouts") {
           // data includes: id and type of player; so we can use it as a ref
-          ObjectService.getObjects(e.data, "whereabouts").then(function(arr) {
+          ObjectService.getObjects(evt.tgt, "whereabouts").then(function(arr) {
             var loc = arr[0];
-            EventService.raise(player, 'locationChanged', loc);
+            syncLocation(loc);
           });
         }
       });

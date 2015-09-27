@@ -13,18 +13,21 @@ describe("EntityService", function() {
   };
 
   var change = {
-    "x-set": {
+    act: "x-set",
+    tgt: {
       id: "lab",
       type: "rooms",
-      meta: {
-        "change-states": ["unvisited", "visited"]
-      }
+    },
+    data: {
+      'prop': "visited-property",
+      'prev': "unvisited",
+      'next': "visited",
     }
   };
 
   var EntityService, $log;
   beforeEach(inject(function(_EntityService_, _$log_) {
-    EntityService= _EntityService_;
+    EntityService = _EntityService_;
     $log = _$log_;
   }));
 
@@ -64,11 +67,7 @@ describe("EntityService", function() {
     it('should process some change-states', function() {
       var obj = EntityService.getRef(data).create(0, data);
       expect(obj.states).not.toContain("visited");
-      EventService.raise(data, "x-set", {
-        evt: "x-set",
-        data: change["x-set"],
-        frame: 0,
-      });
+      EventService.raise(data.id, "x-set", change);
       expect(obj.states).toEqual(["visited"]);
     });
   });

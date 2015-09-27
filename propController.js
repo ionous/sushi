@@ -11,7 +11,7 @@ angular.module('demo')
       $log, $scope) {
       var prop = $scope.prop;
       if (!prop) {
-        throw "expected prop";
+        throw new Error("expected prop");
       }
       ClassService.getPromisedClass(prop.type).then(function(cls) {
         var p = cls.meta['classes'];
@@ -35,7 +35,7 @@ angular.module('demo')
           }
         }
         refreshContents();
-        var ch = EventService.listen(prop, ["x-set", "x-rel"], refreshContents);
+        var ch = EventService.listen(prop.id, ["x-set", "x-rel"], refreshContents);
         $scope.$on("$destroy", function handler() {
           EventService.remove(ch);
         });

@@ -25,7 +25,7 @@ angular.module('demo')
         });
       };
       refreshContents();
-      var ch = EventService.listen(player, ["x-set", "x-rel"], refreshContents);
+      var ch = EventService.listen("player", ["x-set", "x-rel"], refreshContents);
       $scope.$on("$destroy", function handler() {
         EventService.remove(ch);
       });

@@ -11,7 +11,7 @@ function layerName(layer) {
  * Used by layer.html to draw the current layer onto its canvas.
  * ( always has parent containter LayerController )
  */
- var CharController
+var CharController
 angular.module('demo')
   .controller('CharController',
     function($element, $log, $scope) {
@@ -20,20 +20,20 @@ angular.module('demo')
       var name = layerName(layer);
 
       if (layer.image) {
-        layer.hidden= false;
+        layer.hidden = false;
         $scope.charPos = layer.bounds.min;
 
         $scope.$on("clicked", function(evt, click) {
           var size = pt_sub(layer.bounds.max, layer.bounds.min);
-          
+
           var rect = canvas.getBoundingClientRect();
           var x = Math.floor(click.pos.x - rect.left);
           var y = Math.floor(click.pos.y - rect.top);
 
           // the character canvas is positioned at the location of the virtual layer
-          var inRange = (x >= 0 && y >=0 && x< size.x &&  y< size.y);
-            $log.info("char clicked", inRange, name, x,y, size);
-          
+          var inRange = (x >= 0 && y >= 0 && x < size.x && y < size.y);
+          $log.info("char clicked", inRange, name, x, y, size);
+
           if (inRange) {
             click.handled = layer;
           }
@@ -65,33 +65,33 @@ angular.module('demo')
       $scope.hasText = false;
       $scope.charText = "";
 
+      if (name == "alice") {
+        name = "player";
+      }
+
       var overgrey = angular.element('<div class="overgrey"></canvas>');
 
-      // why is say on display and not on the speaker???
-      var ch = EventService.listen(display, "say",
-        function(src) {
+      var ch = EventService.listen(name, "say",
+        function(evt) {
           var promise = null;
-          var speaker = src.data.attr['speaker']
-          var lines = src.data.attr['lines'];
+          var lines = evt.data;
 
-          if (speaker && ((speaker.id == name) || (speaker.id == 'player' && name == 'alice'))) {
-            //$log.info("!!!! speaker", speaker, lines);
-            var hasText = !angular.isUndefined(lines);
-            $scope.charText = hasText ? lines.join(" ") : "";
+          //$log.info("!!!! speaker", speaker, lines);
+          var hasText = !angular.isUndefined(lines);
+          $scope.charText = hasText ? lines.join(" ") : "";
 
-            if (hasText) {
-              var deferredClick = $q.defer();
-              //
-              $rootElement.prepend(overgrey);
-              overgrey.on("mousedown", deferredClick.resolve);
+          if (hasText) {
+            var deferredClick = $q.defer();
+            //
+            $rootElement.prepend(overgrey);
+            overgrey.on("mousedown", deferredClick.resolve);
 
-              promise = deferredClick.promise;
-              promise.then(function() {
-                $scope.charText = "";
-                overgrey.remove();
-                overgrey.off("mousedown", deferredClick.resolve);
-              });
-            }
+            promise = deferredClick.promise;
+            promise.then(function() {
+              $scope.charText = "";
+              overgrey.remove();
+              overgrey.off("mousedown", deferredClick.resolve);
+            });
           }
           return promise;
         });

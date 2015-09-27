@@ -149,6 +149,8 @@ in case the stagger doesn't work then the duration value
 
 .bubble {
   position: absolute;
+  /* because the bubble floats above the modal, disable mouse interaction */
+  pointer-events: none; 
   z-index: 1000;
   min-width: 150px;
   text-align: justify-all;

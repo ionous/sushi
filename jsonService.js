@@ -53,7 +53,7 @@ angular.module('demo')
           var doc = parseDoc(src);
           var okay = doc && angular.isObject(doc.data);
           if (!okay) {
-            throw reason;
+            throw new Error(reason);
           }
           doc.data = parseObject(doc.data);
           return doc;
@@ -62,7 +62,7 @@ angular.module('demo')
           var doc = parseDoc(src);
           var okay = doc && angular.isArray(doc.data);
           if (!okay) {
-            throw reason;
+            throw new Error(reason);
           }
           doc.data = doc.data.map(parseObject);
 

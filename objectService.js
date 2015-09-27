@@ -22,6 +22,10 @@ angular.module('demo')
           var defer = q[relation];
 
           if (!defer) {
+
+            if (ref.type=='_sys_') {
+              throw new Error("getting system type");
+            }
             q[relation] = defer = $q.defer();
             GameService.getPromisedGame().then(function(game) {
               var url = ['/game', game.id, ref.type, ref.id].join('/');
