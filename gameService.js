@@ -32,7 +32,7 @@ angular.module('demo')
 
       // update the events in the old frame.
       var events = doc.data.attr["events"] || [];
-      var handleEvents = EventStreamService.queueEvents(newFrame,events).handleEvents();
+      var handleEvents = EventStreamService.queueEvents(newFrame, events).handleEvents();
 
       // when done, add the new objects at the start of the new frame.
       processing = handleEvents.then(function() {
@@ -44,6 +44,7 @@ angular.module('demo')
       });
       return processing;
     };
+
 
     /** 
      * Post to create the new game object
@@ -61,7 +62,7 @@ angular.module('demo')
         if (!game) {
           throw new Error("youve got no game");
         }
-        game.postGameData= function(what) {
+        game.postGameData = function(what) {
           return post(game.id, what);
         };
         processFrame(game, doc).then(function() {
@@ -71,14 +72,65 @@ angular.module('demo')
       return deferredGame.promise;
     };
     var promisedGame = post("new", {});
-    
+
+    /**
+     * Handler of cachable (constant) data. 
+     */
+    var Resource = function(type) {
+      /** 
+       * name of resource type
+       */
+      this.type = type;
+      /** 
+       * cache of requested cache
+       */
+      this.cache = {};
+    };
+    /**
+     * a promise which will get filled with resource data.
+     */
+    Resource.prototype.getData = function(id) {
+      var r= this;
+      if (!r.cache[id]) {
+        var deferred = r.cache[id] = $q.defer();
+        promisedGame.then(function(game) {
+          var url = ['/game', game.id, r.type, id].join('/');
+          $log.info("getPromisedData", url);
+          return $http.get(url);
+        }, deferred.reject).then(function(resp) {
+          var doc = JsonService.parseObjectDoc(resp.data, r.type);
+          // create the actions as if they were objects....
+          doc.includes.map(function(objData) {
+            var obj = EntityService.getRef(objData);
+            if (!obj.created()) {
+              obj.create(0, objData);
+            }
+          });
+          deferred.resolve(doc.data);
+        }, deferred.reject);
+      } //fetchClass
+      return r.cache[id].promise;
+    };
+
+    var resources = {
+      "class": new Resource("class"),
+      "action": new Resource("action"),
+    };
+
     var gameService = {
       currentFrame: function() {
         return currentFrame;
       },
       getPromisedGame: function() {
         return promisedGame;
-      }
+      },
+      getPromisedData: function(type, id) {
+        var resource = resources[type];
+        if (!resource) {
+          throw new Error("unknown resource category" + type + " " + id);
+        }
+        return resource.getData(id);
+      },
     }; //gameService
     return gameService;
   });

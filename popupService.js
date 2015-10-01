@@ -5,7 +5,7 @@
  */
 angular.module('demo')
   .factory('PopupService',
-    function(ClassService, GameService, EntityService, TextService, $log, $rootScope) {
+    function(GameService, EntityService, TextService, $log, $rootScope) {
 
       var processing = false;
       var clear = function() {
@@ -42,8 +42,7 @@ angular.module('demo')
         multiCtx: false,
         fetchActions: function(prop, isInventory) {
           var ret = [];
-          ClassService
-            .getPromisedClass(prop.type)
+          GameService.getPromisedData('class', prop.type)
             .then(function(cls) {
               var actions = cls.attr['actions'];
               actions.forEach(function(actRef) {
@@ -72,8 +71,7 @@ angular.module('demo')
             if (!isMulti) {
               runIt(act.id, prop.id);
             } else {
-              ClassService
-                .getPromisedClass(act.attr['tgt'])
+              GameService.getPromisedData('class', act.attr['tgt'])
                 .then(function(cls) {
                   modal.multiAct = act.id;
                   modal.multiCtx = prop.id;

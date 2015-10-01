@@ -23,7 +23,7 @@ angular.module('demo')
          * unique name without spaces, could be used for css.
          * @type string
          */
-        this.id = act.replace(" ", "-");
+        this.id = act.replace(/ /g, "-");
         /**
          * execution name.
          * @type string
@@ -56,15 +56,14 @@ angular.module('demo')
         return this;
       };
 
-      var defaultIcon = new Icon("question");
-
       // FIX: right now we are listing the actor actions
       // thats actually pretty broad!
       // i think what we want to list is the understandings
-      var smell= "user-secret"; //"soundcloud"; //, "asterisk"
-      var listen= "volume-up"; //"music"; //"headphones"; // 
+      var smell = "user-secret"; //"soundcloud"; //, "asterisk"
+      var listen = "volume-up"; //"music"; //"headphones"; // 
 
       var iconList = [
+        new Icon("_invalid_", "ban"),
         new Icon("examine it", "eye"),
         new Icon("take it", "hand-rock-o"),
 
@@ -92,7 +91,7 @@ angular.module('demo')
         new Icon("look", "eye"),
         new Icon("listen", listen),
         new Icon("smell", smell),
-        new Icon("jump", "angle-double-up"),
+        new Icon("jump", "chevron-up"),
         new Icon("report inventory", null),
 
         // inventory actions
@@ -100,7 +99,7 @@ angular.module('demo')
         new Icon("give it to", "hand-rock-o fa-rotate-180"),
         new Icon("put it onto", "hand-pointer-o"),
         new Icon("insert it into", "hand-pointer-o  fa-rotate-180"),
-        
+
       ];
       var iconLookup = {};
       for (var i = 0; i < iconList.length; ++i) {

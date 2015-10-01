@@ -5,7 +5,7 @@
 angular.module('demo')
   .controller('IconPreviewController',
     // ex. http://localhost:8080/demo/#/icons
-    function(IconService, $log, $routeParams, $scope) {
+    function(GameService, IconService, $log, $routeParams, $scope) {
       //var iconId = $routeParams.iconId;
 
       $scope.icons = IconService.allIcons().filter(function(i) {
@@ -14,7 +14,15 @@ angular.module('demo')
         return {
           tooltip: i.tooltip,
           onAction: function() {
-            $log.info(i.tooltip);
+            $scope.details= "";
+            GameService.getPromisedData('action', i.id).then(
+              function(data) {
+                $scope.details = angular.toJson(data,true);
+              },
+              function() {
+                $scope.details= "rejected";
+              }
+            );
           },
           cls: i.icon,
         };
