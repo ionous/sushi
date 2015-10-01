@@ -34,7 +34,7 @@ describe("EventStreamService", function() {
 
   it('should process some events', function() {
     var count = 0;
-    var callback = function(data, evt, ident) {
+    var callback = function() {
       ++count;
     };
     EventService.listen("player", [
@@ -44,7 +44,9 @@ describe("EventStreamService", function() {
       "set-initial-position", "say", "x-set"
     ], callback);
     // allow it to skip the third event
-    EventStreamService.queueEvents(0, events).handleEvents();
+    EventStreamService
+      .queueEvents(0, events)
+      .handleEvents();
     expect(count).toEqual(2);
   });
 
@@ -57,7 +59,7 @@ describe("EventStreamService", function() {
     it('should process a promise', function() {
       var handler = jasmine.createSpy('success');
       var hit = false;
-      var returnsPromise = function(data, evt, ident) {
+      var returnsPromise = function() {
         return $q(function(resolve, reject) {
           hit = true;
           resolve();
@@ -77,60 +79,118 @@ describe("EventStreamService", function() {
       expect(hit).toBe(true);
     });
 
-    describe('some delay testing', function() {
+
+    describe('some streams', function() {
       var $interval;
       beforeEach(inject(function(_$interval_) {
         $interval = _$interval_;
       }));
 
-      // NOTE: runService parses the array of event data 
-      // using the JsonService
-      var testEvents = [{
-        evt: "testDelay",
-        tgt: {
-          'id': "thing",
-          'type': "type",
-        },
-        data: "delay-one",
-      }, {
-        evt: "fillSpace",
-        tgt: {
-          'id': "thing",
-          'type': "type",
-        },
-        data: "set",
-      }, {
-        evt: "testDelay",
-        tgt: {
-          'id': "thing",
-          'type': "type",
-        },
-        data: "delay-two",
-      }, {
-        evt: "fillSpace",
-        tgt: {
-          'id': "thing",
-          'type': "type",
-        },
-        data: "other",
-      }];
+      it('should handle hierarchy', function() {
+        var tgt = {
+          id: "tgt",
+          type: "type"
+        };
+        var evt = "testing";
+        // return 
+        var make = function() {
+          var evts = [];
+          for (var i = 0; i < arguments.length; i++) {
+            var arg = arguments[i];
+            for (var k in arg) {
+              evts.push({
+                evt: evt,
+                tgt: tgt,
+                data: k,
+                events: arg[k],
+              });
+            }
+          }
+          return evts;
+        };
+        var events = make({
+          "A": make({
+            "a": []
+          }),
+          "B": make({
+            "a": make({
+              "1": [],
+              "2": make({
+                "#": []
+              }),
+            }),
+          }),
+          "C": make({}),
+        });
+        var startend = "+A+a-a-A+B+a+1-1+2+#-#-2-a-B+C-C";
+        var out = "";
+        EventService.listen(tgt.id, evt, {
+          start: function(x) {
+            //console.log("!!!!", out);
+            out = out + '+' + x;
+          },
+          end: function(x) {
+            //console.log("!!!!", out);
+            out = out + '-' + x;
+          },
+        });
+        var handler = jasmine.createSpy('success');
+        EventStreamService
+          .queueEvents(0, events)
+          .handleEvents()
+          .then(handler);
+
+        $rootScope.$digest();
+        expect(handler).toHaveBeenCalled();
+        expect(out).toEqual(startend);
+      });
 
       it('should delay', function() {
+        // NOTE: runService parses the array of event data 
+        // using the JsonService
+        var testEvents = [{
+          evt: "testDelay",
+          tgt: {
+            'id': "thing",
+            'type': "type",
+          },
+          data: "delay-one",
+        }, {
+          evt: "fillSpace",
+          tgt: {
+            'id': "thing",
+            'type': "type",
+          },
+          data: "set",
+        }, {
+          evt: "testDelay",
+          tgt: {
+            'id': "thing",
+            'type': "type",
+          },
+          data: "delay-two",
+        }, {
+          evt: "fillSpace",
+          tgt: {
+            'id': "thing",
+            'type': "type",
+          },
+          data: "other",
+        }];
+
         var space = "";
         var testDelay = function(served) {
-          if (!served) {
-            throw new Error("served is null");
-          }
+          //console.log("test delay", served);
           return $interval(function() {
-            $log.debug(served.data);
-            
+            $log.debug(served);
           }, 100, 1);
         };
-        var fillSpace = function(served, evt, target) {
-          expect(target).toEqual("thing");
-          expect(served.data).not.toBeUndefined();
-          expect(served.data).not.toBeUndefined();
-          space = space + served.data;
+        var fillSpace = function(served, tgt) {
+          //console.log("fill space", served);
+          expect(tgt).toEqual("thing");
+          expect(served).not.toBeUndefined();
+          expect(served).not.toBeUndefined();
+          space = space + served;
         };
 
         EventService.listen("thing", "testDelay", testDelay);
@@ -138,6 +198,8 @@ describe("EventStreamService", function() {
 
         //  create our spy/promise/trigger
         var handler = jasmine.createSpy('success');
+
+        //console.log("queuing...");
         EventStreamService
           .queueEvents(0, testEvents)
           .handleEvents()

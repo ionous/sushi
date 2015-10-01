@@ -38,7 +38,7 @@ angular.module('demo')
           "left": "" + lastPos.x + "px",
           "top": "" + lastPos.y + "px"
         };
-        $log.info("modal change", modal, $scope.modalPos);
+        //$log.info("modal change", modal, $scope.modalPos);
 
         if (modal.owner) {
           if (!listening) {

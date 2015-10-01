@@ -1,11 +1,13 @@
 'use strict';
 
 /** 
- + Manage the player's current room.
+ * Manage the player's current room.
+ * parent is GameController 
  */
 angular.module('demo')
   .controller('ViewController',
-    function(LocationService, RoomService, $element, $log, $scope) {
+    function(EventService, LocationService, ObjectService, RoomService,
+      $element, $log, $scope) {
       var clickEnabled = false;
 
       $scope.loc = null;
@@ -13,13 +15,23 @@ angular.module('demo')
         .onChanged(function(evt, loc) {
           $scope.loc = loc;
           clickEnabled = false;
-          $log.info("view changed", loc.id);
+          var roomId = loc.id;
+          $log.info("view changed", roomId);
 
-          RoomService
-            .getRoom($scope, loc.id)
+          // see also RoomPreviewController.
+          $scope.mapName = roomId; // used by grid controller for tile image src
+          $scope.layerPath = ""; // used for materializing layer ids
+          $scope.layer = {  // pattern of the layer structure.
+            name: roomId,
+            layers: []
+          };
+
+          RoomService.getRoom(roomId)
             .then(function(map) {
-              var layer = map.topLayer;
-              var sz = layer.bounds.max;
+              // 
+              $scope.layer = map.topLayer;
+              //
+              var sz = map.topLayer.bounds.max;
               $scope.viewStyle = {
                 'width': sz.x + 'px',
                 'height': sz.y + 'px',
@@ -29,33 +41,41 @@ angular.module('demo')
               // search the room, may have to be recursive re: supporters.
               var objects = map.layers['objects'];
               var doors = map.layers['doors'];
+              var chara = map.layers['chara'];
               var hide = function(l) {
                 if (l && l.layers) {
-                  l.layers.map(function(obj) {
-                    obj.hidden = true;
+                  l.layers.map(function(layer) {
+                    layer.hidden = true;
                   });
                 }
                 l.hidden = false;
               };
               hide(objects);
               hide(doors);
+              hide(chara);
 
-              for (var id in loc.contents) {
-                var obj = map.layers['objects_' + id] || map.layers['doors_' + id];
-                if (!obj) {
-                  $log.info(id, "exists in contents; missing in map.");
+     
+              for (var name in loc.contents) {
+                var ref = loc.contents[name];
+                // hack? what hack?
+                if (name == "player") {
+                  name = "alice";
+                }
+                var layer = map.layers['objects_' + name] || map.layers['doors_' + name] || map.layers['chara_' + name];
+                if (!layer) {
+                  $log.info(name, "exists in contents; missing in map.");
                 } else {
-                  $log.info("revealing", id);
-                  // ask for extended data maybe?
-                  obj.hidden = false;
+                  $log.info("revealing", name, ref);
+                  layer.hidden= false;
+                  layer.promisedObject= ObjectService.getObject(ref);
                 }
               }
 
               // report on graphics that arent objects in the room.
               var unmentioned = function(l) {
-                for (var obj in l.layers) {
-                  if (obj.hidden) {
-                    $log.info("no object mentioned named", obj.name);
+                for (var layer in l.layers) {
+                  if (layer.hidden) {
+                    $log.info("no object mentioned named", layer.name);
                   }
                 }
               };

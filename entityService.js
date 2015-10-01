@@ -5,7 +5,7 @@
  */
 angular.module('demo')
   .factory('EntityService',
-    function(EventService) {
+    function(EventService, EventStreamService, $log) {
       /**
        * Client-side game object.
        * ( declaring the class inside the object factory, gives us access to dependency injections. )
@@ -90,22 +90,28 @@ angular.module('demo')
         }
 
         // subscribe to events
-        var that = this;
-        EventService.listen(this.id, "x-set", function(evt) {
-          that._handleSet(evt);
-        });
-        EventService.listen(this.id, ["x-txt", "x-num"], function(evt) {
-          // mimic a json-object so we can merge in the data chnges
-          var obj = {
-            id: evt.tgt.id,
-            type: evt.tgt.type,
-            attr: {},
-          };
-          var p = evt.data['prop'];
-          var v = evt.data['value'];
-          obj.attr[p] = v;
-          that.updateData(evt.frame, obj);
-        });
+        var e = this;
+        EventService.listen(this.id, "x-set",
+          function(data) {
+            var frame= EventStreamService.currentFrame();
+            var was = data['prev'];
+            var now = data['next'];
+            e._handleSet(frame, was, now);
+          });
+        EventService.listen(this.id, ["x-txt", "x-num"],
+          function(data) {
+            var frame= EventStreamService.currentFrame();
+            // mimic a json-object so we can merge in the data chnges
+            var obj = {
+              id: e.id,
+              type: e.type,
+              attr: {},
+            };
+            var p = data['prop'];
+            var v = data['value'];
+            obj.attr[p] = v;
+            e.updateData(frame, obj);
+          });
 
         // finalize create
         this.frame = frame || 0;
@@ -125,13 +131,11 @@ angular.module('demo')
             "next": "open"
           }
         }*/
-      Entity.prototype._handleSet = function(evt) {
+      Entity.prototype._handleSet = function(frame, was, now) {
         // FIX: when do we update this object's frame -- wouldnt that be something global, not per object?
-        if (evt.frame < this.frame) {
-          $log.warn("skipping events for frame:", evt.frame, ", this:", this.frame);
+        if (frame < this.frame) {
+          $log.warn("skipping events for frame:", frame, ", this:", this.frame);
         } else {
-          var was = evt.data['prev'];
-          var now = evt.data['next'];          
           this.states = this.states.filter(function(value) {
             return value != was;
           });

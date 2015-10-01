@@ -15,8 +15,8 @@ describe("EventService", function() {
   // an event callback function which returns a string:
   // userName.eventName.eventData
   var eventStringCallback = function(userName) {
-    return function(eventData, eventName) {
-      return [userName, eventName, eventData].join(".");
+    return function(data, tgt, evt) {
+      return [userName, evt, data].join(".");
     };
   };
 

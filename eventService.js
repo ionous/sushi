@@ -1,16 +1,5 @@
 'use strict';
 
-function pack(target, evt, data, start, end) {
-  return {
-    start: function() {
-      return start(data, evt, target);
-    },
-    end: end ? function() {
-      return end(data, evt, target);
-    } : null,
-  };
-}
-
 /**
  * @fileoverview EventService
  * supports direct callbacks w/o dom-like bubble/capture.
@@ -34,22 +23,22 @@ angular.module('demo')
      * {string,Object<string,Array.<eventCallback>>}
      */
     var handlers = {};
-    var innerRemove = function(target, cb, evts) {
-      var handler = handlers[target];
+    var innerRemove = function(tgt, cb, evts) {
+      var handler = handlers[tgt];
       if (!handler) {
-        throw new Error("EventService.remove: (" + target + ") not found.");
+        throw new Error("EventService.remove: (" + tgt + ") not found.");
       }
       var events = angular.isArray(evts) ? evts : [evts];
       events.forEach(function(evt) {
         var list = handler[evt];
         if (!list) {
-          throw new Error("EventService.remove:" + evt + "not found　for (" + target + ").");
+          throw new Error("EventService.remove:" + evt + "not found　for (" + tgt + ").");
         }
         var up = list.filter(function(value) {
           return value != cb;
         });
         if (up.length == list.length) {
-          throw new Error("EventService.remove: callback not found for (" + target + ") on " + evt + ".");
+          throw new Error("EventService.remove: callback not found for (" + tgt + ") on " + evt + ".");
         }
         handler[evt] = up;
       }); // for each
@@ -58,29 +47,29 @@ angular.module('demo')
       /**
        * listen
        * @param {string} target
-       * @param {eventCallback} cb - The callback that handles the response.
+       * @param {eventCallback|Object{start:eventCalback,end:eventCallback}} cb - The callback that handles the response.
        * @param {string|[string]} evts - One or more events; "*" means the all events set.
        */
-      listen: function(target, evts, cb) {
-        var handler = handlers[target] || (handlers[target] = {});
+      listen: function(tgt, evts, cb) {
+        var handler = handlers[tgt] || (handlers[tgt] = {});
         var events = angular.isArray(evts) ? evts : [evts];
         events.forEach(function(evt) {
           var list = handler[evt] || (handler[evt] = []);
           list.push(cb);
         });
-        return [target, cb, events];
+        return [tgt, cb, events];
       },
       /**
        * remove
-       * throws if there is no active event handler for the target, callback, and events.
-       * @param {string} target
+       * throws if there is no active event handler for the tgt, callback, and events.
+       * @param {string} tgt
        * @param {string|[string]} evts - One or more events; "*" means the all events set.
        */
-      remove: function(target, evts, cb) {
-        if (arguments.length == 1 && angular.isArray(target)) {
-          innerRemove.apply(null, target);
+      remove: function(tgt, evts, cb) {
+        if (arguments.length == 1 && angular.isArray(tgt)) {
+          innerRemove.apply(null, tgt);
         } else {
-          innerRemove(target, cb, evts);
+          innerRemove(tgt, cb, evts);
         }
       },
       /**
@@ -89,18 +78,29 @@ angular.module('demo')
        * @param {string} evt
        * @returns [eventCallback|Object]
        */
-      getHandlers: function(target, evt) {
-        if (!target) {
+      getHandlers: function(tgt, evt) {
+        if (!tgt) {
           throw new Error("invalid target");
         }
-        var ret = [];
-        var handler = handlers[target];
-        if (handler) {
-          var all = handler['*'] || [];
-          var some = handler[evt] || [];
-          ret = all.concat(some);
-        }
-        return ret;
+        var cat = function(ret, evt, handler) {
+          // all events for this handler's target
+          if (handler) {
+            var all = handler['*'];
+            if (all) {
+              ret.push.apply(ret, all);
+            }
+            // the specific event for this handler's target
+            var some = handler[evt];
+            if (some) {
+              ret.push.apply(ret, some);
+            }
+          }
+          return ret;
+        };
+        // the "all handlers" bucket:
+        var ret = cat([], evt, handlers['*']);
+        // the specific handler:
+        return cat(ret, evt, handlers[tgt]);
       },
       /**
        * return an array of handler start/end functions
@@ -109,15 +109,18 @@ angular.module('demo')
        * @param {Object} data
        * @returns {start:Function,end:Function}
        */
-      mapCallbacks: function(target, evt, data) {
-        if (!target) {
+      forEach: function(tgt, evt, fn) {
+        if (!tgt) {
           throw new Error("invalid target");
         }
-        return eventService.getHandlers(target, evt).map(function(cb) {
-          return angular.isFunction(cb) ?
-            pack(target, evt, data, cb, null) :
-            pack(target, evt, data, cb.start, cb.end);
-        });
+
+        return eventService.getHandlers(tgt, evt)
+          .map(function(handler) {
+            return angular.isFunction(handler) ? {
+              start: handler
+            } : handler;
+          })
+          .forEach(fn);
       },
       /**
        * raise events  ( mainly for testing. )
@@ -126,19 +129,17 @@ angular.module('demo')
        * @param {Object} data
        * @returns {[*]} - list of non-undefined values returned by callbacks 
        */
-      raise: function(target, evt, data) {
+      raise: function(tgt, evt, data) {
         var ret = [];
-        eventService
-          .mapCallbacks(target, evt, data)
-          .forEach(function(cb) {
-            var r = cb.start();
-            if (cb.end) {
-              cb.end(); // r?
-            }
-            if (r) {
-              ret.push(r);
-            }
-          });
+        eventService.forEach(tgt, evt, function(cb) {
+          var r = cb.start(data, tgt, evt);
+          if (cb.end) {
+            cb.end(data, tgt, evt);
+          }
+          if (r) {
+            ret.push(r);
+          }
+        });
         return ret;
       }, // raise()
     }; // eventService object

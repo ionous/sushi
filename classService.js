@@ -17,6 +17,7 @@ angular.module('demo')
 
                 GameService.getPromisedGame().then(function(game) {
                   var url = ['/game', game.id, 'class', type].join('/');
+                  $log.info("getPromisedClass", url);
                   return $http.get(url);
                 }).then(function(resp) {
                   var doc = JsonService.parseObjectDoc(resp.data, "getClass");

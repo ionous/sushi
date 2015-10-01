@@ -1,4 +1,4 @@
-<div ng-controller="LayerController" class="mapLayer" ng-hide="layer.hidden">
+<div class="mapLayer" ng-controller="LayerController" ng-hide="layer.hidden">
   <canvas id="{{layerPath}}" ng-style="{'left':layer.bounds.min.x+'px','top':layer.bounds.min.y+'px'}" , width="{{layerSize.x}}" height="{{layerSize.y}}" ng-controller="canvasController">
   </canvas>
   <div ng-switch on="layer.name">

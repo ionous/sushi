@@ -16,7 +16,7 @@ angular.module('demo')
           // var ch = EventService.listen(status, "x-txt", function(src) {
           //   $log.info("status changed", src);
           // });
-          // $scope.$on("$destroy", function handler() {
+          // $scope.$on("$destroy", function() {
           //   EventService.remove(ch);
           // });
         });

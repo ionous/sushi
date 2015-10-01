@@ -7,6 +7,16 @@ angular.module('demo')
     //http://localhost:8080/demo/#/room/automat
     function(RoomService, $log, $routeParams, $scope) {
       var roomId = $routeParams.roomId;
-      RoomService.getRoom($scope, roomId);
+
+      $scope.mapName = roomId;
+      $scope.layerPath = "";
+      $scope.layer = {
+        name: roomId,
+        layers: []
+      };
+
+      RoomService.getRoom(roomId).then(function(map) {
+        $scope.layer = map.topLayer;
+      });
     } //controller
   );

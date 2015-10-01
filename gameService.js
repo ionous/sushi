@@ -73,7 +73,7 @@ angular.module('demo')
     var promisedGame = post("new", {});
     
     var gameService = {
-      getCurrentFrame: function() {
+      currentFrame: function() {
         return currentFrame;
       },
       getPromisedGame: function() {

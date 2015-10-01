@@ -35,7 +35,7 @@ angular.module('demo')
           $log.info("char clicked", inRange, name, x, y, size);
 
           if (inRange) {
-            click.handled = layer;
+            click.handled = $scope.clickReference;
           }
         });
 
@@ -65,37 +65,46 @@ angular.module('demo')
       $scope.hasText = false;
       $scope.charText = "";
 
+      // hack? what hack?
       if (name == "alice") {
         name = "player";
       }
-
       var overgrey = angular.element('<div class="overgrey"></canvas>');
 
       var ch = EventService.listen(name, "say",
-        function(evt) {
+        function(data) {
           var promise = null;
-          var lines = evt.data;
-
-          //$log.info("!!!! speaker", speaker, lines);
-          var hasText = !angular.isUndefined(lines);
-          $scope.charText = hasText ? lines.join(" ") : "";
-
-          if (hasText) {
-            var deferredClick = $q.defer();
-            //
+          var lines = data.slice();
+          $scope.charText = "";
+          //
+          if (lines && lines.length) {
+            var deferredDone = $q.defer();
             $rootElement.prepend(overgrey);
-            overgrey.on("mousedown", deferredClick.resolve);
 
-            promise = deferredClick.promise;
-            promise.then(function() {
-              $scope.charText = "";
-              overgrey.remove();
-              overgrey.off("mousedown", deferredClick.resolve);
-            });
+            var apply = false;
+            var advance = function() {
+              if (lines.length) {
+                var text = lines.shift();
+                $scope.charText = text;
+                if (apply) {
+                  $scope.$apply();
+                }
+                apply = true;
+              } else {
+                $scope.charText = "";
+                overgrey.remove();
+                overgrey.off("click", advance);
+                deferredDone.resolve();
+              }
+            }
+
+            overgrey.on("click", advance);
+            advance(true);
+            promise = deferredDone.promise;
           }
           return promise;
         });
-      $scope.$on("$destroy", function handler() {
+      $scope.$on("$destroy", function() {
         EventService.remove(ch);
       });
     });

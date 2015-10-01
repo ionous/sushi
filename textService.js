@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @fileoverview Text display helper.
+ * @fileoverview TextService: Text display helper.
  * The display is not a real server resource, so it can't be delayed queried.
  * We have to create it before the game, and then record all incoming data from startup on.
  */
@@ -14,7 +14,7 @@ angular.module('demo')
       }).create();
 
       display.blocks = [];
-      display.counter= 0;
+      display.counter = 0;
       var pendingBlocks = [];
       var sourceBlock, displayBlock, timer;
       var waiting;
@@ -39,7 +39,7 @@ angular.module('demo')
               };
 
               // no speaker? add the block immediately:
-              if (!sourceBlock.speaker) {
+              if (!sourceBlock.speaker || (sourceBlock.speaker.id == display.id)) {
                 display.blocks.push(displayBlock);
                 display.counter++;
               } else {
@@ -63,23 +63,52 @@ angular.module('demo')
         }
       };
 
+      var defaultHandler = function(lines, speaker) {
+        if (speaker && (!speaker.id || !speaker.type)) {
+          throw new Error("invalid speaker");
+        }
+        var block = {
+          speaker: speaker,
+          text: lines
+        };
+        pendingBlocks.push(block);
+        //
+        if (!timer) {
+          timer = $interval(showLine, 0); // 200);
+        }
+      };
+
+      var handlers = [];
+
       var textService = {
         getDisplay: function() {
           return display;
         },
-        addLines: function(lineOrLines) {
-          if (angular.isString(lineOrLines)) {
-            pendingBlocks.push({
-              text: [lineOrLines]
-            });
+        /**
+         * @callback handler
+         * @param { Array.<string> } lines
+         */
+        pushHandler: function(handler) {
+          if (!angular.isFunction(handler)) {
+            throw new Error("pushed not a function");
+          }
+          handlers.push(handler);
+        },
+        popHandler: function() {
+          handlers.pop();
+        },
+        // write to the "screen" directly.
+        echo: function(text) {
+          defaultHandler([text]);
+        },
+        // add to the list of all text, bit by bit.
+        addLines: function(speaker, lines) {
+          if (handlers.length) {
+            var handler = handlers[handlers.length - 1];
+            handler.call(handler, lines);
           } else {
-            pendingBlocks.push(lineOrLines);
+            defaultHandler(lines, speaker);
           }
-          //
-          if (!timer) {
-            timer = $interval(showLine, 0);// 200);
-          }
-          return timer;
         }
       };
       return textService;

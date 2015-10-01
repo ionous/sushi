@@ -28,7 +28,7 @@ var ImageController =
 
         var inRange = (x >= min.x && y >= min.y && x <= max.x && y <= max.y);
         if (inRange) {
-          click.handled = layer;
+          click.handled = $scope.clickReference;
         }
       });
     }; // onload

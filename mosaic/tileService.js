@@ -13,6 +13,7 @@ angular.module('mosaic')
         getTiles: function() {
           var deferred = $q.defer();
           //
+          $log.info("get tiles", url);
           $http.get('tiles').then(function(resp) {
             var tiles = {};
             JsonService.parseMultiDoc(resp.data, "getTileList",
@@ -36,7 +37,7 @@ angular.module('mosaic')
         getSpriteById: function(tileId, index) {
           var deferred = $q.defer();
           tileService.getTiles().then(function(tiles) {
-            var tile = tiles[tileId]
+            var tile = tiles[tileId];
             var sprite = new Sprite(tile, index);
             deferred.resolve(sprite);
           }, deferred.reject);

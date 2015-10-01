@@ -36,7 +36,7 @@ angular.module('demo')
         }
         refreshContents();
         var ch = EventService.listen(prop.id, ["x-set", "x-rel"], refreshContents);
-        $scope.$on("$destroy", function handler() {
+        $scope.$on("$destroy", function() {
           EventService.remove(ch);
         });
       }); // promised class

@@ -9,7 +9,7 @@ angular.module('demo')
 
       var processing = false;
       var clear = function() {
-        $log.debug("clearing modal actions");
+        // $log.debug("clearing modal actions");
         processing = false;
       };
 
@@ -22,8 +22,6 @@ angular.module('demo')
           text.push(ctxId);
         }
         text.push(")");
-        //( attack-it vending-machine )
-        //TextService.addLines(text.join(' '));
         $log.info(text.join(' '));
         GameService.getPromisedGame().then(function(game) {
           game.postGameData({
@@ -31,7 +29,7 @@ angular.module('demo')
             'tgt': propId,
             'ctx': ctxId,
           }).then(clear, function() {
-            TextService.addLines("This will not work!");
+            TextService.echo("This will not work!");
             clear();
           });
         });
@@ -79,7 +77,7 @@ angular.module('demo')
                 .then(function(cls) {
                   modal.multiAct = act.id;
                   modal.multiCtx = prop.id;
-                  TextService.addLines(["( select the", cls.attr['singular'], "to", act.id, ")"].join(' '));
+                  TextService.echo(["( select the", cls.attr['singular'], "to", act.id, ")"].join(' '));
                 });
             }
             $rootScope.$broadcast("modalChanged", modal);

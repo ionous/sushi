@@ -14,22 +14,24 @@ angular.module('demo')
       };
 
       $scope.submit = function() {
-        var q = $scope.userInput;
-        if (q && !$scope.processing) {
+        var input = $scope.userInput;
+        //$log.info("SUBMIT", input);
+        
+        if (input && !$scope.processing) {
           // wait till done...
           $scope.processing = true;
 
           // clear input box.
           $scope.userInput = '';
 
-          TextService.addLines("> " + q);
+          TextService.echo("> " + input);
 
           GameService.getPromisedGame().then(function(game) {
             game.postGameData({
-              'in': q
+              'in': input
             }).then(clear, clear);
           });
-        } // q
+        } // input
       }; // submit
     } //controller
   );

@@ -18,9 +18,11 @@ angular.module('demo')
 
       var roomService = {
         // FIX: can this be replaced with an angular resource?
-        getMap: function(roomId) {
+        getRoom: function(roomId) {
           var deferredRoom = $q.defer();
-          $http.get("/bin/maps/" + roomId + ".map").then(function(resp) {
+          var url= "/bin/maps/" + roomId + ".map";
+          $log.info("get map", url);
+          $http.get(url).then(function(resp) {
               $log.info("room service received", roomId);
               var names = {};
               build(names, resp.data);
@@ -37,23 +39,7 @@ angular.module('demo')
             });
           return deferredRoom.promise;
         },
-        // writing to scope is a little yucky, but useful for shared code
-        // (DrawController, LayerController; RoomPreviewController, ViewController).
-        getRoom: function(scope, roomId) {
-          scope.mapName = roomId;
-          scope.layerPath = "";
-          scope.layer = {
-            name: roomId,
-            layers: []
-          };
-
-          var promise = roomService.getMap(roomId);
-          promise.then(function(map) {
-            $log.info("setting scope layer", map);
-            scope.layer = map.topLayer;
-          });
-          return promise;
-        },
+        
       };
       return roomService;
     }

@@ -11,9 +11,9 @@ angular.module('demo')
         // FIX: can this be replaced with an angular resource?
         getChar: function(charId) {
           var deferredChar = $q.defer();
+          $log.info("getChar", url);
           $http.get("/bin/chars/" + charId + ".char").then(function(resp) {
               $log.info("char service received", charId);
-              
               deferredChar.resolve(resp.data);
             },
             function() {

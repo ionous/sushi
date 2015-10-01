@@ -557,7 +557,7 @@ describe("RoomService", function() {
     $httpBackend.when('GET', '/bin/maps/automat.map')
       .respond(automat);
 
-    RoomService.getMap("automat").then(function(map) {
+    RoomService.getRoom("automat").then(function(map) {
       // alien-boy, and alice
       return map.layers["chara"].layers.length;
     }).then(handler);

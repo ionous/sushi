@@ -6,29 +6,34 @@
 angular.module('demo')
   .factory('ObjectService',
     function(EntityService, GameService, JsonService, $http, $log, $q) {
-   
+
       // queries ensures we only issue one request at a time. 
       // maybe not needed with http caching?
       var queries = {};
-     
+
       var objectService = {
-     
+
         // promises an object, the object data will be updated.
         // FIX? use http caching with a ?frame=currentFrame, or object change counter?
         getObject: function(ref) {
+          if (!ref.id || !ref.type) {
+            throw new Error("invalid ref");
+          }
+
           var relation = '_get_';
           // here, relation is a promise:
           var q = queries[ref.id] || (queries[ref.id] = {});
           var defer = q[relation];
 
           if (!defer) {
-
-            if (ref.type=='_sys_') {
+            if (ref.type == '_sys_') {
               throw new Error("getting system type");
             }
             q[relation] = defer = $q.defer();
             GameService.getPromisedGame().then(function(game) {
               var url = ['/game', game.id, ref.type, ref.id].join('/');
+
+              $log.info("getObject", url);
               return $http.get(url);
             }).then(function(resp) {
               var doc = JsonService.parseObjectDoc(resp.data, "getObject");
@@ -45,7 +50,8 @@ angular.module('demo')
           return defer.promise;
         },
         /**
-         * returns the promise of an array of objects
+         * returns the promise of an array of objects for some relation.
+         * each object contains id and type
          */
         getObjects: function(ref, relation) {
           var q = queries[ref.id] || (queries[ref.id] = {});
@@ -54,9 +60,25 @@ angular.module('demo')
             q[relation] = defer = $q.defer();
             GameService.getPromisedGame().then(function(game) {
               var url = ['/game', game.id, ref.type, ref.id, relation].join('/');
+              $log.info("getObjects", url);
               return $http.get(url);
             }).then(function(resp) {
-              // read the resposnse data
+              // read the response data
+              /*{
+                "data": [{
+                  "id": "automat-deck-door",
+                  "type": "doors"
+                }, {
+                  "id": "automat-hall-door",
+                  "type": "doors"
+                }, {
+                  "id": "red-button",
+                  "type": "push-buttons"
+                }],
+                "meta": {
+                  "frame": 2
+                }
+              }*/
               var doc = JsonService.parseMultiDoc(resp.data, relation);
               var frame = doc.meta['frame'];
               // create any associated objects
