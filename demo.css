@@ -1,3 +1,10 @@
+.nav,
+.pagination,
+.carousel,
+.panel-title a {
+  cursor: pointer;
+}
+
 header,
 footer {
   display: block;
@@ -20,7 +27,7 @@ footer {
 }
 
 #status-bar {
-  background-color: black;
+  av background-color: black;
   color: white;
   padding-left: 1em;
   padding-right: 1em;
@@ -169,7 +176,9 @@ in case the stagger doesn't work then the duration value
   position: absolute;
 }
 
+
 /* http://nicolasgallagher.com/pure-css-speech-bubbles/demo/ */
+
 .bubble {
   position: absolute;
   /* because the bubble floats above the modal, disable mouse interaction */
