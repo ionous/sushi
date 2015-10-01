@@ -15,7 +15,7 @@ var ImageController =
     img.onload = function() {
       var min = layer.bounds.min;
       var max = layer.bounds.max;
-      var size = pt_sub(max, pos);
+      var size = pt_sub(max, min);
 
       var ctx = canvas.getContext("2d");
       ctx.drawImage(img, min.x, min.y, size.x, size.y);

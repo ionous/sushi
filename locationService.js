@@ -16,6 +16,7 @@ angular.module('demo')
       var player = PlayerService.getPlayer();
 
       var syncLocation = function(room) {
+        $log.info("syncing location", room.id);
         var deferredSync = $q.defer();
         ObjectService.getObjects(room, 'contents')
           .then(function(contents) {
@@ -26,14 +27,16 @@ angular.module('demo')
             locData.id = room.id;
             locData.room = room;
             locData.contents = props;
-            $log.info("syncing location", room.id);
+            $log.info("broadcasting location", room.id);
             $rootScope.$broadcast('locationChanged', locData);
             deferredSync.resolve(locData);
           });
         return deferredSync.promise;
       };
       EventService.listen("player", "x-rel", function(data) {
-        if (data.prop['rel'] == "whereabouts") {
+        //$log.info("player relation changed", data);
+        if (data['prop'] == "whereabouts") {
+          //$log.info("requesting location");
           ObjectService.getObjects(player, "whereabouts").then(function(arr) {
             var loc = arr[0];
             syncLocation(loc);

@@ -65,7 +65,7 @@ angular.module('demo')
                 if (!layer) {
                   $log.info(name, "exists in contents; missing in map.");
                 } else {
-                  $log.info("revealing", name, ref);
+                  //$log.info("revealing", name);
                   layer.hidden= false;
                   layer.promisedObject= ObjectService.getObject(ref);
                 }
