@@ -5,7 +5,8 @@
  */
 angular.module('demo')
   .factory('PopupService',
-    function(GameService, EntityService, TextService, $log, $rootScope) {
+    function(GameService, IconService, ObjectService, TextService,
+      $log, $q, $rootScope) {
 
       var processing = false;
       var clear = function() {
@@ -35,67 +36,126 @@ angular.module('demo')
         });
       };
 
-      var modal = {
+      var getNounCount = function(act) {
+        return act.attr['ctx'] ? 2 : act.attr['tgt'] ? 1 : 0;
+      };
+
+      /** 
+       * @param {number} nouns - number of other nouns expected for the acation, 0:self, 1:props, 2:inv.
+       */
+      var newActionFilter = function(prop, nouns) {
+        return function(o) {
+          var okay = o.icon.allows(prop) && (nouns == getNounCount(o.act));
+          return okay;
+        };
+      };
+      var promisedActions = null;
+
+      var popupService = {
         owner: null, // object to which the action list belongs
         actions: false, // array of actions, or false.
         multiAct: false,
         multiCtx: false,
-        fetchActions: function(prop, isInventory) {
-          var ret = [];
-          GameService.getPromisedData('class', prop.type)
-            .then(function(cls) {
-              var actions = cls.attr['actions'];
-              actions.forEach(function(actRef) {
-                var act = EntityService.getRef(actRef);
-                if (act.id != "print-direct-parent") {
-                  if (act.attr['src'] == 'actors') {
-                    if (isInventory || !act.attr['ctx']) {
-                      ret.push(act);
-                    }
+        getPromisedActions: function(prop, nounCount) {
+          /*{"id": "close-it",
+          "type": "action",
+          "attributes": {
+            "act": "close it",
+            "ctx": "",
+            "evt": "closing it",
+            "src": "actors",
+            "tgt": "props"
+          }*/
+          if (!promisedActions) {
+            promisedActions = GameService.getPromisedData('action').then(
+              function(doc) {
+                var ret = [];
+                var actions = doc.data;
+                //$log.info("repeating", actions.length);
+                var repeat = function() {
+                  if (ret.length < actions.length) {
+                    var actRef = actions[ret.length];
+                    return GameService
+                      .getPromisedData(actRef)
+                      .then(function(doc) {
+                        ret.push(doc.data);
+                        return repeat();
+                      });
+                  } else {
+                    return ret.map(function(act) {
+                      return {
+                        id: act.id,
+                        act: act,
+                        icon: IconService.getIcon(act.id)
+                      }
+                    });
                   }
-                }
+                };
+                return repeat();
               });
-            });
-          return ret;
-        },
-        runAction: function(prop, act) {
-          $log.info("running action", "prop", prop, "action", act);
+          }
+          return promisedActions.then(function(all) {
+            var cpy = all.filter(newActionFilter(prop, nounCount));
+            cpy.sort(IconService.iconSort);
+            return cpy;
+          });
+        }, // fetch actions
+
+        runAction: function(act, prop) {
+          $log.info("running action, prop: '" + prop.id + "' action: '" + act.id + "'");
           if (!processing) {
             // wait for some response.
             processing = true;
             // immediately clear display to provide some feedback of selection.
-            modal.owner = null;
-            modal.actions = false;
+            popupService.owner = null;
+            popupService.actions = false;
 
-            var isMulti = !!act.attr['ctx'];
-            if (!isMulti) {
-              runIt(act.id, prop.id);
-            } else {
-              GameService.getPromisedData('class', act.attr['tgt'])
-                .then(function(cls) {
-                  modal.multiAct = act.id;
-                  modal.multiCtx = prop.id;
-                  TextService.echo(["( select the", cls.attr['singular'], "to", act.id, ")"].join(' '));
-                });
-            }
-            $rootScope.$broadcast("modalChanged", modal);
+            var nounCount = getNounCount(act);
+            switch (nounCount) {
+              case 0:
+                runIt(act.id);
+                break;
+              case 1:
+                runIt(act.id, prop.id);
+                break;
+              case 2:
+                GameService.getPromisedData('class', act.attr['tgt'])
+                  .then(function(doc) {
+                    var cls = doc.data;
+                    popupService.multiAct = act.id;
+                    popupService.multiCtx = prop.id;
+                    TextService.echo(["( select the", cls.attr['singular'], "to", act.id, ")"].join(' '));
+                  });
+                break;
+              default:
+                $log.error("unexpected nounCount", nounCount);
+            };
+            // broadcast the clearing of the popupService
+            $rootScope.$broadcast("modalChanged", popupService);
           }
         },
-        toggleOwner: function(prop, isInventory) {
-          if (modal.multiAct) {
-            var actId = modal.multiAct,
-              ctxId = modal.multiCtx;
-            modal.multiAct = modal.multiCtx = false;
+        toggleActions: function(prop, nounCount) {
+          var promisedData;
+          if (popupService.multiAct) {
+            $log.info("finishing multi-object action");
+            var actId = popupService.multiAct;
+            var ctxId = popupService.multiCtx;
+            popupService.multiAct = popupService.multiCtx = false;
             runIt(actId, prop.id, ctxId);
           } else if (!processing) {
             // if it is the same, clear it. otherwise use the passed value
-            modal.owner = (prop == modal.owner) ? null : prop;
-            var show = !!modal.owner;
-            modal.actions = show ? modal.fetchActions(prop, isInventory) : false;
-            $rootScope.$broadcast("modalChanged", modal);
+            popupService.owner = (prop == popupService.owner) ? null : prop;
+            var promisedData = false;
+            if (!!popupService.owner) {
+              promisedData= ObjectService.getObject(prop).then(function(obj) {
+                return popupService.getPromisedActions(obj, nounCount).then(function(actions) {
+                  return actions;
+                });
+              });
+            }
+            $rootScope.$broadcast("modalChanged", popupService, promisedData);
           }
-        }
+        },
       };
-
-      return modal;
+      return popupService;
     });

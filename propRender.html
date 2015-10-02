@@ -1,6 +1,6 @@
 <div ng-controller="PropController">
   <!-- actions -->
-  <a ng-click="modal.toggleOwner(prop, !!inventory)" href="">{{prop.name}}{{clothing[prop.id]?'&nbsp;(worn)':''}}</a>
+  <a ng-click="modal.toggleActions(prop, !!inventory)" href="">{{prop.name}}{{clothing[prop.id]?'&nbsp;(worn)':''}}</a>
   <!-- states  -->
   <a ng-click="showStates = !showStates" href="" class="smallText">(states)</a>
   <div ng-show="showStates">
@@ -10,7 +10,7 @@
   <div ng-show="prop == modal.owner">
     (<span ng-repeat="act in modal.actions" class="smallText" class="action">  
           <!-- click to run action -->
-        <a ng-click="modal.runAction(prop, act)" href="">{{act.attr.act}}</a>{{ $last ? '':', ' }} 
+        <a ng-click="modal.runAction(act, prop)" href="">{{act.attr.act}}</a>{{ $last ? '':', ' }} 
         </span>)
   </div>
   <!-- sub objects -->

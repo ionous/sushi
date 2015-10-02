@@ -18,7 +18,6 @@ footer {
 #objectPopup {
   position: absolute;
   z-index: 100;
-  width: 25rem;
   background-color: white;
   opacity: 75%;
   border-color: black;

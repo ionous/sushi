@@ -22,16 +22,15 @@
   -->
 <div id="main" ng-controller="PopupController">
   <div id="objectPopup" ng-show="modal.owner" ng-style='modalPos'>
-    <span ng-repeat="act in modal.actions" class="smallText" class="action">  
-          <!-- click to run action -->
-        <a ng-click="modal.runAction(prop, act)" href="">{{act.attr.act}}</a>{{ $last ? '':', ' }} 
-        </span>
+    <button ng-repeat="m in actions" type="button" class="btn btn-primary" tooltip="{{m.act.attr['act']}}" ng-click="modal.runAction(m.act, prop)" tooltip-placement="bottom">
+      <i ng-class="m.icon.cls"></i>
+    </button>
   </div>
   <div id="view">
     <div ng-controller="ViewController" ng-style="viewStyle" ng-click="layerClick($event)">
       <div ng-repeat="layer in layer.layers.slice().reverse()" ng-include="'layer.html'"></div>
     </div>
-    <div id="dialogChoices" ng-controller="DialogController" >
+    <div id="dialogChoices" ng-controller="DialogController">
       <div class="dialogChoice" ng-repeat="line in dialogChoices">
         <a class="dialogLine" ng-click="selectLine($index)" href="">{{line}}</a>
       </div>

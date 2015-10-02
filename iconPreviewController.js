@@ -9,22 +9,22 @@ angular.module('demo')
       //var iconId = $routeParams.iconId;
 
       $scope.icons = IconService.allIcons().filter(function(i) {
-        return i.icon;
+        return i.cls;
       }).map(function(i) {
         return {
-          tooltip: i.tooltip,
+          tooltip: i.id,
           onAction: function() {
             $scope.details= "";
-            GameService.getPromisedData('action', i.id).then(
-              function(data) {
-                $scope.details = angular.toJson(data,true);
+            GameService.getPromisedData(i).then(
+              function(doc) {
+                $scope.details = angular.toJson(doc,true);
               },
               function() {
                 $scope.details= "rejected";
               }
             );
           },
-          cls: i.icon,
+          cls: i.cls,
         };
       });
     } //controller

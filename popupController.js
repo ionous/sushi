@@ -8,32 +8,39 @@ angular.module('demo')
       $scope.showingPopup = false;
       $scope.modal = null;
       $scope.prop = null;
+      $scope.actions= [];
       $scope.modalPos = {};
 
       var lastPos = pt(0);
-      //
+      
+      // selected some item in the world
       $scope.$on("selected", function(evt, clicked) {
         var name = clicked.handled.name;
-        $log.info("selected", name);
+        $log.info("selected name", name);
+        if (name == "alice") {
+          name= "player";
+        }
         var prop = LocationService.getProp(name);
         if (prop) {
-          $log.info("found prop", prop.id, prop.type);
+          $log.info("selected object", prop.id, prop.type);
           lastPos = clicked.pos;
           $scope.prop = prop;
-          PopupService.toggleOwner(prop);
+          var needNouns= prop.id == "player" ? 0 : 1;
+          PopupService.toggleActions(prop, needNouns);
         }
       });
 
       var clear = function() {
         if ($scope.modal) {
-          PopupService.toggleOwner(null);
+          PopupService.toggleActions();
         }
       };
 
       // ALT: do this with a callback to toggle owner?
       var listening = false;
-      $scope.$on("modalChanged", function(evt, modal) {
+      $scope.$on("modalChanged", function(evt, modal, promisedData) {
         $scope.modal = modal;
+        
         $scope.modalPos = {
           "left": "" + lastPos.x + "px",
           "top": "" + lastPos.y + "px"
@@ -41,6 +48,9 @@ angular.module('demo')
         //$log.info("modal change", modal, $scope.modalPos);
 
         if (modal.owner) {
+          promisedData.then(function(actions) {
+            $scope.actions= actions;
+          });
           if (!listening) {
             listening = true;
             $rootElement.on("mousedown", clear);

@@ -50,7 +50,7 @@ angular.module('demo')
      * Post to create the new game object
      */
     var post = function(where, what) {
-      var deferredGame = $q.defer();
+      var deferGame = $q.defer();
       var url = ['/game', where].join('/');
       $http.post(url, what).then(function(resp) {
         var doc = JsonService.parseObjectDoc(resp.data, 'startup');
@@ -66,10 +66,10 @@ angular.module('demo')
           return post(game.id, what);
         };
         processFrame(game, doc).then(function() {
-          deferredGame.resolve(game);
-        }, deferredGame.reject);
-      }, deferredGame.reject);
-      return deferredGame.promise;
+          deferGame.resolve(game);
+        }, deferGame.reject);
+      }, deferGame.reject);
+      return deferGame.promise;
     };
     var promisedGame = post("new", {});
 
@@ -90,32 +90,40 @@ angular.module('demo')
      * a promise which will get filled with resource data.
      */
     Resource.prototype.getData = function(id) {
-      var r= this;
+      var r = this;
+      id = id || "";
       if (!r.cache[id]) {
-        var deferred = r.cache[id] = $q.defer();
+        var defer = r.cache[id] = $q.defer();
         promisedGame.then(function(game) {
-          var url = ['/game', game.id, r.type, id].join('/');
-          $log.info("getPromisedData", url);
+          var url = ['/game', game.id, r.type];
+          if (id) {
+            url.push(id);
+          }
+          url = url.join('/');
+          //$log.debug("getPromisedData", url);
           return $http.get(url);
-        }, deferred.reject).then(function(resp) {
-          var doc = JsonService.parseObjectDoc(resp.data, r.type);
-          // create the actions as if they were objects....
-          doc.includes.map(function(objData) {
-            var obj = EntityService.getRef(objData);
-            if (!obj.created()) {
-              obj.create(0, objData);
-            }
-          });
-          deferred.resolve(doc.data);
-        }, deferred.reject);
+        }, defer.reject).then(function(resp) {
+          var src = resp.data;
+          var doc = angular.isArray(src.data) ?
+            JsonService.parseMultiDoc(src, r.type) :
+            JsonService.parseObjectDoc(src, r.type);
+
+          //r.func(defer, doc);
+          defer.resolve(doc);
+
+          // create any included bits as if they were objects....
+          // doc.includes.forEach(function(objData) {
+          //   var obj = EntityService.getRef(objData);
+          //   if (!obj.created()) {
+          //     obj.create(0, objData); // FIX: FRAME?
+          //   }
+          // });
+        }, defer.reject);
       } //fetchClass
       return r.cache[id].promise;
     };
 
-    var resources = {
-      "class": new Resource("class"),
-      "action": new Resource("action"),
-    };
+    var resources = {};
 
     var gameService = {
       currentFrame: function() {
@@ -124,10 +132,17 @@ angular.module('demo')
       getPromisedGame: function() {
         return promisedGame;
       },
+      // i tried having a function here to delay resolve
+      // but it couldnt well distinguish b/t "lists" (no id) and id for the same types because the resource class stored one function per type.
       getPromisedData: function(type, id) {
+        if (angular.isObject(type)) {
+          id = type.id;
+          type = type.type;
+        }
         var resource = resources[type];
         if (!resource) {
-          throw new Error("unknown resource category" + type + " " + id);
+          resource = new Resource(type);
+          resources[type] = resource;
         }
         return resource.getData(id);
       },

@@ -15,7 +15,8 @@ angular.module('demo')
       }
       GameService
         .getPromisedData('class', prop.type)
-        .then(function(cls) {
+        .then(function(doc) {
+          var cls= doc.data;
           var p = cls.meta['classes'];
           // FUTURE: either "look" and parse the structured response
           // or, provide a visibility iteration via the story ( touchable, visible, etc. )

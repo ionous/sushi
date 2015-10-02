@@ -37,7 +37,7 @@ angular.module('demo')
           var state = layer.name.slice(1);
           var syncState = function(obj) {
             var isState = obj.states.indexOf(state) >= 0;
-            $log.info("sync state", obj.id, state, isState);
+            //$log.debug("sync state", obj.id, state, isState);
             layer.hidden = !isState;
           };
 
