@@ -56,21 +56,13 @@ angular.module('demo')
     function(EventService, TextService, $log, $q, $rootElement, $scope) {
       var layer = $scope.layer;
       var name = layerName(layer);
-
-      // this might be better -- but right now have EventService
-      // it returns promises to suspend event processing.
-      // would need some alternative to replace it.
-      // $scope.$on("say"
-      var display = TextService.getDisplay();
-      $scope.hasText = false;
-      $scope.charText = "";
-
       // hack? what hack?
       if (name == "alice") {
         name = "player";
       }
-      var overgrey = angular.element('<div class="overgrey"></canvas>');
+      $scope.charText = "";
 
+      var overgrey = angular.element('<div class="overgrey"></canvas>');
       var ch = EventService.listen(name, "say",
         function(data) {
           var promise = null;

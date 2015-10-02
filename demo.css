@@ -5,6 +5,10 @@
   cursor: pointer;
 }
 
+* {
+  font-size: 16px;
+}
+
 header,
 footer {
   display: block;
@@ -26,7 +30,7 @@ footer {
 }
 
 #status-bar {
-  av background-color: black;
+  background-color: black;
   color: white;
   padding-left: 1em;
   padding-right: 1em;
@@ -214,6 +218,10 @@ in case the stagger doesn't work then the duration value
   border-color: transparent #075698;
 }
 
+.responseWin {
+  /* line-height: 1.5rem; */
+}
+
 div.overgrey {
   opacity: 0.3;
   background: white;
@@ -223,4 +231,27 @@ div.overgrey {
   top: 0;
   left: 0;
   position: fixed;
+}
+
+.modal-backdrop {
+  opacity: 0.3;
+  background: white;
+}
+
+
+/*http://stackoverflow.com/questions/18422223/bootstrap-3-modal-vertical-position-center*/
+
+@media screen {
+  .modal:before {
+    display: inline-block;
+    vertical-align: middle;
+    content: " ";
+    height: 80%;
+  }
+}
+
+.modal-dialog {
+  display: inline-block;
+  vertical-align: middle;
+  width:50%;
 }

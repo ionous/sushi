@@ -26,7 +26,7 @@
       <i ng-class="m.icon.cls"></i>
     </button>
   </div>
-  <div id="view">
+  <div id="view" ng-controller="ResponseController">
     <div ng-controller="ViewController" ng-style="viewStyle" ng-click="layerClick($event)">
       <div ng-repeat="layer in layer.layers.slice().reverse()" ng-include="'layer.html'"></div>
     </div>

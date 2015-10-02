@@ -119,7 +119,7 @@ angular.module('demo')
         new Icon("print direct parent", null),
 
         // self actions
-        new Icon("look", "eye"),
+        new Icon("look", null),
         new Icon("listen", listen),
         new Icon("smell", smell),
         new Icon("jump", "chevron-up"),
