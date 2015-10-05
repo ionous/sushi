@@ -12,7 +12,7 @@ angular.module('demo')
     EventService,
     JsonService,
     EventStreamService,
-    $http, $log, $q) {
+    $http, $log) {
     var currentFrame = 0;
     //
     var processing;
@@ -50,9 +50,8 @@ angular.module('demo')
      * Post to create the new game object
      */
     var post = function(where, what) {
-      var deferGame = $q.defer();
       var url = ['/game', where].join('/');
-      $http.post(url, what).then(function(resp) {
+      return $http.post(url, what).then(function(resp) {
         var doc = JsonService.parseObjectDoc(resp.data, 'startup');
         if (!doc.data) {
           throw new Error("invalid game");
@@ -65,11 +64,10 @@ angular.module('demo')
         game.postGameData = function(what) {
           return post(game.id, what);
         };
-        processFrame(game, doc).then(function() {
-          deferGame.resolve(game);
-        }, deferGame.reject);
-      }, deferGame.reject);
-      return deferGame.promise;
+        return processFrame(game, doc).then(function() {
+          return game;
+        });
+      });
     };
     var promisedGame = post("new", {});
 
@@ -93,8 +91,7 @@ angular.module('demo')
       var r = this;
       id = id || "";
       if (!r.cache[id]) {
-        var defer = r.cache[id] = $q.defer();
-        promisedGame.then(function(game) {
+        var promise = promisedGame.then(function(game) {
           var url = ['/game', game.id, r.type];
           if (id) {
             url.push(id);
@@ -102,14 +99,13 @@ angular.module('demo')
           url = url.join('/');
           //$log.debug("getPromisedData", url);
           return $http.get(url);
-        }, defer.reject).then(function(resp) {
+        }).then(function(resp) {
           var src = resp.data;
           var doc = angular.isArray(src.data) ?
             JsonService.parseMultiDoc(src, r.type) :
             JsonService.parseObjectDoc(src, r.type);
-
           //r.func(defer, doc);
-          defer.resolve(doc);
+          return doc;
 
           // create any included bits as if they were objects....
           // doc.includes.forEach(function(objData) {
@@ -118,7 +114,10 @@ angular.module('demo')
           //     obj.create(0, objData); // FIX: FRAME?
           //   }
           // });
-        }, defer.reject);
+        });
+        r.cache[id] = {
+          'promise': promise
+        };
       } //fetchClass
       return r.cache[id].promise;
     };

@@ -3,8 +3,10 @@
  */
 angular.module('demo')
   .controller('GameController',
-    function(GameService, LocationService, RoomService, $timeout, $log) {
-      $log.info("game controller");
+    function(GameService, LocationService, RoomService,
+      $log, $scope, $timeout,
+      ctrlName) {
+      $scope.viewTemplate = "game/" + ctrlName + '.html';
 
       GameService.getPromisedGame().then(function(game) {
           RoomService.getRoom("automat").then(function(room) {
@@ -19,9 +21,9 @@ angular.module('demo')
                 $log.info("commencing game...");
                 $timeout(function() {
                   game.postGameData({
-                  'in': 'start'
-                });
-                },200);
+                    'in': 'start'
+                  });
+                }, 200);
               });
           });
         },

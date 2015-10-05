@@ -6,10 +6,12 @@
  */
 angular.module('demo')
   .controller('LayerController',
-    function(EventService, ObjectService, $controller, $log, $scope) {
+    function(EventService, ObjectService, $log, $scope) {
       var layer = $scope.layer;
 
       // construct the fully materialized path.
+      $scope.name = layer.name;
+
       if ($scope.layerPath) {
         $scope.layerPath = $scope.layerPath + "-" + layer.name;
       } else {
@@ -25,9 +27,11 @@ angular.module('demo')
       if (layer.name[0] != "#") {
         // record this here, so that clicking on a state -- which doesnt set this --
         // can "leak" through up to its parent layer.
-        $scope.clickReference= layer;
+        $scope.clickReference = {
+          owner: $scope,
+          promisedObject: layer.promisedObject,
+        };
       } else {
-        
         // hide the layer by default:
         layer.hidden = true;
         if (!$scope.promisedObject) {

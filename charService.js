@@ -5,22 +5,19 @@
  */
 angular.module('demo')
   .factory('CharService',
-    function($http, $log, $q) {
+    function($http, $log) {
 
       var charService = {
         // FIX: can this be replaced with an angular resource?
         getChar: function(charId) {
-          var deferredChar = $q.defer();
           $log.info("getChar", url);
-          $http.get("/bin/chars/" + charId + ".char").then(function(resp) {
+          return $http.get("/bin/chars/" + charId + ".char").then(function(resp) {
               $log.info("char service received", charId);
-              deferredChar.resolve(resp.data);
+              return resp.data;
             },
             function() {
               $log.info("char service rejected", charId);
-              deferredChar.reject();
             });
-          return deferredChar.promise;
         }
       };
       return charService;

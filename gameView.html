@@ -27,8 +27,7 @@
     </button>
   </div>
   <div id="view" ng-controller="ResponseController">
-    <div ng-controller="ViewController" ng-style="viewStyle" ng-click="layerClick($event)">
-      <div ng-repeat="layer in layer.layers.slice().reverse()" ng-include="'layer.html'"></div>
+    <div ng-include="viewTemplate">
     </div>
     <div id="dialogChoices" ng-controller="DialogController">
       <div class="dialogChoice" ng-repeat="line in dialogChoices">

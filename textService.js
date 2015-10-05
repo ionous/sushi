@@ -39,13 +39,13 @@ angular.module('demo')
               };
 
               // no speaker? add the block immediately:
-              if (!sourceBlock.speaker || (sourceBlock.speaker.id == display.id)) {
+              if (sourceBlock.speaker  == display.id) {
                 display.blocks.push(displayBlock);
                 display.counter++;
               } else {
                 // need the speaker? add the block as soon as we know their name.
                 waiting = true;
-                ObjectService.getObject(sourceBlock.speaker).then(function(s) {
+                ObjectService.getById(sourceBlock.speaker).then(function(s) {
                   displayBlock.speaker = s.attr['printed name'] || s.name;
                   display.blocks.push(displayBlock);
                   waiting = false;
@@ -64,9 +64,6 @@ angular.module('demo')
       };
 
       var defaultHandler = function(lines, speaker) {
-        if (speaker && (!speaker.id || !speaker.type)) {
-          throw new Error("invalid speaker");
-        }
         var block = {
           speaker: speaker,
           text: lines
@@ -93,21 +90,26 @@ angular.module('demo')
             throw new Error("pushed not a function");
           }
           handlers.push(handler);
+          $log.info("pushing handler", handler.length);
+          
         },
-        popHandler: function() {
-          handlers.pop();
+        removeHandler: function(handler) {
+          var idx = handlers.indexOf(handler);
+          if (idx >= 0) {
+            handlers.splice(idx, 1);
+          }
+          $log.info("removed handler", idx>=0, handler.length);
         },
         // write to the "screen" directly.
         echo: function(text) {
-          defaultHandler([text]);
+          defaultHandler([text], speaker);
         },
         // add to the list of all text, bit by bit.
         addLines: function(speaker, lines) {
+          defaultHandler(lines.slice(), speaker);
           if (handlers.length) {
             var handler = handlers[handlers.length - 1];
-            handler.call(handler, lines);
-          } else {
-            defaultHandler(lines, speaker);
+            return handler.call(handler, lines.slice(), speaker);
           }
         }
       };

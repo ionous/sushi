@@ -53,7 +53,13 @@ angular.module('demo')
 
 angular.module('demo')
   .controller('CharTalkController',
-    function(EventService, TextService, $log, $q, $rootElement, $scope) {
+    function(EventService, TextService,
+      $log, $q, $rootElement, $scope,
+      SKIP_DIALOG) {
+      if (SKIP_DIALOG) {
+        return;
+      }
+
       var layer = $scope.layer;
       var name = layerName(layer);
       // hack? what hack?

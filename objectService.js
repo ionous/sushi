@@ -5,11 +5,18 @@
  */
 angular.module('demo')
   .factory('ObjectService',
-    function(EntityService, GameService, $log) {
+    function(EntityService, GameService, $log, $q) {
       var objectService = {
+        getById: function(id) {
+          var ref= EntityService.getById(id);
+          if (!ref) {
+            throw new Error("invalid object");
+          }
+          return objectService.getObject(ref);
+        },
         // promises an object, the object data will be updated.
         // FIX? use http caching with a ?frame=currentFrame, or object change counter?
-        getObject: function(ref, func) {
+        getObject: function(ref) {
           if (!ref.id || !ref.type) {
             throw new Error("invalid ref");
           }
@@ -17,7 +24,6 @@ angular.module('demo')
             var frame = doc.meta['frame'];
             var data = doc.data;
             var obj = EntityService.getRef(data).createOrUpdate(frame, data);
-
             return GameService.getPromisedData('class', data.type).then(function(clsDoc) {
               obj.classInfo = clsDoc.data;
               return obj;

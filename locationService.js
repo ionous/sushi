@@ -5,7 +5,7 @@
  */
 angular.module('demo')
   .factory('LocationService',
-    function(EventService, ObjectService, PlayerService, $log, $q, $rootScope) {
+    function(EventService, ObjectService, PlayerService, $log, $rootScope) {
       // we will get the locData data via set-initial-locData
       var locData = {
         id: null,
@@ -17,8 +17,7 @@ angular.module('demo')
 
       var syncLocation = function(room) {
         $log.info("syncing location", room.id);
-        var deferredSync = $q.defer();
-        ObjectService.getObjects(room, 'contents')
+        return ObjectService.getObjects(room, 'contents')
           .then(function(contents) {
             var props = {};
             contents.map(function(prop) {
@@ -29,9 +28,8 @@ angular.module('demo')
             locData.contents = props;
             $log.info("broadcasting location", room.id);
             $rootScope.$broadcast('locationChanged', locData);
-            deferredSync.resolve(locData);
+            return locData;
           });
-        return deferredSync.promise;
       };
       EventService.listen("player", "x-rel", function(data) {
         //$log.info("player relation changed", data);

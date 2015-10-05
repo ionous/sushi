@@ -14,26 +14,34 @@ angular.module('demo')
         processing = false;
       };
 
+      var lastOwner = null;
       var runIt = function(actId, propId, ctxId) {
-        var text = ["(", actId];
-        if (propId) {
-          text.push(propId);
+        var post = {
+          'act': actId,
+          'tgt': propId,
+          'ctx': ctxId,
+        };
+        if (lastOwner) {
+          // emit this locally first, so we can munge it.
+          var evt = lastOwner.$emit("running", post);
+          if (!evt.defaultPrevented) {
+            var text = ["(", actId];
+            if (propId) {
+              text.push(propId);
+            }
+            if (ctxId) {
+              text.push(ctxId);
+            }
+            text.push(")");
+            $log.info(text.join(' '));
+            GameService.getPromisedGame().then(function(game) {
+              game.postGameData(post).then(clear, function() {
+                TextService.echo("This will not work!");
+                clear();
+              });
+            });
+          };
         }
-        if (ctxId) {
-          text.push(ctxId);
-        }
-        text.push(")");
-        $log.info(text.join(' '));
-        GameService.getPromisedGame().then(function(game) {
-          game.postGameData({
-            'act': actId,
-            'tgt': propId,
-            'ctx': ctxId,
-          }).then(clear, function() {
-            TextService.echo("This will not work!");
-            clear();
-          });
-        });
       };
 
       var getNounCount = function(act) {
@@ -101,8 +109,10 @@ angular.module('demo')
           });
         }, // fetch actions
 
+        // run an action -- make this on the dom element or the scope element
+        // but our items arent in either hierarchy. 
+        // i suppose its tecnically in both
         runAction: function(act, prop) {
-          $log.info("running action, prop: '" + prop.id + "' action: '" + act.id + "'");
           if (!processing) {
             // wait for some response.
             processing = true;
@@ -134,7 +144,8 @@ angular.module('demo')
             $rootScope.$broadcast("modalChanged", popupService);
           }
         },
-        toggleActions: function(prop, nounCount) {
+        // opens (or closes) the icon menu for the passed prop
+        toggleActions: function(owner, promisedObject) {
           var promisedData;
           if (popupService.multiAct) {
             $log.info("finishing multi-object action");
@@ -144,16 +155,21 @@ angular.module('demo')
             runIt(actId, prop.id, ctxId);
           } else if (!processing) {
             // if it is the same, clear it. otherwise use the passed value
-            popupService.owner = (prop == popupService.owner) ? null : prop;
+            popupService.owner = (owner === popupService.owner) ? null : owner;
             var promisedData = false;
             if (!!popupService.owner) {
-              promisedData= ObjectService.getObject(prop).then(function(obj) {
+              // modal.owner is getting reset too early i think because of the mouse down clear in popupController...
+              lastOwner = owner;
+
+              promisedData = promisedObject.then(function(obj) {
+                var nounCount = obj.id == "player" ? 0 : 1;
                 return popupService.getPromisedActions(obj, nounCount).then(function(actions) {
                   return actions;
                 });
               });
             }
-            $rootScope.$broadcast("modalChanged", popupService, promisedData);
+            // popupController listens to this to here about its promised data, etc.
+            $rootScope.$broadcast("modalChanged", popupService, promisedObject, promisedData);
           }
         },
       };

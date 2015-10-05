@@ -8,25 +8,21 @@ angular.module('demo')
       $scope.showingPopup = false;
       $scope.modal = null;
       $scope.prop = null;
-      $scope.actions= [];
+      $scope.actions = [];
       $scope.modalPos = {};
 
       var lastPos = pt(0);
-      
+
       // selected some item in the world
       $scope.$on("selected", function(evt, clicked) {
-        var name = clicked.handled.name;
-        $log.info("selected name", name);
-        if (name == "alice") {
-          name= "player";
-        }
-        var prop = LocationService.getProp(name);
-        if (prop) {
-          $log.info("selected object", prop.id, prop.type);
-          lastPos = clicked.pos;
-          $scope.prop = prop;
-          var needNouns= prop.id == "player" ? 0 : 1;
-          PopupService.toggleActions(prop, needNouns);
+        lastPos = clicked.pos;
+        var p = clicked.handled.promisedObject;
+        if (p) {
+          // click.handled == clickReference == the layer scope
+          PopupService.toggleActions(clicked.handled.owner, p);
+          p.then(function(obj) {
+            $scope.prop = obj;
+          });
         }
       });
 
@@ -38,9 +34,10 @@ angular.module('demo')
 
       // ALT: do this with a callback to toggle owner?
       var listening = false;
-      $scope.$on("modalChanged", function(evt, modal, promisedData) {
+      $scope.$on("modalChanged", 
+        function(evt, modal, promisedObject, promisedData) {
         $scope.modal = modal;
-        
+
         $scope.modalPos = {
           "left": "" + lastPos.x + "px",
           "top": "" + lastPos.y + "px"
@@ -49,7 +46,9 @@ angular.module('demo')
 
         if (modal.owner) {
           promisedData.then(function(actions) {
-            $scope.actions= actions;
+            // this displays the buttons:
+            // the html calls back to 
+            $scope.actions = actions;
           });
           if (!listening) {
             listening = true;

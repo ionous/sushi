@@ -1,0 +1,17 @@
+<div ng-controller="AutomatController">
+  <div ng-switch on="view">
+    <div ng-switch-when="hatch">
+      <ul>
+        <li ng-repeat="item in items">
+          <a href="" ng-click="clicked($event, item)">{{item.name}}</a>
+        </li>
+      </ul>
+    </div>
+    <div ng-switch-default>
+      <div ng-controller="ViewController" ng-style="viewStyle" ng-click="layerClick($event)">
+        <div ng-repeat="layer in layer.layers.slice().reverse()" ng-include="'layer.html'">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

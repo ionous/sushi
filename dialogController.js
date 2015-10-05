@@ -31,7 +31,7 @@ angular.module('demo')
             TextService.pushHandler(captureChoices);
           },
           end: function() {
-            TextService.popHandler();
+            TextService.removeHandler(captureChoices);
           }
         }); // listen
       $scope.$on("$destroy", function() {

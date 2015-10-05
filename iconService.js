@@ -53,7 +53,7 @@ angular.module('demo')
           allows = obj.states.indexOf(this.requiresState) >=0;
         }
         if (allows && this.requiresClass) {
-          $log.info("testing", this.id, this.requiresClass, obj.classInfo);
+          //$log.debug("testing", this.id, this.requiresClass, obj.classInfo);
           var p = obj.classInfo.meta['classes'];
           allows  = p.indexOf(this.requiresClass) >=0;
         };
