@@ -1,18 +1,20 @@
 'use strict';
 
 /**
- * transfer location change events from the player game object to the angular/rootScope 
+ * Wraps angular's $location service, translating it into rooms and views.
+ * Transfers location change events from the player game object to the angular/rootScope.
  */
 angular.module('demo')
   .factory('LocationService',
-    function(EventService, ObjectService, PlayerService, $log, $rootScope) {
+    function(EventService, ObjectService, PlayerService,
+      $location, $log, $rootScope) {
       // we will get the locData data via set-initial-locData
       var locData = {
         id: null,
         room: null,
         contents: {},
       };
-      //
+
       var player = PlayerService.getPlayer();
 
       var syncLocation = function(room) {
@@ -42,8 +44,33 @@ angular.module('demo')
         }
       });
 
+      //$location.path()
+      var parse = function(path, sep) {
+        var p= $location.path().split("/");
+        return p[path] == sep ? p[path+1] : null;
+      };
+
       var locationService = {
         loc: locData,
+        // FIX: $location has $locationChangeStart
+        // and it can be preventDefaulted if needed.
+        room: function(room, view) {
+          if (!room) {
+            return parse(1, "r");
+          } else {
+            var p= ["r",room].concat( view ? ["v",view] : [] );
+            $location.url( p.join("/") );
+            return locationService;
+          }
+        },
+        view: function(view) {
+          if (!view) {
+            return parse(3, "v");
+          } else {
+            var room= locationService.room();
+            return locationService.room(room,view);
+          }
+        },
         onChanged: function(cb) {
           $rootScope.$on("locationChanged", cb);
         },
