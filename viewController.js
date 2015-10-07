@@ -6,90 +6,39 @@
  */
 angular.module('demo')
   .controller('ViewController',
-    function(EventService, LocationService, ObjectService, RoomService,
+    function(EventService, LocationService, ObjectService, MapService,
       $element, $log, $scope) {
+      var mapLoaded = false;
 
-      var updateLocation = function(loc) {
-        $scope.loc = null;
-
-        var roomId = loc.id;
-        $log.info("view changed", roomId);
+      var stopRefresh = LocationService.fetchContents(function(contents) {
+        var map = LocationService.view() || LocationService.room();
+        $log.info("view changed", map);
 
         // see also RoomPreviewController.
-        $scope.mapName = roomId; // used by grid controller for tile image src
+        $scope.mapName = map; // used by grid controller for tile image src
         $scope.layerPath = ""; // used for materializing layer ids
         $scope.layer = { // pattern of the layer structure.
-          name: roomId,
+          name: map,
           layers: []
         };
-
-        RoomService.getRoom(roomId)
-          .then(function(map) {
-            $scope.loc = loc;
-            // 
-            $scope.layer = map.topLayer;
-            //
-            var sz = map.topLayer.bounds.max;
-            $scope.viewStyle = {
-              'width': sz.x + 'px',
-              'height': sz.y + 'px',
-            };
-            // search the room, may have to be recursive re: supporters.
-            var objects = map.layers['objects'];
-            var doors = map.layers['doors'];
-            var chara = map.layers['chara'];
-            var hide = function(l) {
-              if (l && l.layers) {
-                l.layers.map(function(layer) {
-                  layer.hidden = true;
-                });
-              }
-              l.hidden = false;
-            };
-            hide(objects);
-            hide(doors);
-            hide(chara);
-
-            for (var name in loc.contents) {
-              var ref = loc.contents[name];
-              // hack? what hack?
-              if (name == "player") {
-                name = "alice";
-              }
-              var layer = map.layers['objects_' + name] || map.layers['doors_' + name] || map.layers['chara_' + name];
-              if (!layer) {
-                $log.info(name, "exists in contents; missing in map.");
-              } else {
-                //$log.info("revealing", name);
-                layer.hidden = false;
-                layer.promisedObject = ObjectService.getObject(ref);
-              }
-            }
-
-            // report on graphics that arent objects in the room.
-            var unmentioned = function(l) {
-              for (var layer in l.layers) {
-                if (layer.hidden) {
-                  $log.info("no object mentioned named", layer.name);
-                }
-              }
-            };
-            unmentioned(objects);
-            unmentioned(doors);
-          });
-      };
-
-      var loc = LocationService.loc;
-      if (loc && loc.id) {
-        updateLocation(loc);
-      }
-      LocationService.onChanged(function(evt, loc) {
-        updateLocation(loc);
+        MapService.loadMap(map, contents, function(mapLayer, objectRef) {
+          return ObjectService.getObject(objectRef);
+        }).then(function(map) {
+          $scope.layer = map.topLayer;
+          var sz = map.topLayer.bounds.max;
+          $scope.viewStyle = {
+            'width': sz.x + 'px',
+            'height': sz.y + 'px',
+          };
+          $scope.$emit("mapChanged", map);
+          mapLoaded = true;
+        });
       });
+      $scope.$on("$destroy", stopRefresh);
 
       // used by all layers currently
       $scope.layerClick = function(evt) {
-        if ($scope.loc) {
+        if (mapLoaded) {
           var click = {
             pos: pt(evt.clientX, evt.clientY),
             handled: false,

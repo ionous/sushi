@@ -35,7 +35,8 @@ angular.module('demo')
         // hide the layer by default:
         layer.hidden = true;
         if (!$scope.promisedObject) {
-          $log.error("couldnt find promised object for", $scope.layerPath);
+          // happens when an object gets removed from the map.
+          $log.debug("couldnt find promised object for", $scope.layerPath);
         } else {
           // function to turn on the layer if the state matches:
           var state = layer.name.slice(1);

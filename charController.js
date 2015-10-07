@@ -32,7 +32,7 @@ angular.module('demo')
 
           // the character canvas is positioned at the location of the virtual layer
           var inRange = (x >= 0 && y >= 0 && x < size.x && y < size.y);
-          $log.info("char clicked", inRange, name, x, y, size);
+          //$log.info("char clicked", inRange, name, x, y, size);
 
           if (inRange) {
             click.handled = $scope.clickReference;

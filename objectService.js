@@ -36,6 +36,7 @@ angular.module('demo')
          */
         getObjects: function(ref, relation) {
           var rel = [ref.id, relation].join('/');
+          $log.debug("get objects", "id", ref.id, "rel", relation)
           return GameService.getPromisedData(ref.type, rel).then(function(doc) {
             var frame = doc.meta['frame'];
             // create any associated objects

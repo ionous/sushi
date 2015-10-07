@@ -39,7 +39,9 @@ footer {
 #status-right {
   float: right;
 }
-
+#returnButton {
+  padding-left:32px; /* matches a tile */
+}
 #view {
   position: relative;
   float: left;

@@ -11,7 +11,7 @@ angular.module('demo')
       var display = EntityService.getRef({
         id: '_display_',
         type: '_sys_'
-      }).create();
+      }).create(0);
 
       display.blocks = [];
       display.counter = 0;
@@ -90,15 +90,12 @@ angular.module('demo')
             throw new Error("pushed not a function");
           }
           handlers.push(handler);
-          $log.info("pushing handler", handler.length);
-          
         },
         removeHandler: function(handler) {
           var idx = handlers.indexOf(handler);
           if (idx >= 0) {
             handlers.splice(idx, 1);
           }
-          $log.info("removed handler", idx>=0, handler.length);
         },
         // write to the "screen" directly.
         echo: function(text) {

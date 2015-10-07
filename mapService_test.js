@@ -1,6 +1,6 @@
 'use strict';
 
-describe("RoomService", function() {
+describe("MapService", function() {
   beforeEach(module('demo'));
   var automat = {
     "bounds": {
@@ -540,9 +540,9 @@ describe("RoomService", function() {
     "name": "automat"
   };
 
-  var RoomService, $httpBackend, $rootScope;
-  beforeEach(inject(function(_RoomService_, _$httpBackend_, _$rootScope_) {
-    RoomService = _RoomService_;
+  var MapService, $httpBackend, $rootScope;
+  beforeEach(inject(function(_MapService_, _$httpBackend_, _$rootScope_) {
+    MapService = _MapService_;
     $httpBackend = _$httpBackend_;
     $rootScope = _$rootScope_; // for digest/processing of promises
   }));
@@ -552,12 +552,12 @@ describe("RoomService", function() {
     $httpBackend.verifyNoOutstandingRequest();
   });
 
-  it('should handle data', function() {
+  it('handles data', function() {
     var handler = jasmine.createSpy('success');
     $httpBackend.when('GET', '/bin/maps/automat.map')
       .respond(automat);
 
-    RoomService.getRoom("automat").then(function(map) {
+    MapService.getMap("automat").then(function(map) {
       // alien-boy, and alice
       return map.layers["chara"].layers.length;
     }).then(handler);

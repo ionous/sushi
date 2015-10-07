@@ -15,15 +15,22 @@ angular.module('demo')
       };
 
       var lastOwner = null;
-      var runIt = function(actId, propId, ctxId) {
-        var post = {
-          'act': actId,
-          'tgt': propId,
-          'ctx': ctxId,
-        };
+      var runIt = function(act, prop, ctx) {
+        var actId = !!act ? act.id : null;
+        var propId = !!prop ? prop.id : null;
+        var ctxId = !!ctx ? ctx.id : null;
+          var post = {
+            'act': actId,
+            'tgt': propId,
+            'ctx': ctxId,
+          };
         if (lastOwner) {
           // emit this locally first, so we can munge it.
-          var evt = lastOwner.$emit("running", post);
+          var evt = lastOwner.$emit("running", {
+            'act': act,
+            'tgt': prop,
+            'ctx': ctx,
+          });
           if (!evt.defaultPrevented) {
             var text = ["(", actId];
             if (propId) {
@@ -123,17 +130,17 @@ angular.module('demo')
             var nounCount = getNounCount(act);
             switch (nounCount) {
               case 0:
-                runIt(act.id);
+                runIt(act);
                 break;
               case 1:
-                runIt(act.id, prop.id);
+                runIt(act, prop);
                 break;
               case 2:
                 GameService.getPromisedData('class', act.attr['tgt'])
                   .then(function(doc) {
                     var cls = doc.data;
-                    popupService.multiAct = act.id;
-                    popupService.multiCtx = prop.id;
+                    popupService.multiAct = act;
+                    popupService.multiCtx = prop;
                     TextService.echo(["( select the", cls.attr['singular'], "to", act.id, ")"].join(' '));
                   });
                 break;
@@ -149,10 +156,10 @@ angular.module('demo')
           var promisedData;
           if (popupService.multiAct) {
             $log.info("finishing multi-object action");
-            var actId = popupService.multiAct;
-            var ctxId = popupService.multiCtx;
+            var act = popupService.multiAct;
+            var ctx = popupService.multiCtx;
             popupService.multiAct = popupService.multiCtx = false;
-            runIt(actId, prop.id, ctxId);
+            runIt(act, prop, ctx);
           } else if (!processing) {
             // if it is the same, clear it. otherwise use the passed value
             popupService.owner = (owner === popupService.owner) ? null : owner;

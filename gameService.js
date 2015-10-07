@@ -4,7 +4,7 @@
  * @fileoverview Mange the client game interaction with the server.
  */
 angular.module('demo')
-  // FIX FIX : investigate ngRoute to set the base uri these requests implictly.
+  // FIX: replace getPromisedGame with $scope.game
   // NOTE: the player and display service are listed as dependencies
   // that precreates those objects before we start talking to the server.
   .factory('GameService', function(
@@ -27,6 +27,7 @@ angular.module('demo')
       if (newFrame <= currentFrame) {
         throw new Error("invalid frame");
       }
+      currentFrame= newFrame;
       // merge any data abou the game itself.
       game.updateData(newFrame, doc.data);
 
@@ -36,15 +37,15 @@ angular.module('demo')
 
       // when done, add the new objects at the start of the new frame.
       processing = handleEvents.then(function() {
-        currentFrame = newFrame;
         doc.includes.map(function(obj) {
-          return EntityService.getRef(obj).create(currentFrame, obj);
+          return EntityService.getRef(obj).create(obj);
         });
         processing = null;
       });
       return processing;
     };
 
+    var gameCreated = false;
 
     /** 
      * Post to create the new game object
@@ -61,9 +62,23 @@ angular.module('demo')
         if (!game) {
           throw new Error("youve got no game");
         }
-        game.postGameData = function(what) {
-          return post(game.id, what);
-        };
+        // iky way to initialize the "game" object
+        if (!gameCreated) {
+          gameCreated = true;
+          game.started = false;
+          game.commence = function() {
+            $log.info("commencing game...");
+            if (!game.started) {
+              game.started = true;
+              post(game.id, {
+                'in': 'start'
+              });
+            }
+          };
+          game.postGameData = function(what) {
+            return post(game.id, what);
+          };
+        }
         return processFrame(game, doc).then(function() {
           return game;
         });
@@ -90,7 +105,8 @@ angular.module('demo')
     Resource.prototype.getData = function(id) {
       var r = this;
       id = id || "";
-      if (!r.cache[id]) {
+      var c= r.cache[id];
+      if (!c || c['frame'] != currentFrame) {
         var promise = promisedGame.then(function(game) {
           var url = ['/game', game.id, r.type];
           if (id) {
@@ -116,18 +132,20 @@ angular.module('demo')
           // });
         });
         r.cache[id] = {
-          'promise': promise
+          'promise': promise,
+          'frame': currentFrame
         };
       } //fetchClass
       return r.cache[id].promise;
     };
 
     var resources = {};
-
     var gameService = {
       currentFrame: function() {
         return currentFrame;
       },
+      // accidentally stumbled upon how to fix "getPromisedGame" -- 
+      // namely $scope.game. "the resource as parent" pattern would be good to use everywhere...
       getPromisedGame: function() {
         return promisedGame;
       },

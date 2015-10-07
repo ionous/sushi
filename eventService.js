@@ -45,7 +45,7 @@ angular.module('demo')
     };
     var eventService = {
       /**
-       * listen
+       * listen - data, tgt, evt
        * @param {string} target
        * @param {eventCallback|Object{start:eventCalback,end:eventCallback}} cb - The callback that handles the response.
        * @param {string|[string]} evts - One or more events; "*" means the all events set.
@@ -113,7 +113,6 @@ angular.module('demo')
         if (!tgt) {
           throw new Error("invalid target");
         }
-
         return eventService.getHandlers(tgt, evt)
           .map(function(handler) {
             return angular.isFunction(handler) ? {

@@ -10,7 +10,6 @@ angular.module('demo')
           type: 'status-bar-instances'
         })
         .then(function(status) {
-          $log.debug("got status bar", status);
           $scope.status = status;
           // this gets updated by the object automatically...
           // var ch = EventService.listen(status, "x-txt", function(src) {

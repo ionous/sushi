@@ -79,6 +79,10 @@ angular.module('demo')
 
       var iconList = [
         new Icon("_invalid_", "question"),
+
+        new Icon("greet", "commenting-o")
+        .matching("actors"),
+
         new Icon("examine it", "eye"),
         new Icon("take it", "hand-rock-o")
         .matching("prop"),
@@ -92,9 +96,6 @@ angular.module('demo')
 
         new Icon("close it", "folder-o")
         .requires("open"),
-
-        new Icon("greet", "commenting-o")
-        .matching("actors"),
 
         new Icon("press it", "hand-pointer-o")
         .matching("push-button"),

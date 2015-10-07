@@ -55,7 +55,7 @@ angular.module('demo')
          * @type {Object.<string,Array<Entity>>}
          */
         this.relations = {};
-        
+
         this.classInfo = {};
       };
 
@@ -80,61 +80,63 @@ angular.module('demo')
        */
       Entity.prototype.create = function(frame, data) {
         if (this.frame >= 0) {
-          throw new Error("multiple creates received for:" + this.id);
+          // throw new Error("multiple creates received for:" + this.id);
+          return;
         }
 
         // setup data
         if (data) {
           this._validate(data, "create");
-          this.attr = data.attr
+          this.attr = data.attr;
           this.states = data.meta['states'] || [];
           this.name = data.meta['name'] || ("unnamed:" + this.id);
         }
 
+        var call = function(that, f, args) {
+          var data = args[0];
+          var tgt = args[1];
+          var evt = args[2];
+          var frame = EventStreamService.currentFrame();
+          $log.info(evt, tgt, frame, data);
+          f.call(that, frame, data);
+        }
+
         // subscribe to events
-        var e = this;
-        EventService.listen(this.id, "x-set",
-          function(data) {
-            var frame= EventStreamService.currentFrame();
-            var was = data['prev'];
-            var now = data['next'];
-            e._handleSet(frame, was, now);
-          });
-        EventService.listen(this.id, ["x-txt", "x-num"],
-          function(data) {
-            var frame= EventStreamService.currentFrame();
-            // mimic a json-object so we can merge in the data chnges
-            var obj = {
-              id: e.id,
-              type: e.type,
-              attr: {},
-            };
-            var p = data['prop'];
-            var v = data['value'];
-            obj.attr[p] = v;
-            e.updateData(frame, obj);
-          });
+        var that = this;
+        EventService.listen(this.id, "x-set", function() {
+          call(that, that.x_set, arguments);
+        });
+        EventService.listen(this.id, "x-rel", function() {
+          call(that, that.x_rel, arguments);
+        });
+        EventService.listen(this.id, "x-txt", function() {
+          call(that, that.x_val, arguments);
+        });
+        EventService.listen(this.id, "x-num", function() {
+          call(that, that.x_val, arguments);
+        });
 
         // finalize create
         this.frame = frame || 0;
-
         return this;
       };
 
-      // triggered via EventStreamService())
-      /*{ "act": "x-set",
-          "tgt": {
-            "id": "glass-jar",
-            "type": "containers"
-          },
-          "data": {
-            "prop": "open-property",
-            "prev": "closed",
-            "next": "open"
-          }
-        }*/
-      Entity.prototype._handleSet = function(frame, was, now) {
-        // FIX: when do we update this object's frame -- wouldnt that be something global, not per object?
+      Entity.prototype.x_rel = function(frame, data) {
+        var prevOwner = data['prev'];
+        var invRel = data['other']; 
+        if (prevOwner && invRel) {
+          var rev = {
+            "prop": invRel
+          };
+          $log.info("raising x-rev for", prevOwner, rev);
+          EventService.raise(prevOwner.id, "x-rev", rev);
+        }
+      };
+
+      Entity.prototype.x_set = function(frame, data) {
+        var was = data['prev'];
+        var now = data['next'];
+        // FIX: when do we update this object's frame -- wouldnt this be something global, not per object?
         if (frame < this.frame) {
           $log.warn("skipping events for frame:", frame, ", this:", this.frame);
         } else {
@@ -142,10 +144,29 @@ angular.module('demo')
             return value != was;
           });
           this.states.push(now);
-        } // else, frame
-      }; // handle event;
+        }
+      };
+
+      Entity.prototype.x_val = function(frame, data) {
+        var p = data['prop'];
+        var now = data['value'];
+
+        // mimic a json-object so we can merge in the data chnges
+        var obj = {
+          id: this.id,
+          type: this.type,
+          attr: {},
+        };
+
+        obj.attr[p] = now;
+        this.updateData(frame, obj);
+      };
 
       Entity.prototype._validate = function(obj, reason) {
+        if (!angular.isObject(obj)) {
+          throw new Error("not an object " + reason);
+        }
+
         if ((obj.id != this.id) || (obj.type != this.type)) {
           throw new Error("mismatched ids! " + reason + " was:" + this.id + " " + this.type +
             ", now:" + obj.id + " " + obj.type);
@@ -159,13 +180,12 @@ angular.module('demo')
        * @returns {Object|undefined} promise.
        */
       Entity.prototype.updateData = function(frame, obj) {
-        // validate data
         this._validate(obj, "updateData");
 
         // silent ignore events in frames before the object is fully created.
         if (this.frame >= 0) {
           if (frame < this.frame) {
-            $log.warn("rejecting stale frame", this, frame);
+            $log.warn("rejecting stale frame", this.id, frame);
           } else {
             this.frame = frame;
             // merge data:

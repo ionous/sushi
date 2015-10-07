@@ -37,12 +37,13 @@ describe("EntityService", function() {
     expect($log.warn.logs.length).toEqual(0);
   });
 
-  it('wants two creates to fail.', function() {
-    var obj = EntityService.getRef(data).create(0, data);
-    expect(function() {
-      obj.create(0, data);
-    }).toThrow();
-  });
+  // disabled for now: see EntityService comments
+  // it('wants two creates to fail.', function() {
+  //   var obj = EntityService.getRef(data).create(0, data);
+  //   expect(function() {
+  //     obj.create(0, data);
+  //   }).toThrow();
+  // });
 
   describe("some event handling", function() {
     var EventService;

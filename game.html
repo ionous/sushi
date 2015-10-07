@@ -3,14 +3,6 @@
   <span id="status-right">{{status.attr.right}}</span>
 </header>
 <!--
-  <div id="info" >
-    <div ng-controller="LocationController">
-      <a ng-click="showList = !showList" href="">{{loc.name}}</a>
-      <ul ng-hide="showList">
-        <li ng-repeat="prop in loc.contents" ng-include="'propRender.html'">
-        </li>
-      </ul>
-    </div>  
     <div id="player" ng-controller="InventoryController">
       <a ng-click="showInv = !showInv" href="">inventory</a>
       <ul ng-hide="showInv">
@@ -18,7 +10,6 @@
         </li>
       </ul>
     </div>
-  </div>
   -->
 <div id="main" ng-controller="PopupController">
   <div id="objectPopup" ng-show="modal.owner" ng-style='modalPos'>
@@ -27,14 +18,21 @@
     </button>
   </div>
   <div id="view" ng-controller="ResponseController">
-    <div ng-include="viewTemplate">
-    </div>
+    <div ng-controller="roomController">
+      <div ng-controller="ViewController" ng-style="viewStyle" ng-click="layerClick($event)">
+        <div ng-repeat="layer in layer.layers.slice().reverse()" ng-include="'layer.html'">
+        </div>
+      </div>
+      <div ng-if="view">
+        <a id="returnButton" ng-click="exitView()" href="">Return to room...</a>
+      </div>
+    </div> <!-- ~room controller -->
     <div id="dialogChoices" ng-controller="DialogController">
       <div class="dialogChoice" ng-repeat="line in dialogChoices">
         <a class="dialogLine" ng-click="selectLine($index)" href="">{{line}}</a>
       </div>
-    </div>
-  </div>
+    </div> <!-- ~list of dialog choices -->
+  </div><!-- ~response box overlay -->
   <div id="side">
     <div id="text" ng-controller="LinesController">
       <ul scroll-glue="display.counter">

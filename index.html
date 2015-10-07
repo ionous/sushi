@@ -37,7 +37,7 @@
   <script src="objectService.js"></script>
   <script src="playerService.js"></script>
   <script src="popupService.js"></script>
-  <script src="roomService.js"></script>
+  <script src="mapService.js"></script>
   <script src="textService.js"></script>
   <script src="charController.js"></script>
   <script src="dialogController.js"></script>
@@ -49,11 +49,11 @@
   <script src="inventoryController.js"></script>
   <script src="layerController.js"></script>
   <script src="linesController.js"></script>
-  <script src="locationController.js"></script>
   <script src="modalActionController.js"></script>
   <script src="popupController.js"></script>
   <script src="propController.js"></script>
   <script src="responseController.js"></script>
+  <script src="roomController.js"></script>
   <script src="roomPreviewController.js"></script>
   <script src="statusController.js"></script>
   <script src="viewController.js"></script>
@@ -62,7 +62,9 @@
   <script src="mosaic/point.js"></script>
   <script src="mosaic/sprite.js"></script>
 </head>
-<body>
-  <div ng-view></div>
+
+<body ng-controller="GameController">
+  <div ng-view ng-if="!!game"> </div>
 </body>
+
 </html>

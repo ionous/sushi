@@ -50,7 +50,6 @@ angular.module('demo')
         }
       });
       $scope.$on("$destroy", function() {
-        $log.info("destroying response controller");
         EventService.remove(ch);
         TextService.removeHandler(h);
       });
