@@ -32,17 +32,18 @@ angular.module('demo')
           promisedObject: layer.promisedObject,
         };
       } else {
+        $log.info("LayerController: state layer:", $scope.layerPath);
         // hide the layer by default:
         layer.hidden = true;
         if (!$scope.promisedObject) {
           // happens when an object gets removed from the map.
-          $log.debug("couldnt find promised object for", $scope.layerPath);
+          $log.warn("LayerController: couldnt find promised object for", $scope.layerPath);
         } else {
           // function to turn on the layer if the state matches:
           var state = layer.name.slice(1);
           var syncState = function(obj) {
             var isState = obj.states.indexOf(state) >= 0;
-            //$log.debug("sync state", obj.id, state, isState);
+            $log.info("LayerController: syncing state", obj.id, obj, state, isState);
             layer.hidden = !isState;
           };
 

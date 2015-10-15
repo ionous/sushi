@@ -117,7 +117,9 @@ angular.module('demo')
 
         new Icon("attack it", "bolt"),
         new Icon("kiss it", "heart-o"),
+        new Icon("eat it", null),
         new Icon("print direct parent", null),
+
 
         // self actions
         new Icon("look", null),

@@ -10,7 +10,7 @@ angular.module('demo')
         getById: function(id) {
           var ref= EntityService.getById(id);
           if (!ref) {
-            throw new Error("invalid object");
+            throw new Error("invalid object "+id);
           }
           return objectService.getObject(ref);
         },
@@ -20,10 +20,13 @@ angular.module('demo')
           if (!ref.id || !ref.type) {
             throw new Error("invalid ref");
           }
+          // FIX: seems to be happening twice per map load.
           return GameService.getPromisedData(ref).then(function(doc) {
+            
             var frame = doc.meta['frame'];
             var data = doc.data;
             var obj = EntityService.getRef(data).createOrUpdate(frame, data);
+            //$log.info("gotPromisedData", ref.id, doc.data, obj);
             return GameService.getPromisedData('class', data.type).then(function(clsDoc) {
               obj.classInfo = clsDoc.data;
               return obj;
@@ -36,7 +39,7 @@ angular.module('demo')
          */
         getObjects: function(ref, relation) {
           var rel = [ref.id, relation].join('/');
-          $log.debug("get objects", "id", ref.id, "rel", relation)
+          $log.debug("ObjecService: get objects", "id", ref.id, "rel", relation)
           return GameService.getPromisedData(ref.type, rel).then(function(doc) {
             var frame = doc.meta['frame'];
             // create any associated objects

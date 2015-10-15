@@ -4,14 +4,13 @@ angular.module('demo')
   .controller('ResponseController',
     function(EventService, TextService, $log, $modal, $q, $scope,
       SKIP_DIALOG) {
-
       if (SKIP_DIALOG) {
         return;
       }
-
+      // silence room entry
       var suspend = false;
       var ch = EventService.listen(
-        '*', "describing the first room", {
+        '*', "reporting the view", {
           start: function() {
             suspend = true;
           },
@@ -20,10 +19,9 @@ angular.module('demo')
           }
         });
 
-      var display= TextService.getDisplay();
-
-      var h= TextService.pushHandler(function(lines, speaker) {
-        if (!suspend && speaker== display.id) {
+      var display = TextService.getDisplay();
+      var h = TextService.pushHandler(function(lines, speaker) {
+        if (!suspend && speaker == display.id) {
           var modalInstance = $modal.open({
             animation: false,
             templateUrl: 'responseContent.html',

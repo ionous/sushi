@@ -1,3 +1,5 @@
+<!-- demo.js assigns this to ng-controller="RoomController" 
+-->
 <header id="status-bar" ng-controller="StatusController">
   <span id="status-left">{{status.attr.left}} </span>
   <span id="status-right">{{status.attr.right}}</span>
@@ -19,11 +21,11 @@
   </div>
   <div id="view" ng-controller="ResponseController">
     <div ng-controller="roomController">
-      <div ng-controller="ViewController" ng-style="viewStyle" ng-click="layerClick($event)">
+      <div ng-controller="MapController" ng-style="viewStyle" ng-click="layerClick($event)">
         <div ng-repeat="layer in layer.layers.slice().reverse()" ng-include="'layer.html'">
         </div>
       </div>
-      <div ng-if="view">
+      <div ng-if="view && !hideViewButton">
         <a id="returnButton" ng-click="exitView()" href="">Return to room...</a>
       </div>
     </div> <!-- ~room controller -->

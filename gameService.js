@@ -38,7 +38,7 @@ angular.module('demo')
       // when done, add the new objects at the start of the new frame.
       processing = handleEvents.then(function() {
         doc.includes.map(function(obj) {
-          return EntityService.getRef(obj).create(obj);
+          return EntityService.getRef(obj).create(newFrame, obj);
         });
         processing = null;
       });

@@ -5,23 +5,28 @@
  * parent is GameController 
  */
 angular.module('demo')
-  .controller('ViewController',
+  .controller('MapController',
     function(EventService, LocationService, ObjectService, MapService,
       $element, $log, $scope) {
       var mapLoaded = false;
 
+      // hack so that rooms can override maps.
+      var mapName = LocationService.view() || LocationService.room();
+      $log.debug("MapController: creating MapController:", mapName);
+
       var stopRefresh = LocationService.fetchContents(function(contents) {
-        var map = LocationService.view() || LocationService.room();
-        $log.info("view changed", map);
+        $log.debug("MapController: refreshing", mapName);
 
         // see also RoomPreviewController.
-        $scope.mapName = map; // used by grid controller for tile image src
+        $scope.mapName = mapName; // used by grid controller for tile image src
         $scope.layerPath = ""; // used for materializing layer ids
+
+        // FIX? build to a local and do some sort of "merge" to avoid triggering a fullscreen refresh? something possibly using layer-path? [ although, might need something for state ]
         $scope.layer = { // pattern of the layer structure.
-          name: map,
+          name: mapName,
           layers: []
         };
-        MapService.loadMap(map, contents, function(mapLayer, objectRef) {
+        MapService.loadMap(mapName, contents, function(mapLayer, objectRef) {
           return ObjectService.getObject(objectRef);
         }).then(function(map) {
           $scope.layer = map.topLayer;
@@ -30,6 +35,7 @@ angular.module('demo')
             'width': sz.x + 'px',
             'height': sz.y + 'px',
           };
+
           $scope.$emit("mapChanged", map);
           mapLoaded = true;
         });

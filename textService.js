@@ -39,7 +39,7 @@ angular.module('demo')
               };
 
               // no speaker? add the block immediately:
-              if (sourceBlock.speaker  == display.id) {
+              if (sourceBlock.speaker == display.id) {
                 display.blocks.push(displayBlock);
                 display.counter++;
               } else {
@@ -64,6 +64,9 @@ angular.module('demo')
       };
 
       var defaultHandler = function(lines, speaker) {
+        if (!angular.isString(speaker)) {
+          throw new Error("invalid speaker" + speaker);
+        }
         var block = {
           speaker: speaker,
           text: lines
@@ -99,7 +102,7 @@ angular.module('demo')
         },
         // write to the "screen" directly.
         echo: function(text) {
-          defaultHandler([text], speaker);
+          defaultHandler([text], display.id);
         },
         // add to the list of all text, bit by bit.
         addLines: function(speaker, lines) {

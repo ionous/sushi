@@ -1,14 +1,11 @@
-<div class="mapLayer" ng-controller="LayerController" ng-hide="layer.hidden">
-  <canvas id="{{layerPath}}" ng-style="{'left':layer.bounds.min.x+'px','top':layer.bounds.min.y+'px'}" , width="{{layerSize.x}}" height="{{layerSize.y}}" ng-controller="canvasController">
+<div class="mapLayer" ng-controller="LayerController" ng-hide="layer.hidden" ng-style="{'left':layer.bounds.min.x+'px','top':layer.bounds.min.y+'px'}">
+  <canvas id="{{layerPath}}" width="{{layerSize.x}}" height="{{layerSize.y}}" ng-controller="canvasController">
   </canvas>
-  <div ng-switch on="layer.name">
-    <div ng-switch-when="chara">
-      <div ng-repeat="layer in layer.layers.slice().reverse()" ng-include="'chara.html'">
-      </div>
+  <div ng-if="layer.chara">
+    <div class="bubble" ng-controller="TalkController" ng-style="{'bottom':layerSize.y+'px'}" ng-show="charText">
+      {{charText}}
     </div>
-    <div ng-switch-default>
-      <div ng-repeat="layer in layer.layers.slice().reverse()" ng-include="'layer.html'">
-      </div>
-    </div>
+  </div>
+  <div ng-repeat="layer in layer.layers.slice().reverse()" ng-include="'layer.html'">
   </div>
 </div>

@@ -18,15 +18,15 @@ angular.module('demo')
 
       var mapService = {
         // FIX: can this be replaced with an angular resource?
-        getMap: function(roomId) {
-          var url = "/bin/maps/" + roomId + ".map";
-          $log.info("get map", url);
+        getMap: function(mapName) {
+          var url = "/bin/maps/" + mapName + ".map";
+          $log.debug("MapService: get map", url);
           return $http.get(url).then(function(resp) {
-            $log.info("room service received", roomId);
+            $log.debug("MapService: received", mapName);
             var names = {};
             build(names, resp.data);
             var map = {
-              name: roomId,
+              name: mapName,
               topLayer: resp.data,
               layers: names
             };
@@ -44,13 +44,15 @@ angular.module('demo')
               var doors = map.layers['doors'];
               var chara = map.layers['chara'];
               var hide = function(l) {
-                if (l && l.layers) {
-                  l.layers.map(function(layer) {
-                    //$log.info("hiding", layer.name);
-                    layer.hidden = true;
-                  });
+                if (l) { // some maps lack one or more of the three core layers
+                  if (l.layers) { // some maps lack core sublayers.
+                    l.layers.map(function(layer) {
+                      $log.debug("MapService: hiding", layer.name);
+                      layer.hidden = true;
+                    });
+                  }
+                  l.hidden = false;
                 }
-                l.hidden = false;
               };
               hide(objects);
               hide(doors);
@@ -62,21 +64,25 @@ angular.module('demo')
                 if (name == "player") {
                   name = "alice";
                 }
-                var layer = map.layers['objects_' + name] || map.layers['doors_' + name] || map.layers['chara_' + name];
+                var chara= map.layers['chara_' + name];
+                var layer = chara || map.layers['objects_' + name] || map.layers['doors_' + name];
                 if (!layer) {
-                  $log.info(name, "exists in contents; missing in map.");
+                  $log.debug("MapService:", name, "exists in contents; missing in map.");
                 } else {
-                  //$log.info("revealing", name);
                   layer.hidden = false;
-                  layer.promisedObject = createObject(layer,ref);
+                  layer.promisedObject = createObject(layer, ref);
+                  layer.chara= !!chara;
+                  $log.debug("MapService: revealing", name, chara ? "(chara)":"");
                 }
               }
 
               // report on graphics that arent objects in the room.
               var unmentioned = function(l) {
-                for (var layer in l.layers) {
-                  if (layer.hidden) {
-                    $log.info("no object mentioned named", layer.name);
+                if (l) {
+                  for (var layer in l.layers) {
+                    if (layer.hidden) {
+                      $log.debug("MapService: no object mentioned named", layer.name);
+                    }
                   }
                 }
               };

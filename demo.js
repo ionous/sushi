@@ -11,27 +11,30 @@ angular
     function($controllerProvider, $routeProvider) {
       // dynamic load of controller for room: inspired by http://ify.io/lazy-loading-in-angularjs/
       var getControllerName = function($log, $q, $rootScope, $route) {
-        $log.info("got route resolve request");
         var defer = $q.defer();
         // the object of "when" is assigned as the $route.current.
         var roomId = $route.current.params['roomId'];
         var viewId = $route.current.params['viewId'];
         var ctrlId = (viewId || roomId);
         var controllerJs = 'game/' + ctrlId + "Controller";
+        $log.info("DemoModule: loading controller", ctrlId);
+
         requirejs([controllerJs], function(res) {
-          $log.info("got module", res);
+          $log.debug("DemoModule: acquired", controllerJs);
           $controllerProvider.register(res);
           var ctrlName = ctrlId.charAt(0).toUpperCase() + ctrlId.slice(1) + "Controller";
           var roomController = res[ctrlName];
           // what we apply here become injectable parameters
           $rootScope.$apply(function() {
             if (roomController) {
+              $log.debug("DemoModule: resolving", ctrlName);
               defer.resolve(roomController);
             } else {
               defer.reject(ctrlName + " not found in module " + controllerJs);
             }
           }); // rootscope apply
         }, function(err) {
+          $log.error("DemoController: error loading controller:", err);
           defer.reject(err);
         }); // requirejs
         return defer.promise;

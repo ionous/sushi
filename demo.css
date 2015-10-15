@@ -121,8 +121,7 @@ form > * {
   margin-top: 0.5em;
 }
 
-.mapLayer,
-.charLayer {
+.mapLayer {
   position: absolute;
   left: 0;
   top: 0;
@@ -157,10 +156,6 @@ in case the stagger doesn't work then the duration value
   opacity: 1;
 }
 
-.charCanvas {
-  position: absolute;
-}
-
 .char-text:after {
   content: "";
   position: absolute;
@@ -175,10 +170,6 @@ in case the stagger doesn't work then the duration value
   /* reduce the damage in FF3.0 */
   display: block;
   width: 0;
-}
-
-.charWrapper {
-  position: absolute;
 }
 
 
@@ -239,7 +230,6 @@ div.overgrey {
   opacity: 0.3;
   background: white;
 }
-
 
 /*http://stackoverflow.com/questions/18422223/bootstrap-3-modal-vertical-position-center*/
 

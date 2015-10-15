@@ -1,6 +1,5 @@
 'use strict';
 
-
 /**
  * @fileoverview EventStreamService
  * Process a stream of server events delivered in jsonapi-ish format.

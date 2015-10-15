@@ -5,7 +5,7 @@
  */
 angular.module('demo')
   .factory('EntityService',
-    function(EventService, EventStreamService, $log) {
+    function(EventService, EventStreamService, $log, $timeout) {
       /**
        * Client-side game object.
        * ( declaring the class inside the object factory, gives us access to dependency injections. )
@@ -64,6 +64,9 @@ angular.module('demo')
       };
 
       Entity.prototype.createOrUpdate = function(frame, data) {
+        if (!angular.isNumber(frame)) {
+          throw new Error("frame is not a number");
+        }
         if (this.frame < 0) {
           this.create(frame, data);
         } else {
@@ -79,6 +82,9 @@ angular.module('demo')
        * @returns {Entity} - itself.
        */
       Entity.prototype.create = function(frame, data) {
+        if (!angular.isNumber(frame)) {
+          throw new Error("frame is not a number");
+        }
         if (this.frame >= 0) {
           // throw new Error("multiple creates received for:" + this.id);
           return;
@@ -97,7 +103,7 @@ angular.module('demo')
           var tgt = args[1];
           var evt = args[2];
           var frame = EventStreamService.currentFrame();
-          $log.info(evt, tgt, frame, data);
+          $log.info("EntityService:", evt, tgt, frame, data);
           f.call(that, frame, data);
         }
 
@@ -122,23 +128,32 @@ angular.module('demo')
       };
 
       Entity.prototype.x_rel = function(frame, data) {
+        if (!angular.isNumber(frame)) {
+          throw new Error("frame is not a number");
+        }
         var prevOwner = data['prev'];
-        var invRel = data['other']; 
+        var invRel = data['other'];
         if (prevOwner && invRel) {
           var rev = {
             "prop": invRel
           };
-          $log.info("raising x-rev for", prevOwner, rev);
-          EventService.raise(prevOwner.id, "x-rev", rev);
+          $log.info("EntityService:", "adding x-rev for", prevOwner, rev);
+          // when we change rooms, we get this x-rev change before the player whereabouts change, leading to a map refresh of the room we're leaving.
+          $timeout(function() {
+            EventService.raise(prevOwner.id, "x-rev", rev);
+          });
         }
       };
 
       Entity.prototype.x_set = function(frame, data) {
+        if (!angular.isNumber(frame)) {
+          throw new Error("frame is not a number");
+        }
         var was = data['prev'];
         var now = data['next'];
         // FIX: when do we update this object's frame -- wouldnt this be something global, not per object?
         if (frame < this.frame) {
-          $log.warn("skipping events for frame:", frame, ", this:", this.frame);
+          $log.warn("EntityService:", "skipping events for frame:", frame, ", this:", this.frame);
         } else {
           this.states = this.states.filter(function(value) {
             return value != was;
@@ -148,6 +163,9 @@ angular.module('demo')
       };
 
       Entity.prototype.x_val = function(frame, data) {
+        if (!angular.isNumber(frame)) {
+          throw new Error("frame is not a number");
+        }
         var p = data['prop'];
         var now = data['value'];
 
@@ -180,12 +198,15 @@ angular.module('demo')
        * @returns {Object|undefined} promise.
        */
       Entity.prototype.updateData = function(frame, obj) {
+        if (!angular.isNumber(frame)) {
+          throw new Error("frame is not a number");
+        }
         this._validate(obj, "updateData");
 
         // silent ignore events in frames before the object is fully created.
         if (this.frame >= 0) {
           if (frame < this.frame) {
-            $log.warn("rejecting stale frame", this.id, frame);
+            $log.warn("EntityService:", "rejecting stale frame", this.id, frame);
           } else {
             this.frame = frame;
             // merge data:

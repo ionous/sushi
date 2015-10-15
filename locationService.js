@@ -9,11 +9,12 @@ angular.module('demo')
     function(EventService, ObjectService, PlayerService,
       $location, $log, $q, $rootScope) {
 
-      var changeRoom = function(room, view) {
-        if (view==room) {
+      var changeLocation = function(room, view) {
+        if (view == room) {
           throw new Error("invalid view", view);
         }
-        $log.info("changing room", room, view ? view : "");
+        // by changing the location, the router in demo.js will re-layout game.html
+        $log.info("LocationService: changing", room, view ? view : "");
         // want the url: /r/room/v/view
         var p = ["", "r", room].concat(view ? ["v", view] : []);
         var wantUrl = p.join("/");
@@ -27,11 +28,11 @@ angular.module('demo')
           var rub = $rootScope.$on("$locationChangeSuccess", function(evt) {
             var newUrl = $location.url(); // location success passes full url, we want the parsed url
             if (newUrl == wantUrl) {
-              $log.info("wantUrl", wantUrl);
+              $log.debug("LocationService: wantUrl", wantUrl);
               defer.resolve(newUrl);
             } else {
               var reason = "wanted " + wantUrl + " received " + newUrl;
-              $log.info("failed url", reason);
+              $log.error("LocationService: failed url", reason);
               defer.reject(reason);
             }
             rub();
@@ -45,18 +46,17 @@ angular.module('demo')
       // whenever the player location changes, change the browser location
       var player = PlayerService.getPlayer();
       EventService.listen("player", "x-rel", function(data) {
-        $log.info("player relation changed", data);
-        if (data['prop'] == "whereabouts") {
-          $log.info("requesting location");
+        if (data['prop'] == "whereabouts" && data['next']) {
+          $log.debug("LocationService: requesting player location");
           ObjectService.getObjects(player, "whereabouts").then(function(arr) {
             var loc = arr[0];
-            return changeRoom(loc.id);
+            return changeLocation(loc.id);
           });
         }
       });
 
       var fetchContents = function(room) {
-        $log.info("fetching", room, "contents");
+        $log.debug("LocationService: fetching", room, "contents");
         return ObjectService.getObjects({
             id: room,
             type: "rooms"
@@ -83,25 +83,37 @@ angular.module('demo')
         // pass contents of this room to the refresh function whenever the contents changes.
         fetchContents: function(refresh) {
           var room = locationService.room();
-          var promise = fetchContents(room).then(function(props) {
-            refresh(props);
-            $log.info("listening to content changes for", room);
-            //
-            var ch = EventService.listen(room, "x-rev", function(data) {
-              var is = data["prop"] == "contents";
-              $log.info("rel changes for", room, is);
-              if (is) {
-                fetchContents(room).then(refresh);
-              }
-            });
-            return ch;
+          var handler = EventService.listen(room, "x-rev", function(data) {
+            var prop = data["prop"];
+            var iscontent = prop == "contents";
+            $log.debug("LocationService: x-rev for", room, prop);
+            if (iscontent) {
+              var curRoom = locationService.room();
+              if (curRoom != room) {
+                $log.debug("LocationService: ignoring fetch for old room");
+              } else {
+                fetchContents(room).then(function(contents) {
+                  var nowRoom = locationService.room();
+                  if (nowRoom != room) {
+                    $log.debug("LocationService: ignoring refresh for old room");
+                  } else {
+                    refresh(contents);
+                  }
+                }); //fetch
+              } // same room
+            } // is content
+          });
+          // initial request:
+          fetchContents(room).then(function(contents) {
+            if (!!handler) {
+              refresh(contents);
+            }
           });
           // return a function that, when called, will destroy the event listener
           return function() {
-            promise.then(function(ch) {
-              $log.info("killing content changes for", room);
-              EventService.remove(ch);
-            });
+            $log.debug("LocationService: killing content changes for", room);
+            EventService.remove(handler);
+            handler = null;
           };
         },
         // NOTE: $location has $locationChangeStart
@@ -109,13 +121,13 @@ angular.module('demo')
         room: function() {
           return parse(1, "r");
         },
-        changeRoom: changeRoom,
+        changeRoom: changeLocation,
         view: function(view) {
           return parse(3, "v");
         },
         changeView: function(view) {
           var room = locationService.room();
-          return changeRoom(room, view);
+          return changeLocation(room, view);
         },
       };
       return locationService;
