@@ -3,44 +3,58 @@
 /** 
  * Manage the player's current room.
  * parent is GameController 
+ * $scope:
+ *   mapName:    GridController uses this for tile image src.
+ *   layerPath:  materialized layer hierarchy ( parent-child )
+ *   slashPath:  materialized layer hierarchy ( parent/child )
+ *   map:        LayerController uses this for the layer->object remap.
+ *   objects:    object (Entity) contents of the map.
+ *   showLayer:  LayerController default status.
+ *   layerClick: game.html ng-click
+ *   emit (up): mapChanged, selected. 
+ *   broadcast(down): contentsChanged contentsChanged 
  */
 angular.module('demo')
   .controller('MapController',
     function(EventService, LocationService, ObjectService, MapService,
-      $element, $log, $scope) {
+      $element, $log, $q, $scope) {
       var mapLoaded = false;
 
-      // hack so that rooms can override maps.
       var mapName = LocationService.view() || LocationService.room();
       $log.debug("MapController: creating MapController:", mapName);
 
-      var stopRefresh = LocationService.fetchContents(function(contents) {
-        $log.debug("MapController: refreshing", mapName);
+      // see also RoomPreviewController.
+      $scope.mapName = mapName;
+      $scope.layerPath = ""; // FIX? this should be mapName, the parser is leaving out the root name.
+      $scope.slashPath = "";
 
-        // see also RoomPreviewController.
-        $scope.mapName = mapName; // used by grid controller for tile image src
-        $scope.layerPath = ""; // used for materializing layer ids
+      var promisedMap = MapService.getMap(mapName).then(function(map) {
+        $scope.map = map;
+        var stopRefresh = LocationService.fetchContents(function(objects) {
+          if (mapLoaded) {
+            $scope.objects = objects;
 
-        // FIX? build to a local and do some sort of "merge" to avoid triggering a fullscreen refresh? something possibly using layer-path? [ although, might need something for state ]
-        $scope.layer = { // pattern of the layer structure.
-          name: mapName,
-          layers: []
-        };
-        MapService.loadMap(mapName, contents, function(mapLayer, objectRef) {
-          return ObjectService.getObject(objectRef);
-        }).then(function(map) {
-          $scope.layer = map.topLayer;
-          var sz = map.topLayer.bounds.max;
-          $scope.viewStyle = {
-            'width': sz.x + 'px',
-            'height': sz.y + 'px',
-          };
-
-          $scope.$emit("mapChanged", map);
-          mapLoaded = true;
+            // currently, all sub-layers listen
+            $log.info("MapController: contentsChanged.");
+            $scope.$broadcast("contentsChanged", objects);
+          } else {
+            mapLoaded = true;
+            $scope.layer = map.topLayer;
+            $scope.showLayer = true; // makes all layers be true, unless they say otherwise.
+            $scope.objects = objects;
+            //
+            var sz = map.topLayer.bounds.max;
+            $scope.viewStyle = {
+              'width': sz.x + 'px',
+              'height': sz.y + 'px',
+            };
+            // currently, only game controller listens
+            $log.info("MapController: mapChanged.");
+            $scope.$emit("mapChanged", map);
+          }
         });
+        $scope.$on("$destroy", stopRefresh);
       });
-      $scope.$on("$destroy", stopRefresh);
 
       // used by all layers currently
       $scope.layerClick = function(evt) {

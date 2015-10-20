@@ -555,7 +555,7 @@ describe("MapService", function() {
   it('handles data', function() {
     var handler = jasmine.createSpy('success');
     $httpBackend.when('GET', '/bin/maps/automat.map')
-      .respond(automat);
+      .respond({map:automat});
 
     MapService.getMap("automat").then(function(map) {
       // alien-boy, and alice

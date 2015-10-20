@@ -6,7 +6,7 @@
  */
 angular.module('demo')
   .factory('LocationService',
-    function(EventService, ObjectService, PlayerService,
+    function(EventService, ObjectService, PlayerService, RelationService,
       $location, $log, $q, $rootScope) {
 
       var changeLocation = function(room, view) {
@@ -26,7 +26,7 @@ angular.module('demo')
           // report once we have succesfully changed locations.
           // note: there's no failure event, so... that's grand.
           var rub = $rootScope.$on("$locationChangeSuccess", function(evt) {
-            var newUrl = $location.url(); // location success passes full url, we want the parsed url
+            var newUrl = $location.url(); // location success passes full url, we want the =d url
             if (newUrl == wantUrl) {
               $log.debug("LocationService: wantUrl", wantUrl);
               defer.resolve(newUrl);
@@ -55,66 +55,26 @@ angular.module('demo')
         }
       });
 
-      var fetchContents = function(room) {
-        $log.debug("LocationService: fetching", room, "contents");
-        return ObjectService.getObjects({
-            id: room,
-            type: "rooms"
-          }, 'contents')
-          .then(function(contents) {
-            var props = {};
-            contents.map(function(prop) {
-              props[prop.id] = prop;
-            });
-            // locData.id = room.id;
-            // locData.room = room;
-            // locData.contents = props;
-            return props;
-          })
-      };
-
       //$location.path()
       var parse = function(path, sep) {
         var p = $location.path().split("/");
         return p[path] == sep ? p[path + 1] : null;
       };
       var locationService = {
-
-        // pass contents of this room to the refresh function whenever the contents changes.
+        // returns a function to cancel the refresh
         fetchContents: function(refresh) {
           var room = locationService.room();
-          var handler = EventService.listen(room, "x-rev", function(data) {
-            var prop = data["prop"];
-            var iscontent = prop == "contents";
-            $log.debug("LocationService: x-rev for", room, prop);
-            if (iscontent) {
-              var curRoom = locationService.room();
-              if (curRoom != room) {
-                $log.debug("LocationService: ignoring fetch for old room");
-              } else {
-                fetchContents(room).then(function(contents) {
-                  var nowRoom = locationService.room();
-                  if (nowRoom != room) {
-                    $log.debug("LocationService: ignoring refresh for old room");
-                  } else {
-                    refresh(contents);
-                  }
-                }); //fetch
-              } // same room
-            } // is content
-          });
-          // initial request:
-          fetchContents(room).then(function(contents) {
-            if (!!handler) {
+          return RelationService.fetchContents({
+            id: room,
+            type: 'rooms'
+          }, function(contents) {
+            var curRoom = locationService.room();
+            if (curRoom != room) {
+              $log.debug("LocationService: ignoring fetch for old room");
+            } else {
               refresh(contents);
             }
           });
-          // return a function that, when called, will destroy the event listener
-          return function() {
-            $log.debug("LocationService: killing content changes for", room);
-            EventService.remove(handler);
-            handler = null;
-          };
         },
         // NOTE: $location has $locationChangeStart
         // and it can be preventDefaulted if needed.

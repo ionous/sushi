@@ -59,6 +59,10 @@ angular.module('demo')
         this.classInfo = {};
       };
 
+      Entity.prototype.is = function(state) {
+        return this.states.indexOf(state) >= 0;
+      };
+
       Entity.prototype.created = function() {
         return this.frame >= 0;
       };
@@ -103,7 +107,7 @@ angular.module('demo')
           var tgt = args[1];
           var evt = args[2];
           var frame = EventStreamService.currentFrame();
-          $log.info("EntityService:", evt, tgt, frame, data);
+          //$log.debug("EntityService:", evt, tgt, frame, data);
           f.call(that, frame, data);
         }
 
@@ -137,8 +141,10 @@ angular.module('demo')
           var rev = {
             "prop": invRel
           };
-          $log.info("EntityService:", "adding x-rev for", prevOwner, rev);
-          // when we change rooms, we get this x-rev change before the player whereabouts change, leading to a map refresh of the room we're leaving.
+          // the x-rel generally tells us when an object has had its parent changed
+          // generate x-rev so the parent can hear when its children have changed.
+          $log.debug("EntityService:", "new x-rev for", prevOwner, rev);
+          // FIX? when we change rooms, we get this x-rev change before the player whereabouts change, leading to a map refresh of the room we're leaving.
           $timeout(function() {
             EventService.raise(prevOwner.id, "x-rev", rev);
           });

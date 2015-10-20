@@ -6,29 +6,42 @@
 angular.module('demo')
   .factory('ObjectService',
     function(EntityService, GameService, $log, $q) {
+
+      var ClassInfo = function(classInfo) {
+        //this.data= classData;
+        this.classList = classInfo.meta['classes'];
+      }
+
+      ClassInfo.prototype.contains = function(className) {
+        return this.classList.indexOf(className) >= 0;
+      }
+
       var objectService = {
         getById: function(id) {
-          var ref= EntityService.getById(id);
+          var ref = EntityService.getById(id);
           if (!ref) {
-            throw new Error("invalid object "+id);
+            throw new Error("invalid object " + id);
           }
           return objectService.getObject(ref);
         },
-        // promises an object, the object data will be updated.
-        // FIX? use http caching with a ?frame=currentFrame, or object change counter?
+        /**
+         * returns the promise of an object
+         * the object in "json format", with the extra field classInfo added to it.
+         * ( the object's data will be automatically updated. )
+         * FIX? use http caching with a ?frame=currentFrame, or object change counter?
+         */
         getObject: function(ref) {
           if (!ref.id || !ref.type) {
             throw new Error("invalid ref");
           }
           // FIX: seems to be happening twice per map load.
           return GameService.getPromisedData(ref).then(function(doc) {
-            
             var frame = doc.meta['frame'];
             var data = doc.data;
             var obj = EntityService.getRef(data).createOrUpdate(frame, data);
             //$log.info("gotPromisedData", ref.id, doc.data, obj);
             return GameService.getPromisedData('class', data.type).then(function(clsDoc) {
-              obj.classInfo = clsDoc.data;
+              obj.classInfo = new ClassInfo( clsDoc.data );
               return obj;
             });
           });
@@ -39,7 +52,7 @@ angular.module('demo')
          */
         getObjects: function(ref, relation) {
           var rel = [ref.id, relation].join('/');
-          $log.debug("ObjecService: get objects", "id", ref.id, "rel", relation)
+          //$log.debug("ObjectService: get objects", "id", ref.id, "rel", relation)
           return GameService.getPromisedData(ref.type, rel).then(function(doc) {
             var frame = doc.meta['frame'];
             // create any associated objects

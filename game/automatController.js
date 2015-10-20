@@ -7,11 +7,16 @@ define({
         var act = post['act'];
         if (act.id == "examine-it") {
           var tgt = post['tgt'];
-          if (tgt.id == "automat-tunnel-door") {
-            var isOpen = tgt.states.indexOf("open") >= 0;
-            if (!isOpen) {
-              LocationService.changeView("hatch");
-            }
+          switch (tgt.id) {
+            case "automat-tunnel-door":
+              var isOpen = tgt.is("open");
+              if (!isOpen) {
+                LocationService.changeView("hatch");
+              }
+              break;
+            case "converter":
+              LocationService.changeView("converter");
+              break;
           }
         } // act== examine-it
       }); //  scope on

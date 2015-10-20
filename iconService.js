@@ -44,25 +44,29 @@ angular.module('demo')
          */
         this.cls = icon;
         //
-        this.requiresState = false;
+        this.requiresState = [];
         this.requiresClass = false;
       };
       Icon.prototype.allows = function(obj) {
-        var allows= this.cls;
-        if (allows && this.requiresState) {
-          allows = obj.states.indexOf(this.requiresState) >=0;
+        var allows = this.cls;
+        if (allows && this.requiresState.length > 0) {
+          for (var i = 0; i < this.requiresState.length; i++) {
+            var state= this.requiresState[i];
+            allows = obj.is(state);
+            if (!allows) {
+              break;
+            }
+          }
         }
         if (allows && this.requiresClass) {
-          //$log.debug("testing", this.id, this.requiresClass, obj.classInfo);
-          var p = obj.classInfo.meta['classes'];
-          allows  = p.indexOf(this.requiresClass) >=0;
+          allows = obj.classInfo.contains(this.requiresClass);
         };
         return allows;
       }
 
       // set a filter function
       Icon.prototype.requires = function(state) {
-        this.requiresState = state;
+        this.requiresState.push(state);
         return this;
       };
       // set a filter function
@@ -85,41 +89,43 @@ angular.module('demo')
 
         new Icon("examine it", "eye"),
         new Icon("take it", "hand-rock-o")
-        .matching("prop"),
+        .matching("props")
+        .requires("portable"),
 
         new Icon("go to", null),
         new Icon("go through it", "reply")
         .matching("doors"),
 
         new Icon("open it", "folder-open-o")
+        .requires("openable")
         .requires("closed"),
 
         new Icon("close it", "folder-o")
+        .requires("openable")
         .requires("open"),
 
         new Icon("press it", "hand-pointer-o")
-        .matching("push-button"),
+        .matching("push-buttons"),
 
         new Icon("switch it on", "power-off")
-        .requires("switched off"),
+        .requires("switched-off"),
 
         new Icon("switch it off", "power-off fa-flip-vertical")
-        .requires("switched on"),
+        .requires("switched-on"),
 
         new Icon("search it", "search")
-        .matching("prop"),
+        .matching("props"),
         new Icon("look under it", "level-down"),
         new Icon("listen to", listen),
         new Icon("smell it", smell),
 
         new Icon("wear it", "graduation-cap")
-        .requires("wearable"),
+        .requires("wearables"),
 
         new Icon("attack it", "bolt"),
         new Icon("kiss it", "heart-o"),
         new Icon("eat it", null),
         new Icon("print direct parent", null),
-
 
         // self actions
         new Icon("look", null),
