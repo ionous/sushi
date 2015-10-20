@@ -51,6 +51,9 @@ angular.module('demo')
        * @param {string|[string]} evts - One or more events; "*" means the all events set.
        */
       listen: function(tgt, evts, cb) {
+        if (!angular.isString(tgt)) {
+          throw new Error("EventService expects string targets");
+        }
         var handler = handlers[tgt] || (handlers[tgt] = {});
         var events = angular.isArray(evts) ? evts : [evts];
         events.forEach(function(evt) {
@@ -66,6 +69,9 @@ angular.module('demo')
        * @param {string|[string]} evts - One or more events; "*" means the all events set.
        */
       remove: function(tgt, evts, cb) {
+        if (!angular.isString(tgt)) {
+          throw new Error("EventService expects string targets");
+        }
         if (arguments.length == 1 && angular.isArray(tgt)) {
           innerRemove.apply(null, tgt);
         } else {
@@ -79,8 +85,8 @@ angular.module('demo')
        * @returns [eventCallback|Object]
        */
       getHandlers: function(tgt, evt) {
-        if (!tgt) {
-          throw new Error("invalid target");
+        if (!angular.isString(tgt)) {
+          throw new Error("EventService expects string targets");
         }
         var cat = function(ret, evt, handler) {
           // all events for this handler's target
@@ -110,8 +116,8 @@ angular.module('demo')
        * @returns {start:Function,end:Function}
        */
       forEach: function(tgt, evt, fn) {
-        if (!tgt) {
-          throw new Error("invalid target");
+        if (!angular.isString(tgt)) {
+          throw new Error("EventService expects string targets");
         }
         return eventService.getHandlers(tgt, evt)
           .map(function(handler) {
@@ -129,6 +135,9 @@ angular.module('demo')
        * @returns {[*]} - list of non-undefined values returned by callbacks 
        */
       raise: function(tgt, evt, data) {
+        if (!angular.isString(tgt)) {
+          throw new Error("EventService expects string targets");
+        }
         var ret = [];
         eventService.forEach(tgt, evt, function(cb) {
           var r = cb.start(data, tgt, evt);

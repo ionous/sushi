@@ -143,7 +143,7 @@ angular.module('demo')
           };
           // the x-rel generally tells us when an object has had its parent changed
           // generate x-rev so the parent can hear when its children have changed.
-          $log.debug("EntityService:", "new x-rev for", prevOwner, rev);
+          $log.debug("EntityService:", "x-rev", prevOwner.id, invRel);
           // FIX? when we change rooms, we get this x-rev change before the player whereabouts change, leading to a map refresh of the room we're leaving.
           $timeout(function() {
             EventService.raise(prevOwner.id, "x-rev", rev);

@@ -80,10 +80,12 @@ angular.module('demo')
 
       var makeContentsLayer = function(obj) {
         var container = obj.classInfo.contains("containers");
-
+        $log.debug("LayerController: contents layer", slashPath, container ? "container" : "");
+        
         var updateContents = function() {
           var stopRefresh = RelationService.fetchContents(obj,
             function(contents) {
+              // contents maps: name->entity
               $log.debug("LayerController: updated contents", slashPath, contents);
               $scope.showLayer = !container || obj.is("open") || obj.is("transparent");
               $scope.objects = contents;
@@ -91,7 +93,6 @@ angular.module('demo')
             });
           $scope.$on("$destroy", stopRefresh);
         };
-
         // listen to future changes in state ( for open, closed, etc. )
         if (container) {
           var ch = EventService.listen(obj.id, "x-set", function() {
@@ -127,10 +128,11 @@ angular.module('demo')
               makeStateLayer(obj, subLayer);
             } else {
               var customName = subLayer.slice(1);
-              $log.debug("LayerController: custom layer", customName, slashPath);
               if (customName == 'contents') {
                 makeContentsLayer(obj);
-              } // custom contents
+              } else {
+                $log.error("LayerController: unknown layer", slashPath);
+              } // customName
             } // customLayer
           } // stateLayer
         } // obj

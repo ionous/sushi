@@ -27,7 +27,7 @@ angular.module('demo')
       var relationService = {
         // pass objects of this ref to the refresh function whenever the objects changes.
         fetchRelation: function(ref, rel, rev, refresh) {
-          var handler = EventService.listen(ref, rev ? "x-rev" : "x-rel", function(data) {
+          var handler = EventService.listen(ref.id, rev ? "x-rev" : "x-rel", function(data) {
             if (data['prop'] == rel) {
               getRelation(ref, rel).then(refresh);
             }
@@ -40,7 +40,7 @@ angular.module('demo')
           });
           // return a function that, when called, will destroy the event listener
           return function() {
-            $log.debug("RelationService: killing object changes for", ref);
+            $log.debug("RelationService: silencing", ref);
             EventService.remove(handler);
             handler = null;
           };
