@@ -55,7 +55,6 @@ angular.module('demo')
          * @type {Object.<string,Array<Entity>>}
          */
         this.relations = {};
-
         this.classInfo = {};
       };
 

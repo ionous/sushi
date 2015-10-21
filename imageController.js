@@ -22,9 +22,9 @@ var ImageController =
         var ofs = pt(x - pos.x, y - pos.y);
 
         var inRange = (ofs.x >= 0 && ofs.y >= 0 && ofs.x < size.x && ofs.y < size.y);
-        $log.debug("ImageController: click", layer.name, clickReference.id, inRange);
         if (inRange) {
           click.handled = clickReference;
+          $log.debug("ImageController: click", layer.name, clickReference.id);
         }
       };
 
@@ -32,11 +32,11 @@ var ImageController =
       var src = layer.image.source;
       if (!angular.isString(src) || src == "") {
         var ctx = canvas.getContext("2d");
-        $log.info("ImageController:", layer.name, "fill", pos.x, pos.y, size.x, size.y);
+        $log.debug("ImageController:", layer.name, "fill", pos.x, pos.y, size.x, size.y);
         //ctx.fillRect(pos.x, pos.y, size.x, size.y);
         $scope.$on("clicked", click);
       } else {
-        $log.info("ImageController:", layer.name, layer.image.source);
+        $log.debug("ImageController:", layer.name, layer.image.source);
 
         var img = new Image();
         img.src = "/bin/" + layer.image.source;

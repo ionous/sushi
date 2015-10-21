@@ -5,16 +5,7 @@
  */
 angular.module('demo')
   .factory('ObjectService',
-    function(EntityService, GameService, $log, $q) {
-
-      var ClassInfo = function(classInfo) {
-        //this.data= classData;
-        this.classList = classInfo.meta['classes'];
-      }
-
-      ClassInfo.prototype.contains = function(className) {
-        return this.classList.indexOf(className) >= 0;
-      }
+    function(ClassService, EntityService, GameService, $log, $q) {
 
       var objectService = {
         getById: function(id) {
@@ -40,8 +31,8 @@ angular.module('demo')
             var data = doc.data;
             var obj = EntityService.getRef(data).createOrUpdate(frame, data);
             //$log.info("gotPromisedData", ref.id, doc.data, obj);
-            return GameService.getPromisedData('class', data.type).then(function(clsDoc) {
-              obj.classInfo = new ClassInfo( clsDoc.data );
+            return ClassService.getClass(data.type).then(function(cls) {
+              obj.classInfo = cls;
               return obj;
             });
           });

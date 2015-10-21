@@ -25,8 +25,7 @@ describe("EventService", function() {
     EventService.listen(obja, "test", eventStringCallback("2"));
     var ch = EventService.listen(obja, ["test", "magic"], eventStringCallback("3"));
     //
-    expect(ch).not.toBeUndefined();
-    expect(ch.length).toBe(3);
+    expect(angular.isFunction(ch)).toBe(true);
     //
     var res = EventService.raise(obja, "test", "data");
     expect(res.length).toBeGreaterThan(1);
@@ -37,9 +36,7 @@ describe("EventService", function() {
     var magic = EventService.raise(obja, "magic", "data").join("-");
     expect(magic).toEqual("1.magic.data-3.magic.data")
 
-    expect(function() {
-      EventService.remove(ch)
-    }).not.toThrow();
+    expect(ch).not.toThrow();
     var newt = EventService.raise(obja, "test", "data").join("-");
     expect(newt).toEqual("1.test.data-2.test.data");
 
@@ -49,9 +46,9 @@ describe("EventService", function() {
 
   it('should throw on various removes', function() {
     var callback = function() {};
-    var h1 = EventService.listen(obja, "event1", callback);
-    var h2 = EventService.listen(obja, "event2", callback);
-    var h3 = EventService.listen(obja, "event3", callback);
+    EventService.listen(obja, "event1", callback);
+    EventService.listen(obja, "event2", callback);
+    EventService.listen(obja, "event3", callback);
 
     // mismatched ident throw
     expect(function() {
@@ -80,13 +77,13 @@ describe("EventService", function() {
     var removes = eventStringCallback("removes");
     var keeps = eventStringCallback("keeps");
     var adds = eventStringCallback("adds");
-    
-    var r = EventService.listen(obja, "event", removes);
+
+    var rch = EventService.listen(obja, "event", removes);
     EventService.listen(obja, "event", keeps);
 
     var rem = function() {
       EventService.listen(obja, "event", adds);
-      EventService.remove(r);
+      rch();
     };
     EventService.listen(obja, "event", rem);
     //

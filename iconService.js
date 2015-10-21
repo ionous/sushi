@@ -44,34 +44,68 @@ angular.module('demo')
          */
         this.cls = icon;
         //
-        this.requiresState = [];
-        this.requiresClass = false;
+        this._requireStates = [];
+        this._requiresClass = false;
+        this._excludes = [];
       };
-      Icon.prototype.allows = function(obj) {
+
+      // context describes where the action is being used: "player", "worn", "carried".
+      Icon.prototype.allows = function(obj, nounCount, context) {
         var allows = this.cls;
-        if (allows && this.requiresState.length > 0) {
-          for (var i = 0; i < this.requiresState.length; i++) {
-            var state= this.requiresState[i];
-            allows = obj.is(state);
-            if (!allows) {
-              break;
+        if (allows) {
+          if (!context) {
+            allows = nounCount == 1;
+          } else {
+            if (this._excludes.indexOf(context) >= 0) {
+              allows = false;
+            } else {
+              switch (context) {
+                case "player":
+                  allows = nounCount == 0;
+                  break;
+                case "worn":
+                case "carried":
+                  allows = nounCount >= 1;
+                  break;
+                default:
+                  throw new Error("unknown context", context);
+              }
             }
           }
+          if (allows) {
+            for (var i = 0; i < this._requireStates.length; i++) {
+              var state = this._requireStates[i];
+              allows = obj.is(state);
+              if (!allows) {
+                break;
+              }
+            }
+          }
+          if (allows && this._requiresClass) {
+            allows = obj.classInfo.contains(this._requiresClass);
+          }
         }
-        if (allows && this.requiresClass) {
-          allows = obj.classInfo.contains(this.requiresClass);
-        };
+
         return allows;
       }
 
       // set a filter function
       Icon.prototype.requires = function(state) {
-        this.requiresState.push(state);
+        this._requireStates.push(state);
         return this;
       };
       // set a filter function
       Icon.prototype.matching = function(type) {
-        this.requiresClass = type;
+        this._requiresClass = type;
+        return this;
+      };
+      // "worn" or "carried"; the relationship data is imperfect on the client
+      // could turn these into a state -- would love to have states that could somehow track/derive questions from relations: at any rate, doing this manually based on "context"
+      Icon.prototype.exclude = function(exclusions) {
+        for (var i = 0; i < arguments.length; i++) {
+          var arg = arguments[i];
+          this._excludes.push(arg);
+        }
         return this;
       };
 
@@ -90,8 +124,17 @@ angular.module('demo')
         new Icon("examine it", "eye"),
         new Icon("take it", "hand-rock-o")
         .matching("props")
-        .requires("portable"),
+        .requires("portable")
+        .exclude("worn", "carried"),
 
+        // inventory actions
+        new Icon("show it to", "hand-paper-o"),
+        new Icon("give it to", "hand-rock-o fa-rotate-180"),
+        // we dont have any puts in this story....
+        new Icon("put it onto", null), // "hand-pointer-o"),
+        new Icon("insert it into", "hand-pointer-o fa-rotate-180"),
+
+        // movement
         new Icon("go to", null),
         new Icon("go through it", "reply")
         .matching("doors"),
@@ -115,14 +158,18 @@ angular.module('demo')
 
         new Icon("search it", "search")
         .matching("props"),
-        new Icon("look under it", "level-down"),
+        new Icon("look under it", "level-down")
+        .exclude("worn", "carried"),
         new Icon("listen to", listen),
         new Icon("smell it", smell),
 
         new Icon("wear it", "graduation-cap")
-        .requires("wearables"),
+        .requires("wearables")
+        .exclude("worn"),
 
-        new Icon("attack it", "bolt"),
+        new Icon("attack it", "bolt")
+        .exclude("worn", "carried"),
+
         new Icon("kiss it", "heart-o"),
         new Icon("eat it", null),
         new Icon("print direct parent", null),
@@ -134,11 +181,6 @@ angular.module('demo')
         new Icon("jump", "chevron-up"),
         new Icon("report inventory", null),
 
-        // inventory actions
-        new Icon("show it to", "hand-paper-o"),
-        new Icon("give it to", "hand-rock-o fa-rotate-180"),
-        new Icon("put it onto", "hand-pointer-o"),
-        new Icon("insert it into", "hand-pointer-o fa-rotate-180"),
       ];
       var iconLookup = {};
       for (var i = 0; i < iconList.length; ++i) {

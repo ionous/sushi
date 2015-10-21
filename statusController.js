@@ -4,7 +4,7 @@
  */
 angular.module('demo')
   .controller('StatusController',
-    function(ObjectService, EventService, $log, $scope) {
+    function(ObjectService, $log, $scope) {
       ObjectService.getObject({
           id: 'status-bar',
           type: 'status-bar-instances'
@@ -15,8 +15,6 @@ angular.module('demo')
           // var ch = EventService.listen(status, "x-txt", function(src) {
           //   $log.info("status changed", src);
           // });
-          // $scope.$on("$destroy", function() {
-          //   EventService.remove(ch);
-          // });
+          // $scope.$on("$destroy", ch);
         });
     });

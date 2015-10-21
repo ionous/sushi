@@ -4,23 +4,14 @@
   <span id="status-left">{{status.attr.left}} </span>
   <span id="status-right">{{status.attr.right}}</span>
 </header>
-<!--
-    <div id="player" ng-controller="InventoryController">
-      <a ng-click="showInv = !showInv" href="">inventory</a>
-      <ul ng-hide="showInv">
-        <li ng-repeat="prop in inventory" ng-include="'propRender.html'">
-        </li>
-      </ul>
-    </div>
-  -->
-<div id="main" ng-controller="PopupController">
-  <div id="objectPopup" ng-show="modal.owner" ng-style='modalPos'>
-    <button ng-repeat="m in actions" type="button" class="btn btn-primary" tooltip="{{m.act.attr['act']}}" ng-click="modal.runAction(m.act, prop)" tooltip-placement="bottom">
-      <i ng-class="m.icon.cls"></i>
+<div id="main" ng-controller="ActionController">
+  <div id="objectPopup" ng-show="actions" ng-style='modalPos'>
+    <button ng-repeat="act in actions" type="button" class="btn btn-primary" tooltip="{{act.name}}" ng-click="runAction(act)" tooltip-placement="bottom">
+      <i ng-class="act.icon.cls"></i>
     </button>
   </div>
   <div id="view" ng-controller="ResponseController">
-    <div ng-controller="roomController">
+    <div id="room" ng-controller="roomController" ng-style="popStyle">
       <div ng-controller="MapController" ng-style="viewStyle" ng-click="layerClick($event)">
         <div ng-repeat="layer in layer.layers.slice().reverse()" ng-include="'layer.html'">
         </div>
@@ -28,13 +19,21 @@
       <div ng-if="view && !hideViewButton">
         <a id="returnButton" ng-click="exitView()" href="">Return to room...</a>
       </div>
-    </div> <!-- ~room controller -->
-    <div id="dialogChoices" ng-controller="DialogController">
+    </div>
+    <!-- ~room controller -->
+    <div id="dialogChoices" ng-controller="DialogController" ng-style="popStyle">
       <div class="dialogChoice" ng-repeat="line in dialogChoices">
         <a class="dialogLine" ng-click="selectLine($index)" href="">{{line}}</a>
       </div>
-    </div> <!-- ~list of dialog choices -->
-  </div><!-- ~response box overlay -->
+    </div>
+    <!-- ~list of dialog choices -->
+    <div id="inv" ng-controller="InventoryController" ng-style="popStyle" ng-show="items">
+      <div class="invitem" ng-repeat="item in items" ng-controller="ItemController" ng-click="click($event)">
+        <img class="invimg" ng-src="{{imageSource}}" alt="{{printedName}}" tooltip="{{printedName}}" tooltip-class="invTip"></img>
+      </div>
+    </div>
+  </div>
+  <!-- ~response box overlay -->
   <div id="side">
     <div id="text" ng-controller="LinesController">
       <ul scroll-glue="display.counter">

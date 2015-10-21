@@ -62,9 +62,9 @@ angular.module('demo')
       };
       var locationService = {
         // returns a function to cancel the refresh
-        fetchContents: function(refresh) {
+        watchContents: function(refresh) {
           var room = locationService.room();
-          return RelationService.fetchContents({
+          return RelationService.watchContents({
             id: room,
             type: 'rooms'
           }, function(contents) {

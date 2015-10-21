@@ -9,7 +9,6 @@ angular.module('demo')
   // that precreates those objects before we start talking to the server.
   .factory('GameService', function(
     EntityService,
-    EventService,
     JsonService,
     EventStreamService,
     $http, $log) {
@@ -27,7 +26,7 @@ angular.module('demo')
       if (newFrame <= currentFrame) {
         throw new Error("invalid frame");
       }
-      currentFrame= newFrame;
+      currentFrame = newFrame;
       // merge any data abou the game itself.
       game.updateData(newFrame, doc.data);
 
@@ -51,6 +50,9 @@ angular.module('demo')
      * Post to create the new game object
      */
     var post = function(where, what) {
+      if (angular.isUndefined(where)) {
+        throw new Error("empty post");
+      }
       var url = ['/game', where].join('/');
       return $http.post(url, what).then(function(resp) {
         var doc = JsonService.parseObjectDoc(resp.data, 'startup');
@@ -76,6 +78,7 @@ angular.module('demo')
             }
           };
           game.postGameData = function(what) {
+            $log.info("GameService: post", what);
             return post(game.id, what);
           };
         }
@@ -105,7 +108,7 @@ angular.module('demo')
     Resource.prototype.getData = function(id) {
       var r = this;
       id = id || "";
-      var c= r.cache[id];
+      var c = r.cache[id];
       if (!c || c['frame'] != currentFrame) {
         var promise = promisedGame.then(function(game) {
           var url = ['/game', game.id, r.type];

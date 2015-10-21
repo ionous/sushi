@@ -60,7 +60,9 @@ angular.module('demo')
           var list = handler[evt] || (handler[evt] = []);
           list.push(cb);
         });
-        return [tgt, cb, events];
+        return function() {
+          eventService.remove(tgt, evts, cb);
+        };
       },
       /**
        * remove

@@ -1,12 +1,12 @@
 <div class="mapLayer" ng-controller="LayerController" ng-style="{'left':layer.bounds.min.x+'px','top':layer.bounds.min.y+'px'}">
-  <div ng-if="showLayer">
+  <div ng-if="showLayer" id="{{layerPath}}">
     <div ng-switch on="layer.grid ? 'grid' : layer.image ? 'image' : ''">
       <canvas ng-switch-when='grid' width="{{layerSize.x}}" height="{{layerSize.y}}" ng-controller="GridController">
       </canvas>
       <canvas ng-switch-when='image' width="{{layerSize.x}}" height="{{layerSize.y}}" ng-controller="ImageController">
       </canvas>
     </div>
-    <div ng-if="showBubbles">
+    <div ng-if="showBubbles && hasContent">
       <div class="bubble" ng-controller="TalkController" ng-style="{'bottom':layerSize.y+'px'}" ng-show="charText">
         {{charText}}
       </div>

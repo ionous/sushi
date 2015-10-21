@@ -34,7 +34,5 @@ angular.module('demo')
             TextService.removeHandler(captureChoices);
           }
         }); // listen
-      $scope.$on("$destroy", function() {
-        EventService.remove(ch);
-      });
+      $scope.$on("$destroy", ch);
     }); //controller

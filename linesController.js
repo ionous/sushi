@@ -14,8 +14,6 @@ angular.module('demo')
       var ch = EventService.listen('*', ["print", "say"], function(data, tgt) {
         return TextService.addLines(tgt, data);
       });
-      $scope.$on("$destroy", function() {
-        EventService.remove(ch);
-      });
+      $scope.$on("$destroy", ch);
     } //controller
   );

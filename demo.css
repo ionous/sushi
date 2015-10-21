@@ -36,12 +36,41 @@ footer {
   padding-right: 1em;
 }
 
+#room {
+  margin-bottom: 10px;
+  }
+
+#inv {
+  margin-left: 32px;
+  border: medium ridge;
+  min-height:48px;
+}
+
+.invitem {
+  display: inline-block;
+  border-right: medium ridge;
+  padding: 5px;
+}
+
+.invimg {
+  width: 48px;
+  height: 48px;
+  margin: 0px;
+}
+
+.invTip {
+  text-transform: capitalize;
+}
+
 #status-right {
   float: right;
 }
+
 #returnButton {
-  padding-left:32px; /* matches a tile */
+  padding-left: 32px;
+  /* matches a tile */
 }
+
 #view {
   position: relative;
   float: left;
@@ -231,6 +260,7 @@ div.overgrey {
   background: white;
 }
 
+
 /*http://stackoverflow.com/questions/18422223/bootstrap-3-modal-vertical-position-center*/
 
 @media screen {
@@ -245,5 +275,5 @@ div.overgrey {
 .modal-dialog {
   display: inline-block;
   vertical-align: middle;
-  width:50%;
+  width: 50%;
 }

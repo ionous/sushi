@@ -7,7 +7,6 @@
 angular.module('demo')
   .factory('RelationService',
     function(EventService, ObjectService, $log, $q) {
-
       var getRelation = function(ref, rel) {
         if (!angular.isObject(ref) || !ref.id || !ref.type) {
           throw new Error("missing ref", ref);
@@ -26,31 +25,31 @@ angular.module('demo')
 
       var relationService = {
         // pass objects of this ref to the refresh function whenever the objects changes.
-        fetchRelation: function(ref, rel, rev, refresh) {
-          var handler = EventService.listen(ref.id, rev ? "x-rev" : "x-rel", function(data) {
+        watchRelation: function(ref, rel, refresh) {
+          var remove = EventService.listen(ref.id, "x-rev", function(data) {
             if (data['prop'] == rel) {
               getRelation(ref, rel).then(refresh);
             }
           });
           // initial request:
           getRelation(ref, rel).then(function(objects) {
-            if (!!handler) {
+            if (!!remove) {
               refresh(objects);
             }
           });
           // return a function that, when called, will destroy the event listener
           return function() {
             $log.debug("RelationService: silencing", ref);
-            EventService.remove(handler);
-            handler = null;
+            remove();
+            remove = null;
           };
         },
 
-        // higher level than fetchRelation:
+        // higher level than watchRelation:
         // refresh gets passed a list of resolved objects;
         // returns a function to cancel the refresh.
-        fetchObjects: function(ref, rel, rev, refresh) {
-          return relationService.fetchRelation(ref, rel, rev, function(objects) {
+        watchObjects: function(ref, rel, refresh) {
+          var objectRefresh = function(objects) {
             // get all promised object
             var waiton = [];
             for (var name in objects) {
@@ -69,13 +68,13 @@ angular.module('demo')
               });
               refresh(objects);
             });
-          });
+          };
+          return relationService.watchRelation(ref, rel, objectRefresh);
         },
 
-        fetchContents: function(ref, refresh) {
-          return relationService.fetchObjects(ref, "contents", true, refresh);
+        watchContents: function(ref, refresh) {
+          return relationService.watchObjects(ref, "contents", refresh);
         }
       };
       return relationService;
-
     });

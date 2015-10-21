@@ -6,7 +6,7 @@
  */
 angular.module('demo')
   .controller('ModalActionController',
-    function(PopupService, $scope) {
-      $scope.modal = PopupService;
+    function(ActionService, $scope) {
+      $scope.modal = ActionService;
     } // function
   ); // controller

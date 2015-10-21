@@ -16,8 +16,8 @@
  */
 angular.module('demo')
   .controller('MapController',
-    function(EventService, LocationService, ObjectService, MapService,
-      $element, $log, $q, $scope) {
+    function(LocationService, MapService,
+      $log, $rootScope, $scope) {
       var mapLoaded = false;
 
       var mapName = LocationService.view() || LocationService.room();
@@ -25,12 +25,12 @@ angular.module('demo')
 
       // see also RoomPreviewController.
       $scope.mapName = mapName;
-      $scope.layerPath = ""; // FIX? this should be mapName, the parser is leaving out the root name.
-      $scope.slashPath = "";
+      $scope.layerPath = mapName; 
+      $scope.slashPath = "";// FIX? this should be mapName, the parser is leaving out the root name.
 
       var promisedMap = MapService.getMap(mapName).then(function(map) {
         $scope.map = map;
-        var stopRefresh = LocationService.fetchContents(function(objects) {
+        var stopRefresh = LocationService.watchContents(function(objects) {
           if (mapLoaded) {
             $scope.objects = objects;
 
@@ -50,7 +50,7 @@ angular.module('demo')
             };
             // currently, only game controller listens
             $log.info("MapController: mapChanged.");
-            $scope.$emit("mapChanged", map);
+            $rootScope.$broadcast("mapChanged", map);
           }
         });
         $scope.$on("$destroy", stopRefresh);

@@ -106,6 +106,10 @@ angular.module('demo')
         },
         // add to the list of all text, bit by bit.
         addLines: function(speaker, lines) {
+          if (angular.isUndefined(lines)) {
+            lines = [speaker];
+            speaker = display.id;
+          }
           defaultHandler(lines.slice(), speaker);
           if (handlers.length) {
             var handler = handlers[handlers.length - 1];

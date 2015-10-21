@@ -9,7 +9,7 @@ angular.module('demo')
       }
       // silence room entry
       var suspend = false;
-      var ch = EventService.listen(
+      var remove = EventService.listen(
         '*', "reporting the view", {
           start: function() {
             suspend = true;
@@ -48,7 +48,7 @@ angular.module('demo')
         }
       });
       $scope.$on("$destroy", function() {
-        EventService.remove(ch);
+        remove();
         TextService.removeHandler(h);
       });
     });
