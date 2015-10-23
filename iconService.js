@@ -130,8 +130,8 @@ angular.module('demo')
         // inventory actions
         new Icon("show it to", "hand-paper-o"),
         new Icon("give it to", "hand-rock-o fa-rotate-180"),
-        // we dont have any puts in this story....
-        new Icon("put it onto", null), // "hand-pointer-o"),
+        // ( put page on button )
+        new Icon("put it onto",  "hand-pointer-o"),
         new Icon("insert it into", "hand-pointer-o fa-rotate-180"),
 
         // movement

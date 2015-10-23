@@ -1,6 +1,5 @@
 'use strict';
 
-
 var KeyList = function(i, o) {
   // neither or both defined?
   if (angular.isUndefined(i) || !angular.isUndefined(o)) {
