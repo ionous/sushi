@@ -9,9 +9,9 @@ var ImageController =
   function($element, $http, $log, $scope) {
     var canvas = $element[0];
     var layer = $scope.layer;
-    var clickReference = $scope.clickReference;
+    var objectReference = $scope.objectReference;
 
-    if (layer.image && clickReference) {
+    if (layer.image && objectReference) {
       var pos = pt(0, 0); // image was using left at min.... char was at 0,0. a bug?
       var size = pt_sub(layer.bounds.max, layer.bounds.min);
 
@@ -23,8 +23,8 @@ var ImageController =
 
         var inRange = (ofs.x >= 0 && ofs.y >= 0 && ofs.x < size.x && ofs.y < size.y);
         if (inRange) {
-          click.handled = clickReference;
-          $log.debug("ImageController: click", layer.name, clickReference.id);
+          click.handled = objectReference;
+          $log.debug("ImageController: click", layer.name, objectReference.id);
         }
       };
 

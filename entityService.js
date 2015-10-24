@@ -134,18 +134,21 @@ angular.module('demo')
         if (!angular.isNumber(frame)) {
           throw new Error("frame is not a number");
         }
-        var prevOwner = data['prev'];
         var invRel = data['other'];
-        if (prevOwner && invRel) {
-          var rev = {
-            "prop": invRel
-          };
-          // the x-rel generally tells us when an object has had its parent changed
-          // generate x-rev so the parent can hear when its children have changed.
-          $log.debug("EntityService:", "x-rev", prevOwner.id, invRel);
-          // FIX? when we change rooms, we get this x-rev change before the player whereabouts change, leading to a map refresh of the room we're leaving.
-          $timeout(function() {
-            EventService.raise(prevOwner.id, "x-rev", rev);
+        if (invRel) {
+          ['prev', 'next'].forEach(function(side) {
+            var owner = data[side];
+            if (owner) {
+              // the x-rel generally tells us when an object has had its parent changed
+              // generate x-rev so the parent can hear when its children have changed.
+              $log.debug("EntityService:", "x-rev", owner.id, invRel);
+              // FIX? when we change rooms, we get this x-rev change before the player whereabouts change, leading to a map refresh of the room we're leaving.
+              $timeout(function() {
+                EventService.raise(owner.id, "x-rev", {
+                  "prop": invRel
+                });
+              });
+            }
           });
         }
       };

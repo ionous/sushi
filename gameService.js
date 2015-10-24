@@ -27,18 +27,31 @@ angular.module('demo')
         throw new Error("invalid frame");
       }
       currentFrame = newFrame;
-      // merge any data abou the game itself.
+      // merge any data about the game itself.
       game.updateData(newFrame, doc.data);
 
       // update the events in the old frame.
       var events = doc.data.attr["events"] || [];
-      var handleEvents = EventStreamService.queueEvents(newFrame, events).handleEvents();
-
+      
       // when done, add the new objects at the start of the new frame.
+      // FIX: we lose x-rels on objects we havent seen coming into the scene;
+      // which means we lose their x-revs: the events for releations need to be re-thought.
+
+      // original:
+      //var handleEvents = EventStreamService.queueEvents(newFrame, events).handleEvents();
+
+      // processing = handleEvents.then(function() {
+      //   doc.includes.forEach(function(obj) {
+      //     EntityService.getRef(obj).create(newFrame, obj);
+      //   });
+      //   processing = null;
+      // });
+
+      doc.includes.forEach(function(obj) {
+        EntityService.getRef(obj).create(newFrame, obj);
+      });
+      var handleEvents = EventStreamService.queueEvents(newFrame, events).handleEvents();
       processing = handleEvents.then(function() {
-        doc.includes.map(function(obj) {
-          return EntityService.getRef(obj).create(newFrame, obj);
-        });
         processing = null;
       });
       return processing;
@@ -123,16 +136,7 @@ angular.module('demo')
           var doc = angular.isArray(src.data) ?
             JsonService.parseMultiDoc(src, r.type) :
             JsonService.parseObjectDoc(src, r.type);
-          //r.func(defer, doc);
           return doc;
-
-          // create any included bits as if they were objects....
-          // doc.includes.forEach(function(objData) {
-          //   var obj = EntityService.getRef(objData);
-          //   if (!obj.created()) {
-          //     obj.create(0, objData); // FIX: FRAME?
-          //   }
-          // });
         });
         r.cache[id] = {
           'promise': promise,

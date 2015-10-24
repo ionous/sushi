@@ -17,6 +17,9 @@ define({
             case "converter":
               LocationService.changeView("converter");
               break;
+              case "vending-machine":
+              LocationService.changeView("vending");
+              break;
           }
         } // act== examine-it
       }); //  scope on

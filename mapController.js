@@ -65,7 +65,7 @@ angular.module('demo')
           };
           // send down through the layers
           $scope.$broadcast("clicked", click);
-          // click.handled == clickReference == the layer scope
+          // click.handled == objectReference == the layer scope
           // it contains things like "name" and "promisedObject".
           if (click.handled) {
             // send up through the divs

@@ -6,7 +6,7 @@
 // it clears the contents of the app and resulting in many strange errors.
 angular
   .module('demo', ['ui.bootstrap', 'ngAnimate', 'ngRoute', 'mosaic'])
-  .constant('SKIP_DIALOG', false)
+  .constant('SKIP_DIALOG', true)
   .config(['$controllerProvider', '$routeProvider',
     function($controllerProvider, $routeProvider) {
       // dynamic load of controller for room: inspired by http://ify.io/lazy-loading-in-angularjs/
@@ -16,7 +16,7 @@ angular
         var roomId = $route.current.params['roomId'];
         var viewId = $route.current.params['viewId'];
         var ctrlId = (viewId || roomId);
-        var controllerJs = 'game/' + ctrlId + "Controller";
+        var controllerJs = 'game/' + ctrlId + "-controller";
         $log.info("DemoModule: loading controller", ctrlId);
 
         requirejs([controllerJs], function(res) {

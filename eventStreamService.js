@@ -36,8 +36,10 @@ angular.module('demo')
        */
       Event.streamFrame = 0;
 
-      Event.prototype.pushStartup = function(handlers) {
+      // return list of handler functions from event service.
+      Event.prototype.getStartHandlers = function() {
         var e = this;
+        var handlers = [];
         EventService.forEach(e.tgt.id, e.evt, function(cb) {
           var startup = function() {
             Event.streamFrame = e.frame;
@@ -45,6 +47,7 @@ angular.module('demo')
           };
           handlers.push(startup);
         });
+        return handlers;
       };
 
       Event.prototype.end = function() {
@@ -151,7 +154,11 @@ angular.module('demo')
               // ( this is depth first processing. )
               var next = top.kids.shift();
               active.push(next);
-              next.evt.pushStartup(handlers);
+              var starts = next.evt.getStartHandlers();
+              // if (!starts.length) {
+              //   $log.warn("unhandled event", next.evt.evt, next.evt.tgt);
+              // }
+              handlers.push.apply(handlers, starts);
             }
           } else {
             // get next event node to process
@@ -162,7 +169,11 @@ angular.module('demo')
             }
             active.push(next);
             // build the list of handlers for the next event
-            next.evt.pushStartup(handlers);
+            var starts = next.evt.getStartHandlers();
+            // if (!starts.length) {
+            //   $log.warn("unhandled event", next.evt.evt, next.evt.tgt);
+            // }
+            handlers.push.apply(handlers, starts);
           }
         } // while 1, breks when pending is empty.
       }; // runAll

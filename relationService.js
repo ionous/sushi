@@ -53,15 +53,15 @@ angular.module('demo')
             // get all promised object
             var waiton = [];
             for (var name in objects) {
-              var ref = objects[name];
-              var promisedObject = ObjectService.getObject(ref);
+              var otherRef = objects[name];
+              var promisedObject = ObjectService.getObject(otherRef);
               waiton.push(promisedObject);
-              $log.debug("RelationService: requesting", name);
+              // $log.debug("RelationService: requesting", name);
             }
 
             // notify the game and/or sub-alayers
             $q.all(waiton).then(function(res) {
-              $log.debug("RelationService:", res.length, "request(s) completed.");
+              $log.debug("RelationService:", ref.id, rel, res.length, "completed.");
               var objects = {};
               res.forEach(function(obj) {
                 objects[obj.id] = obj;

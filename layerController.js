@@ -37,8 +37,9 @@ angular.module('demo')
         }
         $scope.hasContent = hasContent;
 
+        // when making an object layer, watch the contents of the object, listening via contentsChanged
         var makeObjectLayer = function(objectName) {
-          if ($scope.objects) { // preview
+          if ($scope.objects) { // room preview lacks objects data
             var refresh = function(evt, contents) {
               var object = contents[objectName];
               $log.info("LayerController: refreshing", objectName, "exists", !!object, "in", slashPath);
@@ -47,17 +48,15 @@ angular.module('demo')
               $scope.object = object;
               $scope.showLayer = !!object;
 
-              // record this here, so that clicking on a state -- which doesnt set this --
-              // can "leak" through up to its parent layer.
+              // accessed from state layers (the children of object layers) when clicked.
               if (object) {
-                $scope.clickReference = {
+                $scope.objectReference = {
                   id: objectName,
                   scope: $scope,
                   object: object,
                 }
               }
             }
-
             refresh(null, $scope.objects);
             $scope.$on("contentsChanged", refresh);
           }

@@ -24,7 +24,7 @@ var GridController =
       var clicked = inRange ? layer.grid.tile[index] : false;
       //$log.info("cell clicked", clicked, layer.name, index, layer.grid.tile.length);
       if (clicked) {
-        click.handled = $scope.clickReference;
+        click.handled = $scope.objectReference;
       }
     });
 
