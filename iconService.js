@@ -118,10 +118,11 @@ angular.module('demo')
       var iconList = [
         new Icon("_invalid_", "question"),
 
+        new Icon("examine it", "eye"),
+
         new Icon("greet", "commenting-o")
         .matching("actors"),
 
-        new Icon("examine it", "eye"),
         new Icon("take it", "hand-rock-o")
         .matching("props")
         .requires("portable")
@@ -131,8 +132,8 @@ angular.module('demo')
         new Icon("show it to", "hand-paper-o"),
         new Icon("give it to", "hand-rock-o fa-rotate-180"),
         // ( put page on button )
-        new Icon("put it onto",  "hand-pointer-o"),
-        new Icon("insert it into", "hand-pointer-o fa-rotate-180"),
+        new Icon("insert it into", "hand-pointer-o"),
+        new Icon("put it onto", "hand-pointer-o fa-rotate-180"),
 
         // movement
         new Icon("go to", null),
