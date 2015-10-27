@@ -116,7 +116,8 @@ angular.module('demo')
           $log.debug("LayerController: object layer", objectName);
           makeObjectLayer(objectName);
         } else {
-          var isStateLayer = name[0] == "#";
+          // the # should be in the first slot, if it's not, there's probably some sort of error; that gets handled below with unknown layer.
+          var isStateLayer = name.indexOf("#") >= 0;
           if (!isStateLayer) {
             $log.debug("LayerController: non-object layer", slashPath);
           } else {

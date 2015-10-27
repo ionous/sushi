@@ -24,7 +24,7 @@ angular.module('demo')
           return $http.get(url).then(function(resp) {
             $log.debug("MapService: received", mapName);
             var names = {};
-            var map= resp.data['map'];
+            var map = resp.data['map'];
             var remap = resp.data['remap'];
             build(names, map);
             var map = {
@@ -34,6 +34,9 @@ angular.module('demo')
               remap: remap || {},
             };
             return map;
+          }, function(reason) {
+            $log.info("couldnt load map", url, reason);
+            throw new Error("couldn't load map", mapName);
           });
         },
       };

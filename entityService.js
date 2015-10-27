@@ -153,20 +153,24 @@ angular.module('demo')
         }
       };
 
+      Entity.prototype.changeState = function(now, was) {
+        if (!angular.isUndefined(was)) {
+          this.states = this.states.filter(function(value) {
+            return value != was;
+          });
+        }
+        this.states.push(now);
+      };
+
       Entity.prototype.x_set = function(frame, data) {
         if (!angular.isNumber(frame)) {
           throw new Error("frame is not a number");
         }
-        var was = data['prev'];
-        var now = data['next'];
         // FIX: when do we update this object's frame -- wouldnt this be something global, not per object?
         if (frame < this.frame) {
           $log.warn("EntityService:", "skipping events for frame:", frame, ", this:", this.frame);
         } else {
-          this.states = this.states.filter(function(value) {
-            return value != was;
-          });
-          this.states.push(now);
+          this.changeState(data['next'], data['prev']);
         }
       };
 

@@ -68,7 +68,6 @@ angular.module('demo')
   .controller('InventoryController',
     function(PlayerService, $log, $scope) {
       $scope.$on("mapChanged", function() {
-        var player = PlayerService.getPlayer();
         var inv = new KeyList();
         var clo = new KeyList();
 

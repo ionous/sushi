@@ -6,7 +6,7 @@
 // it clears the contents of the app and resulting in many strange errors.
 angular
   .module('demo', ['ui.bootstrap', 'ngAnimate', 'ngRoute', 'mosaic'])
-  .constant('SKIP_DIALOG', true)
+  .constant('SKIP_DIALOG', false)
   .config(['$controllerProvider', '$routeProvider',
     function($controllerProvider, $routeProvider) {
       // dynamic load of controller for room: inspired by http://ify.io/lazy-loading-in-angularjs/
@@ -17,12 +17,17 @@ angular
         var viewId = $route.current.params['viewId'];
         var ctrlId = (viewId || roomId);
         var controllerJs = 'game/' + ctrlId + "-controller";
-        $log.info("DemoModule: loading controller", ctrlId);
+        $log.info("DemoModule: loading controller", ctrlId, controllerJs);
 
         requirejs([controllerJs], function(res) {
           $log.debug("DemoModule: acquired", controllerJs);
           $controllerProvider.register(res);
-          var ctrlName = ctrlId.charAt(0).toUpperCase() + ctrlId.slice(1) + "Controller";
+          var names = ctrlId.split("-").map(function(np) {
+            return np.charAt(0).toUpperCase() + np.slice(1);
+          });
+          var ctrlName = names.join("") + "Controller";
+          $log.debug("DemoModule: acquired",ctrlName);
+
           var roomController = res[ctrlName];
           // what we apply here become injectable parameters
           $rootScope.$apply(function() {
@@ -41,23 +46,8 @@ angular
       }
       $routeProvider
         .when('/r/:roomId', {
-          // templateUrl: function(params) {
-          //   var roomId = params['roomId'];
-          //   var templateUrl = 'game/' + roomId + ".html";
-          //   console.log(templateUrl);
-          //   //$log.info("template request", templateUrl);
-          //   return templateUrl;
-          // },
           templateUrl: "game.html",
           controller: "RoomController",
-          // trying to inject the controller directly didnt work, but its not really needed either
-          // function($controller, $log, $route) {
-          //   var roomId = $route.current.params['roomId'];
-          //   var ctrlName = roomId.charAt(0).toUpperCase() + roomId.slice(1) + "Controller";
-          //   var ctrl= obj[roomId];
-          //   $log.info("got controller create", ctrl);
-          //   return ctrl; //$controller( ctrlName, {} );
-          // },
           resolve: {
             _roomController: getControllerName,
           },

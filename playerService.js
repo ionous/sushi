@@ -5,7 +5,7 @@
  */
 angular.module('demo')
   .factory('PlayerService',
-    function(EntityService, RelationService) {
+    function(EntityService, ObjectService, RelationService) {
       // get the player object but dont fully create it;
       // the startup frame will do so because it includes() player data from the server.
       var player = EntityService.getRef({
@@ -21,6 +21,11 @@ angular.module('demo')
         },
         watchClothing: function(refresh) {
           return RelationService.watchObjects(player, "clothing", refresh);
+        },
+        fetchWhere: function() {
+          return ObjectService.getObjects(player, "whereabouts").then(function(objects) {
+            return objects[0];
+          });
         },
       };
       return playerService;

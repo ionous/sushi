@@ -29,6 +29,7 @@ angular.module('demo')
       $scope.slashPath = "";// FIX? this should be mapName, the parser is leaving out the root name.
 
       var promisedMap = MapService.getMap(mapName).then(function(map) {
+        $log.debug("MapController: received", mapName);
         $scope.map = map;
         var stopRefresh = LocationService.watchContents(function(objects) {
           if (mapLoaded) {
@@ -54,6 +55,8 @@ angular.module('demo')
           }
         });
         $scope.$on("$destroy", stopRefresh);
+      }, function(reason) {
+        $log.error("MapController: couldnt load map", mapName);
       });
 
       // used by all layers currently

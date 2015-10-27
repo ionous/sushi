@@ -45,7 +45,7 @@ angular.module('demo')
 
       // whenever the player location changes, change the browser location
       var player = PlayerService.getPlayer();
-      EventService.listen("player", "x-rel", function(data) {
+      EventService.listen(player.id, "x-rel", function(data) {
         if (data['prop'] == "whereabouts" && data['next']) {
           $log.debug("LocationService: requesting player location");
           ObjectService.getObjects(player, "whereabouts").then(function(arr) {

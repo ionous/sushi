@@ -63,6 +63,9 @@ angular.module('demo')
                 case "player":
                   allows = nounCount == 0;
                   break;
+                case "doors":
+                  allows = nounCount == 1;
+                  break;
                 case "worn":
                 case "carried":
                   allows = nounCount >= 1;
@@ -126,7 +129,7 @@ angular.module('demo')
         new Icon("take it", "hand-rock-o")
         .matching("props")
         .requires("portable")
-        .exclude("worn", "carried"),
+        .exclude("worn", "carried", "doors"),
 
         // inventory actions
         new Icon("show it to", "hand-paper-o"),
@@ -159,8 +162,10 @@ angular.module('demo')
 
         new Icon("search it", "search")
         .matching("props"),
-        new Icon("look under it", "level-down")
-        .exclude("worn", "carried"),
+        // new Icon("look under it", "level-down")
+        // .exclude("worn", "carried"),
+        new Icon("look under it", null),
+        
         new Icon("listen to", listen),
         new Icon("smell it", smell),
 
@@ -171,9 +176,11 @@ angular.module('demo')
         new Icon("attack it", "bolt")
         .exclude("worn", "carried"),
 
-        new Icon("kiss it", "heart-o"),
+        new Icon("kiss it", "heart-o")
+        .requires("actors"),
+        
         new Icon("eat it", null),
-        new Icon("print direct parent", null),
+        
 
         // self actions
         new Icon("look", null),
@@ -181,6 +188,9 @@ angular.module('demo')
         new Icon("smell", smell),
         new Icon("jump", "chevron-up"),
         new Icon("report inventory", null),
+        // debugging actions
+        new Icon("print direct parent", null),
+        new Icon("print contents", null),
 
       ];
       var iconLookup = {};

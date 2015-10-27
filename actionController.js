@@ -97,7 +97,16 @@ angular.module('demo')
                 reset("closing same object");
               } else {
                 // different object? open a new menu
-                var context = (newObject.id == "player") ? "player" : handled.context;
+                var context;
+                if (newObject.id == "player") {
+                  context = "player";
+                } else {
+                  if (newObject.classInfo.contains("doors")) {
+                    context = "doors";
+                  } else {
+                    context = handled.context;
+                  }
+                }
                 // create a filter for the actions for the requested object ( and context )
                 var filter = ActionService.newActionFilter(newObject, context);
                 // filter them.
