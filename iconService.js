@@ -138,17 +138,20 @@ angular.module('demo')
         new Icon("insert it into", "hand-pointer-o"),
         new Icon("put it onto", "hand-pointer-o fa-rotate-180"),
 
+        new Icon("tickle it with", "exclamation")
+        .matching("feathers"),
+        
         // movement
         new Icon("go to", null),
         new Icon("go through it", "reply")
         .matching("doors"),
 
         new Icon("open it", "folder-open-o")
-        .requires("openable")
+        .requires("hinged")
         .requires("closed"),
 
         new Icon("close it", "folder-o")
-        .requires("openable")
+        .requires("hinged")
         .requires("open"),
 
         new Icon("press it", "hand-pointer-o")
@@ -178,6 +181,7 @@ angular.module('demo')
 
         new Icon("kiss it", "heart-o")
         .requires("actors"),
+
         
         new Icon("eat it", null),
         
@@ -189,8 +193,8 @@ angular.module('demo')
         new Icon("jump", "chevron-up"),
         new Icon("report inventory", null),
         // debugging actions
-        new Icon("print direct parent", null),
-        new Icon("print contents", null),
+        new Icon("debug direct parent", null),
+        new Icon("debug contents", null),
 
       ];
       var iconLookup = {};

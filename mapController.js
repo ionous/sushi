@@ -25,9 +25,9 @@ angular.module('demo')
 
       // see also RoomPreviewController.
       $scope.mapName = mapName;
-      $scope.layerPath = mapName; 
-      $scope.slashPath = "";// FIX? this should be mapName, the parser is leaving out the root name.
-
+      $scope.layerPath = mapName;
+      $scope.slashPath = ""; // FIX? this should be mapName, the parser is leaving out the root name.
+      
       var promisedMap = MapService.getMap(mapName).then(function(map) {
         $log.debug("MapController: received", mapName);
         $scope.map = map;
@@ -46,6 +46,7 @@ angular.module('demo')
             //
             var sz = map.topLayer.bounds.max;
             $scope.viewStyle = {
+              'position': 'relative',
               'width': sz.x + 'px',
               'height': sz.y + 'px',
             };

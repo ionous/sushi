@@ -19,6 +19,10 @@ footer {
   padding: 0;
 }
 
+.talkLayer {
+  position: absolute;
+}
+
 #objectPopup {
   position: absolute;
   z-index: 100;
@@ -38,12 +42,12 @@ footer {
 
 #room {
   margin-bottom: 10px;
-  }
+}
 
 #inv {
   margin-left: 32px;
   border: medium ridge;
-  min-height:48px;
+  min-height: 48px;
 }
 
 .invitem {
