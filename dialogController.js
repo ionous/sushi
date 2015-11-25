@@ -26,7 +26,7 @@ angular.module('demo')
       };
       var ch = EventService.listen(
         "player",
-        "printing conversation choices", {
+        "printing-conversation-choices", {
           start: function() {
             TextService.pushHandler(captureChoices);
           },

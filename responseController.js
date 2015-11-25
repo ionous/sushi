@@ -10,7 +10,7 @@ angular.module('demo')
       // silence room entry
       var suspend = false;
       var remove = EventService.listen(
-        '*', "reporting the view", {
+        '*', "reporting-the-view", {
           start: function() {
             suspend = true;
           },
