@@ -65,25 +65,9 @@ angular.module('demo')
        * actions have no kids of their own.
        * @return {Array<EventNode>}
        */
-      var packActions = function(currentFrame, actions) {
-        var kids = [];
-        if (actions && actions.length) {
-          actions.forEach(function(act) {
-            kids.push({
-              evt: new Event(
-                act['act'],
-                JsonService.parseObject(act['tgt']),
-                act['data'],
-                currentFrame
-              ),
-            });
-          }); // actions.forEach
-        } // actions.length
-        return kids;
-      };
       /** 
-       * Recursively build an array of EventNodes.
-       * FIX: should look into why the server cant supply whatever data is necessary directly.
+       * Recursively build a hierarchy of EventNodes:
+       * mapping from the server's objects to our objects, and adding in currentFrame.
        * @return {Array<EventNode>}
        */
       var packEvents = function(currentFrame, events) {
@@ -91,19 +75,11 @@ angular.module('demo')
           throw new Error("expected events array");
         }
         return events.map(function(evt) {
-          var kids = packActions(currentFrame, evt['actions']);
-
-          // recurse:
+          var kids;
           var children = evt['events'];
           if (children && children.length) {
-            kids.push.apply(kids, packEvents(currentFrame, children));
+            kids = packEvents(currentFrame, children);
           }
-
-          var defaults= packActions(currentFrame, evt['defaults']);
-          if (defaults && defaults.length) {
-            kids.push.apply(kids, defaults);
-          }
-
           return {
             evt: new Event(
               evt['evt'],
