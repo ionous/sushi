@@ -12,7 +12,7 @@ angular.module('demo')
     JsonService,
     EventStreamService,
     $http, $log) {
-    var currentFrame = 0;
+    var currentFrame = -1;
     //
     var processing;
     /** 
@@ -24,7 +24,7 @@ angular.module('demo')
       }
       var newFrame = doc.meta['frame'];
       if (newFrame <= currentFrame) {
-        throw new Error("invalid frame");
+        throw new Error("invalid frame, new:" + newFrame + ", now:" + currentFrame);
       }
       currentFrame = newFrame;
       // merge any data about the game itself.
@@ -32,7 +32,7 @@ angular.module('demo')
 
       // update the events in the old frame.
       var events = doc.data.attr["events"] || [];
-      
+
       // when done, add the new objects at the start of the new frame.
       // FIX: we lose x-rels on objects we havent seen coming into the scene;
       // which means we lose their x-revs: the events for releations need to be re-thought.
@@ -67,6 +67,7 @@ angular.module('demo')
         throw new Error("empty post");
       }
       var url = ['/game', where].join('/');
+      $log.info("GameService: post", where, what);
       return $http.post(url, what).then(function(resp) {
         var doc = JsonService.parseObjectDoc(resp.data, 'startup');
         if (!doc.data) {
@@ -82,8 +83,8 @@ angular.module('demo')
           gameCreated = true;
           game.started = false;
           game.commence = function() {
-            $log.info("commencing game...");
             if (!game.started) {
+              $log.info("GameService: starting...");
               game.started = true;
               post(game.id, {
                 'in': 'start'
@@ -91,7 +92,6 @@ angular.module('demo')
             }
           };
           game.postGameData = function(what) {
-            $log.info("GameService: post", what);
             return post(game.id, what);
           };
         }
@@ -116,20 +116,20 @@ angular.module('demo')
       this.cache = {};
     };
     /**
-     * a promise which will get filled with resource data.
+     * a promise which receives a jsonapi resource:
+     * an object document, or an multi-object document.
      */
-    Resource.prototype.getData = function(id) {
+    Resource.prototype.getData = function(id, forever) {
       var r = this;
       id = id || "";
       var c = r.cache[id];
-      if (!c || c['frame'] != currentFrame) {
+      if (!c || (!forever && c['frame'] != currentFrame)) {
         var promise = promisedGame.then(function(game) {
           var url = ['/game', game.id, r.type];
           if (id) {
             url.push(id);
           }
           url = url.join('/');
-          //$log.debug("getPromisedData", url);
           return $http.get(url);
         }).then(function(resp) {
           var src = resp.data;
@@ -151,14 +151,19 @@ angular.module('demo')
       currentFrame: function() {
         return currentFrame;
       },
-      // accidentally stumbled upon how to fix "getPromisedGame" -- 
-      // namely $scope.game. "the resource as parent" pattern would be good to use everywhere...
+      // FIX: accidentally stumbled upon how to fix "getPromisedGame" -- namely create a $scope.game containing the result
+      // "the resource as element of parent scope" pattern would be good to use everywhere...
       getPromisedGame: function() {
         return promisedGame;
       },
       // i tried having a function here to delay resolve
       // but it couldnt well distinguish b/t "lists" (no id) and id for the same types because the resource class stored one function per type.
-      getPromisedData: function(type, id) {
+
+      /**
+       * Request a (dynamically changing) resource.
+       * Type can be either a "ref" ( an object containing type and id fields ); or the actual resource type ( as a string ).
+       */
+      getFrameData: function(type, id) {
         if (angular.isObject(type)) {
           id = type.id;
           type = type.type;
@@ -169,6 +174,21 @@ angular.module('demo')
           resources[type] = resource;
         }
         return resource.getData(id);
+      },
+      /**
+       * Request a (constant) resource.
+       */
+      getConstantData: function(type, id) {
+        if (angular.isObject(type)) {
+          id = type.id;
+          type = type.type;
+        }
+        var resource = resources[type];
+        if (!resource) {
+          resource = new Resource(type);
+          resources[type] = resource;
+        }
+        return resource.getData(id, true);
       },
     }; //gameService
     return gameService;

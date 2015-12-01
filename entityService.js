@@ -112,16 +112,16 @@ angular.module('demo')
 
         // subscribe to events
         var that = this;
-        EventService.listen(this.id, "x-set", function() {
+        EventService.listen(this.id, 'x-set', function() {
           call(that, that.x_set, arguments);
         });
-        EventService.listen(this.id, "x-rel", function() {
+        EventService.listen(this.id, 'x-rel', function() {
           call(that, that.x_rel, arguments);
         });
-        EventService.listen(this.id, "x-txt", function() {
+        EventService.listen(this.id, 'x-txt', function() {
           call(that, that.x_val, arguments);
         });
-        EventService.listen(this.id, "x-num", function() {
+        EventService.listen(this.id, 'x-num', function() {
           call(that, that.x_val, arguments);
         });
 
@@ -144,8 +144,8 @@ angular.module('demo')
               $log.debug("EntityService:", "x-rev", owner.id, invRel);
               // FIX? when we change rooms, we get this x-rev change before the player whereabouts change, leading to a map refresh of the room we're leaving.
               $timeout(function() {
-                EventService.raise(owner.id, "x-rev", {
-                  "prop": invRel
+                EventService.raise(owner.id, 'x-rev', {
+                  'prop': invRel
                 });
               });
             }
@@ -181,15 +181,15 @@ angular.module('demo')
         var p = data['prop'];
         var now = data['value'];
 
-        // mimic a json-object so we can merge in the data chnges
+        // mimic a json-object so we can merge in the data changes
         var obj = {
           id: this.id,
           type: this.type,
           attr: {},
         };
-
         obj.attr[p] = now;
         this.updateData(frame, obj);
+        //$log.debug("updating", this.id, " with ", p, "=", now);
       };
 
       Entity.prototype._validate = function(obj, reason) {

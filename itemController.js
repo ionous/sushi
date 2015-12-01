@@ -12,7 +12,7 @@ angular.module('demo')
       if (!object) {
         $log.warn("couldnt find object", itemName, $scope.objects);
       } else {
-        $scope.printedName = object.attr['printed-name'] || object.id.replace(/-/g, " ");
+        $scope.printedName = object.attr['kinds-printed-name'] || object.id.replace(/-/g, " ");
         $scope.click = function(evt) {
           var click = {
             pos: pt(evt.clientX, evt.clientY),

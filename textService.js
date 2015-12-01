@@ -46,7 +46,7 @@ angular.module('demo')
                 // need the speaker? add the block as soon as we know their name.
                 waiting = true;
                 ObjectService.getById(sourceBlock.speaker).then(function(s) {
-                  displayBlock.speaker = s.attr['printed name'] || s.name;
+                  displayBlock.speaker = s.attr['kinds-printed-name'] || s.name;
                   display.blocks.push(displayBlock);
                   waiting = false;
                   return;

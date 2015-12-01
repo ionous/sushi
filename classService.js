@@ -22,7 +22,7 @@ angular.module('demo')
 
       var classService = {
         getClass: function(classType) {
-          return GameService.getPromisedData('class', classType).then(function(clsDoc) {
+          return GameService.getConstantData('class', classType).then(function(clsDoc) {
             return new ClassInfo(clsDoc.data);
           });
         },

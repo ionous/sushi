@@ -17,13 +17,13 @@ angular.module('demo')
           return player;
         },
         watchInventory: function(refresh) {
-          return RelationService.watchObjects(player, "inventory", refresh);
+          return RelationService.watchObjects(player, "actors-inventory", refresh);
         },
         watchClothing: function(refresh) {
-          return RelationService.watchObjects(player, "clothing", refresh);
+          return RelationService.watchObjects(player, "actors-clothing", refresh);
         },
         fetchWhere: function() {
-          return ObjectService.getObjects(player, "whereabouts").then(function(objects) {
+          return ObjectService.getObjects(player, "objects-whereabouts").then(function(objects) {
             return objects[0];
           });
         },

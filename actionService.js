@@ -59,6 +59,7 @@ angular.module('demo')
         }
       };
 
+      var promisedActions = null; // actions cant change, so cache them.
       var actionService = {
         /// hmmmm...
         newActionFilter: function(prop, context) {
@@ -67,32 +68,31 @@ angular.module('demo')
           };
         },
         getPromisedActions: function() {
-          return GameService.getPromisedData('action').then(
-            function(doc) {
-              var ret = [];
-              var actions = doc.data;
-              //$log.warn("ActionService: repeating", actions.length);
-              var repeat = function() {
-                if (ret.length < actions.length) {
+          if (!promisedActions) {
+            promisedActions = GameService.getConstantData('action').then(
+              function(doc) {
+                var ret = []; // chain promises to request a series of actions.
+                var actions = doc.data;
+                //$log.warn("ActionService: repeating", actions.length);
+                var repeat = function() {
+                  // done?
+                  if (ret.length == actions.length) {
+                    return ret;
+                  }
+                  // nope: keep going.
                   var actRef = actions[ret.length];
                   return GameService
-                    .getPromisedData(actRef)
+                    .getConstantData(actRef)
                     .then(function(doc) {
-                      ret.push(doc.data);
+                      var act = new ActionInfo(doc.data)
+                      ret.push(act);
                       return repeat();
                     });
-                } else {
-                  var allActions = ret.map(function(act) {
-                    var ca = new ActionInfo(act)
-                      //$log.info("ActionService: new action", ca);
-                    return ca;
-                  });
-                  //$log.info("ActionService: allActions", allActions);
-                  return allActions;
-                }
-              };
-              return repeat();
-            });
+                };
+                return repeat();
+              });
+          }
+          return promisedActions;
         },
       };
       return actionService;

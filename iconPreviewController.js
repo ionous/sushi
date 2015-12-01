@@ -6,16 +6,15 @@ angular.module('demo')
   .controller('IconPreviewController',
     // ex. http://localhost:8080/demo/#/icons
     function(GameService, IconService, $log, $routeParams, $scope) {
-      //var iconId = $routeParams.iconId;
-
-      $scope.icons = IconService.allIcons().filter(function(i) {
-        return i.cls;
-      }).map(function(i) {
+      // icon is of type IconService.Icon
+      $scope.icons = IconService.allIcons().filter(function(icon) {
+        return icon.cls;
+      }).map(function(icon) {
         return {
-          tooltip: i.id,
+          tooltip: icon.id,
           onAction: function() {
             $scope.details= "";
-            GameService.getPromisedData(i).then(
+            GameService.getConstantData(icon).then(
               function(doc) {
                 $scope.details = angular.toJson(doc,true);
               },
@@ -24,7 +23,7 @@ angular.module('demo')
               }
             );
           },
-          cls: i.cls,
+          cls: icon.cls,
         };
       });
     } //controller

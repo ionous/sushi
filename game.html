@@ -1,8 +1,8 @@
 <!-- demo.js assigns this to ng-controller="RoomController" 
 -->
 <header id="status-bar" ng-controller="StatusController">
-  <span id="status-left">{{status.attr.left}} </span>
-  <span id="status-right">{{status.attr.right}}</span>
+  <span id="status-left">{{status.left}}</span>
+  <span id="status-right">{{status.right}}</span>
 </header>
 <div id="main" ng-controller="ActionController">
   <div id="objectPopup" ng-show="actions" ng-style='modalPos'>

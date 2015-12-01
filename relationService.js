@@ -27,8 +27,7 @@ angular.module('demo')
         // pass objects of this ref to the refresh function whenever the objects changes.
         watchRelation: function(ref, rel, refresh) {
           var remove = EventService.listen(ref.id, "x-rev", function(data) {
-            var str= data['prop'];
-            if (str.indexOf("-"+rel)>0) {
+            if (data['prop'] == rel) {
               getRelation(ref, rel).then(refresh);
             }
           });
@@ -73,9 +72,6 @@ angular.module('demo')
           return relationService.watchRelation(ref, rel, objectRefresh);
         },
 
-        watchContents: function(ref, refresh) {
-          return relationService.watchObjects(ref, "contents", refresh);
-        }
       };
       return relationService;
     });

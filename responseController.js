@@ -7,7 +7,8 @@ angular.module('demo')
       if (SKIP_DIALOG) {
         return;
       }
-      // silence room entry
+      
+      // silence room entry text
       var suspend = false;
       var remove = EventService.listen(
         '*', "reporting-the-view", {

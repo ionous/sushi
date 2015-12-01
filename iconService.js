@@ -194,7 +194,7 @@ angular.module('demo')
         new Icon("report inventory", null),
         // debugging actions
         new Icon("debug direct parent", null),
-        new Icon("debug contents", null),
+        new Icon("debug room contents", null),
 
       ];
       var iconLookup = {};

@@ -26,7 +26,7 @@ angular.module('demo')
             throw new Error("invalid ref");
           }
           // FIX: seems to be happening twice per map load.
-          return GameService.getPromisedData(ref).then(function(doc) {
+          return GameService.getFrameData(ref).then(function(doc) {
             var frame = doc.meta['frame'];
             var data = doc.data;
             var obj = EntityService.getRef(data).createOrUpdate(frame, data);
@@ -44,7 +44,7 @@ angular.module('demo')
         getObjects: function(ref, relation) {
           var rel = [ref.id, relation].join('/');
           //$log.debug("ObjectService: get objects", "id", ref.id, "rel", relation)
-          return GameService.getPromisedData(ref.type, rel).then(function(doc) {
+          return GameService.getFrameData(ref.type, rel).then(function(doc) {
             var frame = doc.meta['frame'];
             // create any associated objects
             doc.includes.map(function(obj) {

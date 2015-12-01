@@ -14,7 +14,7 @@ angular.module('demo')
           throw new Error("invalid view", view);
         }
         // by changing the location, the router in demo.js will re-layout game.html
-        $log.info("LocationService: changing", room, view ? view : "");
+        $log.info("LocationService: changing to", room, view ? view : "");
         // want the url: /r/room/v/view
         var p = ["", "r", room].concat(view ? ["v", view] : []);
         var wantUrl = p.join("/");
@@ -45,10 +45,12 @@ angular.module('demo')
 
       // whenever the player location changes, change the browser location
       var player = PlayerService.getPlayer();
+
       EventService.listen(player.id, "x-rel", function(data) {
-        if (data['prop'] == "whereabouts" && data['next']) {
+        $log.debug("heard", player.id, data, data['prop']);
+        if (data['prop'] == "objects-whereabouts" && data['next']) {
           $log.debug("LocationService: requesting player location");
-          ObjectService.getObjects(player, "whereabouts").then(function(arr) {
+          ObjectService.getObjects(player, "objects-whereabouts").then(function(arr) {
             var loc = arr[0];
             return changeLocation(loc.id);
           });
@@ -64,10 +66,12 @@ angular.module('demo')
         // returns a function to cancel the refresh
         watchContents: function(refresh) {
           var room = locationService.room();
-          return RelationService.watchContents({
+          // FIX? but how? itd be nice if room returned the full id and type.
+          var obj = {
             id: room,
             type: 'rooms'
-          }, function(contents) {
+          };
+          return RelationService.watchObjects(obj, "rooms-contents", function(contents) {
             var curRoom = locationService.room();
             if (curRoom != room) {
               $log.debug("LocationService: ignoring fetch for old room");

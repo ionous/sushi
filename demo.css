@@ -80,6 +80,8 @@ footer {
   float: left;
   min-width: 512px;
   min-height: 512px;
+  /*margin-left: 32px;*/
+  margin-right: 32px;
 }
 
 #dialogChoices {
