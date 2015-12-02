@@ -250,13 +250,11 @@ angular.module('demo')
           }
           return obj;
         },
-
         // can return undefined.
         // mainly for testing.
         getById: function(id) {
           return entities[id];
         },
-
       }; // entityService.
 
       return entityService;

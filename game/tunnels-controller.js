@@ -2,7 +2,7 @@
 
 //
 define({
-  'TunnelsController': function(LocationService, $log, $rootScope, $scope) {
+  'tunnels-controller': function(LocationService, $log, $rootScope, $scope) {
       $rootScope.tunnelBounce= !$rootScope.tunnelBounce;
       $scope.hideViewButton= true;
       LocationService.changeView(

@@ -87,7 +87,8 @@ angular.module('demo')
           $log.debug("LayerController: contents layer", slashPath, container ? "container" : "");
 
           var updateContents = function() {
-            var stopRefresh = RelationService.watchObjects(obj, "containers-contents",
+            // FIX? this is so specific.... anyway to improve?
+            var stopRefresh = RelationService.watchObjects(obj, container ? "containers-contents" : "supporters-contents",
               function(contents) {
                 // contents maps: name->entity
                 $log.debug("LayerController: updated contents", slashPath, contents);

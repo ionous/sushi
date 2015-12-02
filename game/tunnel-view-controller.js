@@ -1,7 +1,7 @@
 'use strict';
 
 define({
-  'Tunnels-2Controller': function($scope) {
+  'tunnel-view-controller': function($scope) {
       $scope.hideViewButton = true;
     } // function
 }); // define()

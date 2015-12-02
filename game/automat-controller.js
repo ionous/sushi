@@ -2,8 +2,8 @@
 
 //http://localhost:8080/demo/#/r/automat
 define({
-  'AutomatController': function(LocationService, $log, $scope) {
-      $scope.$on("running", function(evt, post) {
+  'automat-controller': function(LocationService, $log, $scope) {
+      $scope.$on("client action", function(evt, post) {
         var act = post['act'];
         if (act.id == "examine-it") {
           var tgt = post['tgt'];

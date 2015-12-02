@@ -38,7 +38,7 @@ angular.module('demo')
           'ctx': ctxId,
         };
         // emit this locally first, so we can munge it.
-        var evt = lastOwner.$emit("running", {
+        var evt = lastOwner.$emit("client action", {
           'act': this,
           'tgt': prop,
           'ctx': ctx,

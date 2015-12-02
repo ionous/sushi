@@ -1,7 +1,7 @@
 'use strict';
 
 define({
-  'OtherHallwayController': function(
+  'other-hallway-controller': function(
     PlayerService, $log) {
 
     var player = PlayerService.getPlayer();

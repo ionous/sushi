@@ -9,56 +9,91 @@ angular
   .constant('SKIP_DIALOG', false)
   .config(['$controllerProvider', '$routeProvider',
     function($controllerProvider, $routeProvider) {
-      // dynamic load of controller for room: inspired by http://ify.io/lazy-loading-in-angularjs/
-      var getControllerName = function($log, $q, $rootScope, $route) {
+
+      var defaultController = function() {};
+
+      // dynamic load of controllers inspired by http://ify.io/lazy-loading-in-angularjs/
+      // ctrlId: the dashed short name of the custom controller  (ex. science-lab)
+      var getPromisedController = function($log, $q, $rootScope, $route, ctrlId) {
         var defer = $q.defer();
+        // first: load the list of all controllers
+        requirejs(['game/controllers.js'], function(module) {
+            var controllers = module['controllers'];
+            var ctrlName = controllers ? controllers[ctrlId] : null;
+            if (!ctrlName) {
+              $log.info("DemoModule: using default controller for ", ctrlId);
+              $rootScope.$apply(function() {
+                defer.resolve(defaultController);
+              });
+            } else {
+              var controllerJs = 'game/' + ctrlName;
+              $log.info("DemoModule: loading controller", controllerJs);
+              requirejs([controllerJs], function(module) {
+                  $log.debug("DemoModule: acquired controller", controllerJs);
+
+                  // register the {name:constructor} pair we just loaded with angular
+                  $controllerProvider.register(module);
+                  var ctrlConstructor = module[ctrlName];
+                  if (!ctrlConstructor) {
+                    $log.error("DemoModule:" + ctrlName + " not found in module " + ctrlId);
+                    ctrlConstructor = defaultController;
+                  }
+                  $rootScope.$apply(function() {
+                    defer.resolve(ctrlConstructor);
+                  });
+                },
+                function(err) {
+                  var msg = "DemoModule: unable to load custom game controller:" + err;
+                  $log.error(msg);
+                  defer.reject(msg);
+                });
+            }
+          },
+          function(err) {
+            var msg = "DemoModule: unable to load custom game controllers:" + err;
+            $log.error(msg);
+            defer.reject(msg);
+          });
+        return defer.promise;
+      }; // rootscope apply
+
+      var getStoryController = function($log, $q, $rootScope, $route) {
+        return getPromisedController($log, $q, $rootScope, $route, 'story');
+      };
+
+      var getRoomController = function($log, $q, $rootScope, $route) {
         // the object of "when" is assigned as the $route.current.
         var roomId = $route.current.params['roomId'];
         var viewId = $route.current.params['viewId'];
         var ctrlId = (viewId || roomId);
-        var controllerJs = 'game/' + ctrlId + "-controller";
-        $log.info("DemoModule: loading controller", ctrlId, controllerJs);
+        return getPromisedController($log, $q, $rootScope, $route, ctrlId);
+      };
 
-        requirejs([controllerJs], function(res) {
-          $log.debug("DemoModule: acquired", controllerJs);
-          $controllerProvider.register(res);
-          var names = ctrlId.split("-").map(function(np) {
-            return np.charAt(0).toUpperCase() + np.slice(1);
-          });
-          var ctrlName = names.join("") + "Controller";
-          $log.debug("DemoModule: acquired",ctrlName);
+      var getItemController = function($log, $q, $rootScope, $route) {
+        var itemId = $route.current.params['item'];
+        return getPromisedController($log, $q, $rootScope, $route, itemId);
+      };
 
-          var roomController = res[ctrlName];
-          // what we apply here become injectable parameters
-          $rootScope.$apply(function() {
-            if (roomController) {
-              $log.debug("DemoModule: resolving", ctrlName);
-              defer.resolve(roomController);
-            } else {
-              defer.reject(ctrlName + " not found in module " + controllerJs);
-            }
-          }); // rootscope apply
-        }, function(err) {
-          $log.error("DemoController: error loading controller:", err);
-          defer.reject(err);
-        }); // requirejs
-        return defer.promise;
-      }
       $routeProvider
         .when('/r/:roomId', {
-          templateUrl: "game.html",
-          controller: "RoomController",
+          templateUrl: "play.html",
+          controller: "DisplayController",
           resolve: {
-            _roomController: getControllerName,
+            _storyController: getStoryController,
+            _roomController: getRoomController,
+            _itemController: getItemController,
           },
         })
         .when('/r/:roomId/v/:viewId', {
-          templateUrl: "game.html",
-          controller: "RoomController",
+          templateUrl: "play.html",
+          controller: "DisplayController",
           // what we resolve here become injectable parameters
           // -- just like services --- into the controller.
+          // im using the underscore to designate that.
           resolve: {
-            _roomController: getControllerName,
+            _storyController: getStoryController,
+            _roomController: getRoomController,
+            _itemController: getItemController,
           },
         })
         //ex. http://localhost:8080/demo/#/rooms/automat

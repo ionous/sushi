@@ -42,6 +42,7 @@
   <script src="textService.js"></script>
   <script src="actionController.js"></script>
   <script src="dialogController.js"></script>
+  <script src="displayController.js"></script>
   <script src="gameController.js"></script>
   <script src="gridController.js"></script>
   <script src="iconPreviewController.js"></script>
@@ -54,7 +55,6 @@
   <script src="mapController.js"></script>
   <script src="modalActionController.js"></script>
   <script src="responseController.js"></script>
-  <script src="roomController.js"></script>
   <script src="roomPreviewController.js"></script>
   <script src="statusController.js"></script>
   <script src="talkController.js"></script>
@@ -63,9 +63,11 @@
   <script src="mosaic/point.js"></script>
   <script src="mosaic/sprite.js"></script>
 </head>
+<!-- talks to the bckground server to start the game -->
 
 <body ng-controller="GameController">
-  <div ng-view ng-if="!!game"> </div>
+  <!-- routes to play.html based on the current room -->
+  <div ng-view ng-if="!!game"></div>
 </body>
 
 </html>

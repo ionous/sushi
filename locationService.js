@@ -13,7 +13,7 @@ angular.module('demo')
         if (view == room) {
           throw new Error("invalid view", view);
         }
-        // by changing the location, the router in demo.js will re-layout game.html
+        // by changing the location, the router in demo.js will re-layout play.html
         $log.info("LocationService: changing to", room, view ? view : "");
         // want the url: /r/room/v/view
         var p = ["", "r", room].concat(view ? ["v", view] : []);
@@ -58,9 +58,9 @@ angular.module('demo')
       });
 
       //$location.path()
-      var parse = function(path, sep) {
-        var p = $location.path().split("/");
-        return p[path] == sep ? p[path + 1] : null;
+      var parse = function(fullpath, part, sep) {
+        var p = fullpath.split("/");
+        return p[part] == sep ? p[part + 1] : null;
       };
       var locationService = {
         // returns a function to cancel the refresh
@@ -83,15 +83,22 @@ angular.module('demo')
         // NOTE: $location has $locationChangeStart
         // and it can be preventDefaulted if needed.
         room: function() {
-          return parse(1, "r");
+          return parse($location.path(), 1, "r");
         },
         changeRoom: changeLocation,
-        view: function(view) {
-          return parse(3, "v");
+        view: function() {
+          return parse($location.path(), 3, "v");
         },
         changeView: function(view) {
           var room = locationService.room();
           return changeLocation(room, view);
+        },
+        item: function() {
+          var s = $location.search();
+          return s['item'];
+        },
+        changeItem: function(item) {
+          return $location.search('item', item);
         },
       };
       return locationService;

@@ -46,7 +46,7 @@ angular.module('demo')
         },
 
         // higher level than watchRelation:
-        // refresh gets passed a list of resolved objects;
+        // refresh gets passed an map of { id: Entity+classInfo }
         // returns a function to cancel the refresh.
         watchObjects: function(ref, rel, refresh) {
           var objectRefresh = function(objects) {

@@ -83,7 +83,6 @@ angular.module('demo')
           $log.debug("InventoryController: updated inventory", objects);
           inv.update(objects);
           updateScope();
-
         });
         $scope.$on("$destroy", stopInv);
         //
