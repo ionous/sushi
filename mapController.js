@@ -1,18 +1,17 @@
 'use strict';
 
 /** 
- * Manage the player's current room.
+ * Manage the player's current room, view, or zoomed item.
  * parent is GameController 
  * $scope:
  *   mapName:    GridController uses this for tile image src.
  *   layerPath:  materialized layer hierarchy ( parent-child )
  *   slashPath:  materialized layer hierarchy ( parent/child )
  *   map:        LayerController uses this for the layer->object remap.
- *   objects:    object (Entity) contents of the map.
+ *   currentContents:    object (Entity) contents of the map.
  *   showLayer:  LayerController default status.
  *   layerClick: play.html ng-click
- *   emit (up): mapChanged, selected. 
- *   broadcast(down): contentsChanged contentsChanged 
+ *   emit (up): map loaded, selected. 
  */
 angular.module('demo')
   .controller('MapController',
@@ -28,18 +27,15 @@ angular.module('demo')
       $scope.layerPath = mapName;
       $scope.slashPath = ""; // FIX? this should be mapName, the parser is leaving out the root name.
 
+      // called on map load, and when the room contents change.
       var updateMapData = function(map, objects) {
+        $scope.currentContents = objects;
         if (mapLoaded) {
-          $scope.objects = objects;
-
-          // currently, all sub-layers listen
-          $log.info("MapController: contentsChanged.");
-          $scope.$broadcast("contentsChanged", objects);
+          $log.info("MapController: map data changed.");
         } else {
           mapLoaded = true;
           $scope.layer = map.topLayer;
           $scope.showLayer = true; // makes all layers be true, unless they say otherwise.
-          $scope.objects = objects;
           //
           var sz = map.topLayer.bounds.max;
           $scope.viewStyle = {
@@ -48,8 +44,8 @@ angular.module('demo')
             'height': sz.y + 'px',
           };
           // currently, only game controller listens
-          $log.info("MapController: mapChanged.");
-          $rootScope.$broadcast("mapChanged", map);
+          $log.info("MapController: map data loaded.");
+          $rootScope.$broadcast("map loaded", map);
         }
       };
 

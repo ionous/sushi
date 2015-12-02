@@ -67,7 +67,7 @@ KeyList.prototype.update = function(newObjects) {
 angular.module('demo')
   .controller('InventoryController',
     function(PlayerService, $log, $scope) {
-      $scope.$on("mapChanged", function() {
+      $scope.$on("map loaded", function() {
         var inv = new KeyList();
         var clo = new KeyList();
 

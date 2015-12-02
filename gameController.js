@@ -22,7 +22,7 @@ angular.module('demo')
             $log.error("GameController: couldnt load first room", reason);
           });
           // when the map is loaded, finally start the game:
-          var rub = $scope.$on("mapChanged", function(evt, map) {
+          var rub = $scope.$on("map loaded", function(evt, map) {
             $log.info("GameController: commencing...");
             game.commence();
             rub(); // kill our event handler

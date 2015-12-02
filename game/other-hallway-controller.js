@@ -8,7 +8,7 @@ define({
     var lastRoom = player.attr['actors-last-room'];
     if (!lastRoom) {
       // last room is defined in sash-alice/hallway/otherHallway.go
-      throw new Error("missing last room");
+      $log.error("missing last room");
     }
 
     // add a fake state to get alice to appear in a good position.

@@ -1,0 +1,14 @@
+<!-- given a map layer and its size... display it -->
+<div ng-controller="MapDrawController">
+  <div ng-if="hasContent">
+    <div class="mapLayer" ng-switch on="drawType" ng-style="drawStyle">
+      <div ng-if="showBubbles" class="bubble" ng-controller="TalkController" ng-show="charText" ng-style="{'bottom':layerSize.y+'px'}">
+        {{charText}}
+      </div>
+      <canvas ng-switch-when='grid' width="{{layerSize.x}}" height="{{layerSize.y}}" ng-controller="GridController">
+      </canvas>
+      <canvas ng-switch-when='image' width="{{layerSize.x}}" height="{{layerSize.y}}" ng-controller="ImageController">
+      </canvas>
+    </div>
+  </div>
+</div>

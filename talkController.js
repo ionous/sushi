@@ -8,7 +8,7 @@ angular.module('demo')
       if (SKIP_DIALOG) {
         return;
       }
-      var object = $scope.object;
+      var object = $scope.currentObject;
       if (!object) {
         $log.error("TalkController has no object");
       } else {

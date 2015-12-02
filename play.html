@@ -20,12 +20,12 @@
         <div id="room" ng-controller="roomController" ng-style="popStyle">
           <div id="item" ng-controller="itemController">
             <div ng-controller="MapController" ng-style="viewStyle" ng-click="layerClick($event)">
-              <div ng-repeat="layer in layer.layers.slice().reverse()" ng-include="'layer.html'">
+              <div ng-include="'contentsLayer.html'">
               </div>
             </div>
           </div>
         </div>
-        <!-- view is set by RoomController -->
+        <!-- view is set by DisplayController -->
         <div ng-if="item">
           <a id="returnButton" ng-click="exitItem()" href="">Return to room...</a>
         </div>
