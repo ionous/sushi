@@ -6,7 +6,7 @@
 angular.module('demo')
   .factory('ActionService',
     function(ClassService, GameService, IconService,
-      $log) {
+      $log, $q) {
 
       var ActionInfo = function(act) {
         var name = act.attr['act'];
@@ -43,7 +43,11 @@ angular.module('demo')
           'tgt': prop,
           'ctx': ctx,
         });
-        if (!evt.defaultPrevented) {
+        if (evt.defaultPrevented) {
+          var defer= $q.defer();
+          defer.reject("default prevented");
+          return defer.promise;
+        } else {
           var text = ["(", this.name];
           if (propId) {
             text.push(propId);
@@ -67,6 +71,16 @@ angular.module('demo')
             return actionInfo.icon.allows(prop, actionInfo.nounCount, context);
           };
         },
+        getPromisedAction: function(id) {
+          return actionService.getPromisedActions().then(function(acts) {
+            for (var i = 0; i < acts.length; i++) {
+              var act = acts[i];
+              if (act.id == id) {
+                return act;
+              }
+            }
+          });
+        },
         getPromisedActions: function() {
           if (!promisedActions) {
             promisedActions = GameService.getConstantData('action').then(
@@ -84,7 +98,7 @@ angular.module('demo')
                   return GameService
                     .getConstantData(actRef)
                     .then(function(doc) {
-                      var act = new ActionInfo(doc.data)
+                      var act = new ActionInfo(doc.data);
                       ret.push(act);
                       return repeat();
                     });

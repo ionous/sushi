@@ -15,8 +15,9 @@
     </div>
     <!-- text disply overlays all -->
     <div id="view" ng-controller="ResponseController">
-      <!-- demo.js assigns this controller based on current room; popStyle changes the mouse cursor based on the current popup. -->
+      <!-- demo.js assigns story,room, and item controller based on current url -->
       <div id="story" ng-controller="storyController">
+      <!-- popStyle changes the mouse cursor based on the current popup.  -->
         <div id="room" ng-controller="roomController" ng-style="popStyle">
           <div id="item" ng-controller="itemController">
             <div ng-controller="MapController" ng-style="viewStyle" ng-click="layerClick($event)">
@@ -24,30 +25,30 @@
               </div>
             </div>
           </div>
+          <!-- view is set by DisplayController -->
+          <div ng-if="item">
+            <a id="returnButton" ng-click="exitItem()" href="">Return to room...</a>
+          </div>
+          <!-- FIX: else! -->
+          <div ng-if="!item && (view && !hideViewButton)">
+            <a id="returnButton" ng-click="exitView()" href="">Return to room...</a>
+          </div>
         </div>
-        <!-- view is set by DisplayController -->
-        <div ng-if="item">
-          <a id="returnButton" ng-click="exitItem()" href="">Return to room...</a>
+        <!-- ~room -->
+        <div id="dialogChoices" ng-controller="DialogController" ng-style="popStyle">
+          <div class="dialogChoice" ng-repeat="line in dialogChoices">
+            <a class="dialogLine" ng-click="selectLine($index)" href="">{{line}}</a>
+          </div>
         </div>
-        <!-- FIX: else! -->
-        <div ng-if="!item && (view && !hideViewButton)">
-          <a id="returnButton" ng-click="exitView()" href="">Return to room...</a>
+        <!-- ~dialogChoices -->
+        <div id="inv" ng-controller="InventoryController" ng-style="popStyle" ng-show="items">
+          <div class="invitem" ng-repeat="item in items" ng-controller="ItemController" ng-click="click($event)">
+            <img class="invimg" ng-src="{{imageSource}}" alt="{{printedName}}" tooltip="{{printedName}}" tooltip-class="invTip">
+          </div>
         </div>
-      </div>
-      <!-- ~room -->
-      <div id="dialogChoices" ng-controller="DialogController" ng-style="popStyle">
-        <div class="dialogChoice" ng-repeat="line in dialogChoices">
-          <a class="dialogLine" ng-click="selectLine($index)" href="">{{line}}</a>
-        </div>
-      </div>
-      <!-- ~dialogChoices -->
-      <div id="inv" ng-controller="InventoryController" ng-style="popStyle" ng-show="items">
       </div>
     </div>
     <!-- ~view -->
-    <div class="invitem" ng-repeat="item in items" ng-controller="ItemController" ng-click="click($event)">
-      <img class="invimg" ng-src="{{imageSource}}" alt="{{printedName}}" tooltip="{{printedName}}" tooltip-class="invTip">
-    </div>
   </div>
   <!-- side bar for raw input /debugging -->
   <div id="side">

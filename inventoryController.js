@@ -1,5 +1,6 @@
 'use strict';
 
+// a map with an ordered list of keys.
 var KeyList = function(i, o) {
   // neither or both defined?
   if (angular.isUndefined(i) || !angular.isUndefined(o)) {
@@ -28,13 +29,13 @@ KeyList.prototype.concat = function(b) {
     newObjects[k] = b.objects[k];
   });
   return new KeyList(newItems, newObjects);
-};
+}
 
-// FIX:this is a poor way of doing ordering.  
 KeyList.prototype.update = function(newObjects) {
   var items = this.items;
   var newItems = Object.keys(newObjects);
 
+  // FIX:this is a poor way of doing ordering.  
   newItems.sort(function(a, b) {
     var ai = items.indexOf(a);
     var bi = items.indexOf(b);

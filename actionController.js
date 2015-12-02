@@ -68,7 +68,7 @@ angular.module('demo')
           .then(function() {
             reset("completed " + act.id);
           }, function() {
-            TextService.addLines("This will not work!");
+            //TextService.addLines("This will not work!");
             reset("failed to run");
           });
       };
