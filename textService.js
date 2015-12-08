@@ -79,10 +79,21 @@ angular.module('demo')
       };
 
       var handlers = [];
+      var suspended= 0;
 
       var textService = {
         getDisplay: function() {
           return display;
+        },
+        suspend: function(suspend) {
+          if (suspend) {
+            suspended+=1;
+          } else {
+            if (suspended==0) {
+              throw new Error("unmatched suspend");
+            }
+            suspended-=1;
+          }
         },
         /**
          * @callback handler
@@ -111,7 +122,7 @@ angular.module('demo')
             speaker = display.id;
           }
           defaultHandler(lines.slice(), speaker);
-          if (handlers.length) {
+          if (!suspended && handlers.length) {
             var handler = handlers[handlers.length - 1];
             return handler.call(handler, lines.slice(), speaker);
           }

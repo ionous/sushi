@@ -182,10 +182,8 @@ angular.module('demo')
         new Icon("kiss it", "heart-o")
         .requires("actors"),
 
-        
         new Icon("eat it", null),
         
-
         // self actions
         new Icon("look", null),
         new Icon("listen", listen),

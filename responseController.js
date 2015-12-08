@@ -9,20 +9,19 @@ angular.module('demo')
       }
       
       // silence room entry text
-      var suspend = false;
-      var remove = EventService.listen(
+      var rub = EventService.listen(
         '*', "reporting-the-view", {
           start: function() {
-            suspend = true;
+            TextService.suspend(true);
           },
           end: function() {
-            suspend = false;
+            TextService.suspend(false);
           }
         });
 
       var display = TextService.getDisplay();
       var h = TextService.pushHandler(function(lines, speaker) {
-        if (!suspend && speaker == display.id) {
+        if (speaker == display.id) {
           var modalInstance = $modal.open({
             animation: false,
             templateUrl: 'responseContent.html',
@@ -49,7 +48,7 @@ angular.module('demo')
         }
       });
       $scope.$on("$destroy", function() {
-        remove();
+        rub();
         TextService.removeHandler(h);
       });
     });

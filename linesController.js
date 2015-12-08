@@ -10,7 +10,6 @@ angular.module('demo')
   .controller('LinesController',
     function(EventService, TextService, $log, $scope) {
       $scope.display = TextService.getDisplay();
-      //
       var ch = EventService.listen('*', ["print", "say"], function(data, tgt) {
         return TextService.addLines(tgt, data);
       });
