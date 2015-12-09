@@ -239,6 +239,9 @@ angular.module('demo')
         // create, ensure the existance of an object box.
         // starts listening for object changes, but doesnt request object data.
         getRef: function(ref) {
+          if (!ref.id || !ref.type) {
+            throw new Error("invalid ref");
+          }
           var id = ref.id;
           var type = ref.type;
           var obj = entities[id];

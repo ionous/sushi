@@ -6,7 +6,6 @@
 angular.module('demo')
   .factory('ObjectService',
     function(ClassService, EntityService, GameService, $log, $q) {
-
       var objectService = {
         getById: function(id) {
           var ref = EntityService.getById(id);
@@ -19,23 +18,22 @@ angular.module('demo')
          * returns the promise of an object
          * the object in "json format", with the extra field classInfo added to it.
          * ( the object's data will be automatically updated. )
-         * FIX? use http caching with a ?frame=currentFrame, or object change counter?
          */
         getObject: function(ref) {
-          if (!ref.id || !ref.type) {
-            throw new Error("invalid ref");
-          }
-          // FIX: seems to be happening twice per map load.
-          return GameService.getFrameData(ref).then(function(doc) {
-            var frame = doc.meta['frame'];
-            var data = doc.data;
-            var obj = EntityService.getRef(data).createOrUpdate(frame, data);
-            //$log.info("gotPromisedData", ref.id, doc.data, obj);
-            return ClassService.getClass(data.type).then(function(cls) {
-              obj.classInfo = cls;
-              return obj;
+          var promise;
+          var obj = EntityService.getRef(ref);
+          if (obj.created()) {
+            promise = $q.when(obj);
+          } else {
+            promise = GameService.getFrameData(ref).then(function(doc) {
+              obj.createOrUpdate(doc.meta['frame'], doc.data);
+              return ClassService.getClass(data.type).then(function(cls) {
+                obj.classInfo = cls;
+                return obj;
+              });
             });
-          });
+          }
+          return promise;
         },
         /**
          * returns the promise of an array of objects for some relation.
