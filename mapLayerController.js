@@ -6,16 +6,18 @@ angular.module('demo')
       var layer = $scope.layer;
       var slashPath = $scope.slashPath;
       var map = $scope.map;
-
+      
       if (!layer || angular.isUndefined(slashPath) || !map) {
         $log.error("MapLayerController: couldnt layer from", slashPath, !!layer, !!map);
       } else {
         var name = layer.name;
         $scope.name = name;
         //$scope.layerPath = $scope.layerPath + "-" + name;
-        var oslash= slashPath + "/" + name;
+        var oslash = slashPath + "/" + name;
         $scope.slashPath = oslash;
         var slashPath = oslash.slice(1); // skip the empty root left by the mapparser bug
+        $scope.layerName = slashPath.replace("/", "-");
+
         var objectName = map.remap[slashPath];
         if (objectName) {
           $scope.layerType = "objectLayer";
