@@ -6,6 +6,13 @@
 angular.module('demo')
   .factory('ObjectService',
     function(ClassService, EntityService, GameService, $log, $q) {
+      var initClass = function(obj) {
+        return (!angular.isUndefined(obj.classInfo)) ? $q.when(obj) :
+          ClassService.getClass(obj.type).then(function(cls) {
+            obj.classInfo = cls;
+            return obj;
+          });
+      };
       var objectService = {
         getById: function(id) {
           var ref = EntityService.getById(id);
@@ -20,20 +27,12 @@ angular.module('demo')
          * ( the object's data will be automatically updated. )
          */
         getObject: function(ref) {
-          var promise;
           var obj = EntityService.getRef(ref);
-          if (obj.created()) {
-            promise = $q.when(obj);
-          } else {
-            promise = GameService.getFrameData(ref).then(function(doc) {
+          return obj.created() ? initClass(obj) :
+            GameService.getFrameData(ref).then(function(doc) {
               obj.createOrUpdate(doc.meta['frame'], doc.data);
-              return ClassService.getClass(data.type).then(function(cls) {
-                obj.classInfo = cls;
-                return obj;
-              });
+              return initClass(obj);
             });
-          }
-          return promise;
         },
         /**
          * returns the promise of an array of objects for some relation.
