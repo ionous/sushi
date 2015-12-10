@@ -2,6 +2,7 @@
 
 /**
  * @fileoverview Client-side game objects.
+ * basically the same as entity, just adds on classInfo... hrm....
  */
 angular.module('demo')
   .factory('ObjectService',
@@ -14,6 +15,9 @@ angular.module('demo')
           });
       };
       var objectService = {
+        /**
+         * returns the promise of an object
+         */
         getById: function(id) {
           var ref = EntityService.getById(id);
           if (!ref) {
@@ -39,6 +43,7 @@ angular.module('demo')
          * each object contains id and type
          */
         getObjects: function(ref, relation) {
+          $log.warn("ObjectService: requesting relation", ref, relation);
           var rel = [ref.id, relation].join('/');
           //$log.debug("ObjectService: get objects", "id", ref.id, "rel", relation)
           return GameService.getFrameData(ref.type, rel).then(function(doc) {
@@ -47,7 +52,7 @@ angular.module('demo')
             doc.includes.map(function(obj) {
               return EntityService.getRef(obj).create(frame, obj);
             });
-            // retrieve all the relations
+            // retrieve all the objects listed in the relation
             var objs = doc.data.map(function(ref) {
               return EntityService.getRef(ref);
             });

@@ -2,20 +2,10 @@
 
 /** 
  * Manage the player's current room, view, or zoomed item.
- * parent is GameController 
- * $scope:
- *   mapName:    GridController uses this for tile image src.
- *   layerPath:  materialized layer hierarchy ( parent-child )
- *   slashPath:  materialized layer hierarchy ( parent/child )
- *   map:        LayerController uses this for the layer->object remap.
- *   currentContents:    object (Entity) contents of the map.
- *   showLayer:  LayerController default status.
- *   layerClick: play.html ng-click
- *   emit (up): map loaded, selected. 
  */
 angular.module('demo')
   .controller('MapController',
-    function(LocationService, MapService, ObjectService,
+    function(EventService, LocationService, MapService, ObjectService,
       $log, $q, $rootScope, $scope) {
       var mapLoaded = false;
 
@@ -27,9 +17,11 @@ angular.module('demo')
       $scope.layerPath = mapName;
       $scope.slashPath = ""; // FIX? this should be mapName, the parser is leaving out the root name.
 
+      // FIX: TRY SUSPENDING + TIMEOUT EVENT STREAM TILL MAP LOADED
+
       // called on map load, and when the room contents change.
       var updateMapData = function(map, objects) {
-        $scope.currentContents = objects;
+        //$scope.currentContents = objects;
         if (mapLoaded) {
           $log.info("MapController: map data changed.");
         } else {
@@ -49,27 +41,41 @@ angular.module('demo')
         }
       };
 
-      var promisedMap = MapService.getMap(mapName).then(function(map) {
+      MapService.getMap(mapName).then(function(map) {
           $log.debug("MapController: received", mapName);
           $scope.map = map;
 
-          // hack in item:
-          var obj;
-          var item = LocationService.item();
-          if (item) {
-            obj = ObjectService.getById(item);
-            $log.info("hacking in item", item, obj);
-          }
-          $q.when(obj).then(function(item) {
-            var stopRefresh = LocationService.watchContents(function(objects) {
-              if (item) {
-                objects[item.id] = item;
-                $log.info("items:", objects);
-              }
-              updateMapData(map, objects);
-            });
-            $scope.$on("$destroy", stopRefresh);
+          var room = LocationService.room();
+          ObjectService.getById(room).then(function(obj) {
+            $log.info("MapService: received room", obj.id);
+            $scope.currentContents = obj.children;
+            // i'm getting digest conflicts
+            // var x_mod = EventService.listen(obj.id, "x-mod", function(data) {
+            //   $scope.$apply();
+            // });
+            //$scope.$on("$destroy", x_mod);
+            //
+            updateMapData(map);
           });
+
+
+          // // hack in item:
+          // var obj;
+          // var item = LocationService.item();
+          // if (item) {
+          //   obj = ObjectService.getById(item);
+          //   $log.info("hacking in item", item, obj);
+          // }
+          // $q.when(obj).then(function(item) {
+          //   var stopRefresh = LocationService.watchContents(function(objects) {
+          //     if (item) {
+          //       objects[item.id] = item;
+          //       $log.info("items:", objects);
+          //     }
+          //     updateMapData(map, objects);
+          //   });
+          //   $scope.$on("$destroy", stopRefresh);
+          // });
         },
         function(reason) {
           $log.error("MapController: couldnt load map", mapName);

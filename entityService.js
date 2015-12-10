@@ -6,6 +6,14 @@
 angular.module('demo')
   .factory('EntityService',
     function(EventService, EventStreamService, $log, $timeout) {
+      var containment = {
+        "objects-wearer": "actors-clothing",
+        "objects-owner": "actors-inventory",
+        "objects-whereabouts": "rooms-contents",
+        "objects-support": "supporters-contents",
+        "objects-enclosure": "containers-contents",
+      };
+
       /**
        * Client-side game object.
        * ( declaring the class inside the object factory, gives us access to dependency injections. )
@@ -55,7 +63,40 @@ angular.module('demo')
          * @type {Object.<string,Array<Entity>>}
          */
         this.relations = {};
+
+        this.children = {};
       };
+
+
+      /**Object.<string, Entity>*/
+      var entities = {};
+
+      var entityService = {
+
+        // create, ensure the existance of an object box.
+        // starts listening for object changes, but doesnt request object data.
+        getRef: function(ref) {
+          if (!angular.isObject(ref) || !ref.id || !ref.type) {
+            throw new Error("invalid ref");
+          }
+          var id = ref.id;
+          var type = ref.type;
+          var obj = entities[id];
+          if (!obj) {
+            obj = new Entity(id, type);
+            entities[id] = obj;
+          } else if (obj.type != type) {
+            throw new Error("type conflict detected!");
+          }
+          return obj;
+        },
+        // can return undefined.
+        // mainly for testing.
+        getById: function(id) {
+          return entities[id];
+        },
+      }; // entityService.
+
 
       Entity.prototype.is = function(state) {
         return this.states.indexOf(state) >= 0;
@@ -75,6 +116,27 @@ angular.module('demo')
           this.updateData(frame, data);
         }
         return this;
+      };
+
+      Entity.prototype.addChild = function(child) {
+        var existed = !!this.children[child.id];
+        $log.info("EntityService:", this.id, existed ? "replaced" : "added", child.id);
+        this.children[child.id] = child;
+        EventService.raise(this.id, 'x-mod', {
+          //'prop': invRel,
+          'op': 'add',
+          'child': child,
+        });
+      };
+
+      Entity.prototype.removeChild = function(child) {
+        var ok = delete this.children[child.id];
+        $log.info("EntityService:", this.id, ok ? "removed" : "ignored", child.id);
+        EventService.raise(this.id, 'x-mod', {
+          //'prop': invRel,
+          'op': 'rem',
+          'child': child,
+        });
       };
 
       /**
@@ -100,16 +162,17 @@ angular.module('demo')
           this.name = data.meta['name'] || ("unnamed:" + this.id);
         }
 
+        // event helper
         var call = function(that, f, args) {
-          var data = args[0];
+          var dat = args[0];
           var tgt = args[1];
           var evt = args[2];
           var frame = EventStreamService.currentFrame();
           //$log.debug("EntityService:", evt, tgt, frame, data);
-          f.call(that, frame, data);
+          f.call(that, frame, dat);
         }
 
-        // subscribe to events
+        // subscribe to events; these callback member methods
         var that = this;
         EventService.listen(this.id, 'x-set', function() {
           call(that, that.x_set, arguments);
@@ -123,9 +186,22 @@ angular.module('demo')
         EventService.listen(this.id, 'x-num', function() {
           call(that, that.x_val, arguments);
         });
-
         // finalize create
         this.frame = frame || 0;
+
+        // tell parent about us.
+        for (var k in containment) {
+          var par = this.attr[k];
+          if (par) {
+            var newParent = entityService.getById(par);
+            if (!newParent) {
+              $log.error("EntityService:", this.id, "couldnt find parent", par);
+            } else {
+              newParent.addChild(this);
+            }
+            break;
+          }
+        }
         return this;
       };
 
@@ -133,22 +209,25 @@ angular.module('demo')
         if (!angular.isNumber(frame)) {
           throw new Error("frame is not a number");
         }
-        var invRel = data['other'];
-        if (invRel) {
-          ['prev', 'next'].forEach(function(side) {
-            var owner = data[side];
-            if (owner) {
-              // the x-rel generally tells us when an object has had its parent changed
-              // generate x-rev so the parent can hear when its children have changed.
-              $log.debug("EntityService:", "x-rev", owner.id, invRel);
-              // FIX? when we change rooms, we get this x-rev change before the player whereabouts change, leading to a map refresh of the room we're leaving.
-              $timeout(function() {
-                EventService.raise(owner.id, 'x-rev', {
-                  'prop': invRel
-                });
-              });
+        // add/remove children on x_rel changes.
+        var prop = data['prop'];
+        var contained = containment[prop];
+        if (contained) {
+          var invRel = data['other'];
+          if (contained != invRel) {
+            $log.error("EntityService: mismatched rel, want:", contained, "got:", invRel);
+          } else {
+            var prev = data['prev'];
+            if (prev) {
+              var oldParent = entityService.getRef(prev);
+              oldParent.removeChild(this);
             }
-          });
+            var next = data['next'];
+            if (next) {
+              var newParent = entityService.getRef(next);
+              newParent.addChild(this);
+            }
+          }
         }
       };
 
@@ -230,34 +309,6 @@ angular.module('demo')
         }
         return this;
       };
-
-      /**Object.<string, Entity>*/
-      var entities = {};
-
-      var entityService = {
-        // create, ensure the existance of an object box.
-        // starts listening for object changes, but doesnt request object data.
-        getRef: function(ref) {
-          if (!ref.id || !ref.type) {
-            throw new Error("invalid ref");
-          }
-          var id = ref.id;
-          var type = ref.type;
-          var obj = entities[id];
-          if (!obj) {
-            obj = new Entity(id, type);
-            entities[id] = obj;
-          } else if (obj.type != type) {
-            throw new Error("type conflict detected!");
-          }
-          return obj;
-        },
-        // can return undefined.
-        // mainly for testing.
-        getById: function(id) {
-          return entities[id];
-        },
-      }; // entityService.
 
       return entityService;
     }); // function,factory

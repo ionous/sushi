@@ -3,14 +3,14 @@
 angular.module('demo')
   .controller('MapObjectController',
     function($log, $scope) {
-      var name = $scope.objectName; // get the state name from the mapLayerController
-      var contents = $scope.currentContents; // get the state name from the map or content controller
+      var name = $scope.objectName; // get the name from the mapLayerController
+      var contents = $scope.currentContents; // get the name from the map or content controller
       if (!contents || !name) {
         $log.error("MapObjectController: couldnt find named contents", $scope.slashPath, name, !!contents);
       } else {
         if (name == 'alice') {
           name = 'player';
-          $scope.objectName= name;
+          $scope.objectName = name;
         }
         // note: object may be null.
         var object = contents[name];

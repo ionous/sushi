@@ -46,14 +46,17 @@ angular.module('demo')
       // whenever the player location changes, change the browser location
       var player = PlayerService.getPlayer();
 
+      // FIX:should we add an x-view on the server?
       EventService.listen(player.id, "x-rel", function(data) {
         $log.debug("heard", player.id, data, data['prop']);
-        if (data['prop'] == "objects-whereabouts" && data['next']) {
-          $log.debug("LocationService: requesting player location");
-          ObjectService.getObjects(player, "objects-whereabouts").then(function(arr) {
-            var loc = arr[0];
+        if (data['prop'] == "objects-whereabouts") {
+          var loc = data['next'];
+          if (!loc) {
+            $log.error("LocationService: changeLocation invalid");
+          } else {
+            $log.debug("LocationService: changeLocation", loc.id);
             return changeLocation(loc.id);
-          });
+          }
         }
       });
 
@@ -64,22 +67,22 @@ angular.module('demo')
       };
       var locationService = {
         // returns a function to cancel the refresh
-        watchContents: function(refresh) {
-          var room = locationService.room();
-          // FIX? but how? itd be nice if room returned the full id and type.
-          var obj = {
-            id: room,
-            type: 'rooms'
-          };
-          return RelationService.watchObjects(obj, "rooms-contents", function(contents) {
-            var curRoom = locationService.room();
-            if (curRoom != room) {
-              $log.debug("LocationService: ignoring fetch for old room");
-            } else {
-              refresh(contents);
-            }
-          });
-        },
+        // watchContents: function(refresh) {
+        //   var room = locationService.room();
+        //   // FIX-FIX-FIX: but how? this means stories cant subclass rooms right now.
+        //   var obj = {
+        //     id: room,
+        //     type: 'rooms'
+        //   };
+        //   return RelationService.watchObjects(obj, "rooms-contents", function(contents) {
+        //     var curRoom = locationService.room();
+        //     if (curRoom != room) {
+        //       $log.debug("LocationService: ignoring fetch for old room");
+        //     } else {
+        //       refresh(contents);
+        //     }
+        //   });
+        // },
         // NOTE: $location has $locationChangeStart
         // and it can be preventDefaulted if needed.
         room: function() {

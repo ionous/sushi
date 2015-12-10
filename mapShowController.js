@@ -13,14 +13,14 @@ angular.module('demo')
         'top': layer.bounds.min.y + 'px',
       };
 
-      var hasContent = false;
+      var haveContent = false;
       if (layer.bounds) {
         // always has 0,0 as its upper left which works for now.
         var sz = pt_sub(layer.bounds.max, layer.bounds.min);
         if (sz.x > 0 && sz.y > 0) {
           $scope.layerSize = sz;
-          hasContent = true;
+          haveContent = true;
         }
       }
-      $scope.hasContent = hasContent;
+      $scope.haveContent = haveContent;
     });

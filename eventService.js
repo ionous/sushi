@@ -52,7 +52,7 @@ angular.module('demo')
        */
       listen: function(tgt, evts, cb) {
         if (!angular.isString(tgt)) {
-          throw new Error("EventService expects string targets");
+          throw new Error("EventService expects string targets, was:" + tgt);
         }
         var handler = handlers[tgt] || (handlers[tgt] = {});
         var events = angular.isArray(evts) ? evts : [evts];

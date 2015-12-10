@@ -13,6 +13,7 @@ angular.module('demo')
         $log.error("TalkController has no object");
       } else {
         $scope.charText = "";
+        $log.warn("creating talk for", object.id, $scope.layerName);
 
         var overgrey = angular.element('<div class="overgrey"></canvas>');
         var ch = EventService.listen(object.id, "say",

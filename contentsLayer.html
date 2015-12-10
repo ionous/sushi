@@ -1,10 +1,10 @@
 <!-- we are some layer whose parent has established new content -->
-<div class="mapLayer" ng-repeat="layer in layer.layers.slice().reverse()" ng-controller="MapLayerController">
+<div id="{{'layer-'+layerName}}" class="mapLayer" ng-repeat="layer in layer.layers.slice().reverse()" ng-controller="MapLayerController">
   <!-- display the current layer's graphical content -->
   <!-- determine how to display the current layer -->
   <div ng-switch="layerType">
     <div ng-switch-when="objectLayer" ng-controller="MapObjectController">
-      <div ng-if="currentContents[objectName]">
+      <div id="{{'obj-'+objectName}}" ng-if="currentContents[objectName]">
         <div ng-include="'showLayer.html'"></div>
         <div ng-include="'contentsLayer.html'"></div>
       </div>

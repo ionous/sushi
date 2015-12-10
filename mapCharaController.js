@@ -3,9 +3,7 @@
 angular.module('demo')
   .controller('MapCharaController',
     function($log, $scope) {
-      // var layer = $scope.layer;
-      // var slashPath = $scope.slashPath;
-      // when we hit a graphic we will show a dialog layer (see: show/draw)
+    	// appears once for all characters under "chara"
+    	// used in show+ayer.html, coupled with charText (which is set by talkController) when we "haveContent"
       $scope.showBubbles = true;
-      //$log.info("MapCharaController:", slashPath);
     });

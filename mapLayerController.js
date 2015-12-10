@@ -16,7 +16,7 @@ angular.module('demo')
         var oslash = slashPath + "/" + name;
         $scope.slashPath = oslash;
         var slashPath = oslash.slice(1); // skip the empty root left by the mapparser bug
-        $scope.layerName = slashPath.replace("/", "-");
+        $scope.layerName = slashPath.replace("/", "-").replace("$","");
 
         var objectName = map.remap[slashPath];
         if (objectName) {
