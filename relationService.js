@@ -44,34 +44,6 @@ angular.module('demo')
             remove = null;
           };
         },
-
-        // higher level than watchRelation:
-        // refresh gets passed an map of { id: Entity+classInfo }
-        // returns a function to cancel the refresh.
-        watchObjects: function(ref, rel, refresh) {
-          var objectRefresh = function(objects) {
-            // get all promised object
-            var waiton = [];
-            for (var name in objects) {
-              var otherRef = objects[name];
-              var promisedObject = ObjectService.getObject(otherRef);
-              waiton.push(promisedObject);
-              // $log.debug("RelationService: requesting", name);
-            }
-
-            // notify the game and/or sub-alayers
-            $q.all(waiton).then(function(res) {
-              $log.debug("RelationService:", ref.id, rel, res.length, "completed.");
-              var objects = {};
-              res.forEach(function(obj) {
-                objects[obj.id] = obj;
-              });
-              refresh(objects);
-            });
-          };
-          return relationService.watchRelation(ref, rel, objectRefresh);
-        },
-
       };
       return relationService;
     });

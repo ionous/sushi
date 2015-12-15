@@ -1,8 +1,9 @@
 'use strict';
 
 /**
- * @constructor
- * @struct
+ * @typedef Point
+ * @property {number} x - increases left-to-right.
+ * @property {number} y - increases top-to-bottom.
  */
 function pt(x, y) {
   return {

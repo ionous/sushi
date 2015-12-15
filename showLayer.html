@@ -1,14 +1,11 @@
-<!-- given a map layer and its size... display it -->
-<div ng-controller="MapDrawController">
-  <div ng-if="haveContent">
-    <div class="mapLayer" ng-switch on="drawType" ng-style="drawStyle">
-      <div ng-if="showBubbles" class="bubble" ng-controller="TalkController" ng-show="charText" ng-style="{'bottom':layerSize.y+'px'}">
-        {{charText}}
-      </div>
-      <canvas ng-switch-when='grid' width="{{layerSize.x}}" height="{{layerSize.y}}" ng-controller="GridController">
-      </canvas>
-      <canvas ng-switch-when='image' width="{{layerSize.x}}" height="{{layerSize.y}}" ng-controller="ImageController">
-      </canvas>
-    </div>
+<div class="mapLayer" ng-switch on="display.drawType" ng-style="{'left': display.pos.x + 'px','top': display.pos.y + 'px'}">
+  <div ng-if="showBubbles" class="bubble" ng-controller="TalkController" ng-show="charText" ng-style="{'bottom':display.size.y+'px'}">
+    {{charText}}
   </div>
+  <canvas ng-switch-when='grid' width="{{display.size.x}}" height="{{display.size.y}}" ng-controller="GridController">
+  </canvas>
+  <canvas ng-switch-when='image' width="{{display.size.x}}" height="{{display.size.y}}" ng-controller="ImageController">
+  </canvas>
+  <canvas ng-switch-when='group' width="{{display.size.x}}" height="{{display.size.y}}" ng-controller="GroupController">
+  </canvas>
 </div>

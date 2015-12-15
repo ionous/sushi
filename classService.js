@@ -7,9 +7,9 @@ angular.module('demo')
   .factory('ClassService',
     function(GameService, $log, $q) {
 
-      var ClassInfo = function(classInfo) {
-        this.classInfo = classInfo;
-        this.classList = classInfo.meta['classes'];
+      var ClassInfo = function(data) {
+        this.classInfo = data;
+        this.classList = data.meta['classes'];
       };
 
       ClassInfo.prototype.contains = function(className) {
@@ -22,6 +22,9 @@ angular.module('demo')
 
       var classService = {
         getClass: function(classType) {
+          if (!classType) {
+            throw new Error("missing class type");
+          }
           return GameService.getConstantData('class', classType).then(function(clsDoc) {
             return new ClassInfo(clsDoc.data);
           });

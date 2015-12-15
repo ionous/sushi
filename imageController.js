@@ -7,17 +7,19 @@
 angular.module('demo')
   .controller('ImageController', function($element, $http, $log, $scope) {
     var canvas = $element[0];
-    var layer = $scope.layer;
-    var pos = pt(0, 0); // image was using left at min.... char was at 0,0. a bug?
-    var size = pt_sub(layer.bounds.max, layer.bounds.min);
+    var display = $scope.display;
+    display.finishLoading.then(function() {
+      var img = display.img;
+      var pos = pt(0, 0);
+      var size = display.size; //pt_sub(layer.bounds.max, layer.bounds.min);
 
-    // no source means an object/group box
-    var src = layer.image.source;
-    $log.debug("ImageController:", layer.name, src ? src : "(fill)");
+      // no source means an object/group box
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, pos.x, pos.y, size.x, size.y);
+      $scope.$emit("displayed", display);
 
-    var setupClick = function() {
-      var objectReference = $scope.objectReference;
-      if (objectReference) {
+      var subject = $scope.subject;
+      if (subject && subject.scope) {
         $scope.$on("clicked", function(evt, click) {
           var rect = canvas.getBoundingClientRect();
           var x = Math.floor(click.pos.x - rect.left);
@@ -26,26 +28,10 @@ angular.module('demo')
 
           var inRange = (ofs.x >= 0 && ofs.y >= 0 && ofs.x < size.x && ofs.y < size.y);
           if (inRange) {
-            click.handled = objectReference;
-            $log.debug("ImageController: click", layer.name, objectReference.id);
+            click.subject = subject;
+            $log.debug("ImageController: click", display.name, subject.obj.id);
           }
         });
-      };
-    };
-
-    if (!angular.isString(src) || src == "") {
-      var ctx = canvas.getContext("2d");
-      //$log.debug("ImageController:", layer.name, "fill", pos.x, pos.y, size.x, size.y);
-      //ctx.fillRect(pos.x, pos.y, size.x, size.y);
-      setupClick();
-    } else {
-      var img = new Image();
-      img.src = "/bin/" + src;
-      img.onload = function() {
-        var ctx = canvas.getContext("2d");
-        ctx.drawImage(img, pos.x, pos.y, size.x, size.y);
-        //$log.debug("ImageController: loaded", img.src, pos, size);
-        setupClick();
-      }; // onload
-    }
+      }
+    });
   });

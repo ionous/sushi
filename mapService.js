@@ -27,6 +27,14 @@ angular.module('demo')
             var map = resp.data['map'];
             var remap = resp.data['remap'];
             build(names, map);
+            /**
+             * Map data
+             * @typedef {Object} MapData
+             * @property {string} slashPath - fully realized layer path, separated by slashes.
+             * @property {string} layerType - an "enum": "objectLayer", "objectState", user defined, or "unknown".
+             * @property {string} objectName - unique name (id) of the associated object (if any)
+             * @property {string} stateName - unique name (id) of the object state this layer applies to.
+             */
             var map = {
               name: mapName,
               topLayer: map,

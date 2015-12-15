@@ -1,38 +1,47 @@
 'use strict';
 
+/** 
+ * Objects that have contents.
+ */
 angular.module('demo')
   .controller('MapContentsController',
-    function(EventService, RelationService,
-      $log, $scope) {
-      var obj = $scope.currentObject; // get the object from the parent scope
-      var slashPath = $scope.slashPath;
-      if (!obj || !slashPath) {
-        $log.error("MapContentsController: couldnt find object in", obj, slashPath);
-      } else if (angular.isUndefined(obj.children)) {
-        $log.error("MapContentsController: couldnt find children in", obj, slashPath);
-      } else {
-        var container = obj.classInfo.contains("containers");
-        //
-        $scope.currentContents = obj.children;
-        // i'm getting digest conflicts
-        // var x_mod= EventService.listen(obj.id, "x-mod", function(data) {
-        //   $scope.$apply();
-        // });
-        // $scope.$on("$destroy", x_mod);
-
-        var updateVis = function() {
-          var show = !container || obj.is("open") || obj.is("transparent");
-          $scope.showContents = show && !!contents;
-          $log.debug("MapContentsController: updated vis", slashPath, show);
-        };
-
-        // listen to future changes in state ( for open, closed, etc. )
-        if (container) {
-          var x_set = EventService.listen(obj.id, "x-set", function() {
-            updateVis();
-          });
-          $scope.$on("$destroy", x_set);
-        }
-        updateVis();
+    function(EventService,
+      $log, $q, $scope) {
+      /** @type Layer */
+      var layer = $scope.layer;
+      var subject = $scope.subject;
+      if (!subject || !subject.obj || !subject.classInfo) {
+        $log.error("MapContentsController: bad scope", layer.path);
+        throw new Error(layer.path);
       }
+      var obj = subject.obj;
+      var classInfo = subject.classInfo;
+      var container = classInfo.contains("containers");
+      $log.info("MapContentsController: adding", obj.id, container?"(a container)":"");
+      
+      $scope.showContents = false;
+      var sync = function() {
+        var show = !container || obj.is("open") || obj.is("transparent");
+        if (show != $scope.showContents) {
+          $scope.showContents = show;
+          if (show) {
+            var defer = $q.defer();
+            $scope.$on("layer loaded", function(evt, el) {
+              if (el === layer) {
+                defer.resolve();
+              }
+            });
+            return defer.promise;
+          }
+        }
+      };
+      // layers wait intil all sub-layers have been displayed,
+      // but if we are not displaying -- we have to communicate that.
+      if (!sync()) {
+        //$log.warn("MapContentsController: raising fallback", layer.path);
+        $scope.$emit("layer loaded", layer);
+      }
+
+      var x_set = EventService.listen(obj.id, "x-set", sync);
+      $scope.$on("$destroy", x_set);
     });

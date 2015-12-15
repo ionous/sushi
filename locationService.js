@@ -6,9 +6,9 @@
  */
 angular.module('demo')
   .factory('LocationService',
-    function(EventService, ObjectService, PlayerService, RelationService,
-      $location, $log, $q, $rootScope) {
+    function($location, $log, $q, $rootScope) {
 
+      // returns a promise, resolved when the location has changed.
       var changeLocation = function(room, view) {
         if (view == room) {
           throw new Error("invalid view", view);
@@ -43,46 +43,12 @@ angular.module('demo')
         return defer.promise;
       }
 
-      // whenever the player location changes, change the browser location
-      var player = PlayerService.getPlayer();
-
-      // FIX:should we add an x-view on the server?
-      EventService.listen(player.id, "x-rel", function(data) {
-        $log.debug("heard", player.id, data, data['prop']);
-        if (data['prop'] == "objects-whereabouts") {
-          var loc = data['next'];
-          if (!loc) {
-            $log.error("LocationService: changeLocation invalid");
-          } else {
-            $log.debug("LocationService: changeLocation", loc.id);
-            return changeLocation(loc.id);
-          }
-        }
-      });
-
       //$location.path()
       var parse = function(fullpath, part, sep) {
         var p = fullpath.split("/");
         return p[part] == sep ? p[part + 1] : null;
       };
       var locationService = {
-        // returns a function to cancel the refresh
-        // watchContents: function(refresh) {
-        //   var room = locationService.room();
-        //   // FIX-FIX-FIX: but how? this means stories cant subclass rooms right now.
-        //   var obj = {
-        //     id: room,
-        //     type: 'rooms'
-        //   };
-        //   return RelationService.watchObjects(obj, "rooms-contents", function(contents) {
-        //     var curRoom = locationService.room();
-        //     if (curRoom != room) {
-        //       $log.debug("LocationService: ignoring fetch for old room");
-        //     } else {
-        //       refresh(contents);
-        //     }
-        //   });
-        // },
         // NOTE: $location has $locationChangeStart
         // and it can be preventDefaulted if needed.
         room: function() {

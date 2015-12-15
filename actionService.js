@@ -66,9 +66,9 @@ angular.module('demo')
       var promisedActions = null; // actions cant change, so cache them.
       var actionService = {
         /// hmmmm...
-        newActionFilter: function(prop, context) {
+        newActionFilter: function(prop, clsInfo, context) {
           return function(actionInfo) {
-            return actionInfo.icon.allows(prop, actionInfo.nounCount, context);
+            return actionInfo.icon.allows(prop, clsInfo, actionInfo.nounCount, context);
           };
         },
         getPromisedAction: function(id) {

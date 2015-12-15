@@ -50,7 +50,7 @@ angular.module('demo')
       };
 
       // context describes where the action is being used: "player", "worn", "carried".
-      Icon.prototype.allows = function(obj, nounCount, context) {
+      Icon.prototype.allows = function(obj, clsInfo, nounCount, context) {
         var allows = this.cls;
         if (allows) {
           if (!context) {
@@ -85,7 +85,7 @@ angular.module('demo')
             }
           }
           if (allows && this._requiresClass) {
-            allows = obj.classInfo.contains(this._requiresClass);
+            allows = clsInfo.contains(this._requiresClass);
           }
         }
 

@@ -1,22 +1,16 @@
 'use strict';
 
 /**
- * @fileoverview Client-side game objects.
- * basically the same as entity, just adds on classInfo... hrm....
+ * @fileoverview Fetch objects from the server.
+ * ( ObjectService obtains objects explicitly, usually objects are retrieved implicitly. )
  */
 angular.module('demo')
   .factory('ObjectService',
-    function(ClassService, EntityService, GameService, $log, $q) {
-      var initClass = function(obj) {
-        return (!angular.isUndefined(obj.classInfo)) ? $q.when(obj) :
-          ClassService.getClass(obj.type).then(function(cls) {
-            obj.classInfo = cls;
-            return obj;
-          });
-      };
+    function(EntityService, GameService, $log, $q) {
+
       var objectService = {
         /**
-         * returns the promise of an object
+         * fetchs an object from the server, returining the promise of an object.
          */
         getById: function(id) {
           var ref = EntityService.getById(id);
@@ -26,16 +20,16 @@ angular.module('demo')
           return objectService.getObject(ref);
         },
         /**
-         * returns the promise of an object
+         * fetchs an object from the server, returining the promise of an object.
          * the object in "json format", with the extra field classInfo added to it.
          * ( the object's data will be automatically updated. )
          */
         getObject: function(ref) {
           var obj = EntityService.getRef(ref);
-          return obj.created() ? initClass(obj) :
+          return obj.created() ? $q.when(obj) :
             GameService.getFrameData(ref).then(function(doc) {
               obj.createOrUpdate(doc.meta['frame'], doc.data);
-              return initClass(obj);
+              return obj;
             });
         },
         /**

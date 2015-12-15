@@ -111,6 +111,9 @@ angular.module('demo')
         return ret;
       };
 
+      // we listen for dialog to say
+      // delaying the completion until a display exists, and has completed its task.
+      // FIX? this isnt the best possible pattern because if no such object loads, it blocks forever.
       EventService.listen('*', "say", function(data, tgt) {
         $log.info("TalkService: got text", tgt);
         var promisedCompletion;
@@ -123,6 +126,10 @@ angular.module('demo')
       });
 
       var talkService = {
+        /**
+         * name - the unique name (id) of the speaker
+         * display - a callback function of two paramters: text to display; defer to resolve when done displaying.
+         */
         addSpeaker: function(name, display) {
           $log.info("TalkService: got speaker", name);
           var t = ensureTalker(name);

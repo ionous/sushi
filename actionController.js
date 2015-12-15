@@ -79,10 +79,12 @@ angular.module('demo')
 
         // after we know the actions we can start listening to object selection.
         $scope.$on("selected", function(evt, clicked) {
-          var handled = clicked.handled;
-          var newObject = handled.object;
+          var subject = clicked.subject;
+          var newObject = subject.obj;
+          var newClass = subject.classInfo;
 
-          if (!newObject) {
+          // FIX? test class info -- sometimes we dont have it -- not sure exactly why.
+          if (!newObject || !newClass) {
             // not sure that this can happen
             reset("selected a null object");
           } else {
@@ -101,14 +103,14 @@ angular.module('demo')
                 if (newObject.id == "player") {
                   context = "player";
                 } else {
-                  if (newObject.classInfo.contains("doors")) {
+                  if (newClass.contains("doors")) {
                     context = "doors";
                   } else {
-                    context = handled.context;
+                    context = subject.context;
                   }
                 }
                 // create a filter for the actions for the requested object ( and context )
-                var filter = ActionService.newActionFilter(newObject, context);
+                var filter = ActionService.newActionFilter(newObject, newClass, context);
                 // filter them.
                 var filteredActions = allActions.filter(filter);
                 // present them.
@@ -116,7 +118,7 @@ angular.module('demo')
                   reset("no actions available");
                 } else {
                   var pos = clicked.pos;
-                  var scope = clicked.handled.scope;
+                  var scope = clicked.subject.scope;
 
                   filteredActions.sort(IconService.iconSort);
                   open(scope, pos, newObject, filteredActions);

@@ -20,7 +20,7 @@ angular.module('demo')
      */
     var processFrame = function(game, doc) {
       if (processing) {
-        throw new Error("frame in progress");
+        throw new Error("frame in progress" + processing);
       }
       var newFrame = doc.meta['frame'];
       if (newFrame <= currentFrame) {
@@ -33,22 +33,8 @@ angular.module('demo')
       // update the events in the old frame.
       var events = doc.data.attr["events"] || [];
 
-      // when done, add the new objects at the start of the new frame.
-      // FIX: we lose x-rels on objects we havent seen coming into the scene;
-      // which means we lose their x-revs: the events for releations need to be re-thought.
-
-      // original:
-      //var handleEvents = EventStreamService.queueEvents(newFrame, events).handleEvents();
-
-      // processing = handleEvents.then(function() {
-      //   doc.includes.forEach(function(obj) {
-      //     EntityService.getRef(obj).create(newFrame, obj);
-      //   });
-      //   processing = null;
-      // });
-
       doc.includes.forEach(function(obj) {
-        EntityService.getRef(obj).create(newFrame, obj);
+        EntityService.getRef(obj).createOrUpdate(newFrame, obj);
       });
       var handleEvents = EventStreamService.queueEvents(newFrame, events).handleEvents();
       processing = handleEvents.then(function() {

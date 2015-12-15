@@ -64,15 +64,14 @@ angular.module('demo')
          */
         this.relations = {};
 
-        this.children = {};
+        this.contents = {};
+        this.clothing = {};
+        this.inventory = {};
       };
-
 
       /**Object.<string, Entity>*/
       var entities = {};
-
       var entityService = {
-
         // create, ensure the existance of an object box.
         // starts listening for object changes, but doesnt request object data.
         getRef: function(ref) {
@@ -97,7 +96,6 @@ angular.module('demo')
         },
       }; // entityService.
 
-
       Entity.prototype.is = function(state) {
         return this.states.indexOf(state) >= 0;
       };
@@ -110,7 +108,7 @@ angular.module('demo')
         if (!angular.isNumber(frame)) {
           throw new Error("frame is not a number");
         }
-        if (this.frame < 0) {
+        if (!this.created()) {
           this.create(frame, data);
         } else {
           this.updateData(frame, data);
@@ -118,22 +116,26 @@ angular.module('demo')
         return this;
       };
 
-      Entity.prototype.addChild = function(child) {
-        var existed = !!this.children[child.id];
-        $log.info("EntityService:", this.id, existed ? "replaced" : "added", child.id);
-        this.children[child.id] = child;
+      Entity.prototype.addChild = function(child, list) {
+        var contents = this[list];
+        var existed = !!contents[child.id];
+        //$log.debug("EntityService:", this.id, list, existed ? "replaced" : "added", "child", child.id);
+        contents[child.id] = child;
         EventService.raise(this.id, 'x-mod', {
-          //'prop': invRel,
+          'prop': list,
+          'ent': this,
           'op': 'add',
           'child': child,
         });
       };
 
-      Entity.prototype.removeChild = function(child) {
-        var ok = delete this.children[child.id];
-        $log.info("EntityService:", this.id, ok ? "removed" : "ignored", child.id);
+      Entity.prototype.removeChild = function(child, list) {
+        var contents = this[list];
+        var ok = delete contents[child.id];
+        //$log.debug("EntityService:", this.id, list, ok ? "removed" : "ignored", "child", child.id);
         EventService.raise(this.id, 'x-mod', {
-          //'prop': invRel,
+          'prop': list,
+          'ent': this,
           'op': 'rem',
           'child': child,
         });
@@ -149,8 +151,9 @@ angular.module('demo')
         if (!angular.isNumber(frame)) {
           throw new Error("frame is not a number");
         }
-        if (this.frame >= 0) {
+        if (this.created()) {
           // throw new Error("multiple creates received for:" + this.id);
+          $log.error("multiple creates received for:",  this.id);
           return;
         }
 
@@ -191,13 +194,16 @@ angular.module('demo')
 
         // tell parent about us.
         for (var k in containment) {
+          var c = containment[k];
+          var shortName = c.slice(c.indexOf("-") + 1);
+
           var par = this.attr[k];
           if (par) {
             var newParent = entityService.getById(par);
             if (!newParent) {
               $log.error("EntityService:", this.id, "couldnt find parent", par);
             } else {
-              newParent.addChild(this);
+              newParent.addChild(this, shortName);
             }
             break;
           }
@@ -211,21 +217,22 @@ angular.module('demo')
         }
         // add/remove children on x_rel changes.
         var prop = data['prop'];
-        var contained = containment[prop];
-        if (contained) {
+        var c = containment[prop];
+        if (c) {
           var invRel = data['other'];
-          if (contained != invRel) {
-            $log.error("EntityService: mismatched rel, want:", contained, "got:", invRel);
+          if (c != invRel) {
+            $log.error("EntityService: mismatched rel, want:", c, "got:", invRel);
           } else {
+            var shortName = c.slice(c.indexOf("-") + 1);
             var prev = data['prev'];
             if (prev) {
               var oldParent = entityService.getRef(prev);
-              oldParent.removeChild(this);
+              oldParent.removeChild(this, shortName);
             }
             var next = data['next'];
             if (next) {
               var newParent = entityService.getRef(next);
-              newParent.addChild(this);
+              newParent.addChild(this, shortName);
             }
           }
         }
@@ -294,7 +301,7 @@ angular.module('demo')
         this._validate(obj, "updateData");
 
         // silent ignore events in frames before the object is fully created.
-        if (this.frame >= 0) {
+        if (this.created()) {
           if (frame < this.frame) {
             $log.warn("EntityService:", "rejecting stale frame", this.id, frame);
           } else {
