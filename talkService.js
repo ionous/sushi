@@ -6,6 +6,9 @@ angular.module('demo')
   .factory('TalkService',
     function(EventService, $log, $q) {
 
+      // patch to avoid hanging on talkers which never arrive
+      var suspended = 0;
+    
       // 1. got text, dont have a display: return a defered event.
       // 2. got text, have a display: call the display, defer the event til the display is done.
       // 3. get display, dont have text: remember the display for later.
@@ -14,7 +17,7 @@ angular.module('demo')
       var Talker = function(name) {
         this.name = name;
         this.displays = [];
-        this.pendingDisplay = null;
+        this.currentDisplay = null;
         this.deferedEvent = null;
         this.pendingLine = null;
         this.lines = [];
@@ -38,20 +41,28 @@ angular.module('demo')
 
       Talker.prototype.processALine = function() {
         // get a new display.
-        if (!this.pendingDisplay) {
+        if (!this.currentDisplay) {
           var display = this.displays.pop();
           if (display) {
             $log.info("TalkService: new display for", this.name);
-            this.pendingDisplay = display;
+            this.currentDisplay = display;
           }
         }
-        if (this.pendingDisplay) {
+        if (!this.currentDisplay) {
+          $log.info("no display", suspended);
+          if (!suspended) {
+            // we dont expect that this event will ever be resolved
+            var defersEvent= this.deferedEvent;
+            this.deferedEvent= null;
+            defersEvent.resolve(); // FIX? reject? event stream uses .all which ends after reject...
+          }
+        } else {
           var nextLine = this.lines.shift();
           this.pendingLine = nextLine;
           // done displaying lines?
           if (angular.isUndefined(nextLine)) {
             // hacky: send the blank line to allow the display to cleanup
-            this.pendingDisplay(nextLine);
+            this.currentDisplay(nextLine);
             //
             var deferedEvent = this.deferedEvent;
             this.deferedEvent = null;
@@ -65,7 +76,7 @@ angular.module('demo')
               that.processALine();
             });
             // tell the display to display a line.
-            this.pendingDisplay(nextLine, deferToDisplay);
+            this.currentDisplay(nextLine, deferToDisplay);
           }
         }
       };
@@ -83,12 +94,12 @@ angular.module('demo')
       };
 
       Talker.prototype.removeDisplay = function(display) {
-        if (this.pendingDisplay == display) {
+        if (this.currentDisplay == display) {
           if (this.pendingLine) {
             this.lines.unshift(this.pendingLine);
             this.pendingLine = null;
           }
-          this.pendingDisplay = null;
+          this.currentDisplay = null;
           this.processALine();
         } else {
           this.displays = this.displays.filter(function(el) {
@@ -99,6 +110,7 @@ angular.module('demo')
 
       var talkers = {};
 
+      // return the existing talker for the passed name, or create one if it does not exist.
       var ensureTalker = function(name) {
         if (!angular.isString(name)) {
           throw new Error("Expected speaker name");
@@ -126,6 +138,20 @@ angular.module('demo')
       });
 
       var talkService = {
+        suspend: function() {
+          suspended += 1;
+          var resumed = false;
+          return function() {
+            if (resumed) {
+              throw new Error("TalkService: resused resume!")
+            }
+            if (suspended == 0) {
+              throw new Error("TalkService: over-matched suspend!")
+            }
+            suspended -= 1;
+            resumed = true;
+          };
+        },
         /**
          * name - the unique name (id) of the speaker
          * display - a callback function of two paramters: text to display; defer to resolve when done displaying.
