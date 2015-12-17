@@ -7,17 +7,22 @@ angular.module('demo')
       // used in showlayer.html, coupled with charText (which is set by talkController)
       var layer = $scope.layer;
       $scope.showBubbles = true;
-      var resume= TalkService.suspend();
+      var resume = TalkService.suspendForLoading();
       $scope.$on("layer loaded", function(evt, el) {
         if (el === layer) {
-          resume();
-          resume= null;
+          if (!resume) {
+          $log.error("MapCharaController:", layer.path, "loaded twice?");
+          } else {
+            $log.debug("MapCharaController:", layer.path, "loaded.");
+            resume();
+            resume = null;
+          }
         }
       });
       $scope.$on("$destroy", function() {
-      	if (resume) {
-      		resume();
-      		resume= null;
-      	} 
+        if (resume) {
+          resume();
+          resume = null;
+        }
       });
     });

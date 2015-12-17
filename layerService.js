@@ -13,7 +13,7 @@ angular.module('demo')
        */
       var newLayer = function(parent, mapLayer, layerPath) {
         var defer = $q.defer();
-        var layerName = layerPath.replace("/", "-").replace("$", "");
+        var layerName = layerPath.replace(/\//g,"_").replace(/(\$|#)/g,"");
         var id = 'layer-' + (layerName || parent.map.name);
         //
         return Object.create(parent, {

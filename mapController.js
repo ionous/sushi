@@ -53,6 +53,7 @@ angular.module('demo')
           $scope.subject = {
             //scope: $scope, // hidden so we cant click on the obj itself.
             obj: obj,
+            contents: obj.contents,
             //classInfo: cls,
           };
           $scope.layer = layer;

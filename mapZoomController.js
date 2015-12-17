@@ -34,6 +34,7 @@ angular.module('demo')
         $scope.subject = {
           scope: $scope,
           obj: view,
+          contents: view.contents,
         };
       }
     });

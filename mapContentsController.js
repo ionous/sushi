@@ -17,13 +17,19 @@ angular.module('demo')
       var obj = subject.obj;
       var classInfo = subject.classInfo;
       var container = classInfo.contains("containers");
-      $log.info("MapContentsController: adding", obj.id, container?"(a container)":"");
-      
-      $scope.showContents = false;
+      $log.info("MapContentsController: adding", obj.id, container ? "(a container)" : "");
+
+      // establishes a new subject containing a new contents.
+      $scope.subject = false;
       var sync = function() {
         var show = !container || obj.is("open") || obj.is("transparent");
-        if (show != $scope.showContents) {
-          $scope.showContents = show;
+        if (show != !!$scope.subject) {
+          $scope.subject = {
+            scope: $scope,
+            obj: obj,
+            classInfo: classInfo,
+            contents: obj.contents,
+          };
           if (show) {
             var defer = $q.defer();
             $scope.$on("layer loaded", function(evt, el) {

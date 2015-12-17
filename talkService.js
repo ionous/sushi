@@ -7,8 +7,8 @@ angular.module('demo')
     function(EventService, $log, $q) {
 
       // patch to avoid hanging on talkers which never arrive
-      var suspended = 0;
-    
+      var loading = 0;
+
       // 1. got text, dont have a display: return a defered event.
       // 2. got text, have a display: call the display, defer the event til the display is done.
       // 3. get display, dont have text: remember the display for later.
@@ -24,9 +24,9 @@ angular.module('demo')
       };
 
       Talker.prototype.addText = function(lines) {
-        var that = this;
         if (this.lines.length) {
-          throw new Error("got text but already have text");
+          var msg = ["TalkService:", this.name, "got text", lines, "but already have text", this.lines].join(' ');
+          throw new Error(msg);
         }
 
         // our lines are very nice lines.
@@ -49,12 +49,16 @@ angular.module('demo')
           }
         }
         if (!this.currentDisplay) {
-          $log.info("no display", suspended);
-          if (!suspended) {
-            // we dont expect that this event will ever be resolved
-            var defersEvent= this.deferedEvent;
-            this.deferedEvent= null;
-            defersEvent.resolve(); // FIX? reject? event stream uses .all which ends after reject...
+          $log.info("no display", loading);
+          // not suspending for loading, then we dont expect that this event will ever be resolved.
+          if (!loading) {
+            var defersEvent = this.deferedEvent;
+            if (deferedEvent) {
+              this.deferedEvent = null;
+              // FIX? reject? event stream uses .all which ends after rject...
+              defersEvent.resolve(); 
+            }
+            this.lines = [];
           }
         } else {
           var nextLine = this.lines.shift();
@@ -65,8 +69,10 @@ angular.module('demo')
             this.currentDisplay(nextLine);
             //
             var deferedEvent = this.deferedEvent;
-            this.deferedEvent = null;
-            deferedEvent.resolve();
+            if (deferedEvent) {
+              this.deferedEvent = null;
+              deferedEvent.resolve();
+            }
           } else {
             // we will defer to a display the displaying of a line.
             var deferToDisplay = $q.defer();
@@ -138,17 +144,17 @@ angular.module('demo')
       });
 
       var talkService = {
-        suspend: function() {
-          suspended += 1;
+        suspendForLoading: function() {
+          loading += 1;
           var resumed = false;
           return function() {
             if (resumed) {
               throw new Error("TalkService: resused resume!")
             }
-            if (suspended == 0) {
+            if (loading == 0) {
               throw new Error("TalkService: over-matched suspend!")
             }
-            suspended -= 1;
+            loading -= 1;
             resumed = true;
           };
         },

@@ -11,19 +11,19 @@ angular.module('demo')
       var layer = $scope.layer;
       var subject = $scope.subject;
       var objectName = layer.objectName;
-      if (!objectName || !subject || !subject.obj ||!subject.obj.contents) {
+      if (!objectName || !subject || !subject.obj || !subject.contents) {
         $log.error("MapObjectController: bad scope", layer.path, objectName, subject);
         throw new Error(layer.path);
       }
       $scope.subject = false;
       var sync = function() {
-        var obj = subject.obj.contents[objectName];
-        var setup = !!$scope.subject != !!obj;
-        //$log.info("MapObjectController: sync", layer.path, objectName, setup);
+        var obj = subject.contents[objectName]; // get object from last established contents.
+        var setup = !!$scope.subject != !!obj; // detect changes in presence.
+        $log.info("MapObjectController: sync", layer.path, objectName, setup);
         if (setup) {
           if (!obj) {
             // object has been removed:
-            $scope.subject= false;
+            $scope.subject = false;
             $log.debug("MapObjectController: removed", objectName);
           } else {
             $log.debug("MapObjectController: added", obj.type, objectName);
@@ -33,6 +33,7 @@ angular.module('demo')
                 scope: $scope,
                 obj: obj,
                 classInfo: cls,
+                contents: subject.contents,
               };
               var defer = $q.defer();
               $scope.$on("layer loaded", function(evt, el) {
