@@ -51,10 +51,11 @@ angular.module('demo')
             'height': sz.y + 'px',
           };
           $scope.subject = {
-            //scope: $scope, // hidden so we cant click on the obj itself.
+            //scope: $scope, // hidden so we cant click on the room obj itself.
             obj: obj,
             contents: obj.contents,
             //classInfo: cls,
+            path: layer.path,
           };
           $scope.layer = layer;
 

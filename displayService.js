@@ -101,7 +101,6 @@ angular.module('demo')
       }
 
       var displayService = {
-
         /**
          * @param {Object} layer  - MapService mosaic layer.
          * @returns LayerBounds

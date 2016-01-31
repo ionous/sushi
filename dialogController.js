@@ -5,14 +5,22 @@
  */
 angular.module('demo')
   .controller('DialogController',
-    function(EventService, GameService, TextService,
-      $log, $scope) {
-      $scope.dialogChoices = [];
+    function(DialogService, GameService, $log, $scope) {
 
-      var captureChoices = function(lines) {
-        // slice 2, see conversation.go:
-        $scope.dialogChoices = lines.slice(2);
-      };
+      // register the display output
+      var rem = DialogService.registerOutput(function(lines) {
+        var index = 1;
+        var choices = [];
+        lines.forEach(function(l) {
+          var header = "" + index + ": ";
+          if (l.indexOf(header) >= 0) {
+            choices.push(l.slice(header.length));
+            index += 1;
+          }
+        });
+        $scope.dialogChoices = choices;
+      });
+      $scope.$on("$destroy", rem);
 
       $scope.selectLine = function(i) {
         var input = '' + (i + 1);
@@ -24,15 +32,24 @@ angular.module('demo')
           });
         });
       };
-      var ch = EventService.listen(
-        "player",
-        "printing-conversation-choices", {
-          start: function() {
-            TextService.pushHandler(captureChoices);
-          },
-          end: function() {
-            TextService.removeHandler(captureChoices);
-          }
-        }); // listen
+
+      // capture one specific event type.
+      var ch = DialogService.captureInput("player", "printing-conversation-choices");
       $scope.$on("$destroy", ch);
     }); //controller
+
+// var story = $document[0].getElementById("story");
+// if (!story) {
+//   throw new Error("couldnt find story element");
+// }
+// story= angular.element(story);
+//$log.warn(story);
+//var overgrey;
+// if (!overgrey) {
+//   overgrey = angular.element('<div class="overgrey"></div>')
+//   story.prepend(overgrey);
+// }
+// if (overgrey) {
+//   overgrey.remove();
+//   overgrey = null;
+// }

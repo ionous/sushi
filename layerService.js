@@ -11,9 +11,9 @@ angular.module('demo')
        * @param {Layer} parent 
        * @param {Object} mapLayer - MapService mosaic layer.
        */
-      var newLayer = function(parent, mapLayer, layerPath) {
+      var newLayer = function(parent, name, mapLayer, layerPath) {
         var defer = $q.defer();
-        var layerName = layerPath.replace(/\//g,"_").replace(/(\$|#)/g,"");
+        var layerName = layerPath.replace(/\//g, "_").replace(/(\$|#|!)/g, "");
         var id = 'layer-' + (layerName || parent.map.name);
         //
         return Object.create(parent, {
@@ -29,6 +29,9 @@ angular.module('demo')
           data: {
             value: mapLayer　
           },
+          name: {
+            value: name,
+          },
           // fully realized path of layer separated by slashes
           path: {
             value: layerPath
@@ -41,6 +44,18 @@ angular.module('demo')
       }; // newLayer()
 
       /**
+       * @class CustomLayer - ex. chara or contents.
+       * @extends Layer
+       */
+      var newCustomLayer = function(layer, name) {
+        return Object.create(layer, {
+          layerType: {
+            value: name
+          },
+        });
+      };
+
+      /**
        * @class ObjectLayer
        * @extends Layer
        */
@@ -51,7 +66,7 @@ angular.module('demo')
           },
           objectName: {
             value: object,
-          },
+          }
         });
       };
       /**
@@ -69,14 +84,13 @@ angular.module('demo')
         });
       };
 
-      /**
-       * @class CustomLayer - ex. chara or contents.
-       * @extends Layer
-       */
-      var newCustomLayer = function(layer, name) {
+      var newViewLayer = function(layer, view) {
         return Object.create(layer, {
           layerType: {
-            value: name
+            value: "viewLayer"
+          },
+          viewName: {
+            value: view,
           },
         });
       };
@@ -87,7 +101,7 @@ angular.module('demo')
         var ret;
         var name = mapLayer.name;
         var layerPath = parent.path ? (parent.path + "/" + name) : name;
-        var layer = newLayer(parent, mapLayer, layerPath);
+        var layer = newLayer(parent, name, mapLayer, layerPath);
 
         // extend it depending on the layer type.
         var objectName = parent.map.remap[layerPath];
@@ -101,6 +115,9 @@ angular.module('demo')
           ret = newStateLayer(layer, name.slice(1));
         } else if (name.indexOf("$") == 0) {
           ret = newCustomLayer(layer, name.slice(1));
+        } else if (name.indexOf("!") == (name.length - 1)) {
+          var viewName = name.slice(0, name.length - 1);
+          ret = newViewLayer(layer, viewName);
         } else {
           ret = layer;
         }
@@ -114,7 +131,7 @@ angular.module('demo')
           var root = {
             map: map
           };
-          return newLayer(root, map.topLayer, slashPath);
+          return newLayer(root, map.name, map.topLayer, slashPath);
           //return newObjectLayer(layer, roomName);
         },
         // returns the PROMISE of a new layer.

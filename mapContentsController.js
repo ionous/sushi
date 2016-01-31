@@ -29,6 +29,7 @@ angular.module('demo')
             obj: obj,
             classInfo: classInfo,
             contents: obj.contents,
+            path: layer.path,
           };
           if (show) {
             var defer = $q.defer();

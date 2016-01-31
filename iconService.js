@@ -118,13 +118,16 @@ angular.module('demo')
       var smell = "user-secret"; //"soundcloud"; //, "asterisk"
       var listen = "volume-up"; //"music"; //"headphones"; // 
 
+      // arrow-up, arrow-circle-up, search-plus.  fa-arrow-circle-o-up
+
       var iconList = [
         new Icon("_invalid_", "question"),
 
         new Icon("examine it", "eye"),
 
         new Icon("greet", "commenting-o")
-        .matching("actors"),
+        .matching("actors")
+        .requires("chatty"),
 
         new Icon("take it", "hand-rock-o")
         .matching("props")
@@ -136,15 +139,24 @@ angular.module('demo')
         new Icon("give it to", "hand-rock-o fa-rotate-180"),
         // ( put page on button )
         new Icon("insert it into", "hand-pointer-o"),
+        new Icon("insert card into", "hand-pointer-o")
+        .matching("keyreaders"),
+
         new Icon("put it onto", "hand-pointer-o fa-rotate-180"),
+        
+        new Icon("exchange item with", null),
 
         new Icon("tickle it with", "exclamation")
         .matching("feathers"),
+
+        new Icon("request ignition", null)
+        .requires("ignitable"),
         
         // movement
         new Icon("go to", null),
         new Icon("go through it", "reply")
-        .matching("doors"),
+        .matching("doors")
+        .requires("open"),
 
         new Icon("open it", "folder-open-o")
         .requires("hinged")
@@ -160,17 +172,27 @@ angular.module('demo')
         new Icon("switch it on", "power-off")
         .requires("switched-off"),
 
+        new Icon("switch outlet on", "power-off")
+        .matching("outlets"),
+
         new Icon("switch it off", "power-off fa-flip-vertical")
         .requires("switched-on"),
 
         new Icon("search it", "search")
-        .matching("props"),
+        .matching("props")
+        .requires("searchable"),
+        
+        new Icon("$zoom", "search-plus"),
+
         // new Icon("look under it", "level-down")
         // .exclude("worn", "carried"),
         new Icon("look under it", null),
         
-        new Icon("listen to", listen),
-        new Icon("smell it", smell),
+        new Icon("listen to", listen)
+        .requires("audible"),
+
+        new Icon("smell it", smell)
+        .requires("scented"),
 
         new Icon("wear it", "graduation-cap")
         .requires("wearables")

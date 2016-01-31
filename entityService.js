@@ -153,7 +153,7 @@ angular.module('demo')
         }
         if (this.created()) {
           // throw new Error("multiple creates received for:" + this.id);
-          $log.error("multiple creates received for:",  this.id);
+          $log.error("multiple creates received for:", this.id);
           return;
         }
 
@@ -255,7 +255,11 @@ angular.module('demo')
         if (frame < this.frame) {
           $log.warn("EntityService:", "skipping events for frame:", frame, ", this:", this.frame);
         } else {
-          this.changeState(data['next'], data['prev']);
+          var prop = data['prop'];
+          var now = data['next'];
+          var was = data['prev'];
+          this.attr[prop] = now;
+          this.changeState(now, was);
         }
       };
 

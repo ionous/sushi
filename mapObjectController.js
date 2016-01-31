@@ -6,11 +6,13 @@
  */
 angular.module('demo')
   .controller('MapObjectController',
-    function(ClassService, EventService, $log, $q, $scope) {
+    function(ClassService, EventService,
+      $log, $q, $scope) {
       /** @type Layer */
       var layer = $scope.layer;
       var subject = $scope.subject;
       var objectName = layer.objectName;
+
       if (!objectName || !subject || !subject.obj || !subject.contents) {
         $log.error("MapObjectController: bad scope", layer.path, objectName, subject);
         throw new Error(layer.path);
@@ -34,6 +36,7 @@ angular.module('demo')
                 obj: obj,
                 classInfo: cls,
                 contents: subject.contents,
+                path: layer.path
               };
               var defer = $q.defer();
               $scope.$on("layer loaded", function(evt, el) {

@@ -25,8 +25,8 @@ angular.module('demo')
         return ClassService.getClass(this.tgt);
       };
 
-      ActionInfo.prototype.runIt = function(lastOwner, prop, ctx) {
-        if (!lastOwner) {
+      ActionInfo.prototype.runIt = function(scope, prop, ctx) {
+        if (!scope) {
           throw new Error("invalid owner");
         }
         var actId = this.id;
@@ -38,7 +38,7 @@ angular.module('demo')
           'ctx': ctxId,
         };
         // emit this locally first, so we can munge it.
-        var evt = lastOwner.$emit("client action", {
+        var evt = scope.$emit("client action", {
           'act': this,
           'tgt': prop,
           'ctx': ctx,

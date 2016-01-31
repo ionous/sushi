@@ -14,6 +14,9 @@
           <div ng-include="'contentsLayer.html'"></div>
         </div>
       </div>
+      <div ng-switch-when="viewLayer" ng-controller="MapViewController">
+        <div ng-include="'contentsLayer.html'"></div>
+      </div>
       <div ng-switch-when="chara" ng-controller="MapCharaController">
         <div ng-include="'contentsLayer.html'"></div>
       </div>

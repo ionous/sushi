@@ -1,4 +1,3 @@
-
 /** 
  * Used by layer.html to draw the current layer onto its canvas.
  * ( always has parent containter LayerController )
@@ -21,7 +20,7 @@ angular.module('demo')
         var inRange = (ofs.x >= 0 && ofs.y >= 0 && ofs.x < size.x && ofs.y < size.y);
         if (inRange) {
           click.subject = subject;
-          $log.debug("GroupController: click", display.name, subject.obj.id);
+          $log.debug("GroupController: click", display.name);
         }
       });
     };

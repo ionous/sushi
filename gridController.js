@@ -49,7 +49,7 @@ angular.module('demo')
           if (tile) {
             var dstCell = grids.indexToCell(i);
             var dst = pt_mul(dstCell, grid.cellSize);
-
+            
             sprite.ofs = tiles.indexToCell(tile - 1);
             sprite.drawAt(ctx, dst);
           }

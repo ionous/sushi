@@ -133,7 +133,6 @@ angular.module('demo')
       // delaying the completion until a display exists, and has completed its task.
       // FIX? this isnt the best possible pattern because if no such object loads, it blocks forever.
       EventService.listen('*', "say", function(data, tgt) {
-        $log.info("TalkService: got text", tgt);
         var promisedCompletion;
         var lines = data.slice();
         if (lines && lines.length) {

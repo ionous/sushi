@@ -11,7 +11,7 @@ angular.module('demo')
       $scope.$on("layer loaded", function(evt, el) {
         if (el === layer) {
           if (!resume) {
-          $log.error("MapCharaController:", layer.path, "loaded twice?");
+            $log.error("MapCharaController:", layer.path, "loaded twice?");
           } else {
             $log.debug("MapCharaController:", layer.path, "loaded.");
             resume();

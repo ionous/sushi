@@ -207,18 +207,19 @@ in case the stagger doesn't work then the duration value
   width: 0;
 }
 
-
-/* http://nicolasgallagher.com/pure-css-speech-bubbles/demo/ */
-
+/* http://nicolasgallagher.com/pure-css-speech-bubbles/demo/ 
+top,right,bottom,left*/
 .bubble {
   position: absolute;
   /* because the bubble floats above the modal, disable mouse interaction */
   pointer-events: none;
   z-index: 1000;
-  min-width: 150px;
-  text-align: justify-all;
+  min-width: 140px;
+  max-width: 220px;
+  text-align: center;
+  line-height: 1.2rem;
   margin: 0;
-  padding: 10px;
+  padding: 0.6rem 0.8rem 0.6rem 0.5rem;
   color: #fff;
   background: #075698;
   /* default background for browsers without gradient support */
@@ -227,9 +228,9 @@ in case the stagger doesn't work then the duration value
   background: -moz-linear-gradient(#2e88c4, #075698);
   background: -o-linear-gradient(#2e88c4, #075698);
   background: linear-gradient(#2e88c4, #075698);
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-radius: 10px;
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  border-radius: 15px;
   left: -25px;
 }
 
@@ -258,7 +259,7 @@ div.overgrey {
   z-index: 100;
   top: 0;
   left: 0;
-  position: fixed;
+  position: absolute;
 }
 
 .modal-backdrop {

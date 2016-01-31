@@ -35,6 +35,7 @@ angular.module('demo')
           scope: $scope,
           obj: view,
           contents: view.contents,
+          path: $scope.layer.path,
         };
       }
     });
