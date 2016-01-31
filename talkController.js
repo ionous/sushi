@@ -26,7 +26,7 @@ angular.module('demo')
             }
           } else {
             if (!overgrey) {
-              overgrey = angular.element('<div class="overgrey"></canvas>')
+              overgrey = angular.element('<div class="overgrey"></div>')
               $rootElement.prepend(overgrey);
             }
             overgrey.one("click", function() {
