@@ -2,72 +2,74 @@
 
 /**
  * Wraps angular's $location service, translating it into rooms and views.
- * Transfers location change events from the player game object to the angular/rootScope.
+ * by changing the location, the demo.js router re/renders play.html
  */
 angular.module('demo')
   .factory('LocationService',
     function($location, $log, $q, $rootScope) {
-
+      var loc = {
+        room: null,
+        view: null,
+        item: null
+      };
+      var loading = null;
       // returns a promise, resolved when the location has changed.
-      var changeLocation = function(room, view) {
+      var changeLocation = function(room, view, item) {
         if (view == room) {
           throw new Error("invalid view", view);
         }
-        // by changing the location, the router in demo.js will re-layout play.html
-        $log.info("LocationService: changing to", room, view ? view : "");
-        // want the url: /r/room/v/view
-        var p = ["", "r", room].concat(view ? ["v", view] : []);
-        var wantUrl = p.join("/");
-        // 
-        var defer = $q.defer();
-        if ($location.url() == wantUrl) {
-          defer.resolve(wantUrl);
+        // location object.
+        var next = {
+          room: room,
+          view: view,
+          item: item
+        };
+        $log.info("LocationService: changing", loc, "to", next);
+        //
+        loading = $q.defer();
+        if (loc == next) {
+          loading.resolve(next);
         } else {
-          // report once we have succesfully changed locations.
-          // note: there's no failure event, so... that's grand.
-          var rub = $rootScope.$on("$locationChangeSuccess", function(evt) {
-            var newUrl = $location.url(); // location success passes full url, we want the =d url
-            if (newUrl == wantUrl) {
-              $log.debug("LocationService: wantUrl", wantUrl);
-              defer.resolve(newUrl);
-            } else {
-              var reason = "wanted " + wantUrl + " received " + newUrl;
-              $log.error("LocationService: failed url", reason);
-              defer.reject(reason);
-            }
-            rub();
-          });
+          $rootScope.mapLoaded= false;
+          // want the url: /r/room/v/view?item=item
+          var p = ["", "r", next.room].concat(next.view ? ["v", next.view] : []);
+          var path = p.join("/");
           // change it.
-          $location.url(wantUrl);
+          loc = next;
+          $location.path(path).search('item', next.item);
+          loading.promise.then(function() {
+            $rootScope.mapLoaded= true;
+          });
         }
-        return defer.promise;
-      }
-
-      //$location.path()
-      var parse = function(fullpath, part, sep) {
-        var p = fullpath.split("/");
-        return p[part] == sep ? p[part + 1] : null;
+        return loading.promise;
       };
+
       var locationService = {
-        // NOTE: $location has $locationChangeStart
-        // and it can be preventDefaulted if needed.
         room: function() {
-          return parse($location.path(), 1, "r");
+          $log.info("LocationService: room", loc);
+          return loc.room;
         },
-        changeRoom: changeLocation,
         view: function() {
-          return parse($location.path(), 3, "v");
-        },
-        changeView: function(view) {
-          var room = locationService.room();
-          return changeLocation(room, view);
+          return loc.view;
         },
         item: function() {
-          var s = $location.search();
-          return s['item'];
+          return loc.item;
+        },
+        changeRoom: function(room) {
+          return changeLocation(room);
+        },
+        changeView: function(view) {
+          return changeLocation(loc.room, view);
         },
         changeItem: function(item) {
-          return $location.search('item', item);
+          return changeLocation(loc.room, loc.view, item);
+        },
+        finishedLoading: function(room) {
+          if (loading) {
+            $log.info("LocationService: map loaded after location change...");
+            loading.resolve(loc);
+            loading = null;
+          }
         },
       };
       return locationService;

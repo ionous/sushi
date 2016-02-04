@@ -8,9 +8,7 @@
 angular.module('demo')
   .controller('InventoryController',
     function(EventService, PlayerService, $log, $scope) {
-      $scope.$on("map loaded", function() {
-        var p = PlayerService.getPlayer();
-        $scope.clothing = p.clothing;
-        $scope.inventory = p.inventory;
-      });
+      var p = PlayerService.getPlayer();
+      $scope.clothing = p.clothing;
+      $scope.inventory = p.inventory;
     });

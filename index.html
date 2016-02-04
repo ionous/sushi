@@ -44,7 +44,6 @@
   <script src="objectService.js"></script>
   <script src="playerService.js"></script>
   <script src="relationService.js"></script>
-  <script src="talkService.js"></script>
   <script src="textService.js"></script>
   <script src="actionController.js"></script>
   <script src="dialogController.js"></script>
@@ -80,7 +79,7 @@
 
 <body ng-controller="GameController">
   <!-- routes to play.html based on the current room -->
-  <div ng-view ng-if="!!game"></div>
+  <div ng-view ng-if="game"></div>
 </body>
 
 </html>

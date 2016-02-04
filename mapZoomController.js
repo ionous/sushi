@@ -7,7 +7,7 @@ angular.module('demo')
   .controller('MapZoomController',
     function(EntityService, LocationService, PlayerService,
       $log, $scope) {
-      var item = LocationService.item();
+      var item = $scope.item;
       if (item) {
         $log.debug("MapZoomController: viewing", item);
 

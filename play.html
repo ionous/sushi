@@ -9,14 +9,14 @@
   <div ng-controller="ActionController">
     <!-- list of all actions -->
     <div id="objectPopup" ng-show="actions" ng-style='modalPos'>
-      <button ng-repeat="act in actions" type="button" class="btn btn-primary" tooltip="{{act.name}}" ng-click="runAction(act)" tooltip-placement="bottom">
+      <button ng-repeat="act in actions" type="button" class="btn btn-primary" tooltip="{{act.name}}" ng-click="act.runAction()" tooltip-placement="bottom">
         <i ng-class="act.icon.cls"></i>
       </button>
     </div>
     <!-- text disply overlays all -->
     <div id="view" ng-controller="ResponseController">
       <!-- demo.js assigns story,room, and item controller based on current url -->
-      <div id="story" ng-controller="storyController">
+      <div id="story" ng-show="mapLoaded" ng-controller="storyController">
         <!-- popStyle changes the mouse cursor based on the current popup.  -->
         <div id="room" ng-controller="roomController" ng-style="popStyle">
           <div id="item" ng-controller="itemController">
@@ -36,12 +36,6 @@
             <a id="returnButton" ng-click="exitView()" href="">Return to room...</a>
           </div>
         </div>
-        <!-- ~room -->
-        <div id="dialogChoices" ng-controller="DialogController" ng-style="popStyle">
-          <div class="dialogChoice" ng-repeat="line in dialogChoices">
-            <a class="dialogLine" ng-click="selectLine($index)" href="">{{line}}</a>
-          </div>
-        </div>
         <!-- ~dialogChoices  -->
         <div id="inv" ng-controller="InventoryController" ng-style="popStyle">
           <div class="invitem" ng-repeat="item in inventory track by item.id" ng-include="'invitem.html'">
@@ -50,7 +44,11 @@
           </div>
         </div>
       </div>
-      <!-- ~view -->
+      <div id="dialogChoices" ng-controller="DialogController" ng-style="popStyle">
+        <div class="dialogChoice" ng-repeat="line in dialogChoices">
+          <a class="dialogLine" ng-click="selectLine($index)" href="">{{line}}</a>
+        </div>
+      </div>
     </div>
     <!-- side bar for raw input /debugging -->
     <div id="side">
@@ -65,7 +63,7 @@
         </ul>
       </div>
       <form id="f" ng-controller="InputController" ng-submit="submit()">
-        <input id="q" name="q" type="text" ng-model="userInput" autocomplete="off" auto-focus/>
+        <input id="q" name="q" type="text" ng-model="userInput" autocomplete="off" />
       </form>
     </div>
     <!-- ~id side -->

@@ -6,9 +6,9 @@
 angular.module('demo')
   .controller('MapController',
     function(LayerService, LocationService, MapService, ObjectService,
-      $log, $rootScope, $scope) {
+      $log, $scope) {
       // when the location changes, the map controller is recreated.
-      var mapName = LocationService.item() || LocationService.view() || LocationService.room();
+      var mapName = $scope.item || $scope.view || $scope.room;
 
       // see also RoomPreviewController.
       $log.debug("MapController: loading map", mapName);
@@ -38,10 +38,10 @@ angular.module('demo')
       var loadMap = function(map) {
         $log.debug("MapController: loading map content", mapName);
 
-        var room = LocationService.room();
+        var room = $scope.room;
         ObjectService.getById(room).then(function(obj) {
           $log.debug("MapController: acquired", obj.id);
-
+          //
           var layer = LayerService.newRoot(map);
           var sz = map.topLayer.bounds.max;
           // size the view -- FIX: could we rely on mapLayerController?
@@ -58,14 +58,13 @@ angular.module('demo')
             path: layer.path,
           };
           $scope.layer = layer;
-
           // wait for all layers to declare themselves done.
           $scope.$on("layer loaded", function(evt, el) {
+            $log.info("MapController loaded:", el);
             if (el === layer) {
               $log.info("MapController: finished loading", mapName);
               $scope.layerClick= layerClick;
-              // currently, only game controller listens
-              $rootScope.$broadcast("map loaded", map);
+              LocationService.finishedLoading(room);
             }
           });
         });
