@@ -45,61 +45,30 @@ angular.module('demo')
         this.cls = icon;
         //
         this._requireStates = [];
-        this._requiresClass = false;
         this._excludes = [];
       };
 
-      // context describes where the action is being used: "player", "worn", "carried".
-      Icon.prototype.allows = function(obj, clsInfo, nounCount, context) {
+      Icon.prototype.allows = function(obj, context) {
         var allows = this.cls;
         if (allows) {
-          if (!context) {
-            allows = nounCount == 1;
+          if (this._excludes.indexOf(context) >= 0) {
+            allows = false;
           } else {
-            if (this._excludes.indexOf(context) >= 0) {
-              allows = false;
-            } else {
-              switch (context) {
-                case "player":
-                  allows = nounCount == 0;
-                  break;
-                case "doors":
-                  allows = nounCount == 1;
-                  break;
-                case "worn":
-                case "carried":
-                  allows = nounCount >= 1;
-                  break;
-                default:
-                  throw new Error("unknown context", context);
-              }
-            }
-          }
-          if (allows) {
             for (var i = 0; i < this._requireStates.length; i++) {
               var state = this._requireStates[i];
               allows = obj.is(state);
               if (!allows) {
                 break;
               }
-            }
-          }
-          if (allows && this._requiresClass) {
-            allows = clsInfo.contains(this._requiresClass);
+            }   
           }
         }
-
         return allows;
       }
 
       // set a filter function
       Icon.prototype.requires = function(state) {
         this._requireStates.push(state);
-        return this;
-      };
-      // set a filter function
-      Icon.prototype.matching = function(type) {
-        this._requiresClass = type;
         return this;
       };
       // "worn" or "carried"; the relationship data is imperfect on the client
@@ -125,87 +94,87 @@ angular.module('demo')
 
         new Icon("examine it", "eye"),
 
-        new Icon("greet", "commenting-o")
-        .matching("actors")
-        .requires("chatty"),
+        new Icon("greet", "commenting-o").
+        requires("chatty"),
 
-        new Icon("take it", "hand-rock-o")
-        .matching("props")
-        .requires("portable")
-        .exclude("worn", "carried", "doors"),
+        new Icon("take it", "hand-rock-o").
+        requires("portable").
+        exclude("worn", "carried", "doors"),
 
         // inventory actions
         new Icon("show it to", "hand-paper-o"),
         new Icon("give it to", "hand-rock-o fa-rotate-180"),
         // ( put page on button )
         new Icon("insert it into", "hand-pointer-o"),
-        new Icon("insert card into", "hand-pointer-o")
-        .matching("keyreaders"),
+        new Icon("insert card into", "credit-card"),
+
+        new Icon("read it", "info-circle").
+        requires("legible"),
+        new Icon("adjust it", "wrench").
+        requires("adjustable"),
 
         new Icon("put it onto", "hand-pointer-o fa-rotate-180"),
-        
-        new Icon("exchange item with", null),
 
-        new Icon("tickle it with", "exclamation")
-        .matching("feathers"),
+        new Icon("exchange item with", "exchange"),
 
-        new Icon("request ignition", null)
-        .requires("ignitable"),
-        
+        new Icon("tickle it with", "leaf"),
+
+        new Icon("request ignition", null),
+
         // movement
         new Icon("go to", null),
-        new Icon("go through it", "reply")
-        .matching("doors")
-        .requires("open"),
+        new Icon("go through it", "reply").
+        requires("open"),
 
-        new Icon("open it", "folder-open-o")
-        .requires("hinged")
-        .requires("closed"),
+        new Icon("open it", "folder-open-o").
+        requires("hinged").
+        requires("closed"),
 
-        new Icon("close it", "folder-o")
-        .requires("hinged")
-        .requires("open"),
+        new Icon("close it", "folder-o").
+        requires("hinged").
+        requires("open"),
 
-        new Icon("press it", "hand-pointer-o")
-        .matching("push-buttons"),
+        new Icon("press it", "hand-pointer-o"),
 
-        new Icon("switch it on", "power-off")
-        .requires("switched-off"),
+        new Icon("switch it on", "power-off").
+        requires("switched-off").
+        requires("operable"),
 
-        new Icon("switch outlet on", "power-off")
-        .matching("outlets"),
+        new Icon("switch it off", "power-off fa-flip-vertical").
+        requires("switched-on"),
 
-        new Icon("switch it off", "power-off fa-flip-vertical")
-        .requires("switched-on"),
+        new Icon("search it", "search").
+        requires("searchable"),
 
-        new Icon("search it", "search")
-        .matching("props")
-        .requires("searchable"),
-        
         new Icon("$zoom", "search-plus"),
+        new Icon("$use", "mouse-pointer"),
 
         // new Icon("look under it", "level-down")
         // .exclude("worn", "carried"),
         new Icon("look under it", null),
-        
-        new Icon("listen to", listen)
-        .requires("audible"),
 
-        new Icon("smell it", smell)
-        .requires("scented"),
+        new Icon("listen to", listen).
+        requires("audible"),
 
-        new Icon("wear it", "graduation-cap")
-        .requires("wearables")
-        .exclude("worn"),
+        new Icon("smell it", smell).
+        requires("scented"),
 
-        new Icon("attack it", "bolt")
-        .exclude("worn", "carried"),
+        new Icon("wear it", "graduation-cap").
+        requires("wearables").
+        exclude("worn"),
 
-        new Icon("kiss it", "heart-o")
-        .requires("actors"),
+        new Icon("attack it", "gavel"). // bolt
+        exclude("worn", "carried"),
 
-        new Icon("eat it", null),
-        
+        new Icon("kiss it", "heart-o").
+        requires("actors"),
+
+        new Icon("eat it", "cutlery").
+        requires("edible"),
+
+        new Icon("scoop it with", "spoon").
+        requires("edible"),
+
         // self actions
         new Icon("look", null),
         new Icon("listen", listen),

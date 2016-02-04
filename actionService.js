@@ -5,8 +5,8 @@
  */
 angular.module('demo')
   .factory('ActionService',
-    function(ClassService, GameService, IconService,
-      $log, $q) {
+    function(ClassService, GameService,
+      $log, $q, $rootScope) {
 
       var ActionInfo = function(act) {
         var name = act.attr['act'];
@@ -18,17 +18,13 @@ angular.module('demo')
         this.name = name;
         this.ctx = ctx;
         this.tgt = tgt;
-        this.icon = IconService.getIcon(act.id);
       };
 
       ActionInfo.prototype.getTargetClass = function() {
         return ClassService.getClass(this.tgt);
       };
 
-      ActionInfo.prototype.runIt = function(scope, prop, ctx) {
-        if (!scope) {
-          throw new Error("invalid owner");
-        }
+      ActionInfo.prototype.runIt = function(prop, ctx) {
         var actId = this.id;
         var propId = !!prop ? prop.id : null;
         var ctxId = !!ctx ? ctx.id : null;
@@ -38,13 +34,13 @@ angular.module('demo')
           'ctx': ctxId,
         };
         // emit this locally first, so we can munge it.
-        var evt = scope.$emit("client action", {
+        var evt = $rootScope.$broadcast("client action", {
           'act': this,
           'tgt': prop,
           'ctx': ctx,
         });
         if (evt.defaultPrevented) {
-          var defer= $q.defer();
+          var defer = $q.defer();
           defer.reject("default prevented");
           return defer.promise;
         } else {
@@ -65,12 +61,6 @@ angular.module('demo')
 
       var promisedActions = null; // actions cant change, so cache them.
       var actionService = {
-        /// hmmmm...
-        newActionFilter: function(prop, clsInfo, context) {
-          return function(actionInfo) {
-            return actionInfo.icon.allows(prop, clsInfo, actionInfo.nounCount, context);
-          };
-        },
         getPromisedAction: function(id) {
           return actionService.getPromisedActions().then(function(acts) {
             for (var i = 0; i < acts.length; i++) {
