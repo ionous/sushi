@@ -13,7 +13,7 @@ angular.module('demo')
       }
       var name = item.id;
       var isWorn = $scope.clothing[name];
-      $log.info("InvItemController:", name, isWorn);
+      //$log.info("InvItemController:", name, isWorn);
       //
       $scope.imageSource = ItemService.defaultImage;
       $scope.printedName = item.attr['kinds-printed-name'] || name.replace(/-/g, " ");
@@ -34,7 +34,7 @@ angular.module('demo')
       });
 
       ItemService.getImageSource(name).then(function(src) {
-        $log.debug("InvItemController: received", name, src);
+        //$log.debug("InvItemController: received", name, src);
         $scope.imageSource = src;
       });
     } //controller

@@ -25,7 +25,7 @@ angular.module('demo')
               var ctrlName= ctrl && ctrl['name'];
               var ctrlJs= ctrl && ctrl['file'];
               if (!ctrl || !ctrlName || !ctrlJs) {
-                $log.info("DemoModule: using default controller for", ctrlId, ctrlName, ctrlJs);
+                $log.info("DemoModule: using default controller for", ctrlId);
                 //$rootScope.$apply(function() {
                 defer.resolve(defaultController);
                 //});

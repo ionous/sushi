@@ -1,8 +1,6 @@
 'use strict';
 
 /**
- * Wraps angular's $location service, translating it into srcs and views.
- * Transfers location change events from the player game object to the angular/rootScope.
  */
 angular.module('demo')
   .factory('RelationService',
