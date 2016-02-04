@@ -16,7 +16,7 @@ angular.module('demo')
         // FIX: should we add a specific x-view change on the server?
         // ALT: we can view anything, and our choice location drives that view ( as opposeed to the player object on the server, )
         var x_rel = EventService.listen(player.id, "x-rel", function(data) {
-          $log.debug("GameController: heard", player.id, data, data['prop']);
+          //$log.debug("GameController: heard", player.id, data, data['prop']);
           if (data['prop'] == "objects-whereabouts") {
             var loc = data['next'];
             if (!loc) {

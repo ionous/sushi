@@ -24,7 +24,7 @@ angular.module('demo')
 
       $scope.selectLine = function(i) {
         var input = '' + (i + 1);
-        $log.info("selected", input, $scope.dialogChoices[i]);
+        $log.info("DialogController: selected", input, $scope.dialogChoices[i]);
         $scope.dialogChoices = [];
         GameService.getPromisedGame().then(function(game) {
           game.postGameData({

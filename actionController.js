@@ -106,7 +106,6 @@ angular.module('demo')
 
         // same object ( or view ) clicked twice?
         if (input.sameObject(subject.obj) || input.sameView(subject.view)) {
-          $log.info("moving menu");
           menu.setPos(pos);
           input.acted = true;
         } else {

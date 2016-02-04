@@ -11,7 +11,7 @@ angular.module('demo')
       var mapName = $scope.item || $scope.view || $scope.room;
 
       // see also RoomPreviewController.
-      $log.debug("MapController: loading map", mapName);
+      //$log.debug("MapController: loading map", mapName);
       $scope.mapName = mapName;
 
       // clicking:
@@ -29,7 +29,7 @@ angular.module('demo')
         // click.subject == $scope.subject
         if (click.subject) {
           // send up through the divs
-          $log.info("selected", click.subject);
+          $log.info("MapController: selected", click.subject);
           $scope.$emit("selected", click);
         }
       };
@@ -60,7 +60,7 @@ angular.module('demo')
           $scope.layer = layer;
           // wait for all layers to declare themselves done.
           $scope.$on("layer loaded", function(evt, el) {
-            $log.info("MapController loaded:", el);
+            //$log.info("MapController: loaded:", el);
             if (el === layer) {
               $log.info("MapController: finished loading", mapName);
               $scope.layerClick= layerClick;

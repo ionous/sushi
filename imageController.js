@@ -23,7 +23,8 @@ angular.module('demo')
           var ctx = canvas.getContext("2d");
           ctx.save();
           if (obj) {
-            var color = obj.attr["objects-color"];
+            var color = obj.attr["objects-tint"];
+            //$log.info("ImageController:", $scope.layer, color);
             if (color) {
               ctx.fillStyle = color;
               ctx.fillRect(pos.x, pos.y, size.x, size.y);

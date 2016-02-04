@@ -49,6 +49,9 @@ angular.module('demo')
      * Post to create the new game object
      */
     var post = function(where, what) {
+      if (processing) {
+        throw new Error("frame in progress" + processing);
+      }
       if (angular.isUndefined(where)) {
         throw new Error("empty post");
       }

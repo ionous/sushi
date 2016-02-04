@@ -8,6 +8,16 @@
 angular.module('demo')
   .factory('EventStreamService',
     function(EventService, JsonService, $log, $q) {
+      var Handler = function(evt, cb) {
+        this.evt = evt;
+        this.cb = cb;
+      };
+      Handler.prototype.run = function() {
+        var e = this.evt;
+        var startup= this.cb;
+        $log.info("EventStreamService: run", e.evt, e.tgt.id);
+        return startup.call(startup);
+      };
       var Event = function(evt, tgt, data, frame) {
         /**
          * Event name.
@@ -45,7 +55,7 @@ angular.module('demo')
             Event.streamFrame = e.frame;
             return cb.start(e.data, e.tgt.id, e.evt, e.frame);
           };
-          handlers.push(startup);
+          handlers.push(new Handler(e, startup));
         });
         return handlers;
       };
@@ -121,7 +131,7 @@ angular.module('demo')
           // run any event start up callbacks
           while (handlers.length) {
             var startup = handlers.shift();
-            var wait = startup.call(startup);
+            var wait = startup.run();
             if (wait) {
               $q.when(wait).then(function() {
                 // reactivate the runAll function when done.

@@ -43,8 +43,8 @@ angular.module('demo')
             };
             return map;
           }, function(reason) {
-            $log.info("couldnt load map", url, reason);
-            throw new Error("couldn't load map", mapName);
+            $log.info("MapService: couldnt load map", url, reason);
+            throw new Error("MapService: couldn't load map", mapName);
           });
         },
       };

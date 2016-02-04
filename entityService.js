@@ -149,11 +149,11 @@ angular.module('demo')
        */
       Entity.prototype.create = function(frame, data) {
         if (!angular.isNumber(frame)) {
-          throw new Error("frame is not a number");
+          throw new Error("EntityService: frame is not a number");
         }
         if (this.created()) {
           // throw new Error("multiple creates received for:" + this.id);
-          $log.error("multiple creates received for:", this.id);
+          $log.error("EntityService: multiple creates received for:", this.id);
           return;
         }
 

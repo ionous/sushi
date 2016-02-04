@@ -29,7 +29,7 @@ angular.module('demo')
             var clicked = inRange ? grid.tile[index] : false;
             if (clicked) {
               click.subject = subject;
-              $log.info("cell clicked", display.name, index, grid.tile.length);
+              $log.info("GridController: cell clicked", display.name, index, grid.tile.length);
             }
           });
         }

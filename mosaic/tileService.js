@@ -13,7 +13,7 @@ angular.module('mosaic')
         getTiles: function() {
           var deferred = $q.defer();
           //
-          $log.info("get tiles", url);
+          $log.info("TileService: get tiles", url);
           $http.get('tiles').then(function(resp) {
             var tiles = {};
             JsonService.parseMultiDoc(resp.data, "getTileList",
