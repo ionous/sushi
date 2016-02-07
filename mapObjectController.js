@@ -43,7 +43,7 @@ angular.module('demo')
       };
 
       // watch the parent (container) for changes to objectName's existance.
-      var listenForChanges = function(sync) {
+      var listenForChanges = function() {
         var x_mod = EventService.listen(parent.id, "x-mod", function(data) {
           var child = data['child'];
           if (child.id == objectName) {

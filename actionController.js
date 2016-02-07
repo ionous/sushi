@@ -70,11 +70,13 @@ angular.module('demo')
       };
 
       //(obj, classInfo, input.obj, input.classInfo)
-      ActionList.prototype.addMultiActions = function(o1, c1, o2, c2) {
-        var filter = newMultiFilter(c2, c1);
-        var filteredMulti = input.allActions.filter(filter).sort(IconService.sort).map(function(act) {
-          return actionForObject(act, o1, o2);
+      ActionList.prototype.addMultiActions = function(o2, c2, o1, c1) {
+        var list = this;
+        var filter = list.newMultiFilter(c2, c1);
+        var filteredMulti = list.allActions.filter(filter).sort(IconService.sort).map(function(act) {
+          return list.actionForObject(act, o2, o1);
         });
+        list.actions = list.actions.concat(filteredMulti);
       };
 
       // add a "zoom" action which will call the passed view function.
@@ -114,7 +116,8 @@ angular.module('demo')
       ActionList.prototype.newMultiFilter = function(c1, c2) {
         return function(actionInfo) {
           if (actionInfo.nounCount >= 2) {
-            var ok = c2.contains(actionInfo.tgt) && c1.contains(actionInfo.ctx);
+            var ok = c1.contains(actionInfo.tgt) && c2.contains(actionInfo.ctx);
+            //$log.info(ok, actionInfo.id, ":", c1.classInfo.id, "contains", actionInfo.tgt, "and", c2.classInfo.id, "contains", actionInfo.ctx);
             return ok;
           }
         }
@@ -235,8 +238,8 @@ angular.module('demo')
 
       ActionList.prototype.loadActions().then(function() {
         reset("got promised actions");
-        $scope.runAction= function(act) {
-          acted= true;
+        $scope.runAction = function(act) {
+          acted = true;
           menu.closeMenu();
           act.runAction();
         };

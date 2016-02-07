@@ -8,19 +8,20 @@
 angular.module('demo')
   .controller('InventoryController',
     function(EventService, EntityService, $log, $scope) {
+      var rebuild = function(list) {
+        return Object.keys(list).map(function(k) {
+          return EntityService.getById(k)
+        });
+      }
+      
+      $scope.$watchCollection('clothingIds', function(clothing) {
+        $scope.clothing = rebuild(clothing);
+      });
+      $scope.$watchCollection('inventoryIds',function(inventory) {
+        $scope.inventory = rebuild(inventory);
+      });
+      
       var p = EntityService.getById("player");
-      //
-      var clothing = {};
-      for (var k in p.clothing) {
-        var obj = EntityService.getById(k);
-        clothing[k] = obj;
-      }
-      var inventory = {};
-      for (var k in p.inventory) {
-        var obj = EntityService.getById(k);
-        inventory[k] = obj;
-      }
-      //
-      $scope.clothing = clothing;
-      $scope.inventory = inventory;
+      $scope.clothingIds = p.clothing;
+      $scope.inventoryIds = p.inventory;
     });

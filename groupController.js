@@ -10,7 +10,7 @@ angular.module('demo')
     var size = display.size;
 
     var subject = $scope.subject;
-    if (subject && subject.scope) {
+    if (subject) {
       $scope.$on("clicked", function(evt, click) {
         var rect = canvas.getBoundingClientRect();
         var x = Math.floor(click.pos.x - rect.left);
