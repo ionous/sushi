@@ -13,7 +13,8 @@ angular.module('demo')
       //$log.debug("MapLayerController", layer.path, layer.layerType);
 
       // create a display for this node.
-      var display = $scope.display = DisplayService.newDisplay(layer.map, layer.data);
+      var display = DisplayService.newDisplay(layer.map, layer.data);
+      $scope.display = display;
 
       // listen for the display's completion
       var displayed;
@@ -43,18 +44,18 @@ angular.module('demo')
       var waiting = {
         count: layers.length,
         dec: function(path) {
-          this.count -= 1;
+          waiting.count -= 1;
           if (debug) {
             var wasIn = delete debug[path];
             if (!wasIn) {
               $log.error("MapLayerController:", layer.path || "root", "dec for unexpected layer", path);
             }
           }
-          this.sync();
+          return waiting.sync();
         },
         sync: function(path) {
-          var waiting = this.count;
-          if (waiting > 0) {
+          var remaining = waiting.count;
+          if (remaining > 0) {
             if (debug) {
               $log.info("MapLayerController:", layer.path || "root", "still waiting for", Object.keys(debug));
             }
@@ -66,6 +67,7 @@ angular.module('demo')
               }
             });
           }
+          return remaining;
         }
       };
       waiting.sync();
@@ -74,9 +76,11 @@ angular.module('demo')
       $q.all(wait).then(function(layers) {
         $scope.subLayers = layers;
         // wait for the layer controllers to finish loading.
-        $scope.$on("layer loaded", function(evt, el) {
+        var rub = $scope.$on("layer loaded", function(evt, el) {
           if (el.parent === layer) {
-            waiting.dec(el.path);
+            if (waiting.dec(el.path) == 0) {
+              rub();
+            }
           }
         });
       });

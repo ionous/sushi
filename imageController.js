@@ -6,16 +6,17 @@
  */
 angular.module('demo')
   .controller('ImageController',
-    function(EventService, $element, $log, $scope) {
+    function(EntityService, EventService, $element, $log, $scope) {
       var canvas = $element[0];
       var display = $scope.display;
+
       display.finishLoading.then(function() {
         var img = display.img;
         var pos = pt(0, 0);
         var size = display.size; //pt_sub(layer.bounds.max, layer.bounds.min);
         
-        // hrmm... originally thought id do this through css state selection.
-        var obj = $scope.subject.obj;
+        var subject = $scope.subject;
+        var obj = subject && EntityService.getById( subject.id );
         var draw = function() {
           // output image filled with tint color, and the original image
           // keep the tint color where the original image exists
@@ -24,7 +25,7 @@ angular.module('demo')
           ctx.save();
           if (obj) {
             var color = obj.attr["objects-tint"];
-            //$log.info("ImageController:", $scope.layer, color);
+            // hrmm... originally thought id do this through css state selection.
             if (color) {
               ctx.fillStyle = color;
               ctx.fillRect(pos.x, pos.y, size.x, size.y);
@@ -46,8 +47,7 @@ angular.module('demo')
         draw();
         $scope.$emit("displayed", display);
 
-        var subject = $scope.subject;
-        if (subject && subject.scope) {
+        if (subject) {
           if ($scope.layer.name.indexOf("x-") != 0) {
             $scope.$on("clicked", function(evt, click) {
               var rect = canvas.getBoundingClientRect();
@@ -58,7 +58,7 @@ angular.module('demo')
               var inRange = (ofs.x >= 0 && ofs.y >= 0 && ofs.x < size.x && ofs.y < size.y);
               if (inRange) {
                 click.subject = subject;
-                $log.debug("ImageController: click", display.name, subject.obj.id);
+                $log.debug("ImageController: click", display.name, subject.id);
               }
             });
           }

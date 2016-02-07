@@ -51,20 +51,20 @@ angular.module('demo')
             'height': sz.y + 'px',
           };
           $scope.subject = {
-            //scope: $scope, // hidden so we cant click on the room obj itself.
-            obj: obj,
+            id: obj.id,
+            classInfo: null, // hidden so we cant click on the room obj itself.
             contents: obj.contents,
-            //classInfo: cls,
             path: layer.path,
           };
           $scope.layer = layer;
           // wait for all layers to declare themselves done.
-          $scope.$on("layer loaded", function(evt, el) {
+          var rub = $scope.$on("layer loaded", function(evt, el) {
             //$log.info("MapController: loaded:", el);
             if (el === layer) {
               $log.info("MapController: finished loading", mapName);
-              $scope.layerClick= layerClick;
+              $scope.layerClick = layerClick;
               LocationService.finishedLoading(room);
+              rub();
             }
           });
         });

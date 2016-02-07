@@ -23,7 +23,7 @@ angular.module('demo')
       var classService = {
         getClass: function(classType) {
           if (!classType) {
-            throw new Error("missing class type");
+            return $q.when(null);
           }
           return GameService.getConstantData('class', classType).then(function(clsDoc) {
             return new ClassInfo(clsDoc.data);

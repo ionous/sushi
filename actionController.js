@@ -4,7 +4,7 @@
  */
 angular.module('demo')
   .controller('ActionController',
-    function(ActionService, IconService,
+    function(ActionService, ClassService, EntityService, IconService,
       $log, $rootElement, $scope, $timeout) {
 
       var defaultPopStyle = {
@@ -47,7 +47,57 @@ angular.module('demo')
       };
       var menu = new Menu();
 
-      var newActionFilter = function(obj, cls, context) {
+      //
+      var ActionList = function() {
+        this.actions = [];
+      };
+      ActionList.prototype.loadActions = function() {
+        return ActionService.getPromisedActions().then(function(allActions) {
+          ActionList.prototype.allActions = allActions;
+          return allActions;
+        });
+      };
+      // add all of the actions for the passed object in the passed context
+      ActionList.prototype.addSingleActions = function(obj, classInfo, context) {
+        var list = this;
+        // create a filter for the actions for the requested object ( and context )
+        var filter = list.newActionFilter(obj, classInfo, context);
+        // input will add all of the actions with 1 noun; 0 for player.
+        var filteredActions = list.allActions.filter(filter).sort(IconService.iconSort).map(function(act) {
+          return list.actionForObject(act, obj);
+        });
+        list.actions = list.actions.concat(filteredActions);
+      };
+
+      //(obj, classInfo, input.obj, input.classInfo)
+      ActionList.prototype.addMultiActions = function(o1, c1, o2, c2) {
+        var filter = newMultiFilter(c2, c1);
+        var filteredMulti = input.allActions.filter(filter).sort(IconService.sort).map(function(act) {
+          return actionForObject(act, o1, o2);
+        });
+      };
+
+      // add a "zoom" action which will call the passed view function.
+      ActionList.prototype.addZoom = function(callback) {
+        var list = this;
+        list.actions.push({
+          name: "zoom",
+          icon: IconService.getIcon("$zoom"),
+          runAction: callback,
+        });
+      };
+
+      // add a "combine" action which will call the passed view function.
+      ActionList.prototype.addCombine = function(callback) {
+        var list = this;
+        list.actions.push({
+          name: "use",
+          icon: IconService.getIcon("$use"),
+          runAction: callback,
+        });
+      };
+      // class function which creates a filter for actions requiring one object
+      ActionList.prototype.newActionFilter = function(obj, cls, context) {
         return function(actionInfo) {
           var allows = false;
           var wantNouns = (context == "player") ? 0 : 1;
@@ -60,22 +110,23 @@ angular.module('demo')
           return allows;
         }
       };
-      var newMultiFilter = function(c1, c2) {
+      // class function which creates a filter for actions requires two objects
+      ActionList.prototype.newMultiFilter = function(c1, c2) {
         return function(actionInfo) {
           if (actionInfo.nounCount >= 2) {
             var ok = c2.contains(actionInfo.tgt) && c1.contains(actionInfo.ctx);
-            // $log.warn("filtering", ok, "'" + actionInfo.name + "'", "(" + c2.classInfo.id, "=>", actionInfo.tgt + ") (", c1.classInfo.id, "=>", actionInfo.ctx, ")");
             return ok;
           }
         }
       };
-      var actionForObject = function(act, obj1, obj2) {
+      // create a "ui action": { name:string, icon:Icon, runAction:function() }
+      ActionList.prototype.actionForObject = function(act, obj1, obj2) {
         var icon = IconService.getIcon(act.id);
         return {
           name: act.name.split(' ', 1)[0],
           icon: icon,
           runAction: function() {
-            act.runIt(obj1, obj2).then(
+            act.runIt(obj1 && obj1.id, obj2 && obj2.id).then(
               function() {
                 reset("completed " + act.id);
               },
@@ -91,100 +142,70 @@ angular.module('demo')
         this.obj = null;
         this.view = null;
         this.classInfo = null;
-        this.acted = false;
+        this.combining = false;
       };
+      Input.prototype.allActions = [];
       Input.prototype.sameObject = function(src) {
         return src && (src == this.obj);
       };
       Input.prototype.sameView = function(src) {
         return src && (src == this.view);
       };
-
-      Input.prototype.clickedObj = function(pos, subject, allActions) {
-        // pin to a local for callback handling.
+      Input.prototype.clicked = function(pos, id, type, view, context) {
         var input = this;
-
-        // same object ( or view ) clicked twice?
-        if (input.sameObject(subject.obj) || input.sameView(subject.view)) {
+        var obj = id && EntityService.getById(id);
+        if (input.sameObject(obj) || input.sameView(view)) {
           menu.setPos(pos);
-          input.acted = true;
         } else {
-          // multi-action?
-          if (input.obj) {
-            var filteredMulti = [];
-
-            // then clicked object is the second object:
-            if (!subject.obj || !subject.classInfo) {
-              reset("no matching multi-actions");
-
+          ClassService.getClass(type).then(function(classInfo) {
+            if (!input.combining) {
+              input.handleClick(pos, obj, classInfo, view, context);
             } else {
-              var o1 = subject.obj;
-              var o2 = input.obj;
-              var filter = newMultiFilter(input.classInfo, subject.classInfo);
-              filteredMulti = allActions.filter(filter).sort(IconService.sort).map(function(act) {
-                return actionForObject(act, o1, o2);
-              });
-              menu.openMenu(pos, filteredMulti)
-              input.acted = true;
+              input.handleCombine(pos, obj, classInfo, view, context);
             }
-          } else {
-            var context;
-            var filteredActions = [];
+          });
+        }
+      };
+      // open a menu consisting of actions for the passed object
+      Input.prototype.handleClick = function(pos, obj, classInfo, view, context) {
+        var input = this;
+        // clicked an object:
+        var actionList = new ActionList();
+        if (obj && classInfo) {
+          actionList.addSingleActions(obj, classInfo, (obj.id == "player") ?
+            "player" : (classInfo.contains("doors") ? "doors" : context));
+        } // end object
 
-            // clicked an object:
-            if (subject.obj && subject.classInfo) {
-              if (subject.obj.id == "player") {
-                context = "player";
-              } else {
-                if (subject.classInfo.contains("doors")) {
-                  context = "doors";
-                } else {
-                  context = subject.context;
-                }
-              }
-              // create a filter for the actions for the requested object ( and context )
-              var filter = newActionFilter(subject.obj, subject.classInfo, context);
+        // clicked a view:
+        if (view) {
+          actionList.addZoom(view);
+        }
 
-              // input will add all of the actions with 1 noun; 0 for player.
-              var sourceScope = subject.scope;
-              filteredActions = allActions.filter(filter).sort(IconService.iconSort).map(function(act) {
-                return actionForObject(act, subject.obj);
-              });
-            } // end object
+        // clicked some inventory:
+        if (context == "worn" || context == "carried") {
+          actionList.addCombine(function() {
+            menu.closeMenu();
+            cursor.setCombineStyle();
+            input.combining = true;
+          });
+        } // end inventory
 
-            // clicked a view:
-            if (subject.view) {
-              filteredActions.push({
-                name: "zoom",
-                icon: IconService.getIcon("$zoom"),
-                runAction: function() {
-                  subject.view();
-                }
-              });
-            } // end view
-
-            // clicked some inventory:
-            if (context == "worn" || context == "carried") {
-              filteredActions.push({
-                name: "use",
-                icon: IconService.getIcon("$use"),
-                runAction: function() {
-                  menu.closeMenu();
-                  cursor.setCombineStyle();
-                  input.acted = true;
-                }
-              });
-            } // end inventory
-
-            if (!menu.openMenu(pos, filteredActions)) {
-              reset("no matching actions");
-            } else {
-              input.obj = subject.obj;
-              input.view = subject.view;
-              input.classInfo = subject.classInfo;
-              input.acted = true;
-            }
-          }
+        if (!menu.openMenu(pos, actionList.actions)) {
+          reset("no matching actions");
+        } else {
+          input.obj = obj;
+          input.view = view;
+          input.classInfo = classInfo;
+        }
+      };
+      Input.prototype.handleCombine = function(pos, obj, classInfo, view, context) {
+        var input = this;
+        if (!obj || !classInfo) {
+          reset("no matching multi-actions");
+        } else {
+          var actionList = new ActionList();
+          actionList.addMultiActions(obj, classInfo, input.obj, input.classInfo);
+          menu.openMenu(pos, actionList.actions);
         }
       };
 
@@ -201,34 +222,32 @@ angular.module('demo')
       // if the root element receives a click, 
       // but, nothing in the controller has processed that click,
       // then, clear out any pending action.
+      var acted = false;
       $rootElement.on("click", function(evt) {
-        if (userInput) {
-          if (userInput.acted) {
-            userInput.acted = false;
-          } else {
-            $timeout(function() {
-              reset("mouse clear");
-            });
-          }
+        if (acted) {
+          acted = false;
+        } else {
+          $timeout(function() {
+            reset("mouse clear");
+          });
         }
       });
 
-      var pin = ActionService.getPromisedActions();
-      pin.then(function(allActions) {
+      ActionList.prototype.loadActions().then(function() {
         reset("got promised actions");
-
-        // backwards compat
         $scope.runAction= function(act) {
+          acted= true;
+          menu.closeMenu();
           act.runAction();
         };
-
         // after we know the actions we can start listening to object selection.
         $scope.$on("selected", function(evt, clicked) {
+          acted = true;
           var subject = clicked.subject;
-          var msg = userInput.clickedObj(clicked.pos, subject, allActions);
+          var msg = userInput.clicked(clicked.pos, subject.id, subject.type, subject.view, subject.context);
           if (angular.isString(msg)) {
             reset("selected a null object");
           }
-        }); // selected
-      }); // getPromisedActions
+        })
+      });
     }); //controller

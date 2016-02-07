@@ -13,8 +13,8 @@ angular.module('demo')
        */
       var newLayer = function(parent, name, mapLayer, layerPath) {
         var defer = $q.defer();
-        var layerName = layerPath.replace(/\//g, "_").replace(/(\$|#|!)/g, "");
-        var id = 'layer-' + (layerName || parent.map.name);
+        var bareName = layerPath.replace(/\//g, "_").replace(/(@|\$|#|!)/g, "");
+        var id = 'layer-' + (bareName || parent.map.name);
         //
         return Object.create(parent, {
           // layer name as an html'able id.
@@ -104,8 +104,8 @@ angular.module('demo')
         var layer = newLayer(parent, name, mapLayer, layerPath);
 
         // extend it depending on the layer type.
-        var objectName = parent.map.remap[layerPath];
-        if (objectName) {
+        if (name.indexOf("@") == 0) {
+          var objectName= name.slice(1);
           // FIX: the layer data is named "alice", the object "player"
           if (objectName == 'alice') {
             objectName = 'player';

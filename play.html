@@ -9,7 +9,7 @@
   <div ng-controller="ActionController">
     <!-- list of all actions -->
     <div id="objectPopup" ng-show="actions" ng-style='modalPos'>
-      <button ng-repeat="act in actions" type="button" class="btn btn-primary" tooltip="{{act.name}}" ng-click="act.runAction()" tooltip-placement="bottom">
+      <button ng-repeat="act in actions track by act.name" type="button" class="btn btn-primary" tooltip="{{act.name}}" ng-click="runAction(act)" tooltip-placement="bottom">
         <i ng-class="act.icon.cls"></i>
       </button>
     </div>

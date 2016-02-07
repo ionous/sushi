@@ -5,50 +5,59 @@
  */
 angular.module('demo')
   .controller('MapContentsController',
-    function(EventService,
+    function(ClassService, EntityService, EventService,
       $log, $q, $scope) {
       /** @type Layer */
       var layer = $scope.layer;
-      var subject = $scope.subject;
-      if (!subject || !subject.obj || !subject.classInfo) {
+      var parent = $scope.subject;
+      if (!parent || !parent.id || !parent.type) {
         $log.error("MapContentsController: bad scope", layer.path);
         throw new Error(layer.path);
       }
-      var obj = subject.obj;
-      var classInfo = subject.classInfo;
-      var container = classInfo.contains("containers");
-      $log.info("MapContentsController: adding", obj.id, container ? "(a container)" : "");
 
-      // establishes a new subject containing a new contents.
+      var parentObj = EntityService.getById(parent.id);
+
+      // establish a new subject containing a new contents.
       $scope.subject = false;
-      var sync = function() {
-        var show = !container || obj.is("open") || obj.is("transparent");
-        if (show != !!$scope.subject) {
-          $scope.subject = {
-            scope: $scope,
-            obj: obj,
-            classInfo: classInfo,
-            contents: obj.contents,
-            path: layer.path,
-          };
-          if (show) {
-            var defer = $q.defer();
-            $scope.$on("layer loaded", function(evt, el) {
-              if (el === layer) {
-                defer.resolve();
-              }
-            });
-            return defer.promise;
-          }
-        }
+      var subject = {
+        id: parent.id,
+        type: parent.type,
+        contents: parentObj.contents,
+        path: layer.path,
       };
-      // layers wait intil all sub-layers have been displayed,
-      // but if we are not displaying -- we have to communicate that.
-      if (!sync()) {
-        //$log.warn("MapContentsController: raising fallback", layer.path);
-        $scope.$emit("layer loaded", layer);
-      }
 
-      var x_set = EventService.listen(obj.id, "x-set", sync);
-      $scope.$on("$destroy", x_set);
+      var cpin = ClassService.getClass(parent.type);
+      cpin.then(function(parentClass) {
+        var container = parentClass.contains("containers");
+        //$log.info("MapContentsController: adding", parentObj.id, container ? "(a container)" : "");
+
+        var sync = function() {
+          var show = !container || parentObj.is("open") || parentObj.is("transparent");
+          var visible = !!$scope.subject;
+          if (show != visible) {
+            $scope.subject = subject;
+            if (show) {
+              var defer = $q.defer();
+              var rub = $scope.$on("layer loaded", function(evt, el) {
+                if (el === layer) {
+                  defer.resolve();
+                  rub();
+                }
+              });
+              return defer.promise;
+            }
+          }
+        };
+
+        // layers wait intil all sub-layers have been displayed,
+        // but if we are not displaying -- we have to communicate that.
+        if (!sync()) {
+          $scope.$emit("layer loaded", layer);
+        }
+
+        var x_set = EventService.listen(parentObj.id, "x-set", sync);
+        $scope.$on("$destroy", x_set);
+      }); // getClass
+
+
     });

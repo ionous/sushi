@@ -19,12 +19,11 @@ angular.module('demo')
       // an interface, for "display icons" and "run actions" handled here...
       var t = $scope.subject || {};
       $scope.subject = {
-        scope: $scope,
         view: function() {
           return LocationService.changeView(viewName);
         },
-        obj: t.obj,
-        classInfo: t.classInfo,
+        id: t.id,
+        type: t.type,
         contents: t.contents,
         path: layer.path
       };

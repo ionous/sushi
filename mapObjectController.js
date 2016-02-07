@@ -6,60 +6,64 @@
  */
 angular.module('demo')
   .controller('MapObjectController',
-    function(ClassService, EventService,
+    function(EntityService, EventService,
       $log, $q, $scope) {
       /** @type Layer */
       var layer = $scope.layer;
-      var subject = $scope.subject;
+      var parent = $scope.subject;
       var objectName = layer.objectName;
-
-      if (!objectName || !subject || !subject.obj || !subject.contents) {
-        $log.error("MapObjectController: bad scope", layer.path, objectName, subject);
+      
+      if (!objectName || !parent || !parent.id || !parent.contents) {
+        $log.error("MapObjectController: bad scope", layer.path, objectName, parent);
         throw new Error(layer.path);
       }
       $scope.subject = false;
+      var subject = null;
+
       var sync = function() {
-        var obj = subject.contents[objectName]; // get object from last established contents.
-        var setup = !!$scope.subject != !!obj; // detect changes in presence.
-        $log.info("MapObjectController: sync", layer.path, objectName, setup);
-        if (setup) {
-          if (!obj) {
-            // object has been removed:
-            $scope.subject = false;
-            $log.debug("MapObjectController: removed", objectName);
-          } else {
-            $log.debug("MapObjectController: added", obj.type, objectName);
-            // object has been added:
-            return ClassService.getClass(obj.type).then(function(cls) {
-              $scope.subject = {
-                scope: $scope,
-                obj: obj,
-                classInfo: cls,
-                contents: subject.contents,
-                path: layer.path
-              };
+        var nowExists = parent.contents[objectName]; // get object status from last established contents.
+        if (!nowExists) {
+          $scope.subject = false;
+          $log.debug("MapObjectController: removed", objectName);
+        } else {
+          if (!subject) {
+            var obj = EntityService.getById(objectName);
+            subject = {
+              id: obj.id,
+              type: obj.type,
+              // doesnt establish a new contents; that's delegated to a conv¥ten.
+              contents: parent.contents,
+              path: layer.path
+            };
+          }
+          $scope.subject = subject;
+          $log.debug("MapObjectController: added", objectName);
+        }
+        return nowExists;
+      };
+
+      // watch the parent (container) for changes to objectName's existance.
+      var listenForChanges = function(sync) {
+        var x_mod = EventService.listen(parent.id, "x-mod", function(data) {
+          var child = data['child'];
+          if (child.id == objectName) {
+            if (sync()) {
               var defer = $q.defer();
-              $scope.$on("layer loaded", function(evt, el) {
+              var rub = $scope.$on("layer loaded", function(evt, el) {
                 if (el === layer) {
                   defer.resolve();
+                  rub();
                 }
               });
               return defer.promise;
-            });
+            }
           }
-        }
-      }
+        });
+        $scope.$on("$destroy", x_mod);
+      }; // listn for changes
+
+      listenForChanges();
       if (!sync()) {
-        //$log.warn("MapObjectController: raising fallback", layer.path);
         $scope.$emit("layer loaded", layer);
       }
-
-      // watch our parent object (container) for changes to see if we come into existance (or leave).
-      var x_mod = EventService.listen(subject.obj.id, "x-mod", function(data) {
-        var child = data['child'];
-        if (child.id == objectName) {
-          sync();
-        }
-      });
-      $scope.$on("$destroy", x_mod);
-    });
+    }); // map object controller

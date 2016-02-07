@@ -8,4 +8,7 @@
   </canvas>
   <canvas ng-switch-when='group' width="{{display.size.x}}" height="{{display.size.y}}" ng-controller="GroupController">
   </canvas>
+  <div ng-switch-default>
+    <div ng-controller="EmptyDisplayController"></div>
+  </div>
 </div>

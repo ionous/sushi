@@ -60,10 +60,8 @@ angular.module('demo')
          * Relationships are built dynamically
          * Currently, they point one-way from primary to secondary
          + If that ever needs to change, a relation service might be better.
-         * @type {Object.<string,Array<Entity>>}
+         * @type {Object.<string,Array<bool>>}
          */
-        this.relations = {};
-
         this.contents = {};
         this.clothing = {};
         this.inventory = {};
@@ -90,9 +88,12 @@ angular.module('demo')
           return obj;
         },
         // can return undefined.
-        // mainly for testing.
         getById: function(id) {
-          return entities[id];
+          var obj = entities[id];
+          if (!obj) {
+            throw new Error("couldnt find object: " + id);
+          }
+          return obj;
         },
       }; // entityService.
 
@@ -120,7 +121,7 @@ angular.module('demo')
         var contents = this[list];
         var existed = !!contents[child.id];
         //$log.debug("EntityService:", this.id, list, existed ? "replaced" : "added", "child", child.id);
-        contents[child.id] = child;
+        contents[child.id] = true;
         EventService.raise(this.id, 'x-mod', {
           'prop': list,
           'ent': this,

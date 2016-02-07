@@ -2,16 +2,16 @@
 
 angular.module('demo')
   .controller('MapObjectStateController',
-    function(EventService, $log, $q, $scope) {
+    function(EntityService, EventService, $log, $q, $scope) {
       /** @type Layer */
       var layer = $scope.layer;
       var stateName = layer.stateName; // get the state name from the mapLayerController
       var subject = $scope.subject;
-      if (!layer || !stateName || !subject || !subject.obj) {
+      if (!layer || !stateName || !subject || !subject.id) {
         $log.error("MapObjectStateController: couldnt find object state", layer.path, stateName, subject);
         throw new Error(layer.path);
       }
-      var obj = subject.obj;
+      var obj = EntityService.getById(subject.id);
 
       $scope.inState = false;
       var sync = function() {
@@ -20,9 +20,10 @@ angular.module('demo')
           $scope.inState = inState;
           if (inState) {
             var defer = $q.defer();
-            $scope.$on("layer loaded", function(evt, el) {
+            var rub = $scope.$on("layer loaded", function(evt, el) {
               if (el === layer) {
                 defer.resolve();
+                rub();
               }
             });
             return defer.promise;
@@ -30,7 +31,6 @@ angular.module('demo')
         }
       };
       if (!sync()) {
-        //$log.warn("MapObjectStateController: raising fallback", layer.path);
         $scope.$emit("layer loaded", layer);
       }
 

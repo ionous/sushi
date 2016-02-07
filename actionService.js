@@ -5,7 +5,7 @@
  */
 angular.module('demo')
   .factory('ActionService',
-    function(ClassService, GameService,
+    function(GameService,
       $log, $q, $rootScope) {
 
       var ActionInfo = function(act) {
@@ -20,14 +20,8 @@ angular.module('demo')
         this.tgt = tgt;
       };
 
-      ActionInfo.prototype.getTargetClass = function() {
-        return ClassService.getClass(this.tgt);
-      };
-
-      ActionInfo.prototype.runIt = function(prop, ctx) {
+      ActionInfo.prototype.runIt = function(propId, ctxId) {
         var actId = this.id;
-        var propId = !!prop ? prop.id : null;
-        var ctxId = !!ctx ? ctx.id : null;
         var post = {
           'act': actId,
           'tgt': propId,
@@ -36,8 +30,8 @@ angular.module('demo')
         // emit this locally first, so we can munge it.
         var evt = $rootScope.$broadcast("client action", {
           'act': this,
-          'tgt': prop,
-          'ctx': ctx,
+          'tgt': propId,
+          'ctx': ctxId,
         });
         if (evt.defaultPrevented) {
           var defer = $q.defer();

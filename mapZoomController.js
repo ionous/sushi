@@ -32,8 +32,7 @@ angular.module('demo')
 
         // setup a subject
         $scope.subject = {
-          scope: $scope,
-          obj: view,
+          id: view.id,
           contents: view.contents,
           path: $scope.layer.path,
         };

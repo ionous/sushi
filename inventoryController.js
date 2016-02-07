@@ -7,8 +7,20 @@
  */
 angular.module('demo')
   .controller('InventoryController',
-    function(EventService, PlayerService, $log, $scope) {
-      var p = PlayerService.getPlayer();
-      $scope.clothing = p.clothing;
-      $scope.inventory = p.inventory;
+    function(EventService, EntityService, $log, $scope) {
+      var p = EntityService.getById("player");
+      //
+      var clothing = {};
+      for (var k in p.clothing) {
+        var obj = EntityService.getById(k);
+        clothing[k] = obj;
+      }
+      var inventory = {};
+      for (var k in p.inventory) {
+        var obj = EntityService.getById(k);
+        inventory[k] = obj;
+      }
+      //
+      $scope.clothing = clothing;
+      $scope.inventory = inventory;
     });

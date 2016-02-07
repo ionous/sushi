@@ -25,7 +25,6 @@ angular.module('demo')
             $log.debug("MapService: received", mapName);
             var names = {};
             var map = resp.data['map'];
-            var remap = resp.data['remap'];
             build(names, map);
             /**
              * Map data
@@ -39,7 +38,6 @@ angular.module('demo')
               name: mapName,
               topLayer: map,
               layers: names,
-              remap: remap || {},
             };
             return map;
           }, function(reason) {

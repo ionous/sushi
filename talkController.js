@@ -8,7 +8,7 @@ angular.module('demo')
       if (SKIP_DIALOG) {
         return;
       }
-      var actor = $scope.subject && $scope.subject.obj.id;
+      var actor = $scope.subject && $scope.subject.id;
       if (!actor) {
         throw new Error("TalkController: no object");
       }
@@ -34,7 +34,6 @@ angular.module('demo')
       };
 
       $scope.charText = "";
-      //$log.info("TalkController: ", subject.obj.id, $scope.layerName);
       var overgrey;
       var removeOvergrey = function() {
         if (overgrey) {

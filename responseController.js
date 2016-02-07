@@ -2,7 +2,7 @@
 
 angular.module('demo')
   .controller('ResponseController',
-    function(EventService, TextService, $log, $modal, $q, $scope,
+    function(EventService, TextService, $log, $uibModal, $q, $scope,
       SKIP_DIALOG) {
       if (SKIP_DIALOG) {
         return;
@@ -22,7 +22,7 @@ angular.module('demo')
       var display = TextService.getDisplay();
       var h = TextService.pushHandler(function(lines, speaker) {
         if (speaker == display.id) {
-          var modalInstance = $modal.open({
+          var modalInstance = $uibModal.open({
             animation: false,
             templateUrl: 'responseContent.html',
             controller: 'ModalResponseController',
@@ -55,9 +55,9 @@ angular.module('demo')
 
 angular.module('demo')
   .controller('ModalResponseController',
-    function($log, $modalInstance, $scope, lines) {
+    function($log, $uibModalInstance, $scope, lines) {
       $scope.lines = lines;
       $scope.close = function() {
-        $modalInstance.close();
+        $uibModalInstance.close();
       };
     });
