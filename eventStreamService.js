@@ -15,7 +15,7 @@ angular.module('demo')
       Handler.prototype.run = function() {
         var e = this.evt;
         var startup= this.cb;
-        $log.info("EventStreamService: run", e.evt, e.tgt.id);
+        //$log.info("EventStreamService: run", e.evt, e.tgt.id);
         return startup.call(startup);
       };
       var Event = function(evt, tgt, data, frame) {

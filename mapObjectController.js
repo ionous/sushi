@@ -24,7 +24,7 @@ angular.module('demo')
         var nowExists = parent.contents[objectName]; // get object status from last established contents.
         if (!nowExists) {
           $scope.subject = false;
-          $log.debug("MapObjectController: removed", objectName);
+          //$log.debug("MapObjectController: removed", objectName);
         } else {
           if (!subject) {
             var obj = EntityService.getById(objectName);
@@ -37,7 +37,7 @@ angular.module('demo')
             };
           }
           $scope.subject = subject;
-          $log.debug("MapObjectController: added", objectName);
+          //$log.debug("MapObjectController: added", objectName);
         }
         return nowExists;
       };

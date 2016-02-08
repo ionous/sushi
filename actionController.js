@@ -219,7 +219,7 @@ angular.module('demo')
         userInput = new Input();
         menu.closeMenu();
         cursor.setDefaultStyle();
-        $log.info("ActionController: reset", msg);
+        //$log.info("ActionController: reset", msg);
       }; // reset
 
       // if the root element receives a click, 

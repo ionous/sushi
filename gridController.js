@@ -16,7 +16,7 @@ angular.module('demo')
         var numCells = pt_sub(grid.rect.max, grid.rect.min);
 
         var subject = $scope.subject;
-        if (subject) {
+        if (subject && subject.classInfo) {
           $scope.$on("clicked", function(evt, click) {
             var rect = canvas.getBoundingClientRect();
             var x = Math.floor(click.pos.x - rect.left);

@@ -47,7 +47,7 @@ angular.module('demo')
         draw();
         $scope.$emit("displayed", display);
 
-        if (subject) {
+        if (subject && subject.classInfo) {
           if ($scope.layer.name.indexOf("x-") != 0) {
             $scope.$on("clicked", function(evt, click) {
               var rect = canvas.getBoundingClientRect();

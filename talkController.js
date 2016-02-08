@@ -12,7 +12,7 @@ angular.module('demo')
       if (!actor) {
         throw new Error("TalkController: no object");
       }
-      $log.info("TalkController:", $scope.layer.path, actor);
+      //$log.debug("TalkController:", $scope.layer.path, actor);
 
       var processLines = function(fini, lines) {
         // process a non-blank line till we're out of lines.
@@ -37,13 +37,13 @@ angular.module('demo')
       var overgrey;
       var removeOvergrey = function() {
         if (overgrey) {
-          $log.info("TalkController:", $scope.layer, "removed overgrey");
+          //$log.debug("TalkController:", $scope.layer, "removed overgrey");
           overgrey.remove();
           overgrey = null;
         }
       };
       var rub = EventService.listen(actor, "say", function(data) {
-        $log.info("TalkController:", actor, data);
+        //$log.debug("TalkController:", actor, data);
 
         if (data && data.length) {
           var lines = data.slice();
