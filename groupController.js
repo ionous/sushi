@@ -10,8 +10,11 @@ angular.module('demo')
     var size = display.size;
 
     var subject = $scope.subject;
-    if (subject && subject.classInfo) {
+    // $log.info("GroupController: loaded", subject);
+
+    if (subject && subject.type) {
       $scope.$on("clicked", function(evt, click) {
+        // $log.info("GroupController: clicking", subject);
         var rect = canvas.getBoundingClientRect();
         var x = Math.floor(click.pos.x - rect.left);
         var y = Math.floor(click.pos.y - rect.top);

@@ -16,8 +16,11 @@ angular.module('demo')
         var numCells = pt_sub(grid.rect.max, grid.rect.min);
 
         var subject = $scope.subject;
-        if (subject && subject.classInfo) {
+        // $log.info("GridController: loaded", subject);
+        
+        if (subject && subject.type) {
           $scope.$on("clicked", function(evt, click) {
+            //$log.info("GridController: clicking", subject);
             var rect = canvas.getBoundingClientRect();
             var x = Math.floor(click.pos.x - rect.left);
             var y = Math.floor(click.pos.y - rect.top);
@@ -49,7 +52,7 @@ angular.module('demo')
           if (tile) {
             var dstCell = grids.indexToCell(i);
             var dst = pt_mul(dstCell, grid.cellSize);
-            
+
             sprite.ofs = tiles.indexToCell(tile - 1);
             sprite.drawAt(ctx, dst);
           }

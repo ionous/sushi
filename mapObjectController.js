@@ -37,7 +37,7 @@ angular.module('demo')
             };
           }
           $scope.subject = subject;
-          //$log.debug("MapObjectController: added", objectName);
+          $log.debug("MapObjectController: added", objectName);
         }
         return nowExists;
       };

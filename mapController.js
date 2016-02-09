@@ -25,8 +25,8 @@ angular.module('demo')
           subject: false,
         };
         // send down through the layers
+        $log.info("MapController: clicked...");
         $scope.$broadcast("clicked", click);
-        // click.subject == $scope.subject
         if (click.subject) {
           // send up through the divs
           $log.info("MapController: selected", click.subject);

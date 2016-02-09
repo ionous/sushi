@@ -16,6 +16,8 @@ angular.module('demo')
         var size = display.size; //pt_sub(layer.bounds.max, layer.bounds.min);
         
         var subject = $scope.subject;
+        // $log.info("ImageController: loaded", subject);
+
         var obj = subject && EntityService.getById( subject.id );
         var draw = function() {
           // output image filled with tint color, and the original image
@@ -47,9 +49,10 @@ angular.module('demo')
         draw();
         $scope.$emit("displayed", display);
 
-        if (subject && subject.classInfo) {
+        if (subject && subject.type) {
           if ($scope.layer.name.indexOf("x-") != 0) {
             $scope.$on("clicked", function(evt, click) {
+              // $log.info("ImageController: clicking", subject);
               var rect = canvas.getBoundingClientRect();
               var x = Math.floor(click.pos.x - rect.left);
               var y = Math.floor(click.pos.y - rect.top);

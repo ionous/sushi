@@ -35,7 +35,7 @@ angular.module('demo')
                 requirejs([url], function(module) {
                     $log.debug("DemoModule: acquired controller", ctrlJs);
 
-                    // register the {name:constructor} pair we just loaded with angular
+                    //register the {name:constructor} pair we just loaded with angular
                     controllerProvider.register(module);
                     var ctrlConstructor = module[ctrlName];
                     if (!ctrlConstructor) {
