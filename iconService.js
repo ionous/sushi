@@ -163,8 +163,7 @@ angular.module('demo')
         requires("wearables").
         exclude("worn"),
 
-        new Icon("attack it", "gavel"). // bolt
-        exclude("worn", "carried"),
+        new Icon("attack it", null),//"gavel").exclude("worn", "carried"),
 
         new Icon("kiss it", "heart-o").
         requires("actors"),
