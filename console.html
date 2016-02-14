@@ -1,0 +1,17 @@
+<div class="modal-body">
+  <div id="text">
+    <ul>
+      <li ng-repeat="block in display.blocks track by $index">
+        <ul>
+          <li ng-if="block.speaker" class="speaker">{{block.speaker}}</li>
+          <li ng-repeat="text in block.text track by $index">{{text}}</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <div>
+    <form id="f" ng-controller="InputController" ng-submit="submit()">
+      <input id="q" name="q" type="text" ng-model="userInput" autocomplete="off" auto-focus />
+    </form>
+  </div>
+</div>

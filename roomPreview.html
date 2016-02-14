@@ -1,2 +1,21 @@
-<div id="view" ng-include="'layer.html'">
+<div id="ga-play" ng-style="{'background-color':backgroundColor}">
+  <div class="ga-buttonbar">
+    <a class="ga-barbtn btn btn-primary btn-lg" ng-click="console()">
+      <i class="fa fa-terminal"></i>
+    </a>
+    <a class="ga-barbtn btn btn-primary btn-lg" ng-click="openInv()">
+      <i class="fa fa-suitcase"></i>
+    </a>
+    <a class="ga-barbtn btn btn-primary btn-lg" ng-click="comment()">
+      <i class="fa fa-book"></i>
+    </a>
+  </div>
+  <img ng-src="/bin/preview/{{roomId}}.png" />
+  <div class="ga-comment-box" ng-if="comments" ng-controller="CommentPreviewController" uib-collapse="!isOpen" collapsed="done()">
+    <ul>
+      <li ng-repeat="text in choices track by $index" ng-click="comment($index)">
+        {{text}}
+      </li>
+    </ul>
+  </div>
 </div>

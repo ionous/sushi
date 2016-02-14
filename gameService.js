@@ -75,7 +75,7 @@ angular.module('demo')
             if (!game.started) {
               $log.info("GameService: starting...");
               game.started = true;
-              post(game.id, {
+              return post(game.id, {
                 'in': 'start'
               });
             }
