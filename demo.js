@@ -50,6 +50,10 @@ angular
           },
         })
         //ex. http://localhost:8080/demo/#/rooms/automat
+        .when('/rooms/', {
+          templateUrl: 'roomsList.html',
+          controller: 'RoomsListController'
+        })
         .when('/rooms/:roomId', {
           templateUrl: 'roomPreview.html',
           controller: 'RoomPreviewController'
