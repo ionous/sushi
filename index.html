@@ -23,14 +23,15 @@
   <script src="/script/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
   <link rel="stylesheet" href="demo.css">
   <link rel="stylesheet" href="mosaic/mosaic.css">
+  <!--  main, routes, etc. -->
   <script src="demo.js"></script>
-  <script src="autoFocus.js"></script>
+  <!--  services -->
   <script src="actionService.js"></script>
+  <script src="actionListService.js"></script>
   <script src="classService.js"></script>
+  <script src="combinerService.js"></script>
   <script src="controllerService.js"></script>
-  <script src="dialogService.js"></script>
   <script src="displayService.js"></script>
-  <script src="emptyDisplayController.js"></script>
   <script src="entityService.js"></script>
   <script src="eventService.js"></script>
   <script src="eventStreamService.js"></script>
@@ -44,9 +45,15 @@
   <script src="objectService.js"></script>
   <script src="playerService.js"></script>
   <script src="textService.js"></script>
+  <script src="viewReturnService.js"></script>
+  <!-- directives -->
+  <script src="directives.js"></script>
+  <!-- controllers  -->
   <script src="actionController.js"></script>
-  <script src="dialogController.js"></script>
+  <script src="buttonBarController.js"></script>
+  <script src="commentController.js"></script>
   <script src="displayController.js"></script>
+  <script src="emptyDisplayController.js"></script>
   <script src="gameController.js"></script>
   <script src="gridController.js"></script>
   <script src="groupController.js"></script>
@@ -54,8 +61,6 @@
   <script src="imageController.js"></script>
   <script src="inputController.js"></script>
   <script src="inventoryController.js"></script>
-  <script src="invItemController.js"></script>
-  <script src="linesController.js"></script>
   <script src="mapCharaController.js"></script>
   <script src="mapContentsController.js"></script>
   <script src="mapController.js"></script>
@@ -69,16 +74,26 @@
   <script src="roomPreviewController.js"></script>
   <script src="statusController.js"></script>
   <script src="talkController.js"></script>
+  <!--  -->
   <script src="mosaic/map.js"></script>
   <script src="mosaic/mosaic.js"></script>
   <script src="mosaic/point.js"></script>
   <script src="mosaic/sprite.js"></script>
 </head>
-<!-- talks to the bckground server to start the game -->
 
 <body ng-controller="GameController">
-  <!-- routes to play.html based on the current room -->
-  <div ng-view ng-if="game"></div>
+  <header id="status-bar" ng-controller="StatusController">
+    <span id="status-left">{{status.left}}</span>
+    <span id="status-right">{{status.right}}</span>
+  </header>
+  <!-- actions held out above ga-play to handle mouse/offset display of menu -->
+  <div ng-include="'actionBar.html'"></div>
+  <div id="ga-play" class="ga-noselect" ga-map-background>
+    <div ng-view></div>
+    <div ng-include="'buttonBar.html'"></div>
+    <div ng-controller="ResponseController"></div>
+    <div ng-include="'commentBox.html'"></div>
+  </div>
 </body>
 
 </html>

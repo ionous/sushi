@@ -24,8 +24,8 @@ angular.module('demo')
         var actId = this.id;
         var post = {
           'act': actId,
-          'tgt': propId,
-          'ctx': ctxId,
+          'tgt': propId || null,
+          'ctx': ctxId || null,
         };
         // emit this locally first, so we can munge it.
         var evt = $rootScope.$broadcast("client action", {

@@ -4,7 +4,7 @@
  */
 angular.module('demo')
   .controller('DisplayController',
-    function(LocationService, $log, $scope,
+    function(LocationService, ViewReturnService, $log, $scope,
       _storyController, _roomController, _itemController) {
       var room = LocationService.room();
       var view = LocationService.view();
@@ -16,10 +16,12 @@ angular.module('demo')
       $scope.roomController = _roomController;
       $scope.itemController = _itemController;
       $log.info("DisplayController: showing", room || "", view || "", item || "");
-      $scope.exitView = function() {
-        LocationService.changeRoom(room);
-      };
-      $scope.exitItem = function() {
-        LocationService.changeRoom(room, view);
-      };
+
+      if (item || view) {
+        ViewReturnService.setupReturn("Return to room...", function() {
+          LocationService.changeRoom(room, item ? view : null);
+        });
+      } else {
+        ViewReturnService.clearReturn();
+      }
     });

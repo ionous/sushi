@@ -38,6 +38,7 @@ angular.module('demo')
               name: mapName,
               topLayer: map,
               layers: names,
+              bkcolor: resp.data['bkcolor'],
             };
             return map;
           }, function(reason) {

@@ -52,7 +52,7 @@ var images = {
 
 
 angular.module('demo')
-  .controller('ConsoleController',
+  .controller('ConsolePreviewController',
     function($log, $scope, $timeout) {
       $timeout(function() {
         var ga_console = document.getElementsByClassName('ga-console').item(0);
@@ -66,16 +66,26 @@ angular.module('demo')
         }],
       };
     });
+
+var messages = ["The alien boy eats Alice's shoes.", "Dragée marzipan I love toffee. Wafer marzipan ice cream I love I love bonbon. I love candy donut. Oat cake cotton candy soufflé macaroon donut jelly.", consoleText.join(" ")];
+
 /** 
  */
 angular.module('demo')
   .controller('RoomPreviewController',
     //http://localhost:8080/demo/#/room/automat
-    function($http, $log, $routeParams, $scope, $uibModal) {
+    function(ViewReturnService, $http, $location, $log, $routeParams, $scope, $timeout, $uibModal) {
       var roomId = $routeParams.roomId;
       $http.get("/bin/maps/" + roomId + ".map").then(function(res) {
         $scope.backgroundColor = res.data['bkcolor'] || "black";
       });
+
+      var previewReturn = function() {
+        ViewReturnService.setupReturn("Return to room...", function() {
+          $location.url("rooms");
+        });
+      }
+      $timeout(previewReturn);
 
       $scope.roomId = roomId;
       $scope.openInv = function() {
@@ -85,10 +95,32 @@ angular.module('demo')
           controller: 'PickerPreviewController',
           windowTopClass: 'ga-picker', // the whole modal overlay
         });
-        // var closed = function() {
-        //   $log.info("closed");
-        // };
-        // modalInstance.result.then(closed, closed);
+      };
+      var index = 0;
+
+      $scope.message = function() {
+        var modalInstance = $uibModal.open({
+          animation: false,
+          backdropClass: "ga-notifydrop",
+          template: '<p class="ga-noselect">{{message}}</p>',
+          windowTemplateUrl: 'emptyModal.html',
+          windowTopClass: 'ga-notify',
+          resolve: {
+            message: function() {
+              index += 1;
+              return messages[index % messages.length];
+            },
+          },
+          controller: function($scope, message) {
+            $scope.message = message;
+          },
+        });
+        modalInstance.rendered.then(function() {
+          var el= angular.element( document.getElementsByClassName('ga-notify').item(0) );
+          el.one("click", function() {
+            modalInstance.close();
+          });
+        });
       };
 
       $scope.comment = function() {
@@ -102,13 +134,9 @@ angular.module('demo')
       $scope.console = function() {
         var modalInstance = $uibModal.open({
           templateUrl: 'console.html',
-          controller: 'ConsoleController',
+          controller: 'ConsolePreviewController',
           windowTopClass: 'ga-console',
         });
-        // var closed = function() {
-        //   $log.info("closed");
-        // };
-        // modalInstance.result.then(closed, closed);
       };
     });
 
@@ -182,12 +210,9 @@ angular.module('demo')
 
       $scope.choices = comments.choices;
       $scope.isOpen = false;
-      // possibly move the comment box to a service like the modal box.
       $scope.comment = function(index) {
         var comment = comments.choices[index];
         $log.info(comment);
-        // assigns to local scope not parent scorpre
-        //comments.close();
         $scope.isOpen = false;
       };
       $scope.$on("$destroy", function() {
@@ -230,25 +255,6 @@ angular.module('demo')
         addSlide(k, images[k]);
       }
 
-      $scope.$on("$destroy", function() {
-        $rootScope.rememberedItem = picker.current.id;
-      });
     });
 
 
-angular.module('demo')
-  .controller('SlideController',
-    function($log, $rootScope, $scope) {
-      var slide = $scope.slide;
-      var picker = $scope.picker;
-      $scope.$watch('slide.active', function() {
-        if (slide.active) {
-          if (!slide.image) {
-            slide.image = slide.src;
-          }
-          picker.current = slide;
-          picker.transition = true;
-          $log.info("activated", slide.id);
-        }
-      });
-    });

@@ -1,6 +1,6 @@
 <div id="allIcons">
   <button ng-repeat="i in icons" type="button" class="btn btn-primary" uib-tooltip="{{i.id}}" ng-click="i.onAction()" tooltip-placement="bottom">
-    <i ng-class="i.cls"></i>
+    <i ng-class="i.iconClass"></i>
   </button>
   <div><pre>
   {{details}}

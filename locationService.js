@@ -28,6 +28,7 @@ angular.module('demo')
           item: item
         };
         $log.info("LocationService: changing", loc, "to", next);
+        $rootScope.$broadcast("location changing", loc, next);
         //
         loading = $q.defer();
         if (loc == next) {

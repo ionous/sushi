@@ -7,7 +7,6 @@ angular.module('demo')
       if (SKIP_DIALOG) {
         return;
       }
-      
       // silence room entry text
       var rub = EventService.listen(
         '*', "reporting-the-view", {
@@ -21,23 +20,31 @@ angular.module('demo')
 
       var display = TextService.getDisplay();
       var h = TextService.pushHandler(function(lines, speaker) {
+        //$log.info("ResponseController: got text", speaker, lines);
         if (speaker == display.id) {
           var modalInstance = $uibModal.open({
             animation: false,
-            templateUrl: 'responseContent.html',
-            controller: 'ModalResponseController',
-
-            //backdropClass - additional CSS class(es) to be added to a modal backdrop template
-            windowClass: 'responseWin', // - additional CSS class(es) to be added to a modal window template
-            //openedClass - class added to the body element when the modal is opened. Defaults to modal-open
-            // size: size - optional suffix of modal window class. The value used is appended to the modal- class, i.e. a value of sm gives modal-sm
-            //size: "sm",
+            backdropClass: "ga-notifydrop",
+            template: '<div class="ga-notify-box"><p class="ga-noselect" ng-repeat="l in lines track by $index">{{l}}</div>',
+            windowTemplateUrl: 'emptyModal.html',
+            windowTopClass: 'ga-notify',
+            controller: function($scope, lines) {
+              $log.info("ResponseController: sub-controller",lines);
+              $scope.lines = lines;
+            },
+            windowClass: 'responseWin', 
             resolve: {
               // send to modal controller.
               lines: function() {
                 return lines;
               }
             }
+          });
+          modalInstance.rendered.then(function() {
+            var el = angular.element(document.getElementsByClassName('ga-notify').item(0));
+            el.one("click", function() {
+              modalInstance.close();
+            });
           });
           var defer = $q.defer();
           // change both okay and cancel into success
@@ -51,13 +58,4 @@ angular.module('demo')
         rub();
         TextService.removeHandler(h);
       });
-    });
-
-angular.module('demo')
-  .controller('ModalResponseController',
-    function($log, $uibModalInstance, $scope, lines) {
-      $scope.lines = lines;
-      $scope.close = function() {
-        $uibModalInstance.close();
-      };
     });

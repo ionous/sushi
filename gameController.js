@@ -6,7 +6,7 @@
 angular.module('demo')
   .controller('GameController',
     function($log, $q, $scope, $timeout,
-      EventService, GameService, LocationService, PlayerService) {
+      EventService, GameService, LocationService, PlayerService, TextService) {
       $scope.game = null;
 
       var startGame = function(game) {
@@ -15,18 +15,25 @@ angular.module('demo')
         var player = PlayerService.getPlayer();
         // FIX: should we add a specific x-view change on the server?
         // ALT: we can view anything, and our choice location drives that view ( as opposeed to the player object on the server, )
-        var x_rel = EventService.listen(player.id, "x-rel", function(data) {
-          //$log.debug("GameController: heard", player.id, data, data['prop']);
-          if (data['prop'] == "objects-whereabouts") {
-            var loc = data['next'];
-            if (!loc) {
-              $log.error("GameController: changeLocation invalid");
-            } else {
-              return LocationService.changeRoom(loc.id);
+        var x_rel = EventService.listen(player.id, "x-rel",
+          function(data) {
+            if (data['prop'] == "objects-whereabouts") {
+              var loc = data['next'];
+              if (!loc) {
+                $log.error("GameController: changeLocation invalid");
+              } else {
+                return LocationService.changeRoom(loc.id);
+              }
             }
-          }
+          });
+        var x_txt = EventService.listen('*', ["print", "say"],
+          function(data, tgt) {
+            return TextService.addLines(tgt, data);
+          });
+        $scope.$on("$destroy", function() {
+          x_rel();
+          x_txt();
         });
-        $scope.$on("$destory", x_rel);
         // go start that game
         game.commence();
       };

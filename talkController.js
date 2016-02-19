@@ -19,11 +19,14 @@ angular.module('demo')
         while (lines.length) {
           var text = lines.shift();
           if (text) {
+            //$log.info("TalkController:", actor, "says", text);
             $scope.charText = text;
             // process the next line ater clicking
             overgrey.one("click", function() {
-              $scope.charText = "";
-              processLines(fini, lines);
+              $scope.$apply(function() {
+                $scope.charText = "";
+                processLines(fini, lines);
+              });
             });
             // early-return after processing a line.
             return;

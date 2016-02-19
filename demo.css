@@ -1,3 +1,12 @@
+
+
+body {
+  /*background-color: aliceblue;*/
+  width: 800px;
+  margin: 0 auto;
+  margin-top: 1em;
+}
+
 .nav,
 .pagination,
 .carousel,
@@ -9,21 +18,7 @@
   font-size: 16px;
 }
 
-header,
-footer {
-  display: block;
-}
-
-#main {
-  margin: 0;
-  padding: 0;
-}
-
-.talkLayer {
-  position: absolute;
-}
-
-#objectPopup {
+#actionPopup {
   position: absolute;
   z-index: 100;
   background-color: white;
@@ -34,126 +29,21 @@ footer {
 }
 
 #status-bar {
-  background-color: black;
+  /*  background-color: black;
   color: white;
+  */
   padding-left: 1em;
   padding-right: 1em;
-}
-
-#room {
-  margin-bottom: 10px;
-}
-
-#inv {
-  margin-left: 32px;
-  border: medium ridge;
-  min-height: 48px;
-}
-
-.invitem {
-  display: inline-block;
-  border-right: medium ridge;
-  padding: 5px;
-}
-
-.invimg {
-  max-width: 48px;
-  max-height: 48px;
-  margin: 0px;
-}
-
-.invTip {
-  text-transform: capitalize;
+  text-shadow: 1px 1px 1px white;
+  font-weight: bold;
 }
 
 #status-right {
   float: right;
 }
 
-#returnButton {
-  padding-left: 32px;
-  /* matches a tile */
-}
-
-#view {
-  position: relative;
-  float: left;
-  min-width: 512px;
-  min-height: 512px;
-  /*margin-left: 32px;*/
-  margin-right: 32px;
-}
-
-#dialogChoices {
-  position: absolute;
-  bottom: 0;
-  margin: 64px;
-  /* two tiles */
-}
-
-.dialogLine {
-  text-decoration: none;
-  color: silver;
-  font-weight: 700;
-  text-shadow: 1px 1px 1px #000;
-  font-size: 1.35em;
-  -webkit-transition: color 0.3s;
-  -moz-transition: color 0.3s;
-  transition: color 0.3s;
-}
-
-.dialogLine:hover {
-  color: white;
-}
-
-#side {
-  overflow-x: auto;
-  height: 512px;
-  border: solid black;
-  margin: 32px;
-  position: relative;
-}
-
-#f {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 95%;
-  margin: 0.25rem;
-}
-
 form > * {
   width: 100%;
-}
-
-#text {
-  overflow-y: scroll;
-  width: 100%;
-  height: 90%;
-}
-
-#info {
-  padding: 1em;
-  margin: 0px;
-  overflow-y: scroll;
-}
-
-#info ul {
-  margin: 0;
-}
-
-.smallText {
-  font-size: 76%;
-}
-
-#text ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-#text li {
-  margin-top: 0.5em;
 }
 
 .mapLayer {
@@ -167,28 +57,6 @@ form > * {
   color: red;
   font-style: italic;
   font-weight: bold;
-}
-
-.lineFade.ng-enter {
-  /*-webkit-transition: all linear 0.5s;
-  transition: all linear 0.5s;*/
-  /* standard transition code */
-  transition: 1s linear all;
-  opacity: 0;
-}
-
-
-/* this will have a 100ms delay between each successive leave animation 
-in case the stagger doesn't work then the duration value
-   must be set to 0 to avoid an accidental CSS inheritance 
-.lineFade.ng-enter-stagger {
-  transition-delay: 0.1s;
-  transition-duration: 0s;
-}
-*/
-
-.lineFade.ng-enter.ng-enter-active {
-  opacity: 1;
 }
 
 .char-text:after {
@@ -207,8 +75,10 @@ in case the stagger doesn't work then the duration value
   width: 0;
 }
 
+
 /* http://nicolasgallagher.com/pure-css-speech-bubbles/demo/ 
 top,right,bottom,left*/
+
 .bubble {
   position: absolute;
   /* because the bubble floats above the modal, disable mouse interaction */
@@ -247,10 +117,6 @@ top,right,bottom,left*/
   border-color: transparent #075698;
 }
 
-.responseWin {
-  /* line-height: 1.5rem; */
-}
-
 div.overgrey {
   /*opacity: 0.3;
   background: white;*/
@@ -262,25 +128,198 @@ div.overgrey {
   position: absolute;
 }
 
-.modal-backdrop {
-  /*opacity: 0.3;
-  background: white;*/
+#ga-play {
+  overflow: hidden;
+  width: 800px;
+  height: 672px;
+  /*border-width: 3px;
+  border-style: solid;
+  border-color: #075698;*/
+  border-radius: 20px;
+  margin: 3px;
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: crosshair !important;
 }
 
-
-/*http://stackoverflow.com/questions/18422223/bootstrap-3-modal-vertical-position-center*/
-
-@media screen {
-  .modal:before {
-    display: inline-block;
-    vertical-align: middle;
-    content: " ";
-    height: 80%;
-  }
+.ga-combining #ga-play {
+  cursor: copy !important;
 }
 
-.modal-dialog {
-  display: inline-block;
-  vertical-align: middle;
+.ga-noselect {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  cursor: default;
+}
+
+.ga-left {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 50%;
+}
+
+.ga-right {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.ga-center {
+  position: absolute;
+  bottom: -30px;
+  width: 100%;
+  display: flex;
+  /*align-items: center;*/
+  justify-content: center;
+}
+
+.ga-buttonbar {
+  /*opacity: 0.9;*/
+  position: absolute;
+}
+
+.ga-buttonbar .btn {
+  margin: 0.2em 0.3em;
+  border-radius: 50% !important;
+  outline: none !important;
+}
+
+div.ga-xtip > div.tooltip-inner {
+  font-size: small;
+  text-transform: capitalize;
+}
+
+.ga-console ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ga-console li {
+  margin-top: 0.5em;
+}
+
+.ga-console form {
+  margin-top: 1em;
+}
+
+.ga-comment-box {
+  position: absolute;
+  background-color: rgba(10, 10, 10, 0.5);
+  left: 0px;
+  bottom: 0px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  padding-top: 0.5em;
+  width: 828px;
+  z-index: 1000;
+}
+
+.ga-comment-box ul {
+  list-style-type: none;
+}
+
+.ga-comment-box li {
+  text-decoration: none;
+  color: silver;
+  font-weight: 700;
+  text-shadow: 1px 1px 1px #000;
+  font-size: 1.35em;
+  -webkit-transition: color 0.3s;
+  -moz-transition: color 0.3s;
+  transition: color 0.3s;
+}
+
+.ga-comment-box li:hover {
+  color: white;
+  cursor: pointer;
+}
+
+.ga-slide {
+  min-width: 64px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+}
+
+.ga-slide img {
+  max-width: 64px;
+  max-height: 64px;
+}
+
+div.carousel {
+  min-width: 64px;
+  min-height: 64px;
+}
+
+.ga-picker-caption {
+  color: white;
+  text-transform: capitalize;
+}
+
+.ga-notifydrop {
+  opacity: 0 !important;
+}
+
+div.ga-notify > div {
+  margin: 0;
+  background-color: white;
+  position: absolute;
+  max-width: 500px;
+  max-height: 400px;
+  overflow-y: auto;
+  /*half of the play space s*/
+  top: 338px;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.4);
+  border-radius: 20px;
+  border-width: 3px;
+  border-style: inset;
+  border-color: black;
+  overflow-y: scroll;
+}
+
+div.ga-notify-box {
+  padding:0.5em 1.5em;
+  
+}
+div.ga-notify p {
+  padding:0px;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+  margin-top:0.1em;
+  margin-bottom:0.1em;
+}
+
+div.ga-picker .modal-content {
+  background-color: #337AB7;
+}
+
+.scroll-text {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.carousel-control {
+  background-image: none !important;
+}
+
+.ga-show {
+  -webkit-transition: all linear 0.5s;
+  transition: all linear 0.5s;
+}
+
+.ga-show.ng-hide {
+  opacity: 0;
+  -webkit-transition: all linear 0.0s;
+  transition: all linear 0.0s;
 }

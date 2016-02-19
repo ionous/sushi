@@ -1,0 +1,16 @@
+<div class="ga-buttonbar ga-left ga-show" ng-show="msg && mapLoaded && !processingFrame">
+  <a class="btn btn-primary btn-lg" ga-click-return="msg" uib-tooltip="{{msg}}" tooltip-placement="right" tooltip-class="ga-xtip">
+    <i class="fa fa-undo"></i>
+  </a>
+</div>
+<div class="ga-buttonbar ga-right ga-show" ng-controller="ButtonBarController" ng-show="mapLoaded">
+  <a class="btn btn-primary btn-lg" ng-click="console()" uib-tooltip="Console" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
+    <i class="fa fa-terminal"></i>
+  </a>
+  <a class="btn btn-primary btn-lg" ng-click="inventory()" uib-tooltip="Items" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
+    <i class="fa fa-suitcase"></i>
+  </a>
+  <a class="btn btn-primary btn-lg active" ng-click="settings()" uib-tooltip="Settings" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
+    <i class="fa fa-gear"></i>
+  </a>
+</div>

@@ -8,7 +8,7 @@ angular.module('demo')
     function(GameService, IconService, $log, $routeParams, $scope) {
       // icon is of type IconService.Icon
       $scope.icons = IconService.allIcons().filter(function(icon) {
-        return icon.cls;
+        return icon.iconClass;
       }).map(function(icon) {
         return {
           tooltip: icon.id,
@@ -23,7 +23,7 @@ angular.module('demo')
               }
             );
           },
-          cls: icon.cls,
+          cls: icon.iconClass,
         };
       });
     } //controller

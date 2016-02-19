@@ -30,7 +30,7 @@ angular.module('demo')
 
       // create all of the sub layers.
       var layers = layer.data.layers;
-      layers = layers ? layers.slice().reverse() : [];
+      layers = layers ? layers.slice() : [];
       var debug = false; // {}
       var wait = layers.map(function(mapLayer) {
         var el = LayerService.newLayer(layer, mapLayer);

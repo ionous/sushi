@@ -1,5 +1,5 @@
 <div class="modal-body">
-  <div id="text">
+  <div class="scroll-text" ga-scrolldown="display.blocks">
     <ul>
       <li ng-repeat="block in display.blocks track by $index">
         <ul>
@@ -11,7 +11,7 @@
   </div>
   <div>
     <form id="f" ng-controller="InputController" ng-submit="submit()">
-      <input id="q" name="q" type="text" ng-model="userInput" autocomplete="off" auto-focus />
+      <input id="q" name="q" type="text" ng-model="userInput" autocomplete="off" ga-auto-focus />
     </form>
   </div>
 </div>

@@ -42,14 +42,14 @@ angular.module('demo')
          * http://fortawesome.github.io/Font-Awesome/icons/
          * @const string
          */
-        this.cls = icon;
+        this.iconClass = icon;
         //
         this._requireStates = [];
         this._excludes = [];
       };
 
       Icon.prototype.allows = function(obj, context) {
-        var allows = this.cls;
+        var allows = this.iconClass;
         if (allows) {
           if (this._excludes.indexOf(context) >= 0) {
             allows = false;
@@ -60,12 +60,11 @@ angular.module('demo')
               if (!allows) {
                 break;
               }
-            }   
+            }
           }
         }
         return allows;
       }
-
       // set a filter function
       Icon.prototype.requires = function(state) {
         this._requireStates.push(state);
@@ -163,7 +162,7 @@ angular.module('demo')
         requires("wearables").
         exclude("worn"),
 
-        new Icon("attack it", null),//"gavel").exclude("worn", "carried"),
+        new Icon("attack it", null), //"gavel").exclude("worn", "carried"),
 
         new Icon("kiss it", "heart-o").
         requires("actors"),
@@ -199,7 +198,7 @@ angular.module('demo')
         allIcons: function() {
           return iconList;
         },
-        iconSort: function(a, b) {
+        sort: function(a, b) {
           var oa = iconLookup[a.id] || 0;
           var ob = iconLookup[b.id] || 0;
           return oa - ob;
@@ -207,6 +206,10 @@ angular.module('demo')
         getIcon: function(id) {
           var i = iconLookup[id] || 0;
           return iconList[i];
+        },
+        getIconClass: function(id) {
+          var i = iconLookup[id] || 0;
+          return iconList[i].iconClass;
         },
       };
       return iconService;

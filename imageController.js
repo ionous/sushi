@@ -61,7 +61,7 @@ angular.module('demo')
               var inRange = (ofs.x >= 0 && ofs.y >= 0 && ofs.x < size.x && ofs.y < size.y);
               if (inRange) {
                 click.subject = subject;
-                $log.debug("ImageController: click", display.name, subject.id);
+                $log.debug("ImageController: click", $scope.layer.name, display.name, subject.id);
               }
             });
           }

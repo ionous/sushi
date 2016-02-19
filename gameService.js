@@ -11,17 +11,13 @@ angular.module('demo')
     EntityService,
     JsonService,
     EventStreamService,
-    $http, $log) {
+    $http, $log, $rootScope) {
     var currentFrame = -1;
     //
-    var processing;
     /** 
      * Handler for processing server game data.
      */
     var processFrame = function(game, doc) {
-      if (processing) {
-        throw new Error("frame in progress" + processing);
-      }
       var newFrame = doc.meta['frame'];
       if (newFrame <= currentFrame) {
         throw new Error("invalid frame, new:" + newFrame + ", now:" + currentFrame);
@@ -36,14 +32,11 @@ angular.module('demo')
       doc.includes.forEach(function(obj) {
         EntityService.getRef(obj).createOrUpdate(newFrame, obj);
       });
-      var handleEvents = EventStreamService.queueEvents(newFrame, events).handleEvents();
-      processing = handleEvents.then(function() {
-        processing = null;
-      });
-      return processing;
+      return EventStreamService.queueEvents(newFrame, events).handleEvents();
     };
 
     var gameCreated = false;
+    var processing = false;
 
     /** 
      * Post to create the new game object
@@ -55,8 +48,14 @@ angular.module('demo')
       if (angular.isUndefined(where)) {
         throw new Error("empty post");
       }
+      processing = true;
+      $rootScope.processingFrame = true;
+
       var url = ['/game', where].join('/');
       $log.info("GameService: post", where, what);
+      
+      // FIX: unwind this, so that callers can, optionally get into the mechanics of 
+      // post vs. process ( ex. comment box )
       return $http.post(url, what).then(function(resp) {
         var doc = JsonService.parseObjectDoc(resp.data, 'startup');
         if (!doc.data) {
@@ -84,7 +83,11 @@ angular.module('demo')
             return post(game.id, what);
           };
         }
+
+        ///
         return processFrame(game, doc).then(function() {
+          processing = false;
+          $rootScope.processingFrame = false;
           return game;
         });
       });

@@ -6,7 +6,7 @@
 angular.module('demo')
   .controller('MapController',
     function(LayerService, LocationService, MapService, ObjectService,
-      $log, $scope) {
+      $log, $rootScope, $scope) {
       // when the location changes, the map controller is recreated.
       var mapName = $scope.item || $scope.view || $scope.room;
 
@@ -21,17 +21,18 @@ angular.module('demo')
       // and emit "selected".
       var layerClick = function(evt) {
         var click = {
+          // coordinates regardless of scrolling;
+          // vs. screenX/Y, and pageX/Y
+          evt: evt,
           pos: pt(evt.clientX, evt.clientY),
           subject: false,
         };
         // send down through the layers
-        $log.info("MapController: clicked...");
+        $log.info("MapController: clicking...");
         $scope.$broadcast("clicked", click);
-        if (click.subject) {
-          // send up through the divs
-          $log.info("MapController: selected", click.subject);
-          $scope.$emit("selected", click);
-        }
+        // send up through the divs
+        $log.info("MapController: selected", click.subject);
+        $scope.$emit("selected", click);
       };
 
       // called afer the map service has the map.
@@ -52,7 +53,7 @@ angular.module('demo')
           };
           $scope.subject = {
             id: obj.id,
-            classInfo: null, // hidden so we cant click on the room obj itself.
+            type: null, // hidden so we cant click on the room obj itself.
             contents: obj.contents,
             path: layer.path,
           };
@@ -64,6 +65,7 @@ angular.module('demo')
               $log.info("MapController: finished loading", mapName);
               $scope.layerClick = layerClick;
               LocationService.finishedLoading(room);
+              $scope.$emit("map ready", map);
               rub();
             }
           });

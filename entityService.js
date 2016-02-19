@@ -101,6 +101,10 @@ angular.module('demo')
         return this.states.indexOf(state) >= 0;
       };
 
+      Entity.prototype.printedName = function(state) {
+        return this.attr['kinds-printed-name'] || this.id.replace(/-/g, " ");
+      };
+
       Entity.prototype.created = function() {
         return this.frame >= 0;
       };

@@ -1,70 +1,14 @@
-<!-- play.html and its DisplayController assigned to index.html's view in demo.js
--->
-<header id="status-bar" ng-controller="StatusController">
-  <span id="status-left">{{status.left}}</span>
-  <span id="status-right">{{status.right}}</span>
-</header>
-<div id="main">
-  <!-- controller of current action, at a top level so items can be combined with inv, etc. -->
-  <div ng-controller="ActionController">
-    <!-- list of all actions -->
-    <div id="objectPopup" ng-show="actions" ng-style='modalPos'>
-      <button ng-repeat="act in actions track by act.name" type="button" class="btn btn-primary" uib-tooltip="{{act.name}}" ng-click="runAction(act)" tooltip-placement="bottom">
-        <i ng-class="act.icon.cls"></i>
-      </button>
-    </div>
-    <!-- text disply overlays all -->
-    <div id="view" ng-controller="ResponseController">
-      <!-- demo.js assigns story,room, and item controller based on current url -->
-      <div id="story" ng-show="mapLoaded" ng-controller="storyController">
-        <!-- popStyle changes the mouse cursor based on the current popup.  -->
-        <div id="room" ng-controller="roomController" ng-style="popStyle">
-          <div id="item" ng-controller="itemController">
-            <div ng-controller="MapController" ng-style="viewStyle" ng-click="layerClick($event)">
-              <div ng-if="layer" ng-controller="MapZoomController">
-                <div ng-if="layer" ng-include="'contentsLayer.html'">
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- view is set by DisplayController -->
-          <div ng-if="item">
-            <a id="returnButton" ng-click="exitItem()" href="">Return to room...</a>
-          </div>
-          <!-- FIX: else! -->
-          <div ng-if="!item && (view && !hideViewButton)">
-            <a id="returnButton" ng-click="exitView()" href="">Return to room...</a>
-          </div>
-        </div>
-        <!-- ~dialogChoices  -->
-        <div id="inv" ng-controller="InventoryController" ng-style="popStyle">
-          <div class="invitem" ng-repeat="item in inventory track by item.id" ng-include="'invitem.html'">
-          </div>
-          <div class="invitem" ng-repeat="item in clothing track by item.id" ng-include="'invitem.html'">
+<!-- demo.js assigns story,room, and item controller based on current url -->
+<div ng-show="mapLoaded" ng-controller="storyController">
+  <!-- popStyle changes the mouse cursor based on the current popup.  -->
+  <div ng-controller="roomController">
+    <div ng-controller="itemController">
+      <div ng-controller="MapController" ng-style="viewStyle" ng-click="layerClick($event)">
+        <div ng-if="layer" ng-controller="MapZoomController">
+          <div ng-if="layer" ng-include="'contentsLayer.html'">
           </div>
         </div>
       </div>
-      <div id="dialogChoices" ng-controller="DialogController" ng-style="popStyle">
-        <div class="dialogChoice" ng-repeat="line in dialogChoices">
-          <a class="dialogLine" ng-click="selectLine($index)" href="">{{line}}</a>
-        </div>
-      </div>
     </div>
-    <!-- side bar for raw input /debugging -->
-    <div id="side">
-      <div id="text" ng-controller="LinesController">
-        <ul scroll-glue="display.counter">
-          <li ng-repeat="block in display.blocks track by $index">
-            <ul>
-              <li ng-if="block.speaker" class="lineFade speaker">{{block.speaker}}</li>
-              <li class="lineFade" ng-repeat="text in block.text track by $index">{{text}}</li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-      <form id="f" ng-controller="InputController" ng-submit="submit()">
-        <input id="q" name="q" type="text" ng-model="userInput" autocomplete="off" />
-      </form>
-    </div>
-    <!-- ~id side -->
   </div>
+</div>

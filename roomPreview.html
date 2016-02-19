@@ -1,12 +1,20 @@
-<div id="ga-play" ng-style="{'background-color':backgroundColor}">
-  <div class="ga-buttonbar">
-    <a class="ga-barbtn btn btn-primary btn-lg" ng-click="console()">
+<div id="ga-play" class="ga-noselect" ng-style="{'background-color':backgroundColor}">
+  <div class="ga-buttonbar ga-left">
+    <a class="btn btn-primary btn-lg" ng-show="msg" ng-click="clicked()" ng-controller="ViewReturnController" uib-tooltip="{{msg}}" tooltip-placement="right" tooltip-class="ga-xtip">
+      <i class="fa fa-undo"></i>
+    </a>
+  </div>
+  <div class="ga-buttonbar ga-right">
+    <a class="btn btn-primary btn-lg" ng-click="message()" uib-tooltip="Message" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
+      <i class="fa fa-space-shuttle"></i>
+    </a>
+    <a class="btn btn-primary btn-lg" ng-click="console()" uib-tooltip="Console" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
       <i class="fa fa-terminal"></i>
     </a>
-    <a class="ga-barbtn btn btn-primary btn-lg" ng-click="openInv()">
+    <a class="btn btn-primary btn-lg" ng-click="openInv()" uib-tooltip="Items" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
       <i class="fa fa-suitcase"></i>
     </a>
-    <a class="ga-barbtn btn btn-primary btn-lg" ng-click="comment()">
+    <a class="btn btn-primary btn-lg" ng-click="comment()" uib-tooltip="Journal" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
       <i class="fa fa-book"></i>
     </a>
   </div>
