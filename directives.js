@@ -61,9 +61,7 @@ angular.module('demo')
             scope[msgvar] = msg;
             currentAct = act;
           });
-          scope.$on("$destroy", function() {
-            xview();
-          });
+          scope.$on("$destroy", xview);
           // when clicking the element (ex. a button) run the return action.
           el.on("click", function() {
             var act = currentAct;
@@ -74,7 +72,6 @@ angular.module('demo')
               });
             }
           });
-
         },
       };
     });

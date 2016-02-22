@@ -16,7 +16,7 @@ angular.module('demo')
       // returns a promise, resolved when the location has changed.
       var changeLocation = function(room, view, item) {
         if (view == room) {
-          throw new Error("LocationService: nvalid view" + view);
+          throw new Error("LocationService: invalid view" + view);
         }
         if (loading) {
           throw new Error("LocationService: location change in progress")
@@ -24,16 +24,18 @@ angular.module('demo')
         // location object.
         var next = {
           room: room,
-          view: view,
-          item: item
+          view: view || null,
+          item: item || null
         };
         $log.info("LocationService: changing", loc, "to", next);
-        $rootScope.$broadcast("location changing", loc, next);
         //
-        loading = $q.defer();
-        if (loc == next) {
-          loading.resolve(next);
+        if (loc.room == next.room && loc.view == next.view && loc.item == next.item) {
+          $log.info("LocationService: no change");
+          return $q.when(loc);
         } else {
+          loading = $q.defer();
+
+          $rootScope.$broadcast("location changing", loc, next);
           $rootScope.mapLoaded = false;
           // want the url: /r/room/v/view?item=item
           var p = ["", "r", next.room].concat(next.view ? ["v", next.view] : []);
@@ -44,8 +46,8 @@ angular.module('demo')
           loading.promise.then(function() {
             $rootScope.mapLoaded = true;
           });
+          return loading.promise;
         }
-        return loading.promise;
       };
 
       var locationService = {

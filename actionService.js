@@ -47,9 +47,13 @@ angular.module('demo')
           }
           text.push(")");
           $log.info(text.join(' '));
+          $rootScope.runningAction= true;
+          var clear= function() {
+            $rootScope.runningAction= false;
+          }
           return GameService.getPromisedGame().then(function(game) {
             return game.postGameData(post);
-          });
+          }).then(clear, clear);
         }
       };
 

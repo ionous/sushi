@@ -1,4 +1,4 @@
-<div id="actionPopup" ng-show="actionBar" ng-style='actionBar.pos' ng-controller="ActionController" ng-if="!processingFrame">
+<div id="actionPopup" ng-show="actionBar" ng-style='actionBar.pos' ng-controller="ActionBarController" ng-if="!processingFrame">
   <a ng-repeat="act in actionBar.actions track by act.id" class="btn btn-primary" uib-tooltip="{{act.name}}" ng-click="runAction(act)" tooltip-placement="bottom" tooltip-class="ga-xtip">
     <i ng-class="act.iconClass"></i>
   </a><!--no space between tags --><a ng-if="actionBar.zoom" class="btn btn-primary" uib-tooltip="Zoom" ng-click="actionBar.zoomView()" tooltip-placement="bottom" tooltip-class="ga-xtip">

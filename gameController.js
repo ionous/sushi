@@ -35,7 +35,9 @@ angular.module('demo')
           x_txt();
         });
         // go start that game
-        game.commence();
+        game.commence().then(function() {
+          $scope.gameStarted= true;
+        });
       };
 
       // first request a game session:

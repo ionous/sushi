@@ -1,11 +1,11 @@
 <!-- demo.js assigns story,room, and item controller based on current url -->
-<div ng-show="mapLoaded" ng-controller="storyController">
+<div ng-show="mapLoaded" ng-controller="storyController" class="ga-show">
   <!-- popStyle changes the mouse cursor based on the current popup.  -->
   <div ng-controller="roomController">
-    <div ng-controller="itemController">
-      <div ng-controller="MapController" ng-style="viewStyle" ng-click="layerClick($event)">
-        <div ng-if="layer" ng-controller="MapZoomController">
-          <div ng-if="layer" ng-include="'contentsLayer.html'">
+    <div ng-controller="viewController">
+      <div ng-controller="itemController">
+        <div ng-controller="MapController" ng-style="viewStyle" ng-click="layerClick($event)">
+          <div ng-if="layer" ng-controller="MapZoomController" ng-include="'contentsLayer.html'">
           </div>
         </div>
       </div>

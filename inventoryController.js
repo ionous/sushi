@@ -9,29 +9,8 @@ angular.module('demo')
   .controller('InventoryController',
     function(ActionListService, EntityService, CombinerService, IconService,
       $log, $scope, $rootScope, $uibModalInstance,
-      picker) {
-      $rootScope.$broadcast("window opened", "inventory");
-
-      // per-image - slide controler.
-      $scope.slideController = function($log, $scope, ItemService) {
-        var slide = $scope.slide;
-        $scope.slideImage = null;
-        var syncImage = function() {
-          ItemService.getImageSource(slide.id).then(function(src) {
-            $scope.slideImage = src;
-          });
-          syncImage = function() {};
-        }
-        if (slide.active) {
-          syncImage();
-        }
-        $scope.$watch('slide.active', function(newValue) {
-          if (newValue) {
-            slide.activated(newValue);
-            syncImage();
-          }
-        });
-      };
+      picker, slideController) {
+      $scope.slideController = slideController;
 
       ActionListService.then(function(actionList) {
         var slides = $scope.slides = [];
@@ -39,17 +18,15 @@ angular.module('demo')
 
         $scope.itemActions = [];
         $scope.click = function(act) {
-          var combining = CombinerService.combining(false);
-          act.runIt(picker.current.id, combining && combining.id);
+          act.runIt(picker.current.id);
           $uibModalInstance.close();
         };
-        if (!CombinerService.combining()) {
-          $scope.combine = IconService.getIcon("$use");
-          $scope.combineClicked = function() {
-            CombinerService.combining(picker.current);
-            $uibModalInstance.close();
-          };
-        }
+        $scope.combine = IconService.getIcon("$use");
+        $scope.combineClicked = function() {
+          $log.info("InventoryController: combine clicked", picker.current.id);
+          CombinerService.combining(picker.current);
+          $uibModalInstance.close();
+        };
 
         var newSlide = function(item, context) {
           var isActive = picker.current && (item.id == picker.current.id);
@@ -67,22 +44,14 @@ angular.module('demo')
                 $scope.itemActions = this.actions;
                 if (!this.actions && !this.pending) {
                   var me = this;
-
-                  var pendingActions;
-                  var combining = CombinerService.combining();
-                  if (!combining) {
-                    pendingActions = actionList.getItemActions(item, context);
-                  } else {
-                    pendingActions = actionList.getMultiActions(item, combining);
-                  }
-
-                  this.pending = pendingActions.then(function(actions) {
-                    me.actions = actions;
-                    // still current now that our actions have been retreived?
-                    if (picker.current && picker.current.id == me.id) {
-                      $scope.itemActions = actions;
-                    }
-                  });
+                  this.pending = actionList.getItemActions(item, context).then(
+                    function(actions) {
+                      me.actions = actions;
+                      // still current now that our actions have been retreived?
+                      if (picker.current && picker.current.id == me.id) {
+                        $scope.itemActions = actions;
+                      }
+                    });
                 }
               }
             },
@@ -90,16 +59,12 @@ angular.module('demo')
         };
 
         var build = function(dst, list, context) {
-          var combining = CombinerService.combining();
           Object.keys(list).forEach(function(id) {
-            if (!combining || combining.id != id) {
-              var item = EntityService.getById(id);
-              var slide = newSlide(item, context);
-              dst.push(slide);
-            }
+            var item = EntityService.getById(id);
+            var slide = newSlide(item, context);
+            dst.push(slide);
           });
         };
-
         var p = EntityService.getById("player");
         build(slides, p.clothing, "worn");
         build(slides, p.inventory, "carried");

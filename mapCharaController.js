@@ -2,6 +2,7 @@
 
 angular.module('demo')
   .controller('MapCharaController',
-    function($scope) {
+    function($log, $scope) {
       $scope.showBubbles = true;
+      $log.info("MapCharaController:", $scope.layer.path);
     });

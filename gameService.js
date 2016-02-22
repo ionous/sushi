@@ -53,7 +53,7 @@ angular.module('demo')
 
       var url = ['/game', where].join('/');
       $log.info("GameService: post", where, what);
-      
+
       // FIX: unwind this, so that callers can, optionally get into the mechanics of 
       // post vs. process ( ex. comment box )
       return $http.post(url, what).then(function(resp) {
@@ -69,11 +69,11 @@ angular.module('demo')
         // iky way to initialize the "game" object
         if (!gameCreated) {
           gameCreated = true;
-          game.started = false;
+          var started = false;
           game.commence = function() {
-            if (!game.started) {
+            if (!started) {
               $log.info("GameService: starting...");
-              game.started = true;
+              started = true;
               return post(game.id, {
                 'in': 'start'
               });

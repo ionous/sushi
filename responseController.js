@@ -29,7 +29,6 @@ angular.module('demo')
             windowTemplateUrl: 'emptyModal.html',
             windowTopClass: 'ga-notify',
             controller: function($scope, lines) {
-              $log.info("ResponseController: sub-controller",lines);
               $scope.lines = lines;
             },
             windowClass: 'responseWin', 

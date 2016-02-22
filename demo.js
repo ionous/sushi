@@ -17,9 +17,13 @@ angular
       var getRoomController = function(ControllerService, $route) {
         // the object of "when" is assigned as the $route.current.
         var roomId = $route.current.params['roomId'];
+        return ControllerService.getPromisedController($controllerProvider, roomId);
+      };
+
+      var getViewController = function(ControllerService, $route) {
+        // the object of "when" is assigned as the $route.current.
         var viewId = $route.current.params['viewId'];
-        var ctrlId = (viewId || roomId);
-        return ControllerService.getPromisedController($controllerProvider, ctrlId);
+        return ControllerService.getPromisedController($controllerProvider, viewId);
       };
 
       var getItemController = function(ControllerService, $route) {
@@ -34,6 +38,7 @@ angular
           resolve: {
             _storyController: getStoryController,
             _roomController: getRoomController,
+            _viewController: getViewController,
             _itemController: getItemController,
           },
         })
@@ -46,6 +51,7 @@ angular
           resolve: {
             _storyController: getStoryController,
             _roomController: getRoomController,
+            _viewController: getViewController,
             _itemController: getItemController,
           },
         })

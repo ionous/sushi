@@ -14,11 +14,11 @@ angular.module('demo')
         var img = display.img;
         var pos = pt(0, 0);
         var size = display.size; //pt_sub(layer.bounds.max, layer.bounds.min);
-        
+
         var subject = $scope.subject;
         // $log.info("ImageController: loaded", subject);
 
-        var obj = subject && EntityService.getById( subject.id );
+        var obj = subject && EntityService.getById(subject.id);
         var draw = function() {
           // output image filled with tint color, and the original image
           // keep the tint color where the original image exists
@@ -41,10 +41,13 @@ angular.module('demo')
           ctx.restore();
         };
 
-        if (obj) {
-          var x_set = EventService.listen(obj.id, "x-set", draw);
-          $scope.$on("$destroy", x_set);
-        }
+        var x_txt = obj && EventService.listen(obj.id, "x-txt", draw);
+        $scope.$on("$destroy", function() {
+          $log.info("ImageController: destroying", $scope.layer.path, pos, size);
+          if (x_set) {
+            x_txt();
+          }
+        });
 
         draw();
         $scope.$emit("displayed", display);

@@ -5,7 +5,7 @@
 angular.module('demo')
   .controller('DisplayController',
     function(LocationService, ViewReturnService, $log, $scope,
-      _storyController, _roomController, _itemController) {
+      _storyController, _roomController, _viewController, _itemController) {
       var room = LocationService.room();
       var view = LocationService.view();
       var item = LocationService.item();
@@ -14,6 +14,7 @@ angular.module('demo')
       $scope.item = item;
       $scope.storyController = _storyController;
       $scope.roomController = _roomController;
+      $scope.viewController = _viewController;
       $scope.itemController = _itemController;
       $log.info("DisplayController: showing", room || "", view || "", item || "");
 

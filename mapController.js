@@ -28,10 +28,9 @@ angular.module('demo')
           subject: false,
         };
         // send down through the layers
-        $log.info("MapController: clicking...");
+        //$log.info("MapController: clicking...");
         $scope.$broadcast("clicked", click);
         // send up through the divs
-        $log.info("MapController: selected", click.subject);
         $scope.$emit("selected", click);
       };
 

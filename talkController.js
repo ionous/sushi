@@ -3,7 +3,7 @@
 angular.module('demo')
   .controller('TalkController',
     function(EventService,
-      $log, $q, $rootElement, $scope,
+      $log, $q, $rootElement, $scope, $timeout,
       SKIP_DIALOG) {
       if (SKIP_DIALOG) {
         return;
@@ -13,7 +13,8 @@ angular.module('demo')
         throw new Error("TalkController: no object");
       }
       //$log.debug("TalkController:", $scope.layer.path, actor);
-
+      //
+      var overgrey;
       var processLines = function(fini, lines) {
         // process a non-blank line till we're out of lines.
         while (lines.length) {
@@ -37,10 +38,9 @@ angular.module('demo')
       };
 
       $scope.charText = "";
-      var overgrey;
       var removeOvergrey = function() {
         if (overgrey) {
-          //$log.debug("TalkController:", $scope.layer, "removed overgrey");
+          //$log.debug("TalkController:", $scope.layer.path, "removed overgrey");
           overgrey.remove();
           overgrey = null;
         }
@@ -48,22 +48,29 @@ angular.module('demo')
       var rub = EventService.listen(actor, "say", function(data) {
         //$log.debug("TalkController:", actor, data);
 
-        if (data && data.length) {
+        if ($scope.showBubbles && data && data.length) {
+          // empty the array so no other layer can grab the data
+          // (changing event system to use scope events and then stopping propogation might work too)
           var lines = data.slice();
           while (data.length) {
             data.pop();
           }
+          //
           var fini = $q.defer();
+          fini.promise.then(removeOvergrey,removeOvergrey);
           overgrey = angular.element('<div class="overgrey"></div>')
           $rootElement.prepend(overgrey);
+          //$log.debug("TalkController:", $scope.layer.path, "added overgrey");
 
-          processLines(fini, lines);
-          fini.promise.then(removeOvergrey, removeOvergrey);
+          $timeout(function() {
+            processLines(fini, lines);
+          });
           return fini.promise;
         }
       });
 
       $scope.$on("$destroy", function() {
+        //$log.info("TalkController: ", $scope.layer.path, "destroyed");
         rub();
         removeOvergrey();
       });

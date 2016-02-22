@@ -46,7 +46,7 @@ angular.module('demo')
           return allActions.filter(filter).map(makeAction);
         };
 
-        var getMultiActions = function(o2, c2, o1, c1) {
+        var getMultiActions = function(c2, c1) {
           var filter = newMultiFilter(c2, c1);
           return allActions.filter(filter).map(makeAction);
         };
@@ -65,8 +65,7 @@ angular.module('demo')
           },
           getMultiActions: function(o2, o1) {
             return $q.all([ClassService.getClass(o2.type), ClassService.getClass(o1.type)]).then(function(classes) {
-              return getMultiActions(o2, classes.shift(),
-                o1, classes.shift());
+              return getMultiActions(classes.shift(), classes.shift());
             });
           },
         } // return the service

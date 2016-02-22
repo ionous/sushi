@@ -5,13 +5,11 @@
   <div id="{{layer.id}}" class="mapLayer" ng-repeat="layer in subLayers track by layer.id">
     <div ng-switch="layer.layerType">
       <div ng-switch-when="objectLayer" ng-controller="MapObjectController">
-        <div id="{{'obj-'+objectName}}" ng-if="subject">
-          <div ng-include="'contentsLayer.html'"></div>
-        </div>
+        <div id="{{'obj-'+objectName}}" ng-if="subject" ng-include="'contentsLayer.html'"></div>
       </div>
       <div ng-switch-when="objectState" ng-controller="MapObjectStateController">
-        <div ng-if="inState">
-          <div ng-include="'contentsLayer.html'"></div>
+        <div ng-show="inState">
+          <div ng-if="inState" ng-include="'contentsLayer.html'"></div>
         </div>
       </div>
       <div ng-switch-when="viewLayer" ng-controller="MapViewController">
@@ -21,9 +19,7 @@
         <div ng-include="'contentsLayer.html'"></div>
       </div>
       <div ng-switch-when="contents" ng-controller="MapContentsController">
-        <div ng-if="subject">
-          <div ng-include="'contentsLayer.html'"></div>
-        </div>
+        <div ng-if="subject" ng-include="'contentsLayer.html'"></div>
       </div>
       <div ng-switch-default>
         <div ng-include="'contentsLayer.html'"></div>

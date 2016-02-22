@@ -49,9 +49,10 @@
   <!-- directives -->
   <script src="directives.js"></script>
   <!-- controllers  -->
-  <script src="actionController.js"></script>
+  <script src="actionBarController.js"></script>
   <script src="buttonBarController.js"></script>
-  <script src="commentController.js"></script>
+  <script src="combineBoxController.js"></script>
+  <script src="commentBoxController.js"></script>
   <script src="displayController.js"></script>
   <script src="emptyDisplayController.js"></script>
   <script src="gameController.js"></script>
@@ -61,6 +62,7 @@
   <script src="imageController.js"></script>
   <script src="inputController.js"></script>
   <script src="inventoryController.js"></script>
+  <script src="inventoryCombineController.js"></script>
   <script src="mapCharaController.js"></script>
   <script src="mapContentsController.js"></script>
   <script src="mapController.js"></script>
@@ -69,7 +71,6 @@
   <script src="mapObjectStateController.js"></script>
   <script src="mapViewController.js"></script>
   <script src="mapZoomController.js"></script>
-  <script src="modalActionController.js"></script>
   <script src="responseController.js"></script>
   <script src="roomPreviewController.js"></script>
   <script src="statusController.js"></script>
@@ -83,8 +84,8 @@
 
 <body ng-controller="GameController">
   <header id="status-bar" ng-controller="StatusController">
-    <span id="status-left">{{status.left}}</span>
-    <span id="status-right">{{status.right}}</span>
+    <span class="ga-noselect" id="status-left">{{status.left}}</span>
+    <span class="ga-noselect" id="status-right">{{status.right}}</span>
   </header>
   <!-- actions held out above ga-play to handle mouse/offset display of menu -->
   <div ng-include="'actionBar.html'"></div>
@@ -92,6 +93,7 @@
     <div ng-view></div>
     <div ng-include="'buttonBar.html'"></div>
     <div ng-controller="ResponseController"></div>
+    <div ng-include="'combineBox.html'"></div>
     <div ng-include="'commentBox.html'"></div>
   </div>
 </body>

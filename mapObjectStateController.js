@@ -12,16 +12,24 @@ angular.module('demo')
         throw new Error(layer.path);
       }
       var obj = EntityService.getById(subject.id);
+      var wantsBubbles = $scope.showBubbles;
 
+      
       $scope.inState = false;
       var sync = function() {
         var inState = obj.is(stateName);
         if ($scope.inState != inState) {
           $scope.inState = inState;
-          if (inState) {
+          // having some issues with the old TalkController grabbing dialog. even though the new TalkController has been created the old one hasnt yet been destroyed.
+          $scope.showBubbles = inState && wantsBubbles;
+          if (!inState) {
+            $log.info("MapObjectStateController:", subject.id, "leaving state:", stateName);
+          } else {
             var defer = $q.defer();
+            $log.info("MapObjectStateController:", subject.id, "changing to:", stateName);
             var rub = $scope.$on("layer loaded", function(evt, el) {
               if (el === layer) {
+                $log.info("MapObjectStateController:", subject.id, "finished loading", stateName);
                 defer.resolve();
                 rub();
               }
