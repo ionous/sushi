@@ -44,7 +44,7 @@ angular.module('demo')
         var x_txt = obj && EventService.listen(obj.id, "x-txt", draw);
         $scope.$on("$destroy", function() {
           $log.info("ImageController: destroying", $scope.layer.path, pos, size);
-          if (x_set) {
+          if (x_txt) {
             x_txt();
           }
         });
