@@ -280,6 +280,7 @@ angular.module('demo')
           id: this.id,
           type: this.type,
           attr: {},
+          meta: {},
         };
         obj.attr[p] = now;
         this.updateData(frame, obj);
@@ -316,6 +317,11 @@ angular.module('demo')
           } else {
             this.frame = frame;
             // merge data:
+            var states = obj.meta['states'];
+            if (states) {
+              this.states = states;
+            }
+
             var attr = obj.attr;
             for (var k in attr) {
               var v = attr[k];
