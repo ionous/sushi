@@ -334,21 +334,12 @@ div.ga-picker .modal-content {
 }
 
 .ga-pulse {
-  /*position: relative;*/
-  /*width: 100px;
-  height: 100px;*/
-  /*border: none;*/
   box-shadow: 0 0 0 0 rgba(51, 122, 183, 0.7);
   border-radius: 50%;
-  /*background-color: white;*/
-  /*background-color: #e84c3d;
-  background-size:cover;
-  background-repeat: no-repeat;*/
-  cursor: pointer;
-  -webkit-animation: pulse 0.75s 1 cubic-bezier(0.66, 0, 0, 1);
-  -moz-animation: pulse 0.75s 1 cubic-bezier(0.66, 0, 0, 1);
-  -ms-animation: pulse 0.75s 1 cubic-bezier(0.66, 0, 0, 1);
-  animation: pulse 0.75s 1 cubic-bezier(0.66, 0, 0, 1);
+  -webkit-animation: pulse 1.2s 1 cubic-bezier(0.66, 0, 0, 1);
+  -moz-animation: pulse 1.2s 1 cubic-bezier(0.66, 0, 0, 1);
+  -ms-animation: pulse 1.2s 1 cubic-bezier(0.66, 0, 0, 1);
+  animation: pulse 1.2s 1 cubic-bezier(0.66, 0, 0, 1);
 }
 
 @-webkit-keyframes pulse {

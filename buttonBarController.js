@@ -36,7 +36,7 @@ angular.module('demo')
         var op = data['op'];
         if (op == "add") {
           addPulse();
-          $timeout(removePulse, 800);
+          $timeout(removePulse, 1200);
         }
       });
       //
