@@ -1,5 +1,6 @@
 'use strict';
 
+var commentControllerCounter = 0;
 
 angular.module('demo')
   .directive('gaCommentCapture',
@@ -7,36 +8,31 @@ angular.module('demo')
     function(EventService, GameService, TextService, $log) {
       return {
         link: function(scope, el) {
+          var quips = [];
+          var comments = [];
+
           // add a function to respond to comments
           scope.comment = function(i) {
-            var input = '' + (i + 1);
-            $log.info("gaCommentCapture: selected", input, scope.comments[i]);
+            var input = quips[i];
+            $log.info("GaCommentCapture: selected", i, quips, input, scope.comments[i]);
             return GameService.getPromisedGame().then(function(game) {
               // id rather wait to ng-if the thing, but the problem is
               // the then() after post is after processing;
               // comments could aleady be reset --
               // the promise code in game post could be cleaned to fix this.
               scope.comments = null;
+              quips = [];
+              comments = [];
               game.postGameData({
                 'in': input
               });
             });
           };
 
-          // when receiving incoming text, add to the comments
+          // when receiving incoming text, add to the comments;
+          // ( because normal events dont yet have text/variables of their own. )
           var captureChoices = function(lines) {
-            if (lines && lines.length) {
-              var index = 1;
-              var choices = [];
-              lines.forEach(function(l) {
-                var header = "" + index + ": ";
-                if (l.indexOf(header) >= 0) {
-                  choices.push(l.slice(header.length));
-                  index += 1;
-                }
-              });
-              scope.comments = choices;
-            }
+            comments.push(lines && lines.length ? lines[0] : "");
           };
 
           // listen to incoming text
@@ -46,12 +42,29 @@ angular.module('demo')
             },
             end: function() {
               TextService.removeHandler(captureChoices);
+              // if weve accumlated comments...
+              // note: conversation choices happens at the end of *every* turn.
+              if (comments.length) {
+                scope.comments = comments;
+              }
             }
           };
+          var x = EventService.listen("*", "being-offered", function(_, tgt) {
+            quips.push(tgt);
+          });
+
           var rem1 = EventService.listen("player", "printing-conversation-choices", handler);
-          // FIXFIX
-          var rem2 = EventService.listen("vending-machine", "offering-vendibles", handler);
+          // FIXFIX - make a menu service or something to do all this.
+          var rem2 = EventService.listen("vending-machine", "offering-vendibles", {
+            start: handler.start,
+            end: function() {
+              comments.push("Never mind.");
+              quips.push("0");
+              handler.end();
+            }
+          });
           scope.$on("$destroy", function() {
+            x();
             rem1();
             rem2();
           });
@@ -64,6 +77,11 @@ angular.module('demo')
       var overgrey = angular.element('<div class="overgrey"></div>')
       $element.parent().prepend(overgrey);
 
+      var which = "CommentController(" + commentControllerCounter + "):";
+      commentControllerCounter += 1;
+      //$log.info(which, "created.");
+
+      // the comment box opens and closes on the presence of comments; we display choices.
       var comments = $scope.comments;
       $scope.choices = comments;
 
@@ -83,6 +101,7 @@ angular.module('demo')
 
       // destroy when we become hidden (ng-if)
       $scope.$on("$destroy", function() {
+        //$log.info(which, "destroyed.");
         overgrey.remove();
         overgrey = null;
       });
