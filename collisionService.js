@@ -48,11 +48,14 @@ angular.module('demo')
           mass: 0,
           position: [worldMid.x, worldMid.y]
         });
-        var one = new this.paper.Point(min.x, min.y);
-        var two = new this.paper.Point(max.x, max.y);
-        var r = new this.paper.Path.Rectangle(one, two);
-        r.strokeColor = "red";
-        r.visible = true;
+        var paper = this.paper;
+        if (paper) {
+          var one = new paper.Point(min.x, min.y);
+          var two = new paper.Point(max.x, max.y);
+          var r = new paper.Path.Rectangle(one, two);
+          r.strokeColor = "red";
+          r.visible = true;
+        }
         boxBody.addShape(boxShape);
         this.world.addBody(boxBody);
       };

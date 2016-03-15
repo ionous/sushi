@@ -60,7 +60,7 @@ angular.module('demo')
             var v = vec2.fromValues(diff.x, diff.y);
             var d = vec2.sqrLen(v);
             if (d > 0.125) {
-              var speed = buttons.walk ? 1.0 : 4.0;
+              var speed = buttons.walk ? 1.0 : 3.0;
               vec2.scale(v, v, 1.0 / Math.sqrt(d));
               return {
                 dir: pt(v[0], v[1]),

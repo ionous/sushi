@@ -11,7 +11,7 @@ angular.module('demo')
       // r is rectangle like
       var ptInRect = function(p, r) {
         return (p.x >= r.min.x) && (p.y >= r.min.y) && (p.x < r.max.x) && (p.y < r.max.y);
-      }
+      };
       //
       var HitGroup = function(name, parent, data) {
         this.name = name;
@@ -59,7 +59,7 @@ angular.module('demo')
           var slashPath = mapLayer.getPath(); // fix, probably want real heirachy path
           var grid = mapLayer.getGrid();
           if (grid) {
-            hitShape = this.newGridShape(slashPath, grid);
+            hitShape = this.newGridShape(slashPath, mapLayer.getBounds(), grid);
           } else {
             var shapes = mapLayer.getShapes();
             if (shapes) {
@@ -79,8 +79,8 @@ angular.module('demo')
         this.children.push(child);
         return child;
       };
-      HitGroup.prototype.newGridShape = function(name, grid) {
-        var child = new GridShape(name, this, grid);
+      HitGroup.prototype.newGridShape = function(name, bounds, grid) {
+        var child = new GridShape(name, this, bounds, grid);
         this.children.push(child);
         return child;
       };
@@ -91,18 +91,21 @@ angular.module('demo')
       };
 
       //
-      var GridShape = function(name, group, grid) {
+      var GridShape = function(name, group, bounds, grid) {
         this.name = name;
         this.group = group;
+        this.bounds = bounds;
         this.grid = grid;
       };
       GridShape.prototype.hitTest = function(where) {
         var hit;
-        var grid = this.grid;
-        var cell = pt_divFloor(where, grid.cellSize);  
-        if (ptInRect(cell, grid.rect)) {
+        if (ptInRect(where, this.bounds)) {
+          var grid = this.grid;
+          var ofs = pt_sub(where, this.bounds.min);
+          var cell = pt_divFloor(ofs, grid.cellSize);
           var numCells = pt_sub(grid.rect.max, grid.rect.min);
           var index = cell.x + (cell.y * numCells.x);
+          // $log.warn(this.name, grid, ofs, index);
           if (index >= 0 && index < grid.tile.length) {
             hit = grid.tile[index];
           }

@@ -5,7 +5,7 @@
  */
 angular.module('demo')
   .controller('MapController',
-    function(CollisionService, CursorService, DirectionService, HitService, LayerService, LocationService, MapService, MoveService, ObjectService, PlayerService, CharaService,
+    function(CollisionService, CursorService, DirectionService, HitService, LayerService, LocationService, MapService, ObjectService, PlayerService, CharaService,
       $element, $interval, $log, $scope) {
       // when the location changes, the map controller is recreated.
       var mapName = $scope.item || $scope.view || $scope.room;
@@ -58,10 +58,10 @@ angular.module('demo')
                   var layer = map.findLayer("$collide");
                   if (layer) {
                     $log.info("found walls");
-                    physics = CollisionService.newScene(canvasSize, paper);
+                    physics = CollisionService.newScene(canvasSize, false && paper);
                     physics.makeWalls(layer.getShapes());
                   }
-                  
+
                   var request = requestFrame('request');
                   var cancel = requestFrame('cancel');
                   var cursor = CursorService.newCursor(paper);
@@ -98,8 +98,10 @@ angular.module('demo')
                     physics.step(dt);
                     char.update(dt);
 
-                    var mid = prop.getPos();
-                    prop.shape.position = new paper.Point(mid.x, mid.y);
+                    if (prop.shape) {
+                      var mid = prop.getPos();
+                      prop.shape.position = new paper.Point(mid.x, mid.y);
+                    }
 
                     var feet = prop.getFeet();
                     var corner = pt_sub(feet, pt(0.5 * playerCanvas.width, playerCanvas.height));
