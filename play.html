@@ -4,8 +4,7 @@
   <div ng-controller="roomController">
     <div ng-controller="viewController">
       <div ng-controller="itemController">
-        <div ng-controller="MapController" ng-style="viewStyle" ng-click="layerClick($event)">
-          <div ng-if="layer" ng-controller="MapZoomController" ng-include="'contentsLayer.html'">
+        <div id="map" ng-controller="MapController" ng-style="viewStyle" ng-click="layerClick($event)">
           </div>
         </div>
       </div>

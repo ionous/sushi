@@ -5,6 +5,7 @@ body {
   margin-top: 1em;
 }
 
+
 .nav,
 .pagination,
 .carousel,
@@ -12,8 +13,30 @@ body {
   cursor: pointer;
 }
 
+.ga-canvas,
+.ga-display {
+  margin: 0;
+  padding: 0;
+}
+
+body > canvas {
+  z-index: 8000;
+  position: absolute;
+  opacity: 0.8;
+}
+
 * {
   font-size: 16px;
+}
+
+#map {
+  cursor: none;
+}
+
+#paper {
+  z-index: 8000;
+  position: absolute;
+  pointer-events: none;
 }
 
 #actionPopup {
@@ -137,11 +160,11 @@ div.overgrey {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: crosshair !important;
+  /*cursor: crosshair !important;*/
 }
 
 .ga-combining #ga-play {
-  cursor: copy !important;
+  /*cursor: copy !important;*/
 }
 
 .ga-noselect {

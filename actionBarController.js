@@ -10,7 +10,7 @@ angular.module('demo')
       $log, $q, $rootScope, $scope, $timeout) {
       var which = "ActionBarController(" + actionBarControllerCounter + "):";
       actionBarControllerCounter += 1;
-      $log.info(which, "created.");
+      //$log.info(which, "created.");
 
       // class-like interface to the actionBar.
       var ActionBar = function() {
@@ -76,7 +76,7 @@ angular.module('demo')
       var destroy = [reset];
 
       $scope.$on("$destroy", function() {
-        $log.info(which, "destroying");
+        //$log.info(which, "destroying");
         if (destroy) {
           destroy.forEach(function(rub) {
             rub();

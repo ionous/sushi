@@ -1,0 +1,139 @@
+'use strict';
+
+/**
+ * HitService produces hit rects, which can be being z-depth.
+ * Each group can carry user data. 
+ * Groups can "contain" other rects -- they sub-rects are guarenteed to be "below" the parent rects.
+ */
+angular.module('demo')
+  .factory('HitService',
+    function($log) {
+      // r is rectangle like
+      var ptInRect = function(p, r) {
+        return (p.x >= r.min.x) && (p.y >= r.min.y) && (p.x < r.max.x) && (p.y < r.max.y);
+      }
+      //
+      var HitGroup = function(name, parent, data) {
+        this.name = name;
+        this.parent = parent;
+        // currently, we keep a single list of children:
+        // groups at the front, shapes at the back;
+        // hit testing works in reverse order: 
+        // the most recent shape is most on top; sublayers are beneath.
+        // might instead keep a big sorted list of shapes and calculate a true z-index.
+        // alice might need this. 
+        // for her sake - we might give groups a z-index -- and simply check her bounds and z after the groups check.
+        this.children = [];
+        this.data = data;
+      };
+      HitGroup.prototype.newHitGroup = function(name, data) {
+        var child = new HitGroup(name, this, data);
+        this.children.unshift(child);
+        return child;
+      };
+      HitGroup.prototype.remove = function(child) {
+        var group = this;
+        this.children.filter(function(ch) {
+          return ch !== child;
+        });
+      };
+      // note: we only ever hit shapes,
+      // but shapes have parents, so we can get the group
+      // and from there we can get the group user data.
+      HitGroup.prototype.hitTest = function(where) {
+        var ret = null;
+        for (var i = this.children.length - 1; i >= 0; --i) {
+          var ch = this.children[i];
+          var hit = ch.hitTest(where);
+          if (hit) {
+            ret = hit;
+            break;
+          }
+        }
+        return ret;
+      };
+      // create a hit shape in the group for the passed map layer
+      HitGroup.prototype.newHitShape = function(mapLayer) {
+        var hitShape;
+        if (this.data && mapLayer.getName().indexOf("x-") && !mapLayer.has("noclick")) {
+          var slashPath = mapLayer.getPath(); // fix, probably want real heirachy path
+          var grid = mapLayer.getGrid();
+          if (grid) {
+            hitShape = this.newGridShape(slashPath, grid);
+          } else {
+            var shapes = mapLayer.getShapes();
+            if (shapes) {
+              hitShape = this.newRectangleList(slashPath, shapes);
+            } else {
+              var bounds = mapLayer.getBounds();
+              if (bounds) {
+                hitShape = this.newRectangle(slashPath, bounds);
+              }
+            }
+          }
+        }
+        return hitShape;
+      };
+      HitGroup.prototype.newRectangle = function(name, rect) {
+        var child = new RectangleShapeList(name, this, [rect]);
+        this.children.push(child);
+        return child;
+      };
+      HitGroup.prototype.newGridShape = function(name, grid) {
+        var child = new GridShape(name, this, grid);
+        this.children.push(child);
+        return child;
+      };
+      HitGroup.prototype.newRectangleList = function(name, rects) {
+        var child = new RectangleShapeList(name, this, rects);
+        this.children.push(child);
+        return child;
+      };
+
+      //
+      var GridShape = function(name, group, grid) {
+        this.name = name;
+        this.group = group;
+        this.grid = grid;
+      };
+      GridShape.prototype.hitTest = function(where) {
+        var hit;
+        var grid = this.grid;
+        var cell = pt_divFloor(where, grid.cellSize);  
+        if (ptInRect(cell, grid.rect)) {
+          var numCells = pt_sub(grid.rect.max, grid.rect.min);
+          var index = cell.x + (cell.y * numCells.x);
+          if (index >= 0 && index < grid.tile.length) {
+            hit = grid.tile[index];
+          }
+        }
+        return hit && this;
+      };
+
+      //
+      var RectangleShapeList = function(name, group, rects) {
+        this.name = name;
+        this.group = group;
+        this.rects = rects;
+      };
+      RectangleShapeList.prototype.hitTest = function(where) {
+        var hit = false;
+        for (var i = 0; i < this.rects.length; ++i) {
+          var r = this.rects[i];
+          if (ptInRect(where, r)) {
+            hit = true;
+            break;
+          }
+        }
+        return hit && this;
+      };
+
+      //
+      var rootHitGroup = new HitGroup("root");
+      var service = {
+        newHitGroup: function(name, data) {
+          return rootHitGroup.newHitGroup(name, data);
+        },
+      };
+      return service;
+    });
