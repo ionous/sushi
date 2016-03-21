@@ -7,77 +7,8 @@
  */
 angular.module('demo')
   .factory('LayerService',
-    function(CanvasService, MapService, WatcherService,
+    function(DisplayService, HitService, LandingService, MapService, WatcherService,
       $log, $q) {
-      //
-
-      var newDisplayGroup = function(parentEl, opt) {
-        var el = angular.element('<div class="ga-display"></div>');
-        var group = new DisplayGroup(el);
-        if (opt) {
-          var id = opt.id;
-          if (id) {
-            group.el.attr("id", id);
-          }
-          var pos = opt.pos;
-          if (pos) {
-            group.setPos(pos);
-          }
-        }
-        parentEl.append(el);
-        return group;
-      };
-      // contains either ".ga-canvas" canvases or ".ga-display" divs.
-      // FIX: canvi are getting created too late to intermix as siblings, every layer needs a display group right now; leaf nodes shouldnt need this.
-      var DisplayGroup = function(el) {
-        this.el = el;
-        this.pos = pt(0, 0);
-      };
-      DisplayGroup.prototype.setPos = function(pos) {
-        if ((pos.x != this.pos.x) || (pos.y != this.pos.y)) {
-          this.el.css({
-            "position": "absolute",
-            "left": pos.x + "px",
-            "top": pos.y + "px"
-          });
-          this.pos = pos;
-        }
-        return this;
-      };
-      DisplayGroup.prototype.destroy = function() {
-        this.el.remove();
-        this.el = null;
-      };
-      // reurns the promise of a loaded canvi.
-      DisplayGroup.prototype.newCanvas = function(mapLayer) {
-        var promise;
-        var bounds = mapLayer.getBounds();
-        if (bounds) {
-          var opt = {
-            id: "gr-" + mapLayer.getId(),
-            //pos: this.pos
-          };
-          var grid = mapLayer.getGrid();
-          if (grid) {
-            var mapName = mapLayer.getMap().name;
-            var imageSrc = "/bin/maps/" + mapName + ".png"
-            promise = CanvasService.newGrid(this.el, imageSrc, grid, opt);
-          } else {
-            var src = mapLayer.getImageSource();
-            if (angular.isString(src) && src != "") {
-              var imageSrc = "/bin/" + src;
-              promise = CanvasService.newImage(this.el, imageSrc, opt);
-            }
-          }
-          //
-          if (promise) {
-            promise.then(function(canvi) {
-              canvi.resize(mapLayer.getSize());
-            });
-          }
-        }
-        return promise || $q.when(null);
-      };
 
       // the information necessary to create a map layer into something usable by the game.
       // the display group canvi should appear and stack inside of
@@ -116,7 +47,7 @@ angular.module('demo')
         var mapLayer = opt.mapLayer;
         var abs = mapLayer.getPos() || pt(0, 0);
         var rel = pt_sub(abs, this.ofs);
-        var displayGroup = newDisplayGroup(this.displayGroup.el, {
+        var displayGroup = DisplayService.newDisplayGroup(this.displayGroup.el, {
           id: "md-" + mapLayer.getId(),
           pos: rel
         });
@@ -135,7 +66,7 @@ angular.module('demo')
           });
         next.object = opt.object || this.object;
         next.ofs = abs;
-        next.dynamicDepth= opt.dynamicDepth || this.dynamicDepth;
+        next.dynamicDepth = opt.dynamicDepth || this.dynamicDepth;
         return next;
       };
 
@@ -156,7 +87,7 @@ angular.module('demo')
         }
         var child = new Child();
         return next.addSubLayers(mapLayer).then(function(node) {
-          $log.info("LayerService: expanding layer", mapLayer.getName());
+          //$log.info("LayerService: expanding layer", mapLayer.getName());
           child.expanded = node;
           return child;
         });
@@ -172,14 +103,15 @@ angular.module('demo')
         var child = new Child();
         child.watcher = WatcherService.showObject(next.enclosure, objectName,
           function(object) {
-            $log.info("LayerService: expanding object", objectName, object);
+            //$log.info("LayerService: expanding object", objectName, object);
             if (!object) {
               child.collapse();
             } else {
               // yuck, we dont have the object till after its shown.
               next.object = object;
               next.hitGroup.data = {
-                object: object
+                object: object,
+                path: mapLayer.path,
               };
               object.displayGroup = next.displayGroup;
               object.displayPos = pos;
@@ -200,12 +132,12 @@ angular.module('demo')
         var child = new Child();
         child.watcher = WatcherService.showState(next.object, stateName,
           function(newState) {
-            $log.info("LayerService: expanding state", stateName, newState);
+            //$log.info("LayerService: expanding state", stateName, newState);
             if (!newState) {
               child.collapse();
             } else {
               return next.addSubLayers(mapLayer).then(function(node) {
-                $log.info("LayerService: expanded state", stateName, newState, node);
+                //$log.info("LayerService: expanded state", stateName, newState, node);
                 child.expanded = node;
                 return child;
               });
@@ -222,12 +154,12 @@ angular.module('demo')
         var child = new Child();
         child.watcher = WatcherService.showContents(next.object,
           function(objId, newEnclosure) {
-            $log.info("LayerService: expanding contents", objId, newEnclosure);
+            //$log.info("LayerService: expanding contents", objId, newEnclosure);
             if (!newEnclosure) {
               child.collapse();
             } else {
               return next.addSubLayers(mapLayer).then(function(node) {
-                $log.info("LayerService: expanded contents", objId, newEnclosure, node);
+                //$log.info("LayerService: expanded contents", objId, newEnclosure, node);
                 child.expanded = node;
                 return child;
               });
@@ -235,18 +167,28 @@ angular.module('demo')
           });
         return child.watcher.promise;
       };
+      // parse landing data and place on the hitGroup.
+      Context.prototype.addLandingData = function(mapLayer) {
+        var slashPath = mapLayer.getPath();
+        var grid = mapLayer.getGrid();
+        var pads = LandingService.newLandingPads(slashPath, grid);
+        this.hitGroup.data.pads = pads;
+        //$log.warn("LayerSerice: new landing data", slashPath, pads);
+      };
 
       // create a new child node to represent a zoom/click region
       Context.prototype.newView = function(mapLayer, viewName) {
         var next = this.newContext({
           mapLayer: mapLayer,
           hitGroup: this.hitGroup.newHitGroup(viewName, {
-            view: viewName
+            path: mapLayer.path,
+            object: this.object,
+            view: viewName,
           }),
         });
         var child = new Child();
         return next.addSubLayers(mapLayer).then(function(node) {
-          $log.info("LayerService: expanding view", viewName, node);
+          //$log.info("LayerService: expanding view", viewName, node);
           child.expanded = node;
           return child;
         });
@@ -280,10 +222,12 @@ angular.module('demo')
             return this.newObject(subLayer, cat.objectName);
           case "stateLayer":
             return this.newState(subLayer, cat.stateName);
-          case "contents":
-            return this.newEnclosure(subLayer);
           case "viewLayer":
             return this.newView(subLayer, cat.viewName);
+          case "contents":
+            return this.newEnclosure(subLayer);
+          case "landing":
+            return this.addLandingData(subLayer);
           default:
             return this.newChild(subLayer, cat.layerType == "z");
         }
@@ -294,15 +238,15 @@ angular.module('demo')
         var ctx = this;
         // for now creating the display and hitshape before children to achieve consistent stacking
         var layerPath = mapLayer.path;
-        $log.info("LayerService: creating", layerPath, "canvas");
+        // $log.info("LayerService: creating", layerPath, "canvas");
         var hitShape = ctx.hitGroup.newHitShape(mapLayer);
         return ctx.displayGroup.newCanvas(mapLayer).then(function(canvi) {
-          $log.info("LayerService: created", layerPath, "canvas");
+          //$log.info("LayerService: created", layerPath, "canvas");
           var promisedChildren = mapLayer.mapEach(function(subLayer) {
             return ctx.createChild(subLayer);
           });
           return $q.all(promisedChildren).then(function(children) {
-            $log.info("LayerService: created", layerPath, "children", children.length);
+            //$log.info("LayerService: created", layerPath, "children", children.length);
             var tinter;
             if (canvi) {
               if (!ctx.object) {
@@ -319,7 +263,7 @@ angular.module('demo')
       };
 
       var Node = function(ctx, name, canvi, tinter, hitShape, children) {
-        $log.info("LayerService: creating node", name);
+        //$log.info("LayerService: creating node", name);
         this.ctx = ctx;
         this.name = name;
         this.canvi = canvi; // from DisplayGroup
@@ -352,15 +296,22 @@ angular.module('demo')
       }
 
       var service = {
-        createLayers: function(map, room, parentEl, hitGroup) {
+        createLayers: function(parentEl, map, room) {
           // note: the room is getting a display group as well... unfortunately.
-          var displayGroup = newDisplayGroup(parentEl, {
+          var hitGroups = HitService.newHitGroup(map.name);
+          var displayGroup = DisplayService.newDisplayGroup(parentEl, {
             id: "md-root"
           });
-          var ctx = new Context(displayGroup, hitGroup, room, function() {
+          var ctx = new Context(displayGroup, hitGroups, room, function() {
             displayGroup.destroy();
           });
-          return ctx.addSubLayers(map.topLayer);
+          return ctx.addSubLayers(map.topLayer).then(function(root) {
+            return {
+              el: parentEl,
+              bounds: map.topLayer.getBounds().max, // we want the maximum extent from 0,0
+              nodes: root,
+            };
+          });
         }
       };
       return service;

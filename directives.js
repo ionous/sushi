@@ -4,11 +4,12 @@
  * Manage the player's current room, view, or zoomed item.
  */
 angular.module('demo')
-  .directive('gaMapBackground', function($log) {
+  .directive('gaMapColor', function($log) {
     return {
       link: function(scope, el) {
         var rub = scope.$on("map ready", function(evt, map) {
           var color = map.bkcolor || "black";
+          $log.info("got map ready", color);
           el.css("background-color", color);
         });
         scope.$on("$destroy", function() {

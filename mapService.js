@@ -159,9 +159,11 @@ angular.module('demo')
             $log.debug("MapService: received", mapName);
             var names = {};
             var map = resp.data['map'];
-            return new MapData(mapName,
+            var map= new MapData(mapName,
               resp.data['map'],
               resp.data['bkcolor']);
+            $rootScope.$broadcast("map ready", map);
+            return map;
           }, function(reason) {
             $log.info("MapService: couldnt load map", url, reason);
             throw new Error("MapService: couldn't load map", mapName);

@@ -1,5 +1,8 @@
 'use strict';
 
+/*
+ * handles story say
+ */
 angular.module('demo')
   .controller('ResponseController',
     function(EventService, TextService, $log, $uibModal, $q, $scope,

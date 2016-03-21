@@ -4,193 +4,265 @@
  */
 angular.module('demo')
   .factory('CursorService',
-    function($log) {
-      // http://stackoverflow.com/questions/24093263/set-font-awesome-icons-as-cursor-is-this-possible
-      //https://github.com/jwarby/jquery-awesome-cursor/blob/master/src/jquery.awesome-cursor.js
-      var Symbolize = function(paper) {
-        var w = 15;
-        var i = 1.5;
-        var c = 5;
-        var cross = new paper.Path({
-          segments: [
-            [-i, -w],
-            [-i, -i],
-            [-w, -i],
-            [-w, i],
-            [-i, i],
-            [-i, w],
-            [i, w],
-            [i, i],
-            [w, i],
-            [w, -i],
-            [i, -i],
-            [i, -w],
-          ],
-          closed: true,
-        });
-        var z = 0.6 * w;
-        var zero = new paper.Point(0, 0);
-        var rect = new paper.Rectangle(new paper.Point(-z, -z), new paper.Point(z, z));
-
-        var corner = new paper.Size(3, 3);
-        var r = new paper.Path.Rectangle(rect, corner);
-        r.rotate(45);
-        var x = r.clone();
-        x.position.y -= 5;
-        var chev = r.subtract(x);
-
-        var double = chev.clone();
-        var mark = chev.clone();
-        mark.position.y -= w;
-        var duo = new paper.Group([double, mark]);
-
-        var circle1 = new paper.Path.Circle(new paper.Point(0, 0), i + w);
-        var circle2 = new paper.Path.Circle(new paper.Point(0, 0), w - i);
-        var disk = circle1.subtract(circle2);
-
-        var center = new paper.Point(z, z);
-        var sides = 3;
-        var radius = w;
-        var triangle = new paper.Path.RegularPolygon(center, sides, radius);
-        triangle.position.x -= w * 0.5;
-        triangle.rotation = 60;
-        triangle.scaling = 0.5;
-        var rect = new paper.Path.Rectangle(new paper.Rectangle(new paper.Point(-i, 0), new paper.Point(i, w)));
-        rect.position.x -= i;
-        rect.position.y -= w * 0.5;
-        var arrow = triangle.unite(rect);
-        arrow.scaling = 1.5;
-
-        var paths = {
-          chev: chev,
-          disk: disk,
-          cross: cross,
-          arrow: arrow,
-          duo: duo,
-        };
-        var symbols = {};
-        var make = function(sym) {
-          return function() {
-            return new paper.PlacedSymbol(sym);
-          };
-        };
-        for (name in paths) {
-          var path = paths[name];
-          path.strokeColor = "white";
-          path.strokeWidth = 1;
-          path.fillColor = "black";
-          path.shadowColor = "black";
-          path.shadowBlur = 12;
-          path.shadowOffset = corner;
-          //
-          var sym = new paper.Symbol(path);
-          path.remove();
-          symbols[name] = make(sym);
+    function($log, $rootElement) {
+      var clientX, clientY;
+      $rootElement.on("mousemove", function(evt) {
+        clientX = evt.clientX;
+        clientY = evt.clientY;
+      });
+      // may want to consider combining, a plus. an underline. etc.
+      var width = 42;
+      var center = pt(width * 0.5, width * 0.5);
+      var upperLeft = pt(0, 0);
+      var cursors = {
+        chev: {
+          cls: 'fa-chevron-right',
+          hotspot: pt_scale(pt(26, 26), 0.5),
+          size: 26,
+        },
+        disk: {
+          cls: 'fa-circle-thin',
+          hotspot: center,
+          size: width,
+        },
+        bullseye: {
+          cls: 'fa-dot-circle-o',
+          hotspot: center,
+          size: width,
+        },
+        pointer: {
+          cls: 'fa-paper-plane-o fa-flip-horizontal',
+          hotspot: pt(5, 5),
+          size: 26,
+        }, //'fa-crosshairs',
+        arrow: {
+          cls: 'fa-long-arrow-down',
+          hotspot: pt(10, width),
+          size: width,
+        },
+        duo: {
+          cls: 'fa-angle-double-down',
+          hotspot: center,
+          size: width,
+        },
+        combine: {
+          cls: 'fa-paper-plane-o',
+          hotspot: center,
+          size: width,
         }
-        return symbols;
       };
+      var lights = [cursors.pointer, cursors.disk, cursors.bullseye];
+      //<i class="fa fa-shield"></i>
+      var Cursor = function(parentEl) {
+        var el = this.el = angular.element("<div class='ga-cursor'></div>");
+        var inner = this.inner = angular.element("<i class='fa noshape'></i>");
 
-      var Cursor = function(paper, sym) {
-        var cross = sym.cross();
-        var disk = sym.disk();
-        var chev = sym.chev();
-        var arrow = sym.arrow();
-        var duo = sym.duo();
-
-        this.cursors = {
-          cross: {
-            shape: cross
-          },
-          disk: {
-            shape: disk,
-            lights: true
-          },
-          chev: {
-            shape: chev,
-            directs: true,
-          },
-          arrow: {
-            shape: arrow,
-            directs: true,
-            lights: true,
-          },
-          duo1: {
-            shape: duo,
-            directs: true,
-            exits: true,
-          },
-          duo2: {
-            shape: duo,
-            directs: true,
-            lights: true,
-            exits: true,
-          },
-        };
-
-        // FUTURE: use sprites.
-        // paper js has bugs with group visibility resulting in doubling movement depending on what is and is not visible; and so far have not found a good way to offset the center position of a shape [ pivot seems to be rotation only, and no application of position, matrix, pivot, center, etc. results in shifted verts of the raw path data ]
-        // then the selection could be an if -then statemachine resulting in a single blt call.
-        this.pos = new paper.Point(0, 0);
+        this.pos = pt(0, 0); // 
+        this.client = pt(0, 0); // cursor position client coords
+        this.source = false;
         this.lights = false;
         this.directs = false;
         this.exits = false;
-        this.shows = false;
-        this.focus = new paper.Point(0,0);
-      }
-      Cursor.prototype.show = function(visible) {
-        this.shows = visible;
+        this.shows = true;
+        this.mouseDown = false;
+        this.present = false;
+        this.shape = {
+          cls: "noshape"
+        }; // last/current shape
+        this.size = 0;
+        this.angle = 0;
+        this.enabled = true;
+        el.append(inner);
+        parentEl.append(el);
+      };
+      // something that supports .getCenter()
+      Cursor.prototype.setSource = function(src) {
+        this.source = src;
         return this;
-      }
-      Cursor.prototype.sync = function() {
-        var pos = this.pos;
-        for (var k in this.cursors) {
-          var c = this.cursors[k];
-          var vis = this.shows &&
-            (this.lights == !!c.lights) &&
-            (this.directs == !!c.directs) &&
-            (this.exits == !!c.exits);
-          c.shape.visible = vis;
-          if (vis) {
-            c.shape.position = pos;
+      };
+      Cursor.prototype.setAngle = function(rad) {
+        if (this.angle != rad) {
+          var xform = rad ? "rotate(" + rad + "rad)" : "";
+          this.el.css({
+            "transform": xform,
+          });
+          //$log.debug("CursorService:", xform);
+          this.angle = rad;
+        };
+        return this;
+      };
+      Cursor.prototype.setSize = function(size) {
+        if (this.size != size) {
+          this.el.css({
+            "font-size": size + "px",
+            "line-height": size + "px",
+          });
+          this.size = size;
+        }
+        return this;
+      };
+      Cursor.prototype.destroyCursor = function() {
+        this.el.remove();
+        this.el = null;
+        this.inner = null;
+        this.pos = null;
+        this.source = null;
+        this.cursors = null;
+        return false;
+      };
+      Cursor.prototype.enable = function(enable) {
+        if (this.enabled != enable) {
+          this.enabled = enable;
+          this.show(this.shows);
+          this.mouseDown = false;
+        }
+      };
+      Cursor.prototype.show = function(visible) {
+        if (angular.isUndefined(visible)) {
+          throw new Error("sdlfslfk");
+        }
+        var show = !!(visible && this.enabled && this.present);
+        if (show != this.show) {
+          this.shows = !!visible;
+          if (show) {
+            // var rect = this.el[0].getBoundingClientRect();
+            // var x = Math.floor(clientX - rect.left);
+            // var y = Math.floor(clientY - rect.top);
+            //this.setPos(x, y, clientX, clientY);
+          }
+          this.el.css("visibility", show ? "" : "hidden");
+          //$log.info("CursorService: visibility change, now:", this.shows, show);
+        }
+        return this;
+      };
+      Cursor.prototype.draw = function(focus) {
+        var shape = cursors.pointer;
+        var angle = 0;
+        if (!this.directs) {
+          var light = lights[this.lights];
+          if (light) {
+            shape = light;
+          }
+        } else {
+          if (this.lights) {
+            shape = cursors.arrow;
+          } else if (focus) {
+            shape = cursors.chev;
+            var diff = pt_sub(this.pos, focus);
+            var dist = diff.x * diff.x + diff.y * diff.y;
+            if (dist > 1e-3) {
+              var r = pt_scale(diff, 1.0 / Math.sqrt(dist));
+              angle = Math.atan2(r.y, r.x);
+            }
           }
         }
-        if (this.directs) {
-          var v = pos.subtract(this.focus).normalize();
-          var rot = v.angle + 270;
-          this.cursors.chev.shape.rotation= rot;
+        this.setAngle(angle);
+        if (this.shape !== shape) {
+          this.setSize(shape.size);
+          this.inner.removeClass(this.shape.cls);
+          this.inner.addClass(shape.cls);
+          //$log.debug("CursorService: changed shape", this.shape.cls, shape.cls);
+          this.shape = shape;
         }
-        return this;
-      }
+        var p = pt_sub(this.pos, shape.hotspot);
+        this.el.css({
+          "left": p.x + "px",
+          "top": p.y + "px"
+        });
+      };
       Cursor.prototype.highlight = function(visible) {
         this.lights = visible;
         return this;
-      }
-      Cursor.prototype.direct = function(dst, exit) {
-        if (!dst) {
-          this.directs = false;
-          this.exit = false;
-        } else {
-          this.directs = true;
-          this.focus.x= dst.x;
-          this.focus.y= dst.y;
-          this.exit = exit;
+      };
+      Cursor.prototype.direct = function(directs) {
+        this.directs = directs;
+        return this;
+      };
+      Cursor.prototype.setPos = function(x, y, cx, cy) {
+        if (this.pos.x != x || this.pos.y != y) {
+          this.pos.x = x;
+          this.pos.y = y;
+          this.client.x = cx;
+          this.client.y = cy;
+          if (this.enabled && this.moved) {
+            this.moved(x, y);
+          }
         }
         return this;
-      }
-      Cursor.prototype.setPos = function(x, y) {
-        this.pos.x = x;
-        this.pos.y = y;
-        return this;
-      }
+      };
+      Cursor.prototype.onMove = function(cb) {
+        if (this.moved) {
+          throw new Error("CursorService: move already set");
+        }
+        this.moved = cb;
+      };
+      Cursor.prototype.onClick = function(cb) {
+        if (this.clicked) {
+          throw new Error("CursorService: click already set");
+        }
+        this.clicked = cb;
+      };
+      Cursor.prototype.onPress = function(cb) {
+        if (this.pressed) {
+          throw new Error("CursorService: press already set");
+        }
+        this.pressed = cb;
+      };
       var sym = null;
 
       var cursorService = {
-        newCursor: function(paper) {
-          if (!sym) {
-            sym = Symbolize(paper);
-          }
-          var c = new Cursor(paper, sym);
-          c.directs = true;
+        newCursor: function(el, rel) {
+          var c = new Cursor(el);
+          el.on("mousedown", function(evt) {
+            if (c.enabled) {
+              var left = evt.button == 0;
+              if (left) {
+                var ret = c.pressed && c.pressed(true);
+                if (ret || angular.isUndefined(ret)) {
+                  c.mouseDown = true;
+                }
+              }
+            }
+          });
+          el.on("mouseup", function(evt) {
+            if (c.enabled) {
+              var left = evt.button == 0;
+              if (left) {
+                c.mouseDown = false;
+                if (c.pressed) {
+                  c.pressed(false);
+                }
+              }
+            }
+          });
+          // future: lock on mouse down?
+          el.on("mouseenter", function(evt) {
+            $log.info("CursorService: mouseenter");
+            c.mouseDown = false;
+            c.present= true;
+            c.show(c.shows);
+          });
+          el.on("mouseleave", function(evt) {
+            $log.info("CursorService: mouseleave");
+            c.present= false;
+            c.mouseDown = false;
+            c.show(c.shows);
+          });
+          el.on("mousemove", function(evt) {
+            var rect = el[0].getBoundingClientRect();
+            var x = Math.floor(evt.clientX - rect.left);
+            var y = Math.floor(evt.clientY - rect.top);
+            c.present= true;
+            c.show(c.shows);
+            c.setPos(x, y, evt.clientX, evt.clientY);
+          });
+          el.on("click", function(evt) {
+            if (c.enabled) {
+              if (c.clicked) {
+                c.clicked(c.pos);
+              }
+            }
+          });
           return c;
         }
       };

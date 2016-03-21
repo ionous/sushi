@@ -35,6 +35,11 @@ angular.module('demo')
           throw new Error("worlds second best unit test");
         }
       };
+      Scene.prototype.destroyScene = function() {
+        this.world.clear();
+        this.world= null;
+        return false;
+      };
       Scene.prototype.addWall = function(min, max) {
         var sz = pt_sub(max, min);
         var halfSize = pt_scale(sz, 0.5);
@@ -98,7 +103,6 @@ angular.module('demo')
         this.world.applyGravity = false;
         this.world.step(dt);
       };
-
       var Prop = function(scene, body, radius) {
         this.scene = scene;
         this.body = body;
@@ -108,18 +112,22 @@ angular.module('demo')
       Prop.prototype.getPos = function() {
         var points = this.body.position;
         return this.scene.worldToCanvas(points);
-      }
+      };
       Prop.prototype.getFeet = function() {
         var points = this.body.position;
         return this.scene.worldToCanvas([points[0], points[1] - this.radius]);
-      }
+      };
+      Prop.prototype.resetFeet = function(pos) {
+        var wp = this.scene.canvasToWorld(pos);
+        this.body.position = [wp.x, wp.y + this.radius];
+      };
       Prop.prototype.setVel = function(vel) {
         if (!vel) {
           this.body.velocity = [0, 0];
         } else {
-          this.body.velocity = [vel.x, vel.y];
+          this.body.velocity = [vel.x, -vel.y];
         }
-      }
+      };
       var service = {
         newScene: function(canvasSize, paper) {
           var physics = new Scene(canvasSize, paper);

@@ -40,6 +40,21 @@ angular.module('demo')
       var combining = false;
       var lastItem, lastActions;
 
+      var change = function(now) {
+        var was = combining;
+        combining = now;
+        if (combining && !was) {
+          $log.info("CombinerService: combining");
+          $rootElement.addClass("ga-combining");
+        } else if (!combining && was) {
+          $log.info("CombinerService: not combining");
+          $rootElement.removeClass("ga-combining");
+          lastItem = lastActions = null;
+        }
+        $rootScope.$broadcast("combining", combining);
+        return was;
+      }
+
       return {
         // get with undefined, clear with null
         getInventoryActions: function(srcItem) {
@@ -53,22 +68,11 @@ angular.module('demo')
           }
           return lastActions;
         },
-        combining: function(now) {
-          var was = combining;
-          if (!angular.isUndefined(now)) {
-            combining = now;
-            if (combining && !was) {
-              $log.info("CombinerService: combining");
-              $rootElement.addClass("ga-combining");
-              $rootScope.$broadcast("combining", combining);
-            } else if (!combining && was) {
-              $log.info("CombinerService: not combining");
-              $rootElement.removeClass("ga-combining");
-              $rootScope.$broadcast("combining", combining);
-              lastItem = lastActions = null;
-            }
-          }
-          return was;
+        setCombiner: function(now) {
+          change(now);
+        },
+        getCombiner: function() {
+          return change();
         }
       };
     });

@@ -2,18 +2,12 @@
 
 angular.module('demo')
   .controller('TalkController',
-    function(EventService,
-      $log, $q, $rootElement, $scope, $timeout,
+    function(EventService, EntityService,
+      $element, $log, $q, $rootElement, $scope, $timeout,
       SKIP_DIALOG) {
       if (SKIP_DIALOG) {
         return;
       }
-      var actor = $scope.subject && $scope.subject.id;
-      if (!actor) {
-        throw new Error("TalkController: no object");
-      }
-      //$log.debug("TalkController:", $scope.layer.path, actor);
-      //
       var overgrey;
       var processLines = function(fini, lines) {
         // process a non-blank line till we're out of lines.
@@ -45,10 +39,20 @@ angular.module('demo')
           overgrey = null;
         }
       };
-      var rub = EventService.listen(actor, "say", function(data) {
-        //$log.debug("TalkController:", actor, data);
-
-        if ($scope.showBubbles && data && data.length) {
+      var rub = EventService.listen("*", "say", function(data, actorId) {
+        var actor = EntityService.getById(actorId);
+        if (!actor || !actor.displayGroup) {
+          return $log.error("dont know how to display text", data, actor);
+        }
+        var display = actor.displayGroup;
+        actor.displayGroup.el.prepend($element);
+        var pos = $scope.charPos = {
+          'left': (display.pos.x) + "px",
+          // this tells us how many pixels from the bottom of the contained element to place... the bottom? of ourself; since we are not contained by the character, this is relative to the bottom of the screen.
+          //'bottom': (display.pos.y) + 'px',
+        };
+        $log.info("TalkController:", actor, pos);
+        if (data && data.length) {
           // empty the array so no other layer can grab the data
           // (changing event system to use scope events and then stopping propogation might work too)
           var lines = data.slice();
@@ -57,7 +61,7 @@ angular.module('demo')
           }
           //
           var fini = $q.defer();
-          fini.promise.then(removeOvergrey,removeOvergrey);
+          fini.promise.then(removeOvergrey, removeOvergrey);
           overgrey = angular.element('<div class="overgrey"></div>')
           $rootElement.prepend(overgrey);
           //$log.debug("TalkController:", $scope.layer.path, "added overgrey");

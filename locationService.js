@@ -35,7 +35,7 @@ angular.module('demo')
         } else {
           loading = $q.defer();
 
-          $rootScope.$broadcast("location changing", next, loc);
+          $rootScope.$broadcast("window change", "location");
           $rootScope.mapLoaded = false;
           // want the url: /r/room/v/view?item=item
           var p = ["", "r", next.room].concat(next.view ? ["v", next.view] : []);

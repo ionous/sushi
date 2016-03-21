@@ -64,7 +64,7 @@ angular.module('demo')
         var modalInstance = $uibModal.open({
           templateUrl: 'console.html',
           controller: function(TextService, $log, $scope) {
-            $rootScope.$broadcast("window opened", "console");
+            $rootScope.$broadcast("window change", "console");
             $scope.display = TextService.getDisplay();
           },
           windowTopClass: 'ga-console',
@@ -98,7 +98,7 @@ angular.module('demo')
       };
       $scope.inventory = function() {
         $log.info("ButtonBarController: opening inventory");
-        var combining = CombinerService.combining(false);
+        var combining = CombinerService.getCombiner();
 
         var modalInstance = $uibModal.open({
           size: 'sm',
@@ -139,7 +139,7 @@ angular.module('demo')
           },
         });
         modalInstance.opened.then(function() {
-          $rootScope.$broadcast("window opened", "inventory");
+          $rootScope.$broadcast("window change", "inventory");
         });
       };
 

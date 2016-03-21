@@ -37,12 +37,12 @@ angular.module('demo')
       }
     }
 
+    // parent div
+    // img element -- ideally wit ht the image already loaded.
+    // opt: id, pos, size
     var Canvi = function(parent, img, opt) {
       if (!parent) {
         throw new Error("CanvasService: parent element not specified.");
-      }
-      if (!img) {
-        throw new Error("CanvasService: image not specified.");
       }
       //
       var el = this.el = angular.element('<canvas class="ga-canvas"></canvas>');
@@ -54,31 +54,49 @@ angular.module('demo')
         if (opt.pos) {
           this.setPos(opt.pos);
         }
+        if (opt.size) {
+          this.setSize(opt.size);
+        }
       }
       parent.append(el);
       //
       this.img = img;
       this.grid = null;
     };
-    Canvi.prototype.setPos = function(pos) {
-      if ((pos.x != this.pos.x) || (pos.y != this.pos.y)) {
-        this.pos = pos;
-        this.el.css({
-          "position": "absolute",
-          "left": pos.x + "px",
-          "top": pos.y + "px"
-        });
-      }
-      return this;
-    };
     Canvi.prototype.setGrid = function(grid) {
       this.grid = grid;
       return this;
-    }
-    Canvi.prototype.resize = function(size) {
+    };
+    Canvi.prototype.destroy = function() {
+      this.el.remove();
+      this.el = null;
+      this.img = null;
+    };
+    Canvi.prototype.show = function(visible) {
+      this.el.css("visibility", visible ? "" : "hidden");
+      return this;
+    };
+    Canvi.prototype.setPos = function(pos, index) {
+      var p = pt_floor(pos);
+      this.el.css({
+        "position": "absolute",
+        "left": p.x + "px",
+        "top": p.y + "px",
+        "z-index": index,
+      });
+      return this;
+    };
+    Canvi.prototype.setSize = function(size) {
       var canvas = this.el[0];
       canvas.width = size.x;
       canvas.height = size.y;
+      return this;
+    };
+    Canvi.prototype.fill = function(color) {
+      var canvas = this.el[0];
+      var ctx = canvas.getContext("2d");
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       return this;
     };
     Canvi.prototype.draw = function(tint) {
@@ -112,16 +130,14 @@ angular.module('demo')
       }
     }; // draw.
 
-    Canvi.prototype.destroy = function() {
-      this.el.remove();
-      this.el = null;
-      this.img = null;
-    }
 
     var service = {
+      newCanvas: function(parentEl, opt) {
+        return new Canvi(parentEl, null, opt);
+      },
       newImage: function(parentEl, imageSrc, opt) {
         return loadImage(imageSrc).then(function(img) {
-          return new Canvi(parentEl, img, opt)
+          return new Canvi(parentEl, img, opt);
         });
       },
       newGrid: function(parentEl, imageSrc, grid, opt) {

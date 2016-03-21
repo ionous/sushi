@@ -24,7 +24,7 @@ angular.module('demo')
         $scope.combine = IconService.getIcon("$use");
         $scope.combineClicked = function() {
           $log.info("InventoryController: combine clicked", picker.current.id);
-          CombinerService.combining(picker.current);
+          CombinerService.setCombiner(picker.current);
           $uibModalInstance.close();
         };
 

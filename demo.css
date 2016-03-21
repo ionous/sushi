@@ -1,10 +1,12 @@
+#landingTest {
+  z-index: 1000;
+}
 body {
   /*background-color: aliceblue;*/
   width: 800px;
   margin: 0 auto;
   margin-top: 1em;
 }
-
 
 .nav,
 .pagination,
@@ -19,6 +21,15 @@ body {
   padding: 0;
 }
 
+.ga-cursor {
+  position: absolute;
+  z-index: 1000;
+  color: lightsteelblue;
+  pointer-events: none;
+  text-shadow:  1px 0px #2e6da4, -1px 0px #2e6da4, 0px 1px #2e6da4, 0px -1px #2e6da4, 1px 1px 2px black;
+}
+/*paper*/
+
 body > canvas {
   z-index: 8000;
   position: absolute;
@@ -29,9 +40,12 @@ body > canvas {
   font-size: 16px;
 }
 
-#map {
+#outermap {
   cursor: none;
 }
+#ga-play {
+  /*cursor: none;*/
+  }
 
 #paper {
   z-index: 8000;
@@ -39,18 +53,8 @@ body > canvas {
   pointer-events: none;
 }
 
-#actionPopup {
-  position: absolute;
-  z-index: 100;
-  background-color: white;
-  opacity: 75%;
-  border-color: black;
-  border-style: double;
-  padding: 0.5rem;
-}
-
 #status-bar {
-  /*  background-color: black;
+  /*  background-color: white;
   color: white;
   */
   padding-left: 1em;
@@ -100,6 +104,10 @@ form > * {
 /* http://nicolasgallagher.com/pure-css-speech-bubbles/demo/ 
 top,right,bottom,left*/
 
+.talk {
+  position: absolute;
+}
+
 .bubble {
   position: absolute;
   /* because the bubble floats above the modal, disable mouse interaction */
@@ -122,7 +130,7 @@ top,right,bottom,left*/
   -webkit-border-radius: 15px;
   -moz-border-radius: 15px;
   border-radius: 15px;
-  left: -25px;
+  /*left: -25px;*/
 }
 
 .bubble:after {
@@ -148,7 +156,7 @@ div.overgrey {
 }
 
 #ga-play {
-  overflow: hidden;
+  /*overflow: hidden;*/
   width: 800px;
   height: 672px;
   /*border-width: 3px;
@@ -199,8 +207,38 @@ div.overgrey {
   justify-content: center;
 }
 
+.ga-actionbar {
+  position: absolute;
+  z-index: 1000;
+  border-style: solid;
+  border-width: 3px;
+  /*border-color: rgba(176, 196, 222, 0.8);*/
+  border-color: lightsteelblue;
+  border-radius: 50% !important;
+  outline: none !important;
+  width: 84px;
+  height: 84px;
+  margin-left: -42px;
+  margin-top: -42px;
+}
+
+.ga-actionbar .btn {
+  position: absolute;
+  background-color: lightslategrey;
+  color: white;
+  border-width: 3px;
+  border-color: lightsteelblue;
+  border-radius: 50% !important;
+  outline: none !important;
+  font-size: xx-small;
+  width: 42px;
+  height: 42px;
+  line-height: 42px;
+  margin: 0px;
+  padding: 0px;
+}
+
 .ga-buttonbar {
-  /*opacity: 0.9;*/
   position: absolute;
 }
 
@@ -237,7 +275,7 @@ div.ga-xtip > div.tooltip-inner {
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
   padding-top: 0.5em;
-  width: 828px;
+  width: 800px;
   z-index: 1000;
   color: silver;
 }
@@ -306,19 +344,20 @@ div.ga-notify > div {
   position: absolute;
   max-width: 500px;
   max-height: 400px;
-  overflow-y: auto;
   /*half of the play space s*/
   top: 338px;
   left: 50%;
   margin-right: -50%;
   transform: translate(-50%, -50%);
-  box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.4);
+  /*box-shadow: 3px 3px 5px 6px black; */
+  box-shadow: 1px 10px 6px -6px black;
   border-radius: 20px;
   border-width: 3px;
-  border-style: inset;
-  border-color: black;
+  /*border-style: inset;
+  border-color: white;*/
   overflow-y: scroll;
 }
+  
 
 div.ga-notify-box {
   padding: 0.5em 1.5em;

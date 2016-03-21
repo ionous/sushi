@@ -28,6 +28,7 @@
   <script src="demo.js"></script>
   <!--  services -->
   <script src="actionService.js"></script>
+  <script src="actionBarService.js"></script>
   <script src="actionListService.js"></script>
   <script src="canvasService.js"></script>
   <script src="charaService.js"></script>
@@ -36,7 +37,7 @@
   <script src="combinerService.js"></script>
   <script src="controllerService.js"></script>
   <script src="cursorService.js"></script>
-  <script src="directionService.js"></script>
+  <script src="displayService.js"></script>
   <script src="entityService.js"></script>
   <script src="eventService.js"></script>
   <script src="eventStreamService.js"></script>
@@ -45,7 +46,9 @@
   <script src="iconService.js"></script>
   <script src="itemService.js"></script>
   <script src="jsonService.js"></script>
+  <script src="keyboardService.js"></script>
   <script src="layerService.js"></script>
+  <script src="landingService.js"></script>
   <script src="locationService.js"></script>
   <script src="mapService.js"></script>
   <script src="objectService.js"></script>
@@ -53,11 +56,14 @@
   <script src="textService.js"></script>
   <script src="viewReturnService.js"></script>
   <script src="watcherService.js"></script>
+  <script src="uxDynamicService.js"></script>
+  <script src="uxStaticService.js"></script>
+  <script src="uxUtils.js"></script>
   <!-- directives -->
   <script src="directives.js"></script>
   <!-- components  -->
   <!-- controllers  -->
-  <script src="actionBarController.js"></script>
+  <script src="actionController.js"></script>
   <script src="buttonBarController.js"></script>
   <script src="combineBoxController.js"></script>
   <script src="commentBoxController.js"></script>
@@ -79,7 +85,7 @@
   <script src="mosaic/point.js"></script>
   <script src="mosaic/sprite.js"></script>
   <!--  -->
-  <script src="/script/paper/dist/paper-core.min.js"></script>
+  <!-- <script src="/script/paper/dist/paper-core.min.js"></script> -->
 </head>
 
 <body ng-controller="GameController">
@@ -87,9 +93,10 @@
     <span class="ga-noselect" id="status-left">{{status.left}}</span>
     <span class="ga-noselect" id="status-right">{{status.right}}</span>
   </header>
-  <!-- actions held out above ga-play to handle mouse/offset display of menu -->
+  <!-- actions held out above ga-play to handle mouse/offset display of menu;
+  the alternative would be to add the action bar to root dynamically, but angular doesnt like custom elements being attached to the dom via script. -->
   <div ng-include="'actionBar.html'"></div>
-  <div id="ga-play" class="ga-noselect" ga-map-background>
+  <div id="ga-play" class="ga-noselect" ga-map-color>
     <div ng-view></div>
     <div ng-include="'buttonBar.html'"></div>
     <div ng-controller="ResponseController"></div>

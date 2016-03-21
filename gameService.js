@@ -50,6 +50,7 @@ angular.module('demo')
       }
       processing = true;
       $rootScope.processingFrame = true;
+      $rootScope.$broadcast("processing frame", true);
 
       var url = ['/game', where].join('/');
       $log.info("GameService: post", where, what);
@@ -88,6 +89,7 @@ angular.module('demo')
         return processFrame(game, doc).then(function() {
           processing = false;
           $rootScope.processingFrame = false;
+          $rootScope.$broadcast("processing frame", false);
           return game;
         });
       });
