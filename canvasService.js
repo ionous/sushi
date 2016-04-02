@@ -4,6 +4,8 @@
  */
 angular.module('demo')
   .factory('CanvasService', function($log, $q) {
+    var names = {};
+
     var loadImage = function(imageSrc) {
       if (!imageSrc) {
         throw new Error("CanvasService: image not defined");
@@ -16,7 +18,7 @@ angular.module('demo')
       };
       img.src = imageSrc;
       return defer.promise;
-    }
+    };
     var drawGrids = function(ctx, img, grid) {
       var sheetSize = pt(img.width, img.height);
       var numCells = pt_sub(grid.rect.max, grid.rect.min);
@@ -35,8 +37,7 @@ angular.module('demo')
           sprite.drawAt(ctx, dst);
         }
       }
-    }
-
+    };
     // parent div
     // img element -- ideally wit ht the image already loaded.
     // opt: id, pos, size
@@ -48,8 +49,10 @@ angular.module('demo')
       var el = this.el = angular.element('<canvas class="ga-canvas"></canvas>');
       this.pos = pt(0, 0);
       if (opt) {
-        if (opt.id) {
-          el.attr("id", opt.id);
+        var id = opt.id;
+        if (id) {
+          el.attr("id", id);
+          this.id = id;
         }
         if (opt.pos) {
           this.setPos(opt.pos);
@@ -67,10 +70,15 @@ angular.module('demo')
       this.grid = grid;
       return this;
     };
-    Canvi.prototype.destroy = function() {
+    Canvi.prototype.destroyCanvas = function() {
+      if (this.id) {
+        delete names[this.id];
+        delete this.id;
+      }
       this.el.remove();
-      this.el = null;
-      this.img = null;
+      delete this.el;
+      delete this.img;
+      delete this.grid;
     };
     Canvi.prototype.show = function(visible) {
       this.el.css("visibility", visible ? "" : "hidden");
@@ -85,6 +93,10 @@ angular.module('demo')
         "z-index": index,
       });
       return this;
+    };
+    Canvi.prototype.getSize = function() {
+      var canvas = this.el[0];
+      return pt(canvas.width, canvas.height);
     };
     Canvi.prototype.setSize = function(size) {
       var canvas = this.el[0];
@@ -110,7 +122,6 @@ angular.module('demo')
       if (!img) {
         throw new Error("CanvasService: drawing, but not finished loading!");
       }
-
       if (tint) {
         ctx.save();
         ctx.fillStyle = tint;
@@ -129,8 +140,6 @@ angular.module('demo')
         ctx.restore();
       }
     }; // draw.
-
-
     var service = {
       newCanvas: function(parentEl, opt) {
         return new Canvi(parentEl, null, opt);
@@ -141,6 +150,13 @@ angular.module('demo')
         });
       },
       newGrid: function(parentEl, imageSrc, grid, opt) {
+        var id = opt.id;
+        if (id) {
+          if (names[id]) {
+            throw new Error("added twice " + id);
+          }
+          names[id] = id;
+        }
         return loadImage(imageSrc).then(function(img) {
           return new Canvi(parentEl, img, opt).setGrid(grid);
         });

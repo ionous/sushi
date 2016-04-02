@@ -31,20 +31,22 @@ angular.module('demo')
   .factory('uxActionBar', function(ActionBarService, CombinerService, $log, $rootScope) {
     var service = {
       createActionBar: function(cursor, subject) {
-        cursor.show(false);
+        //  cursor.show(false);
         var bar = ActionBarService.getActionBar(cursor.client, subject);
         bar.onOpen(function() {
+          cursor.present = false;
+        
           $log.info("uxActionBar: opened action bar for", subject.path);
           $rootScope.$broadcast("window change", "actionBar");
           $rootScope.actionBar = bar;
           // listen to window changes to close; 
           // remove the listener when we close.
-          var off = $rootScope.$on("window change", function(_,src) {
+          var off = $rootScope.$on("window change", function(_, src) {
             bar.close("uxActionBar: window change " + src);
           });
           bar.onClose(function() {
             CombinerService.setCombiner(null);
-            cursor.show(true);
+            //    cursor.show(true);
             $rootScope.actionBar = false;
             off();
           });

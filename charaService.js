@@ -16,8 +16,12 @@ angular.module('demo')
       ];
       var speeds = [0, 8, 12];
       var Chara = function(obj, img, tilesize) {
-        var display = this.display = obj.displayGroup;
-        var canvas = this.canvas = display.el.children()[0];
+        var display= obj.objectDisplay;
+        if (!display) {
+          throw new Error("no display for object", obj.id );
+        }
+        this.display= display.group;
+        var canvas = this.canvas = display.canvas.el[0];
         this.upperLeft = display.pos; //
         //
         this.img = img;

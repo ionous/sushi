@@ -24,8 +24,11 @@ angular.module('demo')
             return ObjectService.getById(roomId).then(function(room) {
               $log.debug("MapController: loading map for", roomId);
               //
-              // mouse move, attach to element, etc. etc.
+              // tree contains: el, bounds, nodes
               return LayerService.createLayers($element, map, room).then(function(tree) {
+                var request = requestFrame('request');
+                var cancel = requestFrame('cancel');
+
                 // size the view
                 $scope.viewStyle = {
                   'position': 'relative',
@@ -34,21 +37,24 @@ angular.module('demo')
                 };
 
                 var physicsLayer = map.findLayer("$collide");
-                var ux = !!physicsLayer ? uxDynamicService.create(tree, physicsLayer) : uxStaticService.create(tree);
+                // var ux = !!physicsLayer ? uxDynamicService.create(tree, physicsLayer) : uxStaticService.create(tree);
+                var ux = uxStaticService.create(tree);
 
                 var id;
                 $scope.$on("$destroy", function() {
+                  $log.info("MapController: destroying", mapName);
+                  tree.nodes.destroyNode();
+                  tree.el.remove();
+                  tree = null;
                   if (!angular.isUndefined(id)) {
                     cancel(id);
-                    id= undefined;
+                    id = undefined;
                   }
-                  ux.destroy();
+                  ux.destroyUx();
                   ux = null;
                 });
 
                 ux.dependencies.then(function() {
-                  var request = requestFrame('request');
-                  var cancel = requestFrame('cancel');
 
                   LocationService.finishedLoading(room);
                   var lastTime = 0;

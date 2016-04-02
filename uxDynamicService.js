@@ -95,15 +95,15 @@ angular.module('demo')
       var actionBar;
       
       var off= $rootScope.$on("processing frame", function(_, processing) {
-        $log.warn("uxDynamic: processing", processing);
+        //$log.warn("uxDynamic: processing", processing);
         cursor.enable(!processing);
       });
 
       var defer = $q.defer();
       this.dependencies = defer.promise;
-      this.destroy = function() {
+      this.destroyUx = function() {
         if (actionBar) {
-          actionBar = actionBar.close("uxDynamic: destoyed");
+          actionBar.close("uxDynamic: destoyed");
         }
         defer.reject();
         defer = null;
@@ -113,7 +113,7 @@ angular.module('demo')
         hover = null;
         arrival = null;
         moveTarget = null;
-        ux.chara = null;
+        delete ux.chara;
         ux = null;
         off();
       };
@@ -125,14 +125,14 @@ angular.module('demo')
         }
         defer.resolve(ux);
         ux.chara = player;
-        arrival = new Arrival(player.getCenter())
+        arrival = new Arrival(player.getCenter());
 
         physics.makeWalls(physicsLayer.getShapes());
         prop = physics.addProp(player.getFeet(), 12);
 
         keys.onEscape(function() {
           if (actionBar) {
-            actionBar = actionBar.close("uxDynamic: escape");
+            actionBar.close("uxDynamic: escape");
           }
         });
         cursor.onMove(function() {
@@ -158,7 +158,7 @@ angular.module('demo')
           } else {
             // press, and the hover returns the same pads that opened the action bar ( subject/pads pair are a unique object )
             if (actionBar && actionBar.subject !== hover.subject) {
-              actionBar = actionBar.close("uxDynamic: press reset");
+              actionBar.close("uxDynamic: press reset");
             }
             // if not standing in range of something, the player begins to move.
             var dest;
@@ -180,9 +180,12 @@ angular.module('demo')
             var pad = hover.getPad(player);
             if (pad) {
               var bar = actionBar = uxActionBar.createActionBar(cursor, subject);
+              bar.onClose(function() {
+                actionBar= null;
+              });
               bar.onOpen(function() {
                 player.faceTarget(pad);
-                cursor.show(false);
+                // cursor.show(false);
               });
             }
           }

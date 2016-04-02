@@ -37,7 +37,7 @@ angular.module('demo')
         // this.relPos = (!!b) ? pt_sub(b.min, ofs) : (ofs);
       };
       LayerData.prototype.has = function(attr) {
-        var attrs= this.data["properties"];
+        var attrs = this.data["properties"];
         return attrs && attrs[attr];
       }
       LayerData.prototype.getMap = function() {
@@ -71,7 +71,9 @@ angular.module('demo')
         return (layer.data['layers'] || []).map(function(raw) {
           var name = raw['name'];
           var path = [base, name].join("/");
-          return cb(new LayerData(layer.src, raw, path));
+          var data = new LayerData(layer.src, raw, path);
+          var ret = cb(data);
+          return ret;
         });
       };
       LayerData.prototype.getGrid = function() {
@@ -159,7 +161,7 @@ angular.module('demo')
             $log.debug("MapService: received", mapName);
             var names = {};
             var map = resp.data['map'];
-            var map= new MapData(mapName,
+            var map = new MapData(mapName,
               resp.data['map'],
               resp.data['bkcolor']);
             $rootScope.$broadcast("map ready", map);

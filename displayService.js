@@ -40,7 +40,7 @@ angular.module('demo')
         }
         return this.pos;
       };
-      DisplayGroup.prototype.destroy = function() {
+      DisplayGroup.prototype.destroyDisplay = function() {
         this.el.remove();
         this.el = null;
       };

@@ -5,7 +5,7 @@
  */
 angular.module('demo')
   .factory('WatcherService',
-    function(ClassService, EntityService, EventService, $log) {
+    function(ClassService, EntityService, EventService, $log, $q) {
       var Watcher = function(listener, promise) {
         this.cancel = listener;
         this.promise = promise;

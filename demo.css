@@ -1,11 +1,14 @@
 #landingTest {
   z-index: 1000;
 }
+
 body {
   /*background-color: aliceblue;*/
   width: 800px;
   margin: 0 auto;
   margin-top: 1em;
+  /* light text on dark backgrounds; safari looks different than other browsers */
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 .nav,
@@ -26,8 +29,10 @@ body {
   z-index: 1000;
   color: lightsteelblue;
   pointer-events: none;
-  text-shadow:  1px 0px #2e6da4, -1px 0px #2e6da4, 0px 1px #2e6da4, 0px -1px #2e6da4, 1px 1px 2px black;
+  text-shadow: 1px 0px #2e6da4, -1px 0px #2e6da4, 0px 1px #2e6da4, 0px -1px #2e6da4, 1px 1px 2px black;
 }
+
+
 /*paper*/
 
 body > canvas {
@@ -42,15 +47,6 @@ body > canvas {
 
 #outermap {
   cursor: none;
-}
-#ga-play {
-  /*cursor: none;*/
-  }
-
-#paper {
-  z-index: 8000;
-  position: absolute;
-  pointer-events: none;
 }
 
 #status-bar {
@@ -84,28 +80,12 @@ form > * {
   font-weight: bold;
 }
 
-.char-text:after {
-  content: "";
-  position: absolute;
-  bottom: -20px;
-  /* value = - border-top-width - border-bottom-width */
-  left: 50px;
-  /* controls horizontal position */
-  border-width: 20px 0 0 20px;
-  /* vary these values to change the angle of the vertex */
-  border-style: solid;
-  border-color: #075698 transparent;
-  /* reduce the damage in FF3.0 */
-  display: block;
-  width: 0;
-}
 
-
-/* http://nicolasgallagher.com/pure-css-speech-bubbles/demo/ 
-top,right,bottom,left*/
+/* http://nicolasgallagher.com/pure-css-speech-bubbles/demo/ */
 
 .talk {
   position: absolute;
+  z-index: 1000;
 }
 
 .bubble {
@@ -130,7 +110,6 @@ top,right,bottom,left*/
   -webkit-border-radius: 15px;
   -moz-border-radius: 15px;
   border-radius: 15px;
-  /*left: -25px;*/
 }
 
 .bubble:after {
@@ -357,7 +336,6 @@ div.ga-notify > div {
   border-color: white;*/
   overflow-y: scroll;
 }
-  
 
 div.ga-notify-box {
   padding: 0.5em 1.5em;

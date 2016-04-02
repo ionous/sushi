@@ -6,7 +6,7 @@
 angular.module('demo')
   .factory('uxStaticService', function(CursorService, KeyboardService,
     uxHover, uxActionBar,
-    $q, $log) {
+    $q, $rootScope, $log) {
     var uxStatic = function(tree, physicsLayer) {
       var ux = this;
       var keys = KeyboardService.newKeyboard(tree.el);
@@ -22,9 +22,9 @@ angular.module('demo')
 
       var defer = $q.defer();
       this.dependencies = defer.promise;
-      this.destroy = function() {
+      this.destroyUx = function() {
         if (actionBar) {
-          actionBar = actionBar.close();
+          actionBar.close();
         }
         defer.reject();
         defer = null;
@@ -37,20 +37,25 @@ angular.module('demo')
 
       keys.onEscape(function() {
         if (actionBar) {
-          actionBar = actionBar.close();
+          actionBar.close();
         }
       });
       cursor.onPress(function(down) {
         if (down) {
           var inRange = hover.update(cursor.pos);
           if (!inRange || (actionBar && actionBar.subject !== hover.subject)) {
-            actionBar = actionBar.close();
+            if (actionBar) {
+              actionBar.close();
+            }
           }
         }
       });
       cursor.onClick(function() {
         if (!actionBar && hover.subject) {
           actionBar = uxActionBar.createActionBar(cursor, hover.subject);
+          actionBar.onClose(function() {
+            actionBar= null;
+          });
         }
       });
       this.update = function(dt) {

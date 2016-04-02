@@ -33,7 +33,7 @@ angular.module('demo')
       };
       HitGroup.prototype.remove = function(child) {
         var group = this;
-        this.children.filter(function(ch) {
+        this.children= this.children.filter(function(ch) {
           return ch !== child;
         });
       };

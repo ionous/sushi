@@ -1,14 +1,78 @@
 'use strict';
 
-/**
- * HitService produces hit rects, which can be being z-depth.
- * Each group can carry user data. 
- * Groups can "contain" other rects -- they sub-rects are guarenteed to be "below" the enclosure rects.
- */
-angular.module('demo')
+ angular.module('demo')
   .factory('LayerService',
     function(DisplayService, HitService, LandingService, MapService, WatcherService,
       $log, $q) {
+      // an activated layer from a map.
+      var Node = function(ctx, name, canvi, tinter, hitShape, children) {
+        this.ctx = ctx;
+        this.name = name;
+        this.canvi = canvi; // from DisplayGroup
+        this.tinter = tinter; // from TinterService
+        this.hitShape = hitShape;
+        this.children = children;
+      };
+      Node.prototype.destroyNode = function() {
+        $log.info("LayerService: destroying node", this.name, this.hitShape);
+        if (this.hitShape) {
+          this.hitShape.group.remove(this.hitShape);
+          this.hitShape = null;
+        }
+        if (this.tinter) {
+          this.tinter.cancel();
+          this.tinter = null;
+        }
+        if (this.canvi) {
+          this.canvi.destroyCanvas();
+          this.canvi = null;
+        }
+        if (this.ctx) {
+          this.ctx.destroyContext();
+          this.ctx = null;
+        }
+        this.children = this.children.filter(function(child) {
+          // landing data doest have a child node
+          if (child) {
+            child.destroyChild();
+          }
+        });
+      };
+      // a child contains a potential Node.      
+      var Child = function(ctx, mapLayer) {
+        this.ctx = ctx;
+        this.mapLayer = mapLayer;
+        this.promise = false;
+        this.watcher = false; // a contents server watchers; it expands and collapses us.
+        this.expanded = false; // when the content serve expands us, it fill out this with a valid Node.
+        this.expanding = false;
+      };
+      Child.prototype.expand = function() {
+        var child = this;
+        // hack: state showing watcher code triggers twice...
+        // ex. especially automat-hall-door
+        if (!this.expanding) {
+          this.expanding = true;
+          return child.ctx.addSubLayers(child.mapLayer).then(function(node) {
+            child.expanded = node;
+            return child;
+          });
+        }
+      }
+      Child.prototype.collapse = function() {
+        this.expanding = false;
+        if (this.expanded) {
+          this.expanded.destroyNode();
+          this.expanded = false;
+        }
+      };
+      Child.prototype.destroyChild = function() {
+        this.collapse();
+        if (this.watcher) {
+          this.watcher.cancel();
+          this.watcher = null;
+        }
+      };
 
       // the information necessary to create a map layer into something usable by the game.
       // the display group canvi should appear and stack inside of
@@ -33,16 +97,16 @@ angular.module('demo')
           $log.error("missing enclosure", enclosure);
           throw new Error("LayerContext: missing enclosure");
         }
-        this.enclosure = enclosure;
-        this.destroy = onDestroy;
+        this.enclosure = enclosure; // a child.
+        this.destroyContext = onDestroy;
         this.object = null;
         this.dynamicDepth = false;
-        this.derivations = 0;
+        this.treeCount = 0;
         this.ofs = pt(0, 0);
       };
       //
       Context.prototype.newContext = function(opt) {
-        this.derivations += 1;
+        this.treeCount += 1;
 
         var mapLayer = opt.mapLayer;
         var abs = mapLayer.getPos() || pt(0, 0);
@@ -53,23 +117,26 @@ angular.module('demo')
         });
 
         var next = new Context(
-          displayGroup,
-          opt.hitGroup || this.hitGroup,
-          opt.enclosure || this.enclosure,
-          function() {
-            if (opt.displayGroup) {
-              opt.displayGroup.destroy()
-            }
+          displayGroup, // DisplayGroup
+          // FIX: verify we have ownership over the hit group 
+          // why dont we have ownership over the other bits?
+          // it seems oddly inconsistent.
+          opt.hitGroup || this.hitGroup, // HitGroup
+          opt.enclosure || this.enclosure, // an entity
+          function() { // on destroy function
             if (opt.hitGroup) {
-              opt.hitGroup.enclosure.remove(hitGroup);
+              opt.hitGroup.parent.remove(opt.hitGroup);
             }
+            if (displayGroup) {
+              displayGroup.destroyDisplay()
+            }
+            opt= null;
           });
         next.object = opt.object || this.object;
         next.ofs = abs;
         next.dynamicDepth = opt.dynamicDepth || this.dynamicDepth;
         return next;
       };
-
       // create a new child node to represent an content free layer
       Context.prototype.newChild = function(mapLayer, zlayer) {
         var next = this.newContext({
@@ -79,20 +146,20 @@ angular.module('demo')
         });
         if (zlayer) {
           var b = mapLayer.getBounds();
-          var zvalue = (b && next.dynamicDepth) ? b.max.y : this.derivations;
+          var zvalue = (b && next.dynamicDepth) ? b.max.y : this.treeCount;
           next.displayGroup.el.css({
             "position": "absolute",
             "z-index": zvalue
           });
         }
         var child = new Child();
-        return next.addSubLayers(mapLayer).then(function(node) {
+        child.promise = next.addSubLayers(mapLayer).then(function(node) {
           //$log.info("LayerService: expanding layer", mapLayer.getName());
           child.expanded = node;
           return child;
         });
+        return child;
       };
-
       // create a new child node to represent an object layer
       Context.prototype.newObject = function(mapLayer, objectName) {
         var pos = mapLayer.getPos();
@@ -100,7 +167,7 @@ angular.module('demo')
           mapLayer: mapLayer,
           hitGroup: this.hitGroup.newHitGroup(mapLayer.getName())
         });
-        var child = new Child();
+        var child = new Child(next, mapLayer);
         child.watcher = WatcherService.showObject(next.enclosure, objectName,
           function(object) {
             //$log.info("LayerService: expanding object", objectName, object);
@@ -113,59 +180,43 @@ angular.module('demo')
                 object: object,
                 path: mapLayer.path,
               };
-              object.displayGroup = next.displayGroup;
-              object.displayPos = pos;
-              return next.addSubLayers(mapLayer).then(function(node) {
-                child.expanded = node;
-                return child;
-              });
+              return child.expand();
             }
           });
-        return child.watcher.promise;
+        child.promise = child.watcher.promise;
+        return child;
       };
-
       // create a new child node to represent an object state
       Context.prototype.newState = function(mapLayer, stateName) {
+        var pos = mapLayer.getPos();
         var next = this.newContext({
           mapLayer: mapLayer,
         });
-        var child = new Child();
+        var child = new Child(next, mapLayer);
         child.watcher = WatcherService.showState(next.object, stateName,
           function(newState) {
-            //$log.info("LayerService: expanding state", stateName, newState);
-            if (!newState) {
-              child.collapse();
-            } else {
-              return next.addSubLayers(mapLayer).then(function(node) {
-                //$log.info("LayerService: expanded state", stateName, newState, node);
-                child.expanded = node;
-                return child;
-              });
-            }
+            $log.info("LayerService: show state", stateName, !!newState);
+            return (!newState) ? child.collapse() : child.expand();
           });
-        return child.watcher.promise;
+        child.promise = child.watcher.promise;
+        return child;
       };
       // create a new child node to represent the contents of an object
-      Context.prototype.newEnclosure = function(mapLayer, newEnclosure) {
+      Context.prototype.newEnclosure = function(mapLayer, enclosure) {
+        if (!enclosure) {
+          throw new Error("enclosure missing", mapLayer);
+        }
         var next = this.newContext({
-          enclosure: newEnclosure,
+          enclosure: enclosure,
           mapLayer: mapLayer,
         });
-        var child = new Child();
+        var child = new Child(next, mapLayer);
         child.watcher = WatcherService.showContents(next.object,
-          function(objId, newEnclosure) {
-            //$log.info("LayerService: expanding contents", objId, newEnclosure);
-            if (!newEnclosure) {
-              child.collapse();
-            } else {
-              return next.addSubLayers(mapLayer).then(function(node) {
-                //$log.info("LayerService: expanded contents", objId, newEnclosure, node);
-                child.expanded = node;
-                return child;
-              });
-            }
+          function(objId, contentsVisible) {
+            return !contentsVisible ? child.collapse() : child.expand();
           });
-        return child.watcher.promise;
+        child.promise = child.watcher.promise;
+        return child;
       };
       // parse landing data and place on the hitGroup.
       Context.prototype.addLandingData = function(mapLayer) {
@@ -175,7 +226,6 @@ angular.module('demo')
         this.hitGroup.data.pads = pads;
         //$log.warn("LayerSerice: new landing data", slashPath, pads);
       };
-
       // create a new child node to represent a zoom/click region
       Context.prototype.newView = function(mapLayer, viewName) {
         var next = this.newContext({
@@ -187,33 +237,14 @@ angular.module('demo')
           }),
         });
         var child = new Child();
-        return next.addSubLayers(mapLayer).then(function(node) {
+        child.promise = next.addSubLayers(mapLayer).then(function(node) {
           //$log.info("LayerService: expanding view", viewName, node);
           child.expanded = node;
           return child;
         });
+        return child;
       };
-
-      // a child contains a potential Node.      
-      var Child = function() {
-        this.watcher = false; // a contents server watchers; it expands and collapses us.
-        this.expanded = false; // when the content serve expands us, it fill out this with a valid Node.
-      };
-      Child.prototype.collapse = function() {
-        if (this.expanded) {
-          this.expanded.destroy();
-          this.expanded = false;
-        }
-      };
-      Child.prototype.destroy = function() {
-        this.collapse();
-        if (this.watcher) {
-          this.watcher.cancel();
-          this.watcher = null;
-        }
-      };
-
-      // create a new potential node.
+      // create a new potential node; return a promise.
       Context.prototype.createChild = function(subLayer) {
         var cat = MapService.getCategory(subLayer);
         // $log.debug("LayerService: createChild", subLayer.path);
@@ -225,7 +256,7 @@ angular.module('demo')
           case "viewLayer":
             return this.newView(subLayer, cat.viewName);
           case "contents":
-            return this.newEnclosure(subLayer);
+            return this.newEnclosure(subLayer, this.object);
           case "landing":
             return this.addLandingData(subLayer);
           default:
@@ -236,14 +267,19 @@ angular.module('demo')
       // returns the promise of a layer and its sub-layers.
       Context.prototype.addSubLayers = function(mapLayer) {
         var ctx = this;
-        // for now creating the display and hitshape before children to achieve consistent stacking
+        // creating the display and hitshape before children to achieve consistent stacking
         var layerPath = mapLayer.path;
         // $log.info("LayerService: creating", layerPath, "canvas");
         var hitShape = ctx.hitGroup.newHitShape(mapLayer);
-        return ctx.displayGroup.newCanvas(mapLayer).then(function(canvi) {
+        var displayGroup = ctx.displayGroup;
+        // note: canvi can be null if the mapLayer is empty.
+        return displayGroup.newCanvas(mapLayer).then(function(canvi) {
           //$log.info("LayerService: created", layerPath, "canvas");
           var promisedChildren = mapLayer.mapEach(function(subLayer) {
-            return ctx.createChild(subLayer);
+            var child = ctx.createChild(subLayer);
+            return child ? $q.when(child.promise).then(function() {
+              return child;
+            }) : null;
           });
           return $q.all(promisedChildren).then(function(children) {
             //$log.info("LayerService: created", layerPath, "children", children.length);
@@ -255,45 +291,18 @@ angular.module('demo')
                 tinter = WatcherService.showTint(ctx.object, function(color) {
                   canvi.draw(color);
                 });
+                // hack, hack, hack.
+                $log.info("LayerService: displaying object", ctx.object.id, displayGroup.pos);
+                ctx.object.objectDisplay = {
+                  group: displayGroup,
+                  canvas: canvi
+                };
               }
             }
             return new Node(ctx, mapLayer.getName(), canvi, tinter, hitShape, children);
           });
         });
       };
-
-      var Node = function(ctx, name, canvi, tinter, hitShape, children) {
-        //$log.info("LayerService: creating node", name);
-        this.ctx = ctx;
-        this.name = name;
-        this.canvi = canvi; // from DisplayGroup
-        this.tinter = tinter; // from TinterService
-        this.hitShape = hitShape;
-        this.children = children;
-      };
-
-      Node.prototype.destroy = function() {
-        $log.info("LayerService: destroying node", this.name);
-        if (this.hitShape) {
-          this.hitShape.group.remove(this.hitShape);
-          this.hitShape = null;
-        }
-        if (this.tinter) {
-          this.tinter.destroy();
-          this.tinter = null;
-        }
-        if (this.canvi) {
-          this.canvi.destroy();
-          this.canvi = null;
-        }
-        if (this.ctx) {
-          this.ctx.destroy();
-          this.ctx = null;
-        }
-        this.children.filter(function(child) {
-          child.destroy();
-        });
-      }
 
       var service = {
         createLayers: function(parentEl, map, room) {
@@ -303,7 +312,7 @@ angular.module('demo')
             id: "md-root"
           });
           var ctx = new Context(displayGroup, hitGroups, room, function() {
-            displayGroup.destroy();
+            displayGroup.destroyDisplay();
           });
           return ctx.addSubLayers(map.topLayer).then(function(root) {
             return {

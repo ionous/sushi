@@ -113,26 +113,11 @@ angular.module('demo')
       Cursor.prototype.enable = function(enable) {
         if (this.enabled != enable) {
           this.enabled = enable;
-          this.show(this.shows);
           this.mouseDown = false;
         }
       };
       Cursor.prototype.show = function(visible) {
-        if (angular.isUndefined(visible)) {
-          throw new Error("sdlfslfk");
-        }
-        var show = !!(visible && this.enabled && this.present);
-        if (show != this.show) {
-          this.shows = !!visible;
-          if (show) {
-            // var rect = this.el[0].getBoundingClientRect();
-            // var x = Math.floor(clientX - rect.left);
-            // var y = Math.floor(clientY - rect.top);
-            //this.setPos(x, y, clientX, clientY);
-          }
-          this.el.css("visibility", show ? "" : "hidden");
-          //$log.info("CursorService: visibility change, now:", this.shows, show);
-        }
+        this.shows = !!visible;
         return this;
       };
       Cursor.prototype.draw = function(focus) {
@@ -165,9 +150,13 @@ angular.module('demo')
           this.shape = shape;
         }
         var p = pt_sub(this.pos, shape.hotspot);
+        // FIX:add a last draw state? 
+        var show = !!(this.shows && this.enabled && this.present);
+        
         this.el.css({
           "left": p.x + "px",
-          "top": p.y + "px"
+          "top": p.y + "px",
+          "visibility": show ? "" : "hidden"
         });
       };
       Cursor.prototype.highlight = function(visible) {
@@ -237,23 +226,20 @@ angular.module('demo')
           });
           // future: lock on mouse down?
           el.on("mouseenter", function(evt) {
-            $log.info("CursorService: mouseenter");
+            //$log.info("CursorService: mouseenter");
             c.mouseDown = false;
-            c.present= true;
-            c.show(c.shows);
+            c.present = true;
           });
           el.on("mouseleave", function(evt) {
-            $log.info("CursorService: mouseleave");
-            c.present= false;
+            //$log.info("CursorService: mouseleave");
+            c.present = false;
             c.mouseDown = false;
-            c.show(c.shows);
           });
           el.on("mousemove", function(evt) {
             var rect = el[0].getBoundingClientRect();
             var x = Math.floor(evt.clientX - rect.left);
             var y = Math.floor(evt.clientY - rect.top);
-            c.present= true;
-            c.show(c.shows);
+            c.present = true;
             c.setPos(x, y, evt.clientX, evt.clientY);
           });
           el.on("click", function(evt) {

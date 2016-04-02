@@ -3,7 +3,7 @@
 <!--[if IE 7]>         <html lang="en" ng-app="demo" class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html lang="en" ng-app="demo" class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
-<html lang="en" ng-app="demo" class="no-js">
+<html lang="en" class="no-js">
 <!--<![endif]-->
 
 <head>
@@ -88,7 +88,7 @@
   <!-- <script src="/script/paper/dist/paper-core.min.js"></script> -->
 </head>
 
-<body ng-controller="GameController">
+<body ng-app="demo" ng-controller="GameController">
   <header id="status-bar" ng-controller="StatusController">
     <span class="ga-noselect" id="status-left">{{status.left}}</span>
     <span class="ga-noselect" id="status-right">{{status.right}}</span>
@@ -96,6 +96,7 @@
   <!-- actions held out above ga-play to handle mouse/offset display of menu;
   the alternative would be to add the action bar to root dynamically, but angular doesnt like custom elements being attached to the dom via script. -->
   <div ng-include="'actionBar.html'"></div>
+  <div class="talk ga-noselect" ng-controller="TalkController"></div>
   <div id="ga-play" class="ga-noselect" ga-map-color>
     <div ng-view></div>
     <div ng-include="'buttonBar.html'"></div>
