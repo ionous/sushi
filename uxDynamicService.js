@@ -83,12 +83,12 @@ angular.module('demo')
       };
     };
 
-    var uxDynamic = function(tree, physicsLayer) {
+    var uxDynamic = function(scope, tree, physicsLayer) {
       var ux = this;
       var keys = KeyboardService.newKeyboard(tree.el);
       var cursor = CursorService.newCursor(tree.el);
       var physics = CollisionService.newScene(tree.bounds);
-      var hover = new uxHover(tree.bounds, tree.nodes.ctx.hitGroup);
+      var hover = new uxHover(scope, tree.bounds, tree.nodes.ctx.hitGroup);
       var moveTarget = new MoveTarget();
       var prop;
       var arrival;
@@ -136,7 +136,7 @@ angular.module('demo')
           }
         });
         cursor.onMove(function() {
-          var inRange = hover.update(cursor.pos);
+          var inRange = hover.hoverPos(cursor.pos);
           if (!inRange) {
             arrival.target(false); // stop moving 
             moveTarget.target(); // clear the move target
@@ -192,7 +192,7 @@ angular.module('demo')
         });
       });
 
-      this.update = function(dt) {
+      this.updateUi = function(dt) {
         var player = ux.chara;
 
         var dir = false;
@@ -262,8 +262,8 @@ angular.module('demo')
       }; // update
     };
     var service = {
-      create: function(tree, physicsLayer) {
-        return new uxDynamic(tree, physicsLayer);
+      create: function(scope, tree, physicsLayer) {
+        return new uxDynamic(scope, tree, physicsLayer);
       },
     };
     return service;

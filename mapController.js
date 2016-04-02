@@ -37,8 +37,8 @@ angular.module('demo')
                 };
 
                 var physicsLayer = map.findLayer("$collide");
-                // var ux = !!physicsLayer ? uxDynamicService.create(tree, physicsLayer) : uxStaticService.create(tree);
-                var ux = uxStaticService.create(tree);
+                var ux = !!physicsLayer ? uxDynamicService.create($scope, tree, physicsLayer) : uxStaticService.create($scope, tree);
+                // var ux = uxStaticService.create($scope, tree);
 
                 var id;
                 $scope.$on("$destroy", function() {
@@ -62,7 +62,7 @@ angular.module('demo')
                     id = request(something);
                     var dt = (time - lastTime) * 0.001;
                     lastTime = time;
-                    ux.update(dt);
+                    ux.updateUi(dt);
                   };
                   id = request(something);
                 });

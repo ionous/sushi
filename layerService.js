@@ -58,7 +58,7 @@
             return child;
           });
         }
-      }
+      };
       Child.prototype.collapse = function() {
         this.expanding = false;
         if (this.expanded) {
@@ -267,11 +267,11 @@
       // returns the promise of a layer and its sub-layers.
       Context.prototype.addSubLayers = function(mapLayer) {
         var ctx = this;
-        // creating the display and hitshape before children to achieve consistent stacking
         var layerPath = mapLayer.path;
         // $log.info("LayerService: creating", layerPath, "canvas");
         var hitShape = ctx.hitGroup.newHitShape(mapLayer);
         var displayGroup = ctx.displayGroup;
+        // create the canvas first, to help ensure consistent ordering:
         // note: canvi can be null if the mapLayer is empty.
         return displayGroup.newCanvas(mapLayer).then(function(canvi) {
           //$log.info("LayerService: created", layerPath, "canvas");
@@ -281,6 +281,7 @@
               return child;
             }) : null;
           });
+          // after all children have been created: draw into the canvas.
           return $q.all(promisedChildren).then(function(children) {
             //$log.info("LayerService: created", layerPath, "children", children.length);
             var tinter;

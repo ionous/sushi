@@ -1,7 +1,14 @@
-#landingTest {
-  z-index: 1000;
+/*canvas {
+  border-color: red;
+  border-style: solid;
+  border-width: 1px;
 }
+*/
 
+/*.ga-debug {
+  visibility: hidden;
+}
+*/
 body {
   /*background-color: aliceblue;*/
   width: 800px;
@@ -32,9 +39,6 @@ body {
   text-shadow: 1px 0px #2e6da4, -1px 0px #2e6da4, 0px 1px #2e6da4, 0px -1px #2e6da4, 1px 1px 2px black;
 }
 
-
-/*paper*/
-
 body > canvas {
   z-index: 8000;
   position: absolute;
@@ -50,9 +54,6 @@ body > canvas {
 }
 
 #status-bar {
-  /*  background-color: white;
-  color: white;
-  */
   padding-left: 1em;
   padding-right: 1em;
   text-shadow: 1px 1px 1px white;
@@ -143,7 +144,7 @@ div.overgrey {
   border-color: #075698;*/
   border-radius: 20px;
   margin: 3px;
-  position: fixed;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;

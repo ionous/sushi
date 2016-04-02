@@ -8,6 +8,7 @@ angular.module('demo')
     function($log, $q, $scope, $timeout,
       EventService, GameService, LocationService, PlayerService, TextService) {
       $scope.game = null;
+      $scope.cursorInfo= {};
 
       var startGame = function(game) {
         $log.info("GameController: commencing...");

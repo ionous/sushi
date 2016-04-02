@@ -7,13 +7,12 @@ angular.module('demo')
   .factory('uxStaticService', function(CursorService, KeyboardService,
     uxHover, uxActionBar,
     $q, $rootScope, $log) {
-    var uxStatic = function(tree, physicsLayer) {
+    var uxStatic = function(scope, tree, physicsLayer) {
       var ux = this;
       var keys = KeyboardService.newKeyboard(tree.el);
       var cursor = CursorService.newCursor(tree.el);
-      var hover = new uxHover(tree.bounds, tree.nodes.ctx.hitGroup);
+      var hover = new uxHover(scope, tree.bounds, tree.nodes.ctx.hitGroup);
       var actionBar;
-
 
       var off = $rootScope.$on("processing frame", function(_, processing) {
         $log.warn("uxDynamic: processing", processing);
@@ -42,7 +41,7 @@ angular.module('demo')
       });
       cursor.onPress(function(down) {
         if (down) {
-          var inRange = hover.update(cursor.pos);
+          var inRange = hover.hoverPos(cursor.pos);
           if (!inRange || (actionBar && actionBar.subject !== hover.subject)) {
             if (actionBar) {
               actionBar.close();
@@ -58,9 +57,9 @@ angular.module('demo')
           });
         }
       });
-      this.update = function(dt) {
+      this.updateUi = function(dt) {
         var highlight = 0;
-        if (hover.update(cursor.pos)) {
+        if (hover.hoverPos(cursor.pos)) {
           if (hover.subject && (!actionBar || (hover.subject !== actionBar.subject))) {
             highlight = 2;
           }
@@ -72,8 +71,8 @@ angular.module('demo')
     };
 
     var service = {
-      create: function(tree) {
-        return new uxStatic(tree);
+      create: function(scope, tree) {
+        return new uxStatic(scope, tree);
       },
     };
     return service;
