@@ -49,10 +49,6 @@ body > canvas {
   font-size: 16px;
 }
 
-#outermap {
-  cursor: none;
-}
-
 #status-bar {
   padding-left: 1em;
   padding-right: 1em;

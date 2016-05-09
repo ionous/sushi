@@ -37,7 +37,7 @@ angular.module('demo')
       };
       Scene.prototype.destroyScene = function() {
         this.world.clear();
-        this.world= null;
+        this.world = null;
         return false;
       };
       Scene.prototype.addWall = function(min, max) {
@@ -107,6 +107,11 @@ angular.module('demo')
         this.scene = scene;
         this.body = body;
         this.radius = radius;
+      };
+      Prop.prototype.remove = function() {
+        this.body.world.removeBody(this.body);
+        this.body = null;
+        this.scene = null;
       };
       // in canvas pos
       Prop.prototype.getPos = function() {

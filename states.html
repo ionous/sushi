@@ -1,0 +1,46 @@
+<!-- ngView creates the ga-map view dynamically -->
+<hsm-state name="ViewPending">
+  <hsm-event on="ga-map-created" goto="ViewReady"></hsm-event>
+</hsm-state>
+<hsm-state name="ViewReady" ga-resources="play" hsm-enter="play.load($evt.mapSlot,$evt.mapData)" hsm-exit="play.unload()">
+  <hsm-event on="ga-map-destroyed" goto="ViewPending"></hsm-event>
+  <!--  -->
+  <hsm-state name="ResourcesPending">
+    <hsm-event on="ga-resources-loaded" goto="Commanding"></hsm-event>
+  </hsm-state>
+  <!--  -->
+  <hsm-state name="AvatarControl" avatar-control="avatar" avatar-size="12" hsm-enter="avatar.create(play.player, play.physics, play.pads)" hsm-exit="avatar.destroy()">
+    <hsm-state name="Commanding" hsm-init="'Mousing'">
+      <hsm-event on="demo-console" goto="Console"></hsm-event>
+      <hsm-event on="demo-inventory" goto="Inventory"></hsm-event>
+      <hsm-event on="demo-settings" goto="Settings"></hsm-event>
+      <hsm-event on="ga-window-closed" goto="Mousing"></hsm-event>
+      <hsm-state name="Console" console-control="console" hsm-enter="console.show()" hsm-exit="console.hide()">
+        <hsm-state name="Inner" ga-timeout="wait" hsm-enter="wait.timeout(300, 'wait-timeout')" hsm-exit="wait.cancel()">
+          <hsm-event on="wait-timeout" goto="Mousing"> </hsm-event>
+        </hsm-state>
+      </hsm-state>
+      <hsm-state name="Inventory" inventory-control="inv" hsm-enter="inv.show()" hsm-exit="inv.hide()">
+      </hsm-state>
+      <hsm-state name="Settings" settings-control="settings" hsm-enter="settings.show()" hsm-exit="settings.hide()">
+      </hsm-state>
+      <hsm-state name="Mousing" mouse-control="mouse" hsm-enter="mouse.createAt(play.mapSlot)" hsm-init="mouse.inBounds() ? 'InBounds' : 'OutOfBounds'" hsm-exit="mouse.destroy()">
+        <!-- <hsm-event on="selected-action" goto="Processing"></hsm-event> -->
+        <hsm-state name="OutOfBounds" hsm-enter="mouse.show(false)">
+          <hsm-event on="mouseenter" goto="InBounds"></hsm-event>
+          <hsm-event on="mousemove" goto="InBounds"></hsm-event>
+        </hsm-state>
+        <hsm-state name="InBounds" hsm-exit="mouse.show(false)">
+          <hsm-event on="mouseleave" goto="OutOfBounds"> </hsm-event>
+          <hsm-event on="ga-update" run="avatar.update($evt.dt)"></hsm-event>
+          <hsm-state parallel="true" mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(mouse,play.hitGroups)" hsm-exit="mouseTarget.release()">
+            <!-- keys are parallel so we can stop seeking hen a key is pressed, but also start moving on that same key frame. this also allows us to "nudge" directed movement. -->
+            <ng-include src="'keys.html'"></ng-include>
+            <ng-include src="'hover.html'"></ng-include>
+            <ng-include src="'control.html'"></ng-include>
+          </hsm-state>
+        </hsm-state>
+      </hsm-state>
+    </hsm-state>
+  </hsm-state>
+</hsm-state>

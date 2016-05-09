@@ -1,6 +1,6 @@
 'use strict';
 
- angular.module('demo')
+angular.module('demo')
   .factory('LayerService',
     function(DisplayService, HitService, LandingService, MapService, WatcherService,
       $log, $q) {
@@ -14,7 +14,7 @@
         this.children = children;
       };
       Node.prototype.destroyNode = function() {
-        $log.info("LayerService: destroying node", this.name, this.hitShape);
+        //$log.info("LayerService: destroying node", this.name, this.hitShape);
         if (this.hitShape) {
           this.hitShape.group.remove(this.hitShape);
           this.hitShape = null;
@@ -81,7 +81,7 @@
       // the current game object in question -- noting that not all layers represent game objects
       // how to clean up when this map layer which generated this ctx has been destroyed.
       // Contexts are owned by Nodes, and are destroyed when their Node is destroyed.
-      var Context = function(displayGroup, hitGroup, enclosure, onDestroy) {
+      var Context = function(displayGroup, hitGroup, allPads, enclosure, onDestroy) {
         // without a displayGroup, nothing can be added to the scene.
         if (!displayGroup) {
           throw new Error("LayerContext: missing display group");
@@ -97,6 +97,7 @@
           $log.error("missing enclosure", enclosure);
           throw new Error("LayerContext: missing enclosure");
         }
+        this.allPads = allPads;
         this.enclosure = enclosure; // a child.
         this.destroyContext = onDestroy;
         this.object = null;
@@ -122,6 +123,7 @@
           // why dont we have ownership over the other bits?
           // it seems oddly inconsistent.
           opt.hitGroup || this.hitGroup, // HitGroup
+          this.allPads,
           opt.enclosure || this.enclosure, // an entity
           function() { // on destroy function
             if (opt.hitGroup) {
@@ -130,7 +132,7 @@
             if (displayGroup) {
               displayGroup.destroyDisplay()
             }
-            opt= null;
+            opt = null;
           });
         next.object = opt.object || this.object;
         next.ofs = abs;
@@ -195,7 +197,7 @@
         var child = new Child(next, mapLayer);
         child.watcher = WatcherService.showState(next.object, stateName,
           function(newState) {
-            $log.info("LayerService: show state", stateName, !!newState);
+            //$log.info("LayerService: show state", stateName, !!newState);
             return (!newState) ? child.collapse() : child.expand();
           });
         child.promise = child.watcher.promise;
@@ -222,8 +224,13 @@
       Context.prototype.addLandingData = function(mapLayer) {
         var slashPath = mapLayer.getPath();
         var grid = mapLayer.getGrid();
-        var pads = LandingService.newLandingPads(slashPath, grid);
+        if (this.object && this.view) {
+          $log.warn("great. now what.");
+        }
+        var subject = this.object || this.view;
+        var pads = LandingService.newLandingPads(subject, slashPath, grid);
         this.hitGroup.data.pads = pads;
+        this.allPads.push(pads);
         //$log.warn("LayerSerice: new landing data", slashPath, pads);
       };
       // create a new child node to represent a zoom/click region
@@ -258,6 +265,7 @@
           case "contents":
             return this.newEnclosure(subLayer, this.object);
           case "landing":
+            // no child returned
             return this.addLandingData(subLayer);
           default:
             return this.newChild(subLayer, cat.layerType == "z");
@@ -293,7 +301,7 @@
                   canvi.draw(color);
                 });
                 // hack, hack, hack.
-                $log.info("LayerService: displaying object", ctx.object.id, displayGroup.pos);
+                //$log.info("LayerService: displaying object", ctx.object.id, displayGroup.pos);
                 ctx.object.objectDisplay = {
                   group: displayGroup,
                   canvas: canvi
@@ -306,13 +314,13 @@
       };
 
       var service = {
-        createLayers: function(parentEl, map, room) {
+        createLayers: function(parentEl, map, room, allPads) {
           // note: the room is getting a display group as well... unfortunately.
           var hitGroups = HitService.newHitGroup(map.name);
           var displayGroup = DisplayService.newDisplayGroup(parentEl, {
             id: "md-root"
           });
-          var ctx = new Context(displayGroup, hitGroups, room, function() {
+          var ctx = new Context(displayGroup, hitGroups, allPads, room, function() {
             displayGroup.destroyDisplay();
           });
           return ctx.addSubLayers(map.topLayer).then(function(root) {

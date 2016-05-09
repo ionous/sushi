@@ -1,0 +1,6 @@
+<hsm-state ga-keys="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
+  <!-- <hsm-event on="ga-key" run="log.info('key', $evt.which, $evt.keydown)"> </hsm-event> -->
+  <hsm-event on="ga-key" when="$evt.shiftKey()" run="avatar.walk($evt.keydown)"></hsm-event>
+  <hsm-event on="ga-key" when="$evt.moveKey()" run="avatar.nudge($evt.moveKey(), $evt.keydown)"></hsm-event>
+  <hsm-event on="ga-key" when="$evt.keydown && $evt.actionKey()" run="avatar.interact( avatar.getLandingSubject())"></hsm-event>
+</hsm-state>

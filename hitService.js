@@ -33,20 +33,23 @@ angular.module('demo')
       };
       HitGroup.prototype.remove = function(child) {
         var group = this;
-        this.children= this.children.filter(function(ch) {
+        this.children = this.children.filter(function(ch) {
           return ch !== child;
         });
       };
       // note: we only ever hit shapes,
       // but shapes have parents, so we can get the group
       // and from there we can get the group user data.
-      HitGroup.prototype.hitTest = function(where) {
+      HitGroup.prototype.hitTest = function(where, debug) {
         var ret = null;
-        for (var i = this.children.length - 1; i >= 0; --i) {
+        for (var i = 0; i < this.children.length; i += 1) {
           var ch = this.children[i];
-          var hit = ch.hitTest(where);
+          var hit = ch.hitTest(where, debug);
           if (hit) {
             ret = hit;
+            if (debug) {
+              $log.info("HitService: ret", ret.name);
+            }
             break;
           }
         }
@@ -110,6 +113,7 @@ angular.module('demo')
             hit = grid.tile[index];
           }
         }
+
         return hit && this;
       };
 

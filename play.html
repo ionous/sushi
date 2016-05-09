@@ -1,10 +1,9 @@
-<!-- demo.js assigns story,room, and item controller based on current url -->
-<div id="outermap" ng-show="mapLoaded" ng-controller="storyController" class="ga-show">
-  <!-- popStyle changes the mouse cursor based on the current popup.  -->
+<!-- this template is created and destroyed for every route (url) change. demo.js assigns story,room, and item controller based on current url  -->
+<div ng-controller="storyController">
   <div ng-controller="roomController">
     <div ng-controller="viewController">
       <div ng-controller="itemController">
-        <div id="map" ng-controller="MapController" ng-style="viewStyle">
+        <div ga-map="gameMap" ng-show="gameMap.loaded" ng-style="gameMap.style" class="ga-show">
         </div>
       </div>
     </div>

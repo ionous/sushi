@@ -78,7 +78,7 @@ angular.module('demo')
         //$log.info(x,y ,this.nextface, this.facing);
       };
       Chara.prototype.faceTarget = function(pad) {
-        $log.info("arrived", pad ? pad.getFacingName() + pad.getAngle() + " deg" : "");
+        //$log.info("arrived", pad ? pad.getFacingName() + pad.getAngle() + " deg" : "");
         if (pad) {
           var angle = pad.getAngle();
           if (angle) {

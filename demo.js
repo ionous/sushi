@@ -5,7 +5,7 @@
 // a new module call with paramters seems to act as a "reset".
 // it clears the contents of the app and resulting in many strange errors.
 angular
-  .module('demo', ['ui.bootstrap', 'ngAnimate', 'ngRoute', 'mosaic'])
+  .module('demo', ['ui.bootstrap', 'ngAnimate', 'ngRoute', 'mosaic', 'hsm'])
   .constant('SKIP_DIALOG', true)
   .config(['$controllerProvider', '$routeProvider',
     function($controllerProvider, $routeProvider) {
@@ -35,6 +35,7 @@ angular
         .when('/r/:roomId', {
           templateUrl: "play.html",
           controller: "DisplayController",
+          // the router resolves all promises before instantiating the controller, and i guess, before rendering the template.
           resolve: {
             _storyController: getStoryController,
             _roomController: getRoomController,

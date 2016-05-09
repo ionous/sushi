@@ -1,0 +1,34 @@
+<!-- mouse input tweaks the cursor, and raises events which effect player control. -->
+<hsm-state>
+  <!-- now wait for mouse down -->
+  <hsm-state name="MouseHighlight" hsm-enter="mouseTarget.reset()">
+    <hsm-event on="mousedown" when="mouseTarget()" run="avatar.faceTarget(mouseTarget())"> </hsm-event>
+    <hsm-event on="mousedown" goto="MouseWait"> </hsm-event>
+    <hsm-event on="mouseTargetChanged" when="!$evt.target" run="mouse.show('pointer')"></hsm-event>
+    <!-- note: because the avatar can move, we have to check every frame. -->
+    <hsm-event on="ga-update" when="mouseTarget()" run="!avatar.onLandingPads(mouseTarget()) ? mouse.show('disk') : mouse.show('bullseye')"> </hsm-event>
+  </hsm-state>
+  <hsm-state name="MouseWait" ga-timeout="wait" hsm-enter="wait.timeout(150, 'wait-timeout')" hsm-exit="wait.cancel()">
+    <hsm-event on="direct" goto="MouseDirect"></hsm-event>
+    <hsm-event on="approach" goto="MouseHighlight"></hsm-event>
+    <!-- on timeout or drag, begin a directed move -->
+    <hsm-event on="app-dragstart" run="avatar.direct()"> </hsm-event>
+    <hsm-event on="wait-timeout" run="avatar.direct()"> </hsm-event>
+    <!-- on mouse up within time - ie. a click - the player selects the target -->
+    <hsm-event on="mouseup" when="mouseTarget()" run="avatar.approach(mouseTarget())"> </hsm-event>
+  </hsm-state>
+  <!-- while directing, the cursor changes to a chevron (➢) for surface points, or a down arrow (↓) for subjects; note: even points on a collision surface are accepted. -->
+  <hsm-state name="MouseDirect" hsm-enter="mouseTarget.reset()" hsm-exit="mouse.show('pointer')">
+    <hsm-event on="mouseup" goto="MouseHighlight"></hsm-event>
+    <hsm-event on="mouseTargetChanged" run="$evt.target ? 'MouseDirectTarget' : 'MouseDirectPos'"></hsm-event>
+    <hsm-event on="move-arrived" goto="MouseDirectDefault"></hsm-event>
+    <hsm-state name="MouseDirectDefault" hsm-enter="!avatar.onLandingPads($evt.target) ? mouse.show('pointer') : mouse.show('bullseye')">
+      <hsm-event on="mousemove" goto="MouseDirectPos"></hsm-event>
+    </hsm-state>
+    <hsm-state name="MouseDirectPos" hsm-enter="mouse.show('chev')" hsm-exit="mouse.setAngle()">
+      <hsm-event on="ga-update" run="mouse.setAngle(avatar.getCenter())"> </hsm-event>
+    </hsm-state>
+    <hsm-state name="MouseDirectTarget" hsm-enter="mouse.show('arrow')">
+    </hsm-state>
+  </hsm-state>
+</hsm-state>

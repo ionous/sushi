@@ -25,9 +25,10 @@ angular.module('demo')
       return angles[facing];
     };
     // cached landing pad
-    var CrashPad = function(pads, idx) {
+    var CrashPad = function(pads, idx, dist) {
       this.pads = pads;
       this.idx = idx; // of grid
+      this.dist = dist; // optional distance
     };
     CrashPad.prototype.samePad = function(other) {
       return other && (this.pads === other.pads) && (this.idx == other.idx);
@@ -69,7 +70,8 @@ angular.module('demo')
       return facingToAngle(facing);
     };
     //
-    var LandingPads = function(path, grid, pads) {
+    var LandingPads = function(subject, path, grid, pads) {
+      this.subject = subject; // game object (or view!) 
       this.path = path; // identifying name ( eg. of layer )
       this.grid = grid; // source map grid data
       this.pads = pads; // indices of marked tiles
@@ -118,15 +120,22 @@ angular.module('demo')
         }
       }
       if (which >= 0) {
-        return new CrashPad(this, which);
+        return new CrashPad(this, which, distance);
       }
     };
     //
     var service = {
       facingToName: facingToName,
-      newLandingPads: function(path, grid) {
+      newLandingPads: function(subject, path, grid) {
+
+        if (!subject) {
+          // FIX!!!!!!
+          /*var msg = "subject required for landing pads";
+          $log.error(msg, path);
+          throw new Error(msg);*/
+        }
         if (!grid.tile || !grid.tile.length) {
-          $log.warn("LandinService: no landing pads found for", path);
+          $log.warn("LandingService: no landing pads found for", path);
         } else {
           var pads = [];
           // keepign this as simple as possible to keep loading times down.
@@ -136,7 +145,7 @@ angular.module('demo')
               pads.push(i);
             }
           });
-          return new LandingPads(path, grid, pads);
+          return new LandingPads(subject, path, grid, pads);
         }
       },
     };

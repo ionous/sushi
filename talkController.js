@@ -3,7 +3,7 @@
 angular.module('demo')
   .controller('TalkController',
     function(EventService, EntityService,
-      $element, $log, $q, $rootElement, $scope, $timeout,
+      $element, $log, $q, $rootElement, $rootScope, $scope, $timeout,
       SKIP_DIALOG) {
 
       var overgrey = angular.element('<div class="overgrey"></div>');
@@ -98,6 +98,8 @@ angular.module('demo')
             $log.error("dont know how to display text", actorId, data);
           } else {
             var talker = new Talker(actorId, display);
+            $rootScope.$broadcast("window change", "talk opened");
+
             // empty the array so no other layer can grab the data
             // (changing event system to use scope events and then stopping propogation might work too)
             var lines = data.slice();
@@ -107,6 +109,7 @@ angular.module('demo')
             //
             talker.finished.finally(function() {
               overgrey.remove();
+              $rootScope.$broadcast("window change", "talk closed");
             });
             $rootElement.prepend(overgrey);
             $timeout(function() {
