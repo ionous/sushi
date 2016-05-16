@@ -61,14 +61,7 @@ angular.module('demo')
       $log.info("ButtonBarController: initializing...");
       $scope.console = function() {
         $log.info("ButtonBarController: opening console");
-        var modalInstance = $uibModal.open({
-          templateUrl: 'console.html',
-          controller: function(TextService, $log, $scope) {
-            $rootScope.$broadcast("window change", "console");
-            $scope.display = TextService.getDisplay();
-          },
-          windowTopClass: 'ga-console',
-        });
+        
       };
 
       var picker = {

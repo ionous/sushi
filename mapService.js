@@ -95,16 +95,33 @@ angular.module('demo')
         this.bkcolor = bkcolor;
         this.topLayer = new LayerData(this, data);
       };
-      // only 1 deep right now.
-      MapData.prototype.findLayer = function(name) {
-        var layer = this.topLayer;
-        var search = layer.data['layers'];
+      MapData.prototype.findPath = function(path) {
+        var match = function(l, p) {
+          return path == p;
+        };
+        return this.search(this.topLayer.data, match, this.name);
+      };
+      MapData.prototype.findLayer = function(named) {
+        var match = function(l, p) {
+          return l.name == named;
+        };
+        return this.search(this.topLayer.data, match, this.name);
+      };
+      MapData.prototype.search = function(layer, match, path) {
+        var ret;
+        if (match(layer, path)) {
+          return new LayerData(this, layer, path);
+        }
+        var search = layer.layers || [];
         for (var i = 0; i < search.length; ++i) {
-          var raw = search[i];
-          if (name == raw['name']) {
-            return new LayerData(layer.src, raw);
+          var next = search[i];
+          var r = this.search(next, match, [path, next.name].join("/"));
+          if (r) {
+            ret = r;
+            break;
           }
         }
+        return ret;
       };
 
       var mapService = {

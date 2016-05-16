@@ -178,10 +178,7 @@ angular.module('demo')
             } else {
               // yuck, we dont have the object till after its shown.
               next.object = object;
-              next.hitGroup.data = {
-                object: object,
-                path: mapLayer.path,
-              };
+              next.hitGroup.subject = new Subject(object, null, mapLayer.path);
               return child.expand();
             }
           });
@@ -224,24 +221,31 @@ angular.module('demo')
       Context.prototype.addLandingData = function(mapLayer) {
         var slashPath = mapLayer.getPath();
         var grid = mapLayer.getGrid();
-        if (this.object && this.view) {
-          $log.warn("great. now what.");
-        }
-        var subject = this.object || this.view;
-        var pads = LandingService.newLandingPads(subject, slashPath, grid);
-        this.hitGroup.data.pads = pads;
+        // var subject = this.object || this.view;
+        // FIX; obviously we shouldnt be yanking from the hitgroup,
+        // we should track locally.
+        var subject = this.hitGroup.subject;
+        if (!subject) {
+          var msg = "hit group doesnt have a subject";
+          $log.error(msg, slashPath);
+          throw new Error(msg);
+        };
+        if (subject.pads) {
+          var msg = "multiple pads per hit group";
+          $log.error(msg, slashPath);
+          throw new Error(msg);
+        };
+        var pads = LandingService.newLandingPads(subject, grid);
+        subject.pads = pads;
         this.allPads.push(pads);
         //$log.warn("LayerSerice: new landing data", slashPath, pads);
       };
       // create a new child node to represent a zoom/click region
       Context.prototype.newView = function(mapLayer, viewName) {
+        var subject = new Subject(this.object, viewName, mapLayer.path);
         var next = this.newContext({
           mapLayer: mapLayer,
-          hitGroup: this.hitGroup.newHitGroup(viewName, {
-            path: mapLayer.path,
-            object: this.object,
-            view: viewName,
-          }),
+          hitGroup: this.hitGroup.newHitGroup(viewName, subject),
         });
         var child = new Child();
         child.promise = next.addSubLayers(mapLayer).then(function(node) {

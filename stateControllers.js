@@ -8,24 +8,26 @@ var Arrival = function(pos) {
   var lastDir = pt(0, 0);
   var lastDist = 1e8;
   var blocking = 0;
-  var target = false;
-  arrival.setDest = function(newPos) {
-    if (newPos != target) {
-      //$log.info("Arrival: set target", newPos);
-      target = newPos && pt(newPos.x, newPos.y);
+  var dest = false;
+  // 
+  arrival.setDest = function(pos) {
+    var same = (dest && !!pos) ? pt_eq(dest, pos) : (!dest && !pos);
+    if (!same) {
+      dest = pos && pt(pos.x, pos.y);
       lastDist = 1e8;
       blocking = 0;
       return true;
     }
   };
-  // attempt to move to towards "target()" via the "next" position.
-  // only returns a value if we have a target that we are trying to move to.
+  arrival.dest = function() {
+    return dest;
+  };
+  // attempt to move to towards dest via the "next" position.
+  // only returns a value if theres a valid (non-null) destination
   arrival.move = function(next) {
-    if (!target) {
-      pos = next;
-    } else {
+    if (dest) {
       var arrived;
-      var diff = pt_sub(target, next);
+      var diff = pt_sub(dest, next);
       var len = pt_dot(diff, diff);
       var dir = lastDir;
       // found by experimentation
@@ -41,11 +43,11 @@ var Arrival = function(pos) {
         }
         lastDist = l;
         dir = pt_scale(diff, 1.0 / l);
-        var pred = pt_sub(target, pos);
+        var pred = pt_sub(dest, pos);
         var dot = pt_dot(pred, diff);
         arrived = dot <= 0;
       }
-      pos = arrived ? target : next;
+      pos = arrived ? dest : next;
       lastDir = dir;
       return {
         dir: pt(dir.x, dir.y),
@@ -56,6 +58,8 @@ var Arrival = function(pos) {
   };
 };
 
+// interesting that "directive injection" could have/be used for services too;
+// "normalizing" a bit the difference between the two.
 angular.module('demo').directiveAs = function(name, require, fn) {
   var requires = [name].concat(require || []);
   return this.directive(name, function($log) {
@@ -65,12 +69,17 @@ angular.module('demo').directiveAs = function(name, require, fn) {
       link: function(scope, element, attrs, controllers) {
         var ctrl = controllers[0];
         var attr = attrs[name];
-        scope[attr] = ctrl.init.apply([name].concat(controllers.slice(1)));
+        var scopeAs = ctrl.init.apply(ctrl, [name].concat(controllers.slice(1)));
+        if (!scopeAs) {
+          var msg = "directiveAs init returned null";
+          $log.error(msg, name);
+          throw new Error(msg);
+        }
+        scope[attr] = scopeAs;
       },
     }
   });
 };
-
 
 angular.module('demo')
 
@@ -81,11 +90,13 @@ angular.module('demo')
     'down': [83, 40, 98],
     'right': [68, 39, 102]
   };
-  var remap = {};
+  var moveKeys = {}; // index -> name
+  var all = {};
+  var moving = 0;
   for (var k in keyList) {
     var list = keyList[k];
     list.forEach(function(n) {
-      remap[n] = k;
+      moveKeys[n] = k;
     });
   };
   var KeyEvent = function(which, down) {
@@ -96,8 +107,13 @@ angular.module('demo')
   KeyEvent.prototype.shiftKey = function() {
     return this.which == 16;
   };
-  KeyEvent.prototype.moveKey = function() {
-    return remap[this.which];
+  KeyEvent.prototype.moveKey = function(test) {
+    if (angular.isUndefined(test) || (test == this.keydown)) {
+      return moveKeys[this.which];
+    }
+  };
+  KeyEvent.prototype.moving = function() {
+    return moving != 0;
   };
   KeyEvent.prototype.actionKey = function() {
     return (this.which == 32) || (this.which == 13);
@@ -115,7 +131,16 @@ angular.module('demo')
   gaKeys.prototype.init = function(hsmMachine) {
     var el = this.el;
     var handleKey = function(e) {
-      hsmMachine.emit("ga-key", new KeyEvent(e.which, e.type == "keydown"));
+      var keydown = e.type == "keydown";
+      var which = e.which;
+      if (keydown != !!all[which]) {
+        all[which] = keydown;
+        if (moveKeys[which]) {
+          var old = moving;
+          moving += which * (keydown ? 1 : -1);
+        }
+        hsmMachine.emit("ga-key", new KeyEvent(which, keydown));
+      }
     };
     return {
       listen: function(log) {
@@ -146,10 +171,10 @@ angular.module('demo')
 .directive("mouseTarget", function(UpdateService, $log) {
   var MouseTarget = function() {};
   MouseTarget.prototype.init = function(hsmMachine) {
-    var currentTarget, ghost;
+    var currentSubject, ghost;
     // access the current target
     var target = function() {
-      return currentTarget;
+      return currentSubject;
     };
     // hide the ghost as a valid target
     target.ghost = function(target) {
@@ -161,15 +186,18 @@ angular.module('demo')
       // determine whats under the cursor
       var update = function() {
         var shape = hitGroups.hitTest(mouse.pos());
-        var target = shape && shape.group.data;
-        var next = (target !== ghost) ? target : null;
-        if (reset || (next !== currentTarget)) {
+        var subject = shape && shape.group.subject;
+        var next = (subject !== ghost) ? subject : null;
+        if (reset || (next !== currentSubject)) {
           reset = false;
+          // HACK. FIX. NEED CONSISTENT POSITIONING FOR OBJECT/VIEW/STATE
+          if (next) {
+            next.pos = mouse.pos()
+          }
           hsmMachine.emit("mouseTargetChanged", {
-            target: next,
-            path: shape && shape.name
+            target: next
           });
-          currentTarget = next;
+          currentSubject = next;
         }
       };
       UpdateService.update(update);
@@ -182,7 +210,6 @@ angular.module('demo')
         reset = true;
       };
     };
-
     return target;
   };
   return {
@@ -237,6 +264,7 @@ angular.module('demo')
             cursor = null;
           };
           this.show = function(show) {
+            //$log.info("cursor", show);
             cursor.show(!!show);
             if (angular.isString(show)) {
               if (cursor.setCursor(show)) {
@@ -245,13 +273,13 @@ angular.module('demo')
             }
           };
           this.pos = function() {
-            return cursor.pos;
+            return pt(cursor.pos.x, cursor.pos.y);
           };
           this.setAngle = function(pos) {
             var a = 0;
             if (pos) {
               var diff = pt_sub(cursor.pos, pos);
-              var dist = diff.x * diff.x + diff.y * diff.y;
+              var dist = pt_dot(diff, diff);
               if (dist > 1e-3) {
                 var r = pt_scale(diff, 1.0 / Math.sqrt(dist));
                 a = Math.atan2(r.y, r.x);
@@ -347,120 +375,116 @@ angular.module('demo')
   };
 })
 
-.directive("gaResources", function($log) {
-  return {
-    controller: function(ElementSlotService, LayerService, LocationService, MapService, ObjectService, CharaService, CollisionService, UpdateService, $q) {
-      this.init = function(hsmMachine) {
-        var Resources = function() {
-          var gaRes = this;
+.directiveAs("gaResources", ["^^hsmMachine"],
+  function(ElementSlotService, LayerService, LocationService, MapService, ObjectService, CharaService, CollisionService, UpdateService, $log, $q) {
+    this.init = function(name, hsmMachine) {
+      var defer, tree, resources;
+      //
+      var update = function(dt) {
+        resources.player.draw(dt);
+        resources.physics.step(dt);
+        hsmMachine.emit("ga-update", dt);
+      };
 
-          var defer, resources, cancelUpdate;
-          this.unload = function() {
-            if (defer) {
-              defer.reject();
-              defer = null;
-            }
-            UpdateService.stop(cancelUpdate);
-            cancelUpdate = null;
-            var tree = resources.tree;
-            if (tree) {
-              tree.nodes.destroyNode();
-              tree.el.remove();
-            }
-            resources = null;
-          }; //unload
+      this.unload = function() {
+        if (defer) {
+          defer.reject();
+          defer = null;
+        }
+        UpdateService.stop(update);
+        cancelUpdate = null;
+        var tree = resources && resources.tree;
+        if (tree) {
+          tree.nodes.destroyNode();
+          tree.el.remove();
+        }
+        resources = null;
+      }; //unload
 
-          this.load = function(mapSlot, mapData) {
-            if (defer) {
-              throw new Error("already loading");
-            }
-            var mapEl = ElementSlotService.get(mapSlot);
+      // suspicious of exposing resources object directly to scope watchers
+      this.get = function(key) {
+        var ret = resources[key];
+        if (!ret) {
+          var msg = "resource not found";
+          $log.error(msg, key);
+          throw new Error(msg);
+        };
+        return ret;
+      };
 
-            var defer = $q.defer();
-            defer.promise.then(function(res) {
-              resources = res;
-              var tree = res.tree;
-              //
-              gaRes.bounds = tree.bounds;
-              gaRes.hitGroups = tree.nodes.ctx.hitGroup;
-              gaRes.player = res.player;
-              gaRes.physics = res.physics;
-              gaRes.pads = res.pads;
-              gaRes.mapSlot = mapSlot;
-              //
-              LocationService.finishedLoading(res.room);
+      this.load = function(mapSlot, mapData) {
+        if (defer) {
+          throw new Error("already loading");
+        }
+        var mapEl = ElementSlotService.get(mapSlot);
 
-              // FIX: maybe an update state?
-              cancelUpdate = UpdateService.update(function(dt) {
-                res.player.draw(dt);
-                res.physics.step(dt);
-                hsmMachine.emit("ga-update", dt);
-              });
+        var defer = $q.defer();
+        defer.promise.then(function(res) {
+          tree = res.tree;
+          resources = {
+            // bounds: tree.bounds,
+            hitGroups: tree.nodes.ctx.hitGroup,
+            player: res.player,
+            physics: res.physics,
+            pads: res.pads,
+            mapData: res.map,
+            mapEl: mapEl,
+            mapSlot: mapSlot,
+          };
+          // FIX: maybe an update state?
+          UpdateService.update(update);
+          LocationService.finishedLoading(res.room);
+          hsmMachine.emit("ga-resources-loaded", resources);
+        });
 
-              hsmMachine.emit("ga-resources-loaded", res);
-            });
+        // load that darn map.
+        var mapName = mapData.mapName;
+        MapService.getMap(mapName).then(function(map) {
+          $log.debug("MapController: loading map content", mapName);
+          var roomId = mapData.room;
+          //
+          return ObjectService.getById(roomId).then(function(room) {
+            $log.debug("MapController: loading map for", roomId);
 
-            // load that darn map.
-            var mapName = mapData.mapName;
-            MapService.getMap(mapName).then(function(map) {
-              $log.debug("MapController: loading map content", mapName);
-              var roomId = mapData.room;
-              //
-              return ObjectService.getById(roomId).then(function(room) {
-                $log.debug("MapController: loading map for", roomId);
+            // tree contains: el, bounds, nodes
+            var allPads = [];
+            return LayerService.createLayers(mapEl, map, room, allPads).then(function(tree) {
+              // size the view
+              mapData.style = {
+                'position': 'relative',
+                'width': tree.bounds.x + 'px',
+                'height': tree.bounds.y + 'px',
+              };
 
-                // tree contains: el, bounds, nodes
-                var allPads = [];
-                return LayerService.createLayers(mapEl, map, room, allPads).then(function(tree) {
-                  // size the view
-                  mapData.style = {
-                    'position': 'relative',
-                    'width': tree.bounds.x + 'px',
-                    'height': tree.bounds.y + 'px',
-                  };
+              // fix: cant assume all layers have physics.
+              var physicsLayer = map.findLayer("$collide");
+              var physics = CollisionService.newScene(tree.bounds);
+              physics.makeWalls(physicsLayer.getShapes());
 
-                  // fix: cant assume all layers have physics.
-                  var physicsLayer = map.findLayer("$collide");
-                  var physics = CollisionService.newScene(tree.bounds);
-                  physics.makeWalls(physicsLayer.getShapes());
-
-                  // load all the ersource.
-                  var player = CharaService.newChara('player', '/bin/images/princess.png');
-                  $q.all([player]).then(function(all) {
-                    mapData.loaded = true;
-                    defer.resolve({
-                      player: all[0],
-                      tree: tree,
-                      room: room,
-                      map: map,
-                      physics: physics,
-                      pads: allPads,
-                    });
-                  }, function(err) {
-                    defer.reject(err);
-                  }); //$q.all
-                }); // createLayers
-              }); // object service
-            }); // get map
-          }; // load
-        }; // resources
-        return new Resources();
-      }; // init
-    }, // controller
-    require: ["gaResources", "^^hsmMachine"],
-    link: function(scope, element, attrs, controllers) {
-      var ctrl = controllers[0];
-      var hsmMachine = controllers[1];
-      var name = attrs["gaResources"];
-      scope[name] = ctrl.init(hsmMachine);
-    },
-  };
-})
+              // load all the ersource.
+              var player = CharaService.newChara('player', '/bin/images/princess.png');
+              $q.all([player]).then(function(all) {
+                mapData.loaded = true;
+                defer.resolve({
+                  player: all[0],
+                  tree: tree,
+                  room: room,
+                  map: map,
+                  physics: physics,
+                  pads: allPads,
+                });
+              }, function(err) {
+                defer.reject(err);
+              }); //$q.all
+            }); // createLayers
+          }); // object service
+        }); // get map
+      }; // load
+      return this;
+    };
+  })
 
 .directive("avatarControl", function($log) {
-  var getCurrentPad = function(chara, subject) {
-    return subject && subject.pads && subject.pads.getPad(chara.getFeet());
-  };
   var avatarControl = function() {};
   avatarControl.prototype.init = function(hsmMachine, size) {
     this.hsmMachine = hsmMachine;
@@ -487,45 +511,62 @@ angular.module('demo')
     this.moveDir = false;
     this.slideDir = false;
     this.walking = false;
-
-    var avatar = this;
-    ["interact", "direct", "approach"].forEach(function(n) {
-      avatar[n] = function(target) {
-        avatar.emit(n, target);
-      };
+  };
+  avatarControl.prototype.interact = function(target) {
+    if (!(target instanceof Subject)) {
+      throw new Error("not target");
+    };
+    this.hsmMachine.emit("interact", {
+      target: target
     });
+  };
+  // maybe pull machine into scope instead?
+  avatarControl.prototype.approach = function(target, pos) {
+    if (target && !(target instanceof Subject)) {
+      throw new Error("not target");
+    };
+    this.hsmMachine.emit("approach", {
+      target: target,
+      pos: pos,
+    });
+  };
+  avatarControl.prototype.direct = function() {
+    this.hsmMachine.emit("direct");
   };
   avatarControl.prototype.walk = function(yesNo) {
     //$log.debug("avatar: walk", yesNo);
     this.walking = yesNo;
   };
   avatarControl.prototype.nudge = function(moveKey, yesNo) {
-    var b = this.buttons;
-    b[moveKey] = yesNo ? 1 : 0;
-    //
-    var diff = pt(b.right - b.left, b.down - b.up);
-    var len = pt_dot(diff, diff);
-    //
-    var slide = (len >= 1e-3) && pt_scale(diff, 1.0 / Math.sqrt(len));
-    this.slideDir = slide;
-    //$log.debug("avatar: nudge", slide);
+    if (!moveKey && angular.isUndefined(yesNo)) {
+      this.slideDir = false;
+      this.resetMove();
+    } else if (moveKey) {
+      var b = this.buttons;
+      b[moveKey] = yesNo ? 1 : 0;
+      //
+      var diff = pt(b.right - b.left, b.down - b.up);
+      var len = pt_dot(diff, diff);
+      //
+      var slide = (len >= 1e-3) && pt_scale(diff, 1.0 / Math.sqrt(len));
+      this.slideDir = slide;
+      //$log.debug("avatar: nudge", moveKey, yesNo, b, slide);
+    }
   };
   // move in the normalized direction
   avatarControl.prototype.move = function(dir) {
     this.moveDir = dir;
+    this.resetMove();
   };
-  // maybe pull machine into scope instead?
-  avatarControl.prototype.emit = function(kind, target) {
-    //$log.info("avatar: emit", kind, target && target.path);
-    this.hsmMachine.emit(kind, {
-      target: target
-    });
-  };
-  avatarControl.prototype.update = function() {
+  avatarControl.prototype.resetMove = function() {
     if (!this.moveDir && !this.slideDir) {
       this.prop.setVel(false);
       this.chara.setSpeed(false);
-    } else {
+      return true;
+    }
+  };
+  avatarControl.prototype.update = function() {
+    if (!this.resetMove()) {
       // animation facing.
       var face = this.moveDir || this.slideDir;
       this.chara.setFacing(face.x, face.y);
@@ -549,14 +590,25 @@ angular.module('demo')
     var corner = pt_sub(next, this.chara.feet);
     return pt_add(corner, this.chara.center);
   };
-  avatarControl.prototype.faceTarget = function(target) {
-    $log.info("avatar: face target");
-    var pad = getCurrentPad(this.chara, target);
-    this.chara.faceTarget(pad);
+  avatarControl.prototype.face = function(target, pos) {
+    // var pad = target && target.getCurrentPad(this.chara.getFeet());
+    // if (pad) {
+    //   this.chara.faceTarget(pad);
+    // }
+    var src = target ? this.chara.getFeet() : this.chara.getCenter();
+    var diff = pt_sub(pos, src);
+    var mag = pt_dot(diff, diff);
+
+    if (mag > 1e-3) {
+      var dir = pt_scale(diff, 1.0 / Math.sqrt(mag));
+      //$log.info("avatar: face target", dir.x, dir.y);
+      this.chara.setFacing(dir.x, dir.y);
+    }
+
   };
   // returns the closest subject the avatar is standing on.
   // in order to open the action bar -- interact
-  avatarControl.prototype.getLandingSubject = function() {
+  avatarControl.prototype.landing = function() {
     var close;
     var src = this.chara.getFeet();
     this.pads.forEach(function(pads) {
@@ -565,11 +617,13 @@ angular.module('demo')
         close = pad;
       }
     });
+    // pad subject comes from add+andingData: object || view
     return close && close.subject;
   };
   // returns true if the avatar is standing on the landing pads of the target.
   avatarControl.prototype.onLandingPads = function(target) {
-    return target && getCurrentPad(this.chara, target);
+    var pad = target && target.getCurrentPad(this.chara.getFeet());
+    return !!pad;
   };
 
   return {
@@ -616,98 +670,87 @@ angular.module('demo')
   };
 })
 
-.directive("moveControl", function($log) {
-  // moves the avatar to the 
-  var MoveControl = function() {
-    this.hsmMachine;
-    this.avatar; // avatar ctrl
-    this.target; // target (subject)
-    this.arrival; // move helper
-    this.stopped;
-  };
-  MoveControl.prototype.init = function(hsmMachine) {
-    this.hsmMachine = hsmMachine;
-    return this;
-  };
-  MoveControl.prototype.start = function(avatar, target) {
-    this.avatar = avatar;
-    this.target = target;
-    var start = this.getPhysicalPos();
-    this.arrival = new Arrival(start);
-    if (target) {
-      this.setTarget(target);
-    }
-  };
-  MoveControl.prototype.getPhysicalPos = function() {
-    return this.target ? this.avatar.getFeet() : this.avatar.getCenter();
-  };
-  MoveControl.prototype.stop = function() {
-    this.avatar.move(false);
-    this.stopped = true;
-  };
-  MoveControl.prototype.setPos = function(pos) {
-    this.target = null;
-    if (this.arrival.setDest(pos)) {
-      this.stopped = false
-    }
-  };
-  MoveControl.prototype.setTarget = function(target) {
-    //object:Entity
-    //pads:LandingPads
-    //path:string
-    var pos;
-    this.target = target;
-    if (target) {
-      if (target.objectDisplay) {
-        var p = target.objectDisplay.pos;
-        var c = target.objectDisplay.canvas.el[0];
-        var w = c.width * 0.5;
-        var h = c.height * 0.5;
-        pos = pt(p.x + w, p.y + h);
-      }
-      if (target.pads) {
-        var pad = target.pads.getClosestPad(this.avatar.getFeet());
-        if (pad) {
-          pos = pad.getCenter();
-        }
-      }
-    }
-    if (this.arrival.setDest(pos)) {
-      this.stopped = false;
-    }
-  };
-  MoveControl.prototype.update = function(dt) {
-    if (!this.stopped) {
-      // 1. move character to physics location
-      var next = this.getPhysicalPos();
-      var arrives = this.arrival.move(next);
+.directiveAs("moveControl", ["^^gaResources", "^^hsmMachine"],
+    function($log) {
+      // moves the avatar to the 
+      var gaResources, hsmMachine,
+        avatar, // avatar ctrl
+        target, // Subject or null
+        arrival, // move helper
+        forceRetarget;
+      var getPhysicalPos = function() {
+        return target ? avatar.getFeet() : avatar.getCenter();
+      };
 
-      // 2. sets vel of physics ( dir + walking speed )
-      if (arrives) {
-        if (arrives.arrived || arrives.blocked) {
-          this.hsmMachine.emit(arrives.blocked ? "move-blocked" : "move-arrived", {
-            target: this.target
-          });
-          this.stop();
-        } else {
-          this.avatar.move(arrives.dir);
+      this.init = function(name, gaResources_, hsmMachine_) {
+        hsmMachine = hsmMachine_;
+        gaResources = gaResources_;
+        return this;
+      };
+      this.target = function() {
+        return target;
+      };
+      this.start = function(_avatar, _target, pos) {
+        if (_target && !(_target instanceof Subject)) {
+          throw new Error("invalid target");
         }
-      }
-      // 3. draws character: already in ga-resources update
-      // 4. runs physics: already in ga-resources update
-    }
-  };
-  return {
-    controller: MoveControl,
-    require: ["moveControl", "^^hsmMachine"],
-    link: function(scope, element, attrs, controllers) {
-      var ctrl = controllers[0];
-      var hsmMachine = controllers[1];
-      var name = attrs["moveControl"];
-      scope[name] = ctrl.init(hsmMachine);
-    },
-  };
-})
+        avatar = _avatar;
+        arrival = new Arrival(getPhysicalPos());
+        target = _target;
+        if (!target) {
+          arrival.setDest(pos);
+        }
+        forceRetarget = true;
+      };
+      // pass false to stop
+      this.moveTo = function(pos) {
+        if (!pos) {
+          var msg = "move to invalid position";
+          $log.error(msg, pos);
+          throw new Error(msg);
+        }
+        target = null;
+        arrival.setDest(pos);
+      };
+      this.stop = function() {
+        $log.info("stopped!");
+        arrival.setDest(false);
+        avatar.move(false);
+      };
+      var setTarget = this.setTarget = function(_target) {
+        target = _target;
+        forceRetarget = true;
+      };
+      this.update = function(dt, retarget) {
+        var next = getPhysicalPos();
+        if (target && (retarget || forceRetarget)) {
+          var pos = target.pos;
+          if (target.pads) {
+            var pad = target.pads.getClosestPad(target);
+            if (pad) {
+              pos = pad.getCenter();
+            }
+          }
+          arrival.setDest(pos)
+          forceRetarget = false;
+        }
+
+        // 1. move character to physics location
+        var arrives = arrival.move(next);
+        if (arrives) {
+          if (arrives.arrived || arrives.blocked) {
+            hsmMachine.emit(arrives.blocked ? "move-blocked" : "move-arrived", {
+              target: target
+            });
+          } else {
+            // 2. sets vel of physics ( dir + walking speed )
+            avatar.move(arrives.dir);
+          }
+        }
+        // 3. draws character: already in ga-resources update
+        // 4. runs physics: already in ga-resources update
+      };
+    }) // move control
 
 .directiveAs("consoleControl", ["^^hsmMachine"], function($log, $uibModal) {
   this.init = function(name, hsmMachine) {
@@ -743,62 +786,100 @@ angular.module('demo')
   };
 })
 
-.directiveAs("inventoryControl", ["^^hsmMachine"], function() {
-  this.init = function(name, hsmMachine) {
+.directiveAs("inventoryControl", ["^^hsmMachine"],
+  function() {
+    var ctrl = this;
+    this.init = function(name, hsmMachine) { //
+      return ctrl;
+    };
+  })
 
-  };
-})
+.directiveAs("settingsControl", ["^^hsmMachine"],
+  function() {
+    var ctrl = this;
+    this.init = function(name, hsmMachine) { //
+      return ctrl;
+    };
+  })
 
-.directiveAs("settingsControl", ["^^hsmMachine"], function() {
-  this.init = function(name, hsmMachine) {
+.directiveAs("actionBar", ["^^gaResources", "^^hsmMachine"],
+  function(ActionListService, CombinerService, IconService,
+    $log, $q, $uibModal) {
+    this.init = function(name, gaResources, hsmMachine) {
+      var modal;
+      this.hide = function() {
+        if (modal) {
+          modal.dismiss();
+          modal = null;
+        }
+      };
+      this.show = function(target) {
+        if (modal) {
+          modal.dismiss();
+          modal = null;
+        }
 
-  };
-})
+        $log.info("showing action bar", target);
 
-.directive("actionBar", function(ActionBarService, CombinerService) {
-  var ActionBar = function() {
-    this.bar = false;
-  };
-  ActionBar.prototype.init = function(hsmMachine) {};
-  ActionBar.prototype.open = function(target) {
-    // FIX: client pos should be either the location of the click-to-move object
-    // or the location of the mouse currently.
-    this.close();
+        var barpos = target.pos;
+        modal = $uibModal.open({
+          templateUrl: 'actionBar.html',
+          controllerAs: name,
+          controller: function(actions) {
+            var bar = this;
+            if (barpos) {
+              bar.style = {
+                left: "" + (barpos.x) + "px",
+                top: "" + (barpos.y) + "px",
+              };
+            }
+            bar.actions = actions.actions;
+            bar.zoom = actions.zoom;
 
-    var bar = this.bar = ActionBarService.getActionBar(clientPos, subject);
-    bar.onOpen(function() {
-      $log.info("uxActionBar: opened action bar for", subject.path);
-      $rootScope.$broadcast("window change", "actionBar");
-      $rootScope.actionBar = bar;
-      // listen to window changes to close; 
-      // remove the listener when we close.
-      var off = $rootScope.$on("window change", function(_, src) {
-        bar.close("uxActionBar: window change " + src);
-      });
-      bar.onClose(function() {
-        CombinerService.setCombiner(null);
-        $rootScope.actionBar = false;
-        off();
-      });
-    });
-  };
-  ActionBar.prototype.close = function(reason) {
-    if (this.bar) {
-      this.bar.close(reason);
-      this.bar = false;
-    }
-  };
-
-  return {
-    controller: ActionBar,
-    require: ["actionBar", "^^hsmMachine"],
-    link: function(scope, element, attrs, controllers) {
-      var ctrl = controllers[0];
-      var hsmMachine = controllers[1];
-      ctrl.init(hsmMachine);
-      // 
-      var name = attrs["actionBar"];
-      scope[name] = ctrl;
-    },
-  };
-});
+            bar.runAction = function(act) {
+              modal.close("run");
+              // return bar.runAction(act);
+            };
+            bar.zoomView = function(act) {
+              modal.close("zoom");
+              // return bar.zoomView(act);
+            };
+          }, // controller
+          appendTo: gaResources.get('mapEl'),
+          animation: false,
+          backdrop: false,
+          windowClass: "ga-action-win",
+          windowTopClass: "ga-action-top",
+          resolve: {
+            actions: ActionListService.then(function(actionList) {
+              var pendingActions;
+              var obj = target.object;
+              var combining = CombinerService.getCombiner();
+              if (obj) {
+                if (!combining) {
+                  pendingActions = actionList.getObjectActions(obj);
+                } else {
+                  pendingActions = actionList.getMultiActions(obj, combining);
+                }
+              } // obj
+              return $q.when(pendingActions).then(function(actions) {
+                var zoom = target.view && IconService.getIcon("$zoom");
+                if (!actions && !zoom) {
+                  throw new Error("no actions found");
+                }
+                return {
+                  actions: actions,
+                  //combining: combining,
+                  zoom: zoom,
+                };
+              });
+            }),
+          }, // resolve
+        }); // model.open
+        modal.closed.then(function() {
+          CombinerService.setCombiner(null);
+        }); // closed
+      }; // show
+      return this;
+    }; //init
+  }); //actionBar

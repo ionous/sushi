@@ -1,27 +1,8 @@
-<!-- player avatar control -->
-<hsm-state>
-  <hsm-event on="interact" goto="Plan"></hsm-event>
-  <hsm-state name="Plan">
-    <hsm-event on="mousedown" run="avatar.face(mouseTarget(), mouse.pos())"></hsm-event>
-    <hsm-event on="direct" goto="Directing"></hsm-event>
-    <hsm-event on="approach" run="avatar.onLandingPads($evt.target) ? avatar.interact($evt.target) : 'Pathing'"></hsm-event>
-  </hsm-state>
-  <!-- move the avatar to a specific target ( or position ) until interrupted-->
-  <hsm-state name="Pathing" move-control="pathing" hsm-enter="pathing.start(avatar, $evt.target,$evt.pos)" hsm-exit="pathing.stop()">
-    <hsm-event on="ga-key" when="$evt.escapeKey()" goto="Plan"></hsm-event>
-    <hsm-event on="ga-key" when="$evt.moveKey()" goto="Plan"></hsm-event>
-    <hsm-event on="mousedown" goto="Plan"></hsm-event>
-    <hsm-event on="move-arrived" run="pathing.target() ? avatar.interact(pathing.target()) : 'Plan'"></hsm-event>
-    <hsm-event on="move-blocked" run="pathing.target() ? avatar.interact(pathing.target()) : 'Plan'"></hsm-event>
-    <hsm-event on="ga-update" run="pathing.update($evt.dt)"></hsm-event>
-    <!-- maybe move-blocked? -->
-  </hsm-state>
-  <!-- move the avatar towards the mouse so long as the mouse is held down -->
-  <hsm-state name="Directing" move-control="director" hsm-enter="director.start(avatar)" hsm-exit="director.stop()">
+<hsm-state name="Directing" move-control="director" hsm-enter="director.start(avatar)" hsm-exit="director.stop()">
     <hsm-state hsm-enter="mouseTarget.ghost(avatar.object)" hsm-exit="mouseTarget.ghost(false)">
       <hsm-event on="mouseTargetChanged" run="$evt.target ? 'PlayerDirectTarget' : 'PlayerDirectPos'"></hsm-event>
       <!-- end the move -->
-      <hsm-event on="mouseup" goto="Plan"></hsm-event>
+      <hsm-event on="mouseup" goto="Planning"></hsm-event>
       <hsm-event on="move-arrived" run="log.info('arrived!')"></hsm-event>
       <!-- <hsm-event on="move-blocked" run="log.info('blocked!')"></hsm-event> -->
       <!-- execute the move -->
@@ -44,4 +25,3 @@
       </div>
     </hsm-state>
   </hsm-state>
-</hsm-state>

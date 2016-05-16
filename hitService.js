@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * HitService produces hit rects, which can be being z-depth.
+ * HitService produces hit rects with z-depth.
  * Each group can carry user data. 
  * Groups can "contain" other rects -- they sub-rects are guarenteed to be "below" the parent rects.
  */
@@ -13,21 +13,20 @@ angular.module('demo')
         return (p.x >= r.min.x) && (p.y >= r.min.y) && (p.x < r.max.x) && (p.y < r.max.y);
       };
       //
-      var HitGroup = function(name, parent, data) {
+      var HitGroup = function(name, parent, subject) {
         this.name = name;
         this.parent = parent;
         // currently, we keep a single list of children:
-        // groups at the front, shapes at the back;
-        // hit testing works in reverse order: 
+        // groups at the front, shapes at the back
         // the most recent shape is most on top; sublayers are beneath.
         // might instead keep a big sorted list of shapes and calculate a true z-index.
         // alice might need this. 
         // for her sake - we might give groups a z-index -- and simply check her bounds and z after the groups check.
         this.children = [];
-        this.data = data;
+        this.subject = subject;
       };
-      HitGroup.prototype.newHitGroup = function(name, data) {
-        var child = new HitGroup(name, this, data);
+      HitGroup.prototype.newHitGroup = function(name, subject) {
+        var child = new HitGroup(name, this, subject);
         this.children.unshift(child);
         return child;
       };
@@ -37,9 +36,8 @@ angular.module('demo')
           return ch !== child;
         });
       };
-      // note: we only ever hit shapes,
-      // but shapes have parents, so we can get the group
-      // and from there we can get the group user data.
+      // note: we only ever hit "shapes",
+      // but shapes have parents, which yield a group with user data.
       HitGroup.prototype.hitTest = function(where, debug) {
         var ret = null;
         for (var i = 0; i < this.children.length; i += 1) {
@@ -58,7 +56,8 @@ angular.module('demo')
       // create a hit shape in the group for the passed map layer
       HitGroup.prototype.newHitShape = function(mapLayer) {
         var hitShape;
-        if (this.data && mapLayer.getName().indexOf("x-") && !mapLayer.has("noclick")) {
+        // hack: testing for this.subject ignores the room itself as a shape.
+        if (this.subject && mapLayer.getName().indexOf("x-") && !mapLayer.has("noclick")) {
           var slashPath = mapLayer.getPath(); // fix, probably want real heirachy path
           var grid = mapLayer.getGrid();
           if (grid) {
@@ -92,7 +91,7 @@ angular.module('demo')
         this.children.push(child);
         return child;
       };
-
+      
       //
       var GridShape = function(name, group, bounds, grid) {
         this.name = name;
@@ -113,7 +112,6 @@ angular.module('demo')
             hit = grid.tile[index];
           }
         }
-
         return hit && this;
       };
 
@@ -138,8 +136,8 @@ angular.module('demo')
       //
       var rootHitGroup = new HitGroup("root");
       var service = {
-        newHitGroup: function(name, data) {
-          return rootHitGroup.newHitGroup(name, data);
+        newHitGroup: function(name, subject) {
+          return rootHitGroup.newHitGroup(name, subject);
         },
       };
       return service;

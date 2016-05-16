@@ -5,10 +5,12 @@
 }
 */
 
+
 /*.ga-debug {
   visibility: hidden;
 }
 */
+
 body {
   /*background-color: aliceblue;*/
   width: 800px;
@@ -37,6 +39,27 @@ body {
   color: lightsteelblue;
   pointer-events: none;
   text-shadow: 1px 0px #2e6da4, -1px 0px #2e6da4, 0px 1px #2e6da4, 0px -1px #2e6da4, 1px 1px 2px black;
+}
+
+
+/* 
+  override modal fixed
+*/
+
+.ga-action-win {
+  position: absolute;
+}
+
+.ga-action-win > .modal-dialog {
+  margin: 0;
+}
+
+.ga-action-win > .modal-dialog > .modal-content {
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  -o-border-radius: 0px;
+  border-radius: 0px;
+  border: 0px;
 }
 
 body > canvas {

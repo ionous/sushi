@@ -1,7 +1,7 @@
 'use strict';
 
 /** 
- * handle game startup and keep a "tap" on the game service object throughout the lifetime of the angular application.
+ * action bar template helper, for arranging action icons in a circle
  */
 angular.module('demo')
   .controller('ActionController',
@@ -21,6 +21,7 @@ angular.module('demo')
         var bar = $scope.actionBar;
         return angular.isUndefined(idx) ? (len - 1) : idx;
       }
+      // return left and right positioning based on index
       $scope.actionStyle = function(idx) {
         var len= length();
         var idx = index(idx, len);

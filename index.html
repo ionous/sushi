@@ -27,9 +27,9 @@
   <!--  main, routes, etc. -->
   <script src="/script/p2.min.js" type="text/javascript"></script>
   <script src="demo.js"></script>
+  <script src="subject.js"></script>
   <!--  services -->
   <script src="actionService.js"></script>
-  <script src="actionBarService.js"></script>
   <script src="actionListService.js"></script>
   <script src="canvasService.js"></script>
   <script src="charaService.js"></script>
@@ -57,9 +57,6 @@
   <script src="viewReturnService.js"></script>
   <script src="watcherService.js"></script>
   <script src="updateService.js"></script>
-  <script src="uxDynamicService.js"></script>
-  <script src="uxStaticService.js"></script>
-  <script src="uxUtils.js"></script>
   <!-- directives -->
   <script src="directives.js"></script>
   <!-- components  -->
@@ -93,17 +90,16 @@
 
 <body ng-app="demo" ng-controller="GameController" hsm-machine="machine" hsm-log="log" hsm-transition="log.warn('transitioning', $source.name, '->', $target.name)">
   <!--  hsm-enter="log.enter($state)" hsm-exit="log.exit($state)"-->
-  <ng-include src="'states.html'"></ng-include>
   <header id="status-bar" ng-controller="StatusController">
     <span class="ga-noselect" id="status-left">{{status.left}}</span>
     <span class="ga-noselect" id="status-right">{{status.right}}</span>
   </header>
   <!-- actions held out above ga-play to handle mouse/offset display of menu;
   the alternative would be to add the action bar to root dynamically, but angular doesnt like custom elements being attached to the dom via script. -->
-  <div ng-include="'actionBar.html'"></div>
+  <ng-include src="'states.html'"></ng-include>
   <div class="talk ga-noselect" ng-controller="TalkController"></div>
   <div id="ga-play" class="ga-noselect" ga-map-color>
-    <div ng-view></div>
+    <div ng-view="'play.html'"></div>
     <div ng-include="'buttonBar.html'"></div>
     <div ng-controller="ResponseController"></div>
     <div ng-include="'combineBox.html'"></div>
