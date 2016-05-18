@@ -55,25 +55,25 @@ angular
             _viewController: getViewController,
             _itemController: getItemController,
           },
-        })
-        //ex. http://localhost:8080/demo/#/rooms/automat
-        .when('/rooms/', {
-          templateUrl: 'roomsList.html',
-          controller: 'RoomsListController'
-        })
-        .when('/rooms/:roomId', {
-          templateUrl: 'roomPreview.html',
-          controller: 'RoomPreviewController'
-        })
-        //ex. http://localhost:8080/demo/#/icons/examine
-        .when('/icons/:iconId', {
-          templateUrl: 'iconPreview.html',
-          controller: 'IconPreviewController'
-        })
-        //ex. http://localhost:8080/demo/#/icons/examine
-        .when('/icons/', {
-          templateUrl: 'iconPreview.html',
-          controller: 'IconPreviewController'
         });
+        //ex. http://localhost:8080/demo/#/rooms/automat
+        // .when('/rooms/', {
+        //   templateUrl: 'roomsList.html',
+        //   controller: 'RoomsListController'
+        // })
+        // .when('/rooms/:roomId', {
+        //   templateUrl: 'roomPreview.html',
+        //   controller: 'RoomPreviewController'
+        // })
+        // //ex. http://localhost:8080/demo/#/icons/examine
+        // .when('/icons/:iconId', {
+        //   templateUrl: 'iconPreview.html',
+        //   controller: 'IconPreviewController'
+        // })
+        // //ex. http://localhost:8080/demo/#/icons/examine
+        // .when('/icons/', {
+        //   templateUrl: 'iconPreview.html',
+        //   controller: 'IconPreviewController'
+        // });
     }
   ]);

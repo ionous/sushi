@@ -8,9 +8,11 @@ angular.module('demo')
     function($log, $q) {
       var fns = [];
 
+      var frame = 0;
       var lastTime;
       var request, timer;
       var update = function(time) {
+        //$log.info("update", frame);
         if (lastTime) {
           var dt = (time - lastTime) * 0.001;
           fns.forEach(function(fn) {
@@ -19,6 +21,7 @@ angular.module('demo')
         }
         lastTime = time;
         timer = request(update);
+        frame += 1;
       };
 
       require(["/script/request-frame/dist/request-frame.min.js"],
@@ -33,6 +36,9 @@ angular.module('demo')
         });
 
       var service = {
+        debugFrame: function() {
+          return frame;
+        },
         update: function(fn) {
           fns.push(fn);
           return fn;

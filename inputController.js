@@ -6,32 +6,11 @@
 angular.module('demo')
   .controller('InputController',
     function(TextService, GameService, $log, $scope) {
-      $scope.userInput = '';
-      $scope.processing = false;
-
-      var clear = function() {
-        $scope.processing = false;
-      };
-
-      $scope.submit = function() {
-        var input = $scope.userInput;
-        //$log.info("SUBMIT", input);
-        
-        if (input && !$scope.processing) {
-          // wait till done...
-          $scope.processing = true;
-
-          // clear input box.
-          $scope.userInput = '';
-
-          TextService.echo("> " + input);
-
-          GameService.getPromisedGame().then(function(game) {
-            game.postGameData({
-              'in': input
-            }).then(clear, clear);
-          });
-        } // input
+      this.userInput = '';
+      this.reset = function() {
+        var input = this.userInput;
+        this.userInput = '';
+        return input;
       }; // submit
     } //controller
   );

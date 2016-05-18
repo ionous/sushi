@@ -308,7 +308,7 @@ angular.module('demo')
                 //$log.info("LayerService: displaying object", ctx.object.id, displayGroup.pos);
                 ctx.object.objectDisplay = {
                   group: displayGroup,
-                  canvas: canvi
+                  canvi: canvi
                 };
               }
             }

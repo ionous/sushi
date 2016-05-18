@@ -58,429 +58,632 @@ var Arrival = function(pos) {
   };
 };
 
-// interesting that "directive injection" could have/be used for services too;
-// "normalizing" a bit the difference between the two.
-angular.module('demo').directiveAs = function(name, require, fn) {
-  var requires = [name].concat(require || []);
-  return this.directive(name, function($log) {
-    return {
-      controller: fn,
-      require: requires,
-      link: function(scope, element, attrs, controllers) {
-        var ctrl = controllers[0];
-        var attr = attrs[name];
-        var scopeAs = ctrl.init.apply(ctrl, [name].concat(controllers.slice(1)));
-        if (!scopeAs) {
-          var msg = "directiveAs init returned null";
-          $log.error(msg, name);
-          throw new Error(msg);
-        }
-        scope[attr] = scopeAs;
-      },
-    }
-  });
-};
-
-angular.module('demo')
-
-.directive("gaKeys", function($log) {
+var makeMoveKeys = function(moveKeys) {
   var keyList = {
     'up': [87, 38, 104],
     'left': [65, 37, 100],
     'down': [83, 40, 98],
     'right': [68, 39, 102]
   };
-  var moveKeys = {}; // index -> name
-  var all = {};
-  var moving = 0;
   for (var k in keyList) {
     var list = keyList[k];
     list.forEach(function(n) {
       moveKeys[n] = k;
     });
   };
-  var KeyEvent = function(which, down) {
-    this.which = which;
-    this.keydown = down;
-    this.keyup = !down;
-  };
-  KeyEvent.prototype.shiftKey = function() {
-    return this.which == 16;
-  };
-  KeyEvent.prototype.moveKey = function(test) {
-    if (angular.isUndefined(test) || (test == this.keydown)) {
-      return moveKeys[this.which];
+  return moveKeys;
+};
+
+// interesting that "directive injection" could have/be used for services too;
+// "normalizing" a bit the difference between the two.
+angular.module('demo')
+  .directiveAs = function(directiveName, requireOrFn, fnOpt) {
+    var require, fn;
+    if (!fnOpt) {
+      fn = requireOrFn;
+    } else {
+      require = requireOrFn;
+      fn = fnOpt;
     }
-  };
-  KeyEvent.prototype.moving = function() {
-    return moving != 0;
-  };
-  KeyEvent.prototype.actionKey = function() {
-    return (this.which == 32) || (this.which == 13);
-  };
-  KeyEvent.prototype.escapeKey = function() {
-    return this.keyup && (this.which == 27);
-  };
-  //
-  var reflectList = [
-    "keyup", "keydown"
-  ];
-  var gaKeys = function($rootElement) {
-    this.el = $rootElement;
-  };
-  gaKeys.prototype.init = function(hsmMachine) {
-    var el = this.el;
-    var handleKey = function(e) {
-      var keydown = e.type == "keydown";
-      var which = e.which;
-      if (keydown != !!all[which]) {
-        all[which] = keydown;
-        if (moveKeys[which]) {
-          var old = moving;
-          moving += which * (keydown ? 1 : -1);
-        }
-        hsmMachine.emit("ga-key", new KeyEvent(which, keydown));
-      }
-    };
-    return {
-      listen: function(log) {
-        reflectList.forEach(function(r) {
-          el.on(r, handleKey);
-        });
-      },
-      silence: function() {
-        reflectList.forEach(function(r) {
-          el.off(r, handleKey);
-        });
-      },
-    };
-  };
-
-  return {
-    controller: gaKeys,
-    require: ["gaKeys", "^^hsmMachine"],
-    link: function(scope, element, attrs, controllers) {
-      var ctrl = controllers[0];
-      var hsmMachine = controllers[1];
-      var name = attrs["gaKeys"];
-      scope[name] = ctrl.init(hsmMachine);
-    },
-  };
-})
-
-.directive("mouseTarget", function(UpdateService, $log) {
-  var MouseTarget = function() {};
-  MouseTarget.prototype.init = function(hsmMachine) {
-    var currentSubject, ghost;
-    // access the current target
-    var target = function() {
-      return currentSubject;
-    };
-    // hide the ghost as a valid target
-    target.ghost = function(target) {
-      ghost = target;
-    };
-    // start updating the current target
-    target.bind = function(mouse, hitGroups) {
-      var reset = true;
-      // determine whats under the cursor
-      var update = function() {
-        var shape = hitGroups.hitTest(mouse.pos());
-        var subject = shape && shape.group.subject;
-        var next = (subject !== ghost) ? subject : null;
-        if (reset || (next !== currentSubject)) {
-          reset = false;
-          // HACK. FIX. NEED CONSISTENT POSITIONING FOR OBJECT/VIEW/STATE
-          if (next) {
-            next.pos = mouse.pos()
+    var requires = [directiveName].concat(require || []);
+    return this.directive(directiveName, function($log) {
+      return {
+        controller: fn,
+        require: requires,
+        link: function(scope, element, attrs, controllers) {
+          var ctrl = controllers[0];
+          var directiveAttr = attrs[directiveName];
+          var scopeAs = ctrl.init.apply(ctrl, [directiveAttr].concat(controllers.slice(1)));
+          if (!scopeAs) {
+            var msg = "directiveAs init returned null";
+            $log.error(msg, directiveName, directiveAttr);
+            throw new Error(msg);
           }
-          hsmMachine.emit("mouseTargetChanged", {
-            target: next
-          });
-          currentSubject = next;
+          scope[directiveAttr] = scopeAs;
+        },
+      }
+    });
+  };
+
+angular.module('demo')
+
+// expose service as directive
+.directiveAs("textControl",
+  function(TextService, $q) {
+    this.init = function() {
+      return {
+        addLines: function(tgt, data) {
+          return $q.when(TextService.addLines(tgt, data));
         }
-      };
-      UpdateService.update(update);
-      // stop updating the current target
-      this.release = function() {
-        UpdateService.stop(update);
-      };
-      // force a mouse target change next update
-      this.reset = function() {
-        reset = true;
       };
     };
-    return target;
-  };
-  return {
-    controller: MouseTarget,
-    require: ["mouseTarget", "^^hsmMachine"],
-    link: function(scope, element, attrs, controllers) {
-      var ctrl = controllers[0];
-      var hsmMachine = controllers[1];
+  })
 
-      var name = attrs["mouseTarget"];
-      scope[name] = ctrl.init(hsmMachine);
-    },
-  };
-})
-
-.directive("mouseControl", function() {
-  // eventually what i want is to track the mouse always so i can tell in out of bounds at all time.
-  var reflectList = "mouseenter mouseleave mousemove mousedown mouseup";
-  return {
-    controller: function(CursorService, ElementSlotService, $log) {
-
-      this.init = function(hsmMachine) {
-        var cursor, el;
-        // exposed to scope
-        var Mouse = function() {
-          // jquery (sometimes?) fakes the event names
-          var reflect = function(evt) {
-            var name;
-            switch (evt.type) {
-              case "mouseover":
-                name = "mouseenter";
-                break;
-              case "mouseout":
-                name = "mouseleave";
-                break;
-              default:
-                name = evt.type;
-                break;
-            };
-            hsmMachine.emit(name, evt);
-          };
-          this.createAt = function(name) {
-            el = ElementSlotService.get(name);
-            cursor = CursorService.newCursor(el);
-            el.on(reflectList, reflect);
-          };
-          this.destroy = function() {
-            cursor.show(false);
-            el.off(reflectList, reflect);
-            el = null;
-            cursor.destroyCursor();
-            cursor = null;
-          };
-          this.show = function(show) {
-            //$log.info("cursor", show);
-            cursor.show(!!show);
-            if (angular.isString(show)) {
-              if (cursor.setCursor(show)) {
-                cursor.setAngle(0);
-              }
-            }
-          };
-          this.pos = function() {
-            return pt(cursor.pos.x, cursor.pos.y);
-          };
-          this.setAngle = function(pos) {
-            var a = 0;
-            if (pos) {
-              var diff = pt_sub(cursor.pos, pos);
-              var dist = pt_dot(diff, diff);
-              if (dist > 1e-3) {
-                var r = pt_scale(diff, 1.0 / Math.sqrt(dist));
-                a = Math.atan2(r.y, r.x);
-              }
-            }
-            cursor.setAngle(a);
-          };
-          this.inBounds = function() {
-            return cursor.present;
-          };
-        }; // Mouse
-        return new Mouse();
-      };
-    },
-    require: ["mouseControl", "^^hsmMachine"],
-    link: function(scope, element, attrs, controllers) {
-      var mouse = controllers[0];
-      var hsmMachine = controllers[1];
-      var name = attrs["mouseControl"];
-      scope[name] = mouse.init(hsmMachine);
-    },
-  };
-})
-
-.factory('ElementSlotService', function($log) {
-  var elements = {};
-  var service = {
-    bind: function(name, element) {
-      if (elements[name]) {
-        var msg = "Element slot already bound";
-        $log.error(msg, name);
-        throw new Error(msg);
-      };
-      elements[name] = element;
-      element.on("$destroy", function() {
-        delete elements[name];
-      });
-    },
-    get: function(name) {
-      var el = elements[name];
-      if (!el) {
-        var msg = "Element slot not bound";
-        $log.error(msg, name);
-        throw new Error(msg);
-      }
-      return el;
-    }
-  };
-  return service;
-})
-
-// currently, ng-view creates and destroys the map element dynamically
-// we use that as our hook to start and stop loading data
-// we stuff the loaded into the map's element.
-.directive("gaMap", function($log) {
-  return {
-    controller: function($element, $scope, ElementSlotService) {
-      this.init = function(mapSlot, hsmMachine) {
-        ElementSlotService.bind(mapSlot, $element);
-        //
-        var mapData = {
-          mapName: $scope.item || $scope.view || $scope.room,
-          room: $scope.room,
-          item: $scope.item,
-          view: $scope.view,
-          loaded: false,
-          style: {},
-        };
-        // tell the machine all about it.
-        $log.info("creating map element");
-        hsmMachine.emit("ga-map-created", {
-          mapSlot: mapSlot,
-          mapData: mapData,
-        });
-        $element.on("$destroy", function() {
-          $log.info("destroying map element");
-          hsmMachine.emit("ga-map-destroyed", {
-            mapSlot: mapSlot,
-            mapData: mapData,
-          });
-        });
-        // export map data to scope:
-        return mapData;
-      };
-    },
-    require: ["gaMap", "^^hsmMachine"],
-    link: function(scope, element, attrs, controllers) {
-      var ctrl = controllers[0];
-      var hsmMachine = controllers[1];
-      var name = attrs["gaMap"];
-      scope[name] = ctrl.init(name, hsmMachine);
-    },
-  };
-})
-
-.directiveAs("gaResources", ["^^hsmMachine"],
-  function(ElementSlotService, LayerService, LocationService, MapService, ObjectService, CharaService, CollisionService, UpdateService, $log, $q) {
-    this.init = function(name, hsmMachine) {
-      var defer, tree, resources;
-      //
-      var update = function(dt) {
-        resources.player.draw(dt);
-        resources.physics.step(dt);
-        hsmMachine.emit("ga-update", dt);
-      };
-
-      this.unload = function() {
-        if (defer) {
-          defer.reject();
-          defer = null;
+// raise events
+.directiveAs("gameListener", ["^^hsmMachine"],
+  function($q, EventService) {
+    var ctrl = this;
+    ctrl.init = function(name, hsmMachine) {
+      var listeners;
+      var silence = function() {
+        if (listeners) {
+          listeners();
+          listeners = null;
         }
-        UpdateService.stop(update);
-        cancelUpdate = null;
-        var tree = resources && resources.tree;
+      };
+      var response = function(data, tgt, evt) {
+        var defer; // lazily created, so only used if accessed.
+        hsmMachine.emit(name, {
+          data: data,
+          name: evt,
+          tgt: tgt,
+          defer: function() {
+            if (!defer) {
+              defer = $q.defer();
+            }
+            return defer;
+          },
+          resolve: function() {
+            if (!defer) {
+              defer = $q.defer();
+            }
+            return function() {
+              defer.resolve();
+            };
+          },
+        });
+        if (defer) {
+          var state = defer.promise.$$state;
+          if (!state.status && !state.pending) {
+            var msg = "game listener deferral has gone unused; game will hang.";
+            $log.error(name, msg);
+            throw new Error(msg);
+          }
+          return defer.promise;
+        }
+      };
+      // exposed to scope:
+      return {
+        silence: silence,
+        listen: function(tgts, evts) {
+          silence();
+          listeners = EventService.listen(tgt, evts, response);
+        }
+      };
+    }; // init
+  })
+
+// -created
+.directiveAs("gameControl", ["^^hsmMachine"],
+  function(EventStreamService, GameService, PostalService,
+    $location, $log, $q, $scope) {
+    this.init = function(name, hsmMachine) {
+      var currentGame;
+      return {
+        newGame: function() {
+          // force us somewhere, anywhere: so that ng-view will trigger on the first map path change; ng-view in an ng-if does *not* work, or it could be an alternative.
+          var ohsomuchtrouble = "/new";
+          var defer = $q.defer();
+          if ($location.path() == ohsomuchtrouble) {
+            defer.resolve();
+          } else {
+            var off1 = $scope.$on("$locationChangeSuccess", defer.resolve);
+            defer.promise.then(off1);
+            $location.path(ohsomuchtrouble);
+          };
+
+          defer.promise.then(function() {
+            PostalService.post("new", {}).then(function(res) {
+              if (res.events) {
+                // FIX: status bar sets; this pushes them off till later, should that be known, explicit in the outer machine.
+                EventStreamService.queueEvents(res.frame, res.events);
+              }
+              return res.game;
+            }).then(function(game) {
+              currentGame = game;
+              GameService.hack(game);
+              hsmMachine.emit([name, "created"].join('-'), {
+                game: game,
+                gameId: game.id,
+              });
+            })
+          });
+        },
+        currentGame: function() {
+          return currentGame;
+        },
+        quit: function() {
+          throw new Error("well that was unexpected");
+        }
+      };
+    };
+  })
+
+// bind, post
+.directiveAs("serverControl", ["^^hsmMachine"],
+  function(PostalService) {
+    this.init = function(name, hsmMachine) {
+      var gameId, stream;
+      return {
+        bind: function(_gameId, _stream) {
+          // bind false is okay.
+          if (_stream && !_gameId) {
+            throw new Error("unknown game");
+          }
+          gameId = _gameId;
+          stream = _stream;
+        },
+        post: function(data) {
+          if (!gameId || !stream) {
+            throw new Error("server not bound");
+          }
+          PostalService.post(gameId, data).then(function(res) {
+            stream.queue(res.frame, res.events || []);
+          });
+        },
+      };
+    };
+  })
+
+// -processing, -empty
+.directiveAs("processControl", ["^^hsmMachine"],
+  function($timeout, EventStreamService) {
+    this.init = function(name, hsmMachine) {
+      return {
+        queue: function(frame, events) {
+          $timeout(function() {
+            hsmMachine.emit([name, "processing"].join('-'), {});
+            EventStreamService.queueEvents(frame, events).handleEvents().then(function() {
+              hsmMachine.emit([name, "empty"].join('-'), {});
+            });
+          });
+        }
+      };
+    };
+  })
+
+.directiveAs("playerControl", ["^^hsmMachine"],
+  function(CharaService, PlayerService, $q, $log) {
+    var player, pending;
+    var obj = PlayerService.getPlayer();
+    this.init = function(name, hsmMachine) {
+      var destroy = function() {
+        var okay = player || pending;
+        if (okay) {
+          hsmMachine.emit([name, "destroyed"].join('-'), {
+            player: player
+          });
+          if (pending) {
+            pending.reject("destroyed");
+          }
+          if (player) {
+            player = null;
+          }
+        }
+      };
+      return {
+        destroy: destroy,
+        // raises -located
+        locate: function() {
+          PlayerService.fetchWhere().then(function(where) {
+            hsmMachine.emit([name, "located"].join('-'), {
+              where: where.id,
+            });
+          });
+        },
+        exists: function() {
+          return !!player;
+        },
+        getChara: function() {
+          if (!player) {
+            throw new Error("player doesnt exist");
+          }
+          return player;
+        },
+        // FIX: this is a hack to get the player image to attach to the current map -- better? would during draw or something? needs some  thought. maybe a characters list in the map? then we could map.update() and the characters would too.
+        link: function() {
+          player.link();
+        },
+        update: function(dt) {
+          player.draw(dt);
+        },
+        // raises -creating, -created
+        create: function(imagePath, size) {
+          destroy();
+          // uses a separate defered to reject on destroy.
+          var pending = $q.defer();
+          hsmMachine.emit([name, "creating"].join('-'), {});
+          CharaService.newChara(obj.id, imagePath, size).then(function(player) {
+            pending.resolve(player);
+          });
+          pending.promise.then(function(p) {
+            pending = null;
+            player = p;
+            hsmMachine.emit([name, "created"].join('-'), {
+              player: p
+            });
+          });
+        }, // create
+      }; // return
+    }; //init
+  })
+
+
+// -loaded, -loading, changeRoom
+.directiveAs("mapControl", ["^^hsmMachine"],
+  function(CollisionService, LayerService, LocationService, MapService, ObjectService, UpdateService,
+    $log, $element, $q, $rootScope) {
+    // returns a promise:
+    var loadMap = function(mapEl, next) {
+      var mapName = next.mapName();
+      return MapService.getMap(mapName).then(function(map) {
+        $log.debug("MapControl: loading map content", mapName);
+        var roomId = next.room;
+        //
+        return ObjectService.getById(roomId).then(function(room) {
+          $log.debug("MapControl: loading map for", roomId);
+
+          // tree contains: el, bounds, nodes
+          var allPads = [];
+          return LayerService.createLayers(mapEl, map, room, allPads).then(function(tree) {
+
+            // fix: cant assume all layers have physics.
+            var physicsLayer = map.findLayer("$collide");
+            var physics = CollisionService.newScene(tree.bounds);
+            physics.makeWalls(physicsLayer.getShapes());
+
+            return {
+              tree: tree,
+              bounds: tree.bounds,
+              hitGroups: tree.nodes.ctx.hitGroup,
+              physics: physics,
+              pads: allPads,
+              //https://docs.angularjs.org/error/$parse/isecdom?p0=mouse.createAt(map.get(%27mapEl
+              // FIX? should i use an ElementSlotService instead?
+              // the angular docs say "using a dom node in an expression is a known way to execute arbitrary javascript code."
+              // known? known by whom? how? show me!
+              // i cant guard against bad behaviour unless its explained.
+              mapEl: function() {
+                return mapEl;
+              },
+            };
+          }); // createLayers
+        }); // object service
+      }); // get map
+    };
+    this.map = null;
+    this.defer = null;
+    this.where = null;
+    this.$onDestroy = function() {
+      this.destroyMap();
+    };
+    this.destroyMap = function() {
+      if (this.defer) {
+        this.defer.reject("destroyed");
+        this.defer = null;
+      }
+      if (this.map) {
+        var key = this.map.tree;
         if (tree) {
           tree.nodes.destroyNode();
           tree.el.remove();
         }
-        resources = null;
-      }; //unload
-
-      // suspicious of exposing resources object directly to scope watchers
-      this.get = function(key) {
-        var ret = resources[key];
-        if (!ret) {
-          var msg = "resource not found";
-          $log.error(msg, key);
-          throw new Error(msg);
-        };
-        return ret;
-      };
-
-      this.load = function(mapSlot, mapData) {
-        if (defer) {
-          throw new Error("already loading");
-        }
-        var mapEl = ElementSlotService.get(mapSlot);
-
-        var defer = $q.defer();
-        defer.promise.then(function(res) {
-          tree = res.tree;
-          resources = {
-            // bounds: tree.bounds,
-            hitGroups: tree.nodes.ctx.hitGroup,
-            player: res.player,
-            physics: res.physics,
-            pads: res.pads,
-            mapData: res.map,
-            mapEl: mapEl,
-            mapSlot: mapSlot,
+        this.map = null;
+      }
+    };
+    this.init = function(name, hsmMachine) {
+      var ctrl = this;
+      return {
+        // suspicious of exposing resources object directly to scope watchers
+        get: function(key) {
+          var ret = ctrl.map[key];
+          if (!ret) {
+            var msg = "resource not found";
+            $log.error(msg, key);
+            throw new Error(msg);
           };
-          // FIX: maybe an update state?
-          UpdateService.update(update);
-          LocationService.finishedLoading(res.room);
-          hsmMachine.emit("ga-resources-loaded", resources);
-        });
+          return ret;
+        },
+        update: function(dt) {
+          $log.info("update", $element);
+          var uframe = UpdateService.debugFrame();
+          if (ctrl.frame == uframe) {
+            $log.error(ctrl.frame, uframe);  
+            throw new Error("doubled");
+          }
+          ctrl.frame = uframe;
 
-        // load that darn map.
-        var mapName = mapData.mapName;
-        MapService.getMap(mapName).then(function(map) {
-          $log.debug("MapController: loading map content", mapName);
-          var roomId = mapData.room;
+          if (!angular.isNumber(dt) && !isFinite(dt)) {
+            throw new Error("bad dt");
+          }
+          ctrl.map.physics.step(dt);
+        },
+        // return a promise
+        changeRoom: function(where) {
+          var next = LocationService.next(where);
           //
-          return ObjectService.getById(roomId).then(function(room) {
-            $log.debug("MapController: loading map for", roomId);
-
-            // tree contains: el, bounds, nodes
-            var allPads = [];
-            return LayerService.createLayers(mapEl, map, room, allPads).then(function(tree) {
-              // size the view
-              mapData.style = {
-                'position': 'relative',
-                'width': tree.bounds.x + 'px',
-                'height': tree.bounds.y + 'px',
-              };
-
-              // fix: cant assume all layers have physics.
-              var physicsLayer = map.findLayer("$collide");
-              var physics = CollisionService.newScene(tree.bounds);
-              physics.makeWalls(physicsLayer.getShapes());
-
-              // load all the ersource.
-              var player = CharaService.newChara('player', '/bin/images/princess.png');
-              $q.all([player]).then(function(all) {
-                mapData.loaded = true;
+          if (next.changes(LocationService.currentLocation())) {
+            hsmMachine.emit([name, "loading"].join('-'), next);
+            //
+            ctrl.destroyMap();
+            // after the url bar changes, angular will change the view, will recreate the map element.
+            var defer = ctrl.defer = $q.defer();
+            var off = $rootScope.$on("ga-map-created", function(evt, mapSlot, mapEl, mapScope) {
+              off();
+              loadMap(mapEl, next).then(function(map) {
                 defer.resolve({
-                  player: all[0],
-                  tree: tree,
-                  room: room,
                   map: map,
-                  physics: physics,
-                  pads: allPads,
+                  where: next,
+                  scope: mapScope
                 });
-              }, function(err) {
-                defer.reject(err);
-              }); //$q.all
-            }); // createLayers
-          }); // object service
-        }); // get map
-      }; // load
-      return this;
+              });
+            }); // on
+            // if canceled, none of the data gets applied to ctrl,scope.
+            defer.promise.then(function(res) {
+              ctrl.where = res.where;
+              ctrl.map = res.map;
+              ctrl.defer = null;
+              // size the view
+              res.scope.style = {
+                'position': 'relative',
+                'width': res.map.bounds.x + 'px',
+                'height': res.map.bounds.y + 'px',
+              };
+              res.scope.loaded = true;
+              LocationService.finishedLoading(res.where);
+            });
+
+            // the promise is resolved by finished loading
+            // FIX: would like to remove that entirely.
+            LocationService.changeLocation(next).then(function(now) {
+              hsmMachine.emit([name, "loaded"].join('-'), now);
+            });
+          }
+        }
+      };
+    };
+  })
+
+.directiveAs("gaKeys", ["^^hsmMachine"],
+  function($log, $rootElement) {
+    var moveKeys = makeMoveKeys({}); // index -> name
+    var all = {};
+    var moving = 0;
+
+    var KeyEvent = function(which, down) {
+      this.which = which;
+      this.keydown = down;
+      this.keyup = !down;
+    };
+    KeyEvent.prototype.shiftKey = function() {
+      return this.which == 16;
+    };
+    KeyEvent.prototype.moveKey = function(test) {
+      if (angular.isUndefined(test) || (test == this.keydown)) {
+        return moveKeys[this.which];
+      }
+    };
+    KeyEvent.prototype.moving = function() {
+      return moving != 0;
+    };
+    KeyEvent.prototype.actionKey = function() {
+      return (this.which == 32) || (this.which == 13);
+    };
+    KeyEvent.prototype.escapeKey = function() {
+      return this.keyup && (this.which == 27);
+    };
+    //
+    var reflectList = [
+      "keyup", "keydown"
+    ];
+    this.init = function(name, hsmMachine) {
+      var el = $rootElement;
+      var handleKey = function(e) {
+        var keydown = e.type == "keydown";
+        var which = e.which;
+        if (keydown != !!all[which]) {
+          all[which] = keydown;
+          if (moveKeys[which]) {
+            var old = moving;
+            moving += which * (keydown ? 1 : -1);
+          }
+          hsmMachine.emit("ga-key", new KeyEvent(which, keydown));
+        }
+      };
+      return {
+        listen: function(log) {
+          reflectList.forEach(function(r) {
+            el.on(r, handleKey);
+          });
+        },
+        silence: function() {
+          reflectList.forEach(function(r) {
+            el.off(r, handleKey);
+          });
+        },
+      };
+    };
+  })
+
+.directiveAs("mouseTarget", ["^^hsmMachine"],
+  function(UpdateService, $log) {
+    var ctrl = this;
+    ctrl.init = function(name, hsmMachine) {
+      var currentSubject, ghost;
+      // access the current target
+      var target = function() {
+        return currentSubject;
+      };
+      // hide the ghost as a valid target
+      target.ghost = function(target) {
+        ghost = target;
+      };
+      // start updating the current target
+      target.bind = function(mouse, hitGroups) {
+        var reset = true;
+        // determine whats under the cursor
+        var update = function() {
+          var shape = hitGroups.hitTest(mouse.pos());
+          var subject = shape && shape.group.subject;
+          var next = (subject !== ghost) ? subject : null;
+          if (reset || (next !== currentSubject)) {
+            reset = false;
+            // HACK. FIX. NEED CONSISTENT POSITIONING FOR OBJECT/VIEW/STATE
+            if (next) {
+              next.pos = mouse.pos();
+            }
+            hsmMachine.emit("mouseTargetChanged", {
+              target: next
+            });
+            currentSubject = next;
+          }
+        };
+        UpdateService.update(update);
+        // stop updating the current target
+        target.release = function() {
+          UpdateService.stop(update);
+        };
+        // force a mouse target change next update
+        target.reset = function() {
+          reset = true;
+        };
+      };
+      return target;
+    };
+  })
+
+.directiveAs("mouseControl", ["^^hsmMachine"],
+  function(CursorService, $log) {
+    // eventually what i want is to track the mouse always so i can tell in out of bounds at all time.
+    var reflectList = "mouseenter mouseleave mousemove mousedown mouseup";
+    this.init = function(name, hsmMachine) {
+      var cursor, el;
+      // exposed to scope
+      var Mouse = function() {
+        // jquery (sometimes?) fakes the event names
+        var reflect = function(evt) {
+          var name;
+          switch (evt.type) {
+            case "mouseover":
+              name = "mouseenter";
+              break;
+            case "mouseout":
+              name = "mouseleave";
+              break;
+            default:
+              name = evt.type;
+              break;
+          };
+          hsmMachine.emit(name, evt);
+        };
+        this.createAt = function(elfn) {
+          var el = elfn();
+          cursor = CursorService.newCursor(el);
+          el.on(reflectList, reflect);
+        };
+        this.destroy = function() {
+          cursor.show(false);
+          el.off(reflectList, reflect);
+          el = null;
+          cursor.destroyCursor();
+          cursor = null;
+        };
+        this.show = function(show) {
+          //$log.info("cursor", show);
+          cursor.show(!!show);
+          if (angular.isString(show)) {
+            if (cursor.setCursor(show)) {
+              cursor.setAngle(0);
+            }
+          }
+        };
+        this.pos = function() {
+          return pt(cursor.pos.x, cursor.pos.y);
+        };
+        this.setAngle = function(pos) {
+          var a = 0;
+          if (pos) {
+            var diff = pt_sub(cursor.pos, pos);
+            var dist = pt_dot(diff, diff);
+            if (dist > 1e-3) {
+              var r = pt_scale(diff, 1.0 / Math.sqrt(dist));
+              a = Math.atan2(r.y, r.x);
+            }
+          }
+          cursor.setAngle(a);
+        };
+        this.inBounds = function() {
+          return cursor.present;
+        };
+      }; // Mouse
+      return new Mouse();
+    };
+  })
+
+// currently, ng-view creates and destroys the map element dynamically
+// we use that as our hook to start and stop loading data
+// we stuff the loaded into the map's element.
+.directiveAs("gaMap",
+  function($element, $log, $rootScope, $scope) {
+    this.init = function(name, hsmMachine) {
+      //
+      var mapData = {
+        mapName: $scope.item || $scope.view || $scope.room,
+        room: $scope.room,
+        item: $scope.item,
+        view: $scope.view,
+        loaded: false,
+        style: {},
+      };
+      $log.info("gaMap: creating", name);
+      $rootScope.$broadcast("ga-map-created", name, $element, mapData);
+      $element.on("$destroy", function() {
+        $log.info("gaMap: destroying", name);
+        $rootScope.$broadcast("ga-map-destroyed", name, $element, mapData);
+      });
+      // export map data to scope:
+      return mapData;
+    };
+  })
+
+.directiveAs("updateControl", ["^^hsmMachine"],
+  function($log, UpdateService) {
+    this.init = function(name, hsmMachine) {
+      var evt;
+      var update = function(dt) {
+        hsmMachine.emit(evt, {
+          dt: dt
+        });
+      };
+      return {
+        start: function(sub) {
+          evt = [name, sub].join("-");
+          UpdateService.update(update);
+        },
+        end: function() {
+          UpdateService.stop(update);
+        },
+      };
     };
   })
 
@@ -497,8 +700,9 @@ angular.module('demo')
     this.prop.remove();
     this.prop = false;
   };
+  // sometime between link and 
   avatarControl.prototype.create = function(chara, physics, pads) {
-    $log.info("avatar created");
+    //$log.info("avatar created", chara, chara.getFeet());
     this.chara = chara;
     this.pads = pads;
     this.prop = physics.addProp(chara.getFeet(), this.size);
@@ -670,10 +874,10 @@ angular.module('demo')
   };
 })
 
-.directiveAs("moveControl", ["^^gaResources", "^^hsmMachine"],
+.directiveAs("moveControl", ["^^hsmMachine"],
     function($log) {
       // moves the avatar to the 
-      var gaResources, hsmMachine,
+      var hsmMachine,
         avatar, // avatar ctrl
         target, // Subject or null
         arrival, // move helper
@@ -682,9 +886,8 @@ angular.module('demo')
         return target ? avatar.getFeet() : avatar.getCenter();
       };
 
-      this.init = function(name, gaResources_, hsmMachine_) {
+      this.init = function(name, hsmMachine_) {
         hsmMachine = hsmMachine_;
-        gaResources = gaResources_;
         return this;
       };
       this.target = function() {
@@ -747,44 +950,59 @@ angular.module('demo')
             avatar.move(arrives.dir);
           }
         }
-        // 3. draws character: already in ga-resources update
-        // 4. runs physics: already in ga-resources update
       };
     }) // move control
 
-.directiveAs("consoleControl", ["^^hsmMachine"], function($log, $uibModal) {
-  this.init = function(name, hsmMachine) {
-    var modal, modalDismissed;
-    return {
-      show: function() {
-        if (modal) {
-          throw new Error("console already opened");
-        }
-        modalDismissed = false;
-        modal = $uibModal.open({
-          templateUrl: 'console.html',
-          controller: function(TextService, $scope) {
-            $scope.display = TextService.getDisplay();
-          },
-          windowTopClass: 'ga-console',
-        });
-        // modal.result neither gets resolved nor rejected *unless* you close,dismiss with a value -- ie. not from a user close; on the other hand modal.closed always gets resolved (even if dismissed), but no value is passed. *sigh*
-        modal.closed.then(function() {
-          if (!modalDismissed) {
-            hsmMachine.emit("ga-window-closed", {
-              name: name,
+.directiveAs("consoleControl", ["^^gameControl", "^^hsmMachine"],
+  function($log, $uibModal, TextService) {
+    this.init = function(name, gameControl, hsmMachine) {
+      var modal, modalDismissed;
+      // the machine defines the scope of the modal window.
+      var innerScope = {
+        inputEnabled: false,
+        blocks: TextService.getDisplay().blocks,
+        submit: function(userInput) {
+          if (userInput) {
+            gameControl.postGameData({
+              'in': userInput,
             });
           }
-        });
-      },
-      hide: function() {
-        modalDismissed = true;
-        modal.dismiss();
-        modal = null;
-      }
+        },
+      };
+      return {
+        show: function() {
+          if (modal) {
+            throw new Error("console already opened");
+          }
+          modalDismissed = false;
+          modal = $uibModal.open({
+            windowTopClass: 'ga-console',
+            templateUrl: 'console.html',
+            controller: function($scope) {
+              // pretend we are "controller as"
+              $scope[name] = innerScope;
+            },
+          });
+          // modal.result neither gets resolved nor rejected *unless* you close,dismiss with a value -- ie. not from a user close; on the other hand modal.closed always gets resolved (even if dismissed), but no value is passed. *sigh*
+          modal.closed.then(function() {
+            if (!modalDismissed) {
+              hsmMachine.emit("ga-window-closed", {
+                name: name,
+              });
+            }
+          });
+        },
+        allowInput: function(yesNo) {
+          innerScope.inputEnabled = !!yesNo;
+        },
+        hide: function() {
+          modalDismissed = true;
+          modal.dismiss();
+          modal = null;
+        }
+      };
     };
-  };
-})
+  })
 
 .directiveAs("inventoryControl", ["^^hsmMachine"],
   function() {
@@ -802,80 +1020,97 @@ angular.module('demo')
     };
   })
 
-.directiveAs("actionBar", ["^^gaResources", "^^hsmMachine"],
+.directiveAs("actionBar", ["^^hsmMachine"],
   function(ActionListService, CombinerService, IconService,
     $log, $q, $uibModal) {
-    this.init = function(name, gaResources, hsmMachine) {
-      var modal;
-      this.hide = function() {
+    this.init = function(name, hsmMachine) {
+      var modal, pending;
+      var destroy = this.destroy = function() {
+        // *sigh* along with all of the other uibmodal oddities
+        // you cant dismiss the modal before its dependencies are resolved.
+        // by mapping them through a deferred, we can cancel the deferred
+        if (pending) {
+          pending.reject();
+        }
         if (modal) {
           modal.dismiss();
           modal = null;
         }
       };
-      this.show = function(target) {
-        if (modal) {
-          modal.dismiss();
-          modal = null;
-        }
-
+      this.createAt = function(elfn, target) {
+        var displayEl = elfn();
+        destroy();
         $log.info("showing action bar", target);
-
         var barpos = target.pos;
+        var obj = target.object;
+        var view = target.view;
+
+        var pending = $q.defer();
+        var config = ActionListService.then(function(actionList) {
+          var pendingActions;
+          var combining = CombinerService.getCombiner();
+          if (obj) {
+            if (!combining) {
+              pendingActions = actionList.getObjectActions(obj);
+            } else {
+              pendingActions = actionList.getMultiActions(obj, combining);
+            }
+          } // obj
+          return $q.when(pendingActions).then(function(actions) {
+            var zoom = view && IconService.getIcon("$zoom");
+            if (!actions && !zoom) {
+              throw new Error("no actions found");
+            }
+            return {
+              actions: actions,
+              //combining: combining,
+              zoom: zoom,
+              pos: barpos,
+              view: view,
+            };
+          });
+        });
+        config.then(pending.resolve, pending.reject);
+
         modal = $uibModal.open({
           templateUrl: 'actionBar.html',
           controllerAs: name,
-          controller: function(actions) {
+          controller: function(config) {
             var bar = this;
+            var barpos = config.pos;
             if (barpos) {
               bar.style = {
                 left: "" + (barpos.x) + "px",
                 top: "" + (barpos.y) + "px",
               };
             }
-            bar.actions = actions.actions;
-            bar.zoom = actions.zoom;
+            bar.actions = config.actions;
+            bar.zoom = config.zoom;
 
             bar.runAction = function(act) {
-              modal.close("run");
-              // return bar.runAction(act);
+              hsmMachine.emit("demo-action", act);
+              //    var combine = this.combining && this.combining.id;
+              // var object = this.subject.object;
+              // act.runIt(object.id, combine);
+              // this.close("ran action");
             };
             bar.zoomView = function(act) {
-              modal.close("zoom");
-              // return bar.zoomView(act);
+              //this.subject.view;
+              hsmMachine.emit("demo-zoom", {
+                view: config.view,
+              });
             };
           }, // controller
-          appendTo: gaResources.get('mapEl'),
+          appendTo: displayEl,
           animation: false,
           backdrop: false,
           windowClass: "ga-action-win",
           windowTopClass: "ga-action-top",
           resolve: {
-            actions: ActionListService.then(function(actionList) {
-              var pendingActions;
-              var obj = target.object;
-              var combining = CombinerService.getCombiner();
-              if (obj) {
-                if (!combining) {
-                  pendingActions = actionList.getObjectActions(obj);
-                } else {
-                  pendingActions = actionList.getMultiActions(obj, combining);
-                }
-              } // obj
-              return $q.when(pendingActions).then(function(actions) {
-                var zoom = target.view && IconService.getIcon("$zoom");
-                if (!actions && !zoom) {
-                  throw new Error("no actions found");
-                }
-                return {
-                  actions: actions,
-                  //combining: combining,
-                  zoom: zoom,
-                };
-              });
-            }),
-          }, // resolve
+            config: pending.promise,
+          },
         }); // model.open
+
         modal.closed.then(function() {
           CombinerService.setCombiner(null);
         }); // closed

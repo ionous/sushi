@@ -1,0 +1,24 @@
+<hsm-state name="Playing" avatar-control="avatar" avatar-size="12" hsm-enter="avatar.create(player.getChara(), map.get('physics'), map.get('pads'))" hsm-exit="avatar.destroy()">
+  <hsm-state>
+    <hsm-state name="Commanding" mouse-control="mouse" hsm-enter="mouse.createAt(map.get('mapEl'))" hsm-exit="mouse.destroy()">
+      <hsm-state parallel="true" mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(mouse,map.get('hitGroups'))" hsm-exit="mouseTarget.release()">
+        <ng-include src="'hover.html'"></ng-include>
+        <ng-include src="'interact.html'"></ng-include>
+      </hsm-state>
+    </hsm-state>
+    <!--  -->
+    <hsm-event on="demo-console" goto="ConsoleSub"></hsm-event>
+    <hsm-event on="demo-inventory" goto="Inventory"></hsm-event>
+    <hsm-event on="demo-settings" goto="Settings"></hsm-event>
+    <!--  -->
+    <hsm-state name="WindowOpened">
+      <hsm-event on="ga-window-closed" goto="Commanding"></hsm-event>
+      <hsm-state name="ConsoleSub">
+      </hsm-state>
+      <hsm-state name="Inventory" inventory-control="inv" hsm-enter="inv.show()" hsm-exit="inv.hide()">
+      </hsm-state>
+      <hsm-state name="Settings" settings-control="settings" hsm-enter="settings.show()" hsm-exit="settings.hide()">
+      </hsm-state>
+    </hsm-state>
+  </hsm-state>
+</hsm-state>

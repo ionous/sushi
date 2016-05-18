@@ -1,17 +1,15 @@
-<div class="modal-body">
-  <div class="scroll-text" ga-scrolldown="display.blocks">
-    <ul>
-      <li ng-repeat="block in display.blocks track by $index">
-        <ul>
-          <li ng-if="block.speaker" class="speaker">{{block.speaker}}</li>
-          <li ng-repeat="text in block.text track by $index">{{text}}</li>
-        </ul>
-      </li>
-    </ul>
-  </div>
-  <div>
-    <form id="f" ng-controller="InputController" ng-submit="submit()">
-      <input id="q" name="q" type="text" ng-model="userInput" autocomplete="off" ga-auto-focus />
-    </form>
-  </div>
-</div>
+<hsm-state name="Console">
+  <hsm-state name="ConsoleClosed">
+    <hsm-event on="demo-console" goto="ConsoleOpen"></hsm-event>
+  </hsm-state>
+  <hsm-state name="ConsoleOpen" console-control="console" hsm-enter="console.show()" hsm-init="game.isProcessing() ? 'ConsoleInputDisabled' : 'ConsoleInputEnabled'" hsm-exit="console.hide()">
+    <hsm-event on="ga-window-closed" goto="ConsoleClosed"></hsm-event>
+    <!-- for this to work right, to be able to open and close the console at will while the game is processing, we need to be able to evaluate "is processing" of something like the game. -->
+    <hsm-state name="ConsoleInputDisabled" hsm-enter="console.allowInput(false)">
+      <hsm-event on="game-event" when="$evt.finished" goto='ConsoleInputEnabled'></hsm-event>
+    </hsm-state>
+    <hsm-state name="ConsoleInputEnabled" hsm-enter="console.allowInput(true)">
+      <hsm-event on="console-input" run="game.submit(console.echo($evt.input), 'ConsoleInputDisabled')"></hsm-event>
+    </hsm-state>
+  </hsm-state>
+</hsm-state>

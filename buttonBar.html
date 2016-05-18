@@ -1,10 +1,10 @@
  <!-- && !runningAction && !processingFrame -->
-<div class="ga-buttonbar ga-left ga-show" ng-show="msg && mapLoaded && gameStarted">
+<div class="ga-buttonbar ga-left ga-show" ng-show="msg">
   <a class="btn btn-primary btn-lg" ga-click-return="msg" uib-tooltip="{{msg}}" tooltip-placement="right" tooltip-class="ga-xtip">
     <i class="fa fa-undo"></i>
   </a>
 </div>
-<div class="ga-buttonbar ga-right ga-show" ng-controller="ButtonBarController" ng-show="mapLoaded && gameStarted">
+<div class="ga-buttonbar ga-right ga-show" ng-controller="ButtonBarController">
   <a class="btn btn-primary btn-lg" ng-click="machine.emit('demo-console')" uib-tooltip="Console" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
     <i class="fa fa-terminal"></i>
   </a>

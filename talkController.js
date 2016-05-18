@@ -12,9 +12,9 @@ angular.module('demo')
 
       //$log.info("TalkController: base pos", baseLeft, baseTop);
 
-      var Talker = function(id, display) {
-        var pos = display.group.pos;
-        var size = display.canvas.getSize();
+      var Talker = function(id, displayGroup, canvi) {
+        var pos = displayGroup.pos;
+        var size = canvi.getSize();
         var adjust = pt(0, 0);
         // the images have different spacings in them... :(
         switch (id) {
@@ -92,12 +92,12 @@ angular.module('demo')
       var rub = EventService.listen("*", "say", function(data, actorId) {
         if (data && data.length && !SKIP_DIALOG) {
           var actor = EntityService.getById(actorId);
-          var display = actor.objectDisplay;
+          var objectDisplay = actor.objectDisplay;
           //
-          if (!display) {
+          if (!objectDisplay) {
             $log.error("dont know how to display text", actorId, data);
           } else {
-            var talker = new Talker(actorId, display);
+            var talker = new Talker(actorId, objectDisplay.group, objectDisplay.canvi);
             $rootScope.$broadcast("window change", "talk opened");
 
             // empty the array so no other layer can grab the data

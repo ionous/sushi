@@ -6,7 +6,7 @@
       <hsm-event on="move-arrived" run="log.info('arrived!')"></hsm-event>
       <!-- <hsm-event on="move-blocked" run="log.info('blocked!')"></hsm-event> -->
       <!-- execute the move -->
-      <hsm-event on="ga-update" run="director.update($evt.dt, true)"></hsm-event>
+      <hsm-event on="update-game" run="director.update($evt.dt, true)"></hsm-event>
       <div>
         <!-- wait for a target change to decide how to move -->
         <hsm-state name="PlayerDirectWait"></hsm-state>

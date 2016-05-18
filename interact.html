@@ -11,8 +11,9 @@
       <hsm-event on="ga-key" when="$evt.moveKey(true)" goto="KeyWalking"> </hsm-event>
     </hsm-state>
     <hsm-state name="Moving">
-      <hsm-event on="ga-update" run="avatar.update($evt.dt)"></hsm-event>
+      <hsm-event on="update-game" run="avatar.update($evt.dt)"></hsm-event>
       <hsm-event on="ga-key" when="$evt.escapeKey()" goto="Planning"></hsm-event>
+      <!--  -->
       <hsm-state name="KeyWalking" hsm-enter="avatar.nudge($evt.moveKey(), $evt.keydown)" hsm-exit="avatar.nudge(false)">
         <hsm-state hsm-enter="machine.emit('vanish-cursor')" hsm-exit="machine.emit('reveal-cursor')">
           <hsm-event on="ga-key" run="avatar.nudge($evt.moveKey(), $evt.keydown)"></hsm-event>
@@ -26,8 +27,10 @@
       </hsm-state>
     </hsm-state>
   </hsm-state>
-  <hsm-state name="ActionBarOpen" action-bar="actionBar" hsm-enter="actionBar.show($evt.target)" hsm-exit="actionBar.hide()">
+  <hsm-state name="ActionBarOpen" action-bar="actionBar" hsm-enter="actionBar.createAt(map.get('mapEl'), $evt.target)" hsm-exit="actionBar.destroy()">
     <hsm-event on="ga-key" when="$evt.escapeKey()" goto="ActionBarClosed"></hsm-event>
     <hsm-event on="ga-key" when="$evt.moveKey(true)" goto="KeyWalking"></hsm-event>
+    <hsm-event on="demo-action" goto="ActionBarClosed"></hsm-event>
+    <hsm-event on="demo-zoom" goto="ActionBarClosed"></hsm-event>
   </hsm-state>
 </hsm-state>

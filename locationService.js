@@ -6,46 +6,52 @@
  */
 angular.module('demo')
   .factory('LocationService',
-    function($location, $log, $q, $rootScope) {
-      var loc = {
-        room: null,
-        view: null,
-        item: null
-      };
+    function($location, $log, $q) {
       var loading = null;
-      // returns a promise, resolved when the location has changed.
-      var changeLocation = function(room, view, item) {
-        if (view == room) {
-          throw new Error("LocationService: invalid view" + view);
+      var Location = function(room, view, item) {
+        if (room && (view == room)) {
+          var msg = "LocationService: invalid location";
+          $log.error(msg, room, view, item);
+          throw new Error(msg);
         }
+        this.room = room || null;
+        this.view = view || null;
+        this.item = item || null;
+      };
+      Location.prototype.toString = function() {
+        return this.mapName();
+      };
+      Location.prototype.mapName = function() {
+        return this.item || this.view || this.room;
+      };
+      Location.prototype.changes = function(next) {
+        return (this.room != next.room) || (this.view != next.view) || (this.item != next.item);
+      };
+      //
+      var loc = new Location();
+
+      // returns a promise, resolved when the location has changed.
+      var changeLocation = function(next) {
         if (loading) {
           throw new Error("LocationService: location change in progress")
         }
-        // location object.
-        var next = {
-          room: room,
-          view: view || null,
-          item: item || null
-        };
-        $log.info("LocationService: changing", loc, "to", next);
         //
-        if (loc.room == next.room && loc.view == next.view && loc.item == next.item) {
+        if (!next.changes(loc)) {
           $log.info("LocationService: no change");
           return $q.when(loc);
         } else {
+          // location object.
+          $log.info("LocationService: changing", loc.toString(), "to", next.toString());
+
           loading = $q.defer();
 
-          $rootScope.$broadcast("window change", "location");
-          $rootScope.mapLoaded = false;
           // want the url: /r/room/v/view?item=item
           var p = ["", "r", next.room].concat(next.view ? ["v", next.view] : []);
           var path = p.join("/");
           // change it.
           loc = next;
           $location.path(path).search('item', next.item);
-          loading.promise.then(function() {
-            $rootScope.mapLoaded = true;
-          });
+          //
           return loading.promise;
         }
       };
@@ -63,19 +69,30 @@ angular.module('demo')
         item: function() {
           return loc.item;
         },
+        next: function(r, v, i) {
+          return new Location(r, v, i);
+        },
+        currentLocation: function() {
+          return loc;
+        },
+        changeLocation: function(next) {
+          return changeLocation(next);
+        },
         changeRoom: function(room) {
-          return changeLocation(room);
+          return changeLocation(new Location(room));
         },
         changeView: function(view) {
-          return changeLocation(loc.room, view);
+          return changeLocation(new Location(loc.room, view));
         },
         changeItem: function(item) {
-          return changeLocation(loc.room, loc.view, item);
+          return changeLocation(new Location(loc.room, loc.view, item));
         },
-        finishedLoading: function(room) {
+        // the loading promise is used by server events to delay the processing of the next event until the map has finished loading completely.....
+        // FIX: remove this now that we have states.
+        finishedLoading: function(where) {
           if (loading) {
-            $log.info("LocationService: finishedLoading", room, loc);
-            loading.resolve(loc);
+            $log.info("LocationService: finishedLoading", where);
+            loading.resolve(where);
             loading = null;
           }
         },

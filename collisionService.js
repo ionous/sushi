@@ -6,13 +6,12 @@
 angular.module('demo')
   .factory('CollisionService',
     function($log) {
-      var Scene = function(canvasSize, paper) {
+      var Scene = function(canvasSize) {
         var vec2 = p2.vec2;
         var world = this.world = new p2.World({
           gravity: [0, 0]
         });
         world.applyGravity = false;
-        this.paper = paper;
 
         var pixelsPerMeter = this.pixelsPerMeter = pt(32, -32);
         var metersPerPixel = this.metersPerPixel = pt(1.0 / 32.0, -1.0 / 32);
@@ -53,14 +52,6 @@ angular.module('demo')
           mass: 0,
           position: [worldMid.x, worldMid.y]
         });
-        var paper = this.paper;
-        if (paper) {
-          var one = new paper.Point(min.x, min.y);
-          var two = new paper.Point(max.x, max.y);
-          var r = new paper.Path.Rectangle(one, two);
-          r.strokeColor = "red";
-          r.visible = true;
-        }
         boxBody.addShape(boxShape);
         this.world.addBody(boxBody);
       };
@@ -83,17 +74,7 @@ angular.module('demo')
         });
         circleBody.addShape(circleShape);
         this.world.addBody(circleBody);
-        var p = new Prop(this, circleBody, r);
-        var paper = this.paper;
-        if (paper) {
-          var zero = new paper.Point(0, 0);
-          p.shape = new paper.Path.Circle(zero, radius);
-          p.shape.visible = true;
-          p.shape.strokeColor = "green";
-          p.shape.strokeWidth = 3;
-          //p.shape.fillColor = "blue";
-        }
-        return p;
+        return new Prop(this, circleBody, r);
       };
       Scene.prototype.step = function(dt) {
         //1/60= 0.016; 1/20=0.05
@@ -134,8 +115,8 @@ angular.module('demo')
         }
       };
       var service = {
-        newScene: function(canvasSize, paper) {
-          var physics = new Scene(canvasSize, paper);
+        newScene: function(canvasSize) {
+          var physics = new Scene(canvasSize);
           physics.addWall(pt(32, 0), pt(canvasSize.x - 32, 32));
           physics.addWall(pt(0, 0), pt(32, canvasSize.y));
           physics.addWall(pt(32, canvasSize.y - 32), pt(canvasSize.x - 32, canvasSize.y));

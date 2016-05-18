@@ -13,7 +13,7 @@
       <hsm-event on="mousedown" goto="MouseWait"> </hsm-event>
       <hsm-state>
         <!-- note: because the avatar can move, we have to check every frame. -->
-        <hsm-event on="ga-update" when="mouseTarget()" run="!avatar.onLandingPads(mouseTarget()) ? mouse.show('disk') : mouse.show('bullseye')"> </hsm-event>
+        <hsm-event on="update-game" when="mouseTarget()" run="!avatar.onLandingPads(mouseTarget()) ? mouse.show('disk') : mouse.show('bullseye')"> </hsm-event>
         <hsm-event on="mouseTargetChanged" when="!$evt.target" run="mouse.show('pointer')"></hsm-event>
       </hsm-state>
       <!-- change the cursor into a different cursor for a short period of time -->
@@ -52,7 +52,7 @@
         <hsm-event on="mousemove" goto="MouseDirectPos"></hsm-event>
       </hsm-state>
       <hsm-state name="MouseDirectPos" hsm-enter="mouse.show('chev')" hsm-exit="mouse.setAngle()">
-        <hsm-event on="ga-update" run="mouse.setAngle(avatar.getCenter())"> </hsm-event>
+        <hsm-event on="update-game" run="mouse.setAngle(avatar.getCenter())"> </hsm-event>
       </hsm-state>
       <hsm-state name="MouseDirectTarget" hsm-enter="mouse.show('arrow')">
       </hsm-state>

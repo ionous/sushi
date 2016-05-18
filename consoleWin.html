@@ -1,0 +1,17 @@
+<div class="modal-body" ng-controller="InputController as input">
+  <div class="scroll-text" ga-scrolldown="console.blocks">
+    <ul>
+      <li ng-repeat="block in console.blocks track by $index">
+        <ul>
+          <li ng-if="block.speaker" class="speaker">{{block.speaker}}</li>
+          <li ng-repeat="text in block.text track by $index">{{text}}</li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <div>
+    <form id="f" ng-submit="console.submit(input.reset())">
+      <input id="q" name="q" type="text" ng-model="input.userInput" autocomplete="off" ng-disabled="console.inputEnabled" ga-auto-focus />
+    </form>
+  </div>
+</div>

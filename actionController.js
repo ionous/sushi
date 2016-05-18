@@ -6,7 +6,6 @@
 angular.module('demo')
   .controller('ActionController',
     function($log,$scope) {
-
       var radius = 42;
       var size = 42;
       var length = function() {

@@ -16,14 +16,7 @@ angular.module('demo')
       ];
       var speeds = [0, 8, 12];
       var Chara = function(obj, img, tilesize) {
-        var display= obj.objectDisplay;
-        if (!display) {
-          throw new Error("no display for object", obj.id );
-        }
-        this.display= display.group;
-        var canvas = this.canvas = display.canvas.el[0];
-        this.upperLeft = display.pos; //
-        //
+        this.obj = obj;
         this.img = img;
         this.nextface = dir.right;
         this.facing = -1;
@@ -32,6 +25,17 @@ angular.module('demo')
         this.frame = -1;
         this.tilesize = tilesize;
         this.framesWide = Math.floor(img.width / tilesize);
+      };
+      Chara.prototype.link = function() {
+        // FIX; this is very backwards, we should be able to create the character and later asign it to the map.
+        // that the object has the display is also questionable re: states.
+        var objectDisplay = this.obj.objectDisplay;
+        if (!objectDisplay) {
+          throw new Error("no display for object", this.obj.id);
+        }
+        var display= this.display = objectDisplay.group;
+        var canvas = this.canvas = objectDisplay.canvi.el[0];
+        this.upperLeft = display.pos;
         //
         var w = this.canvas.width;
         var h = this.canvas.height;

@@ -53,6 +53,7 @@
   <script src="mapService.js"></script>
   <script src="objectService.js"></script>
   <script src="playerService.js"></script>
+  <script src="postalService.js"></script>
   <script src="textService.js"></script>
   <script src="viewReturnService.js"></script>
   <script src="watcherService.js"></script>
@@ -66,14 +67,11 @@
   <script src="combineBoxController.js"></script>
   <script src="commentBoxController.js"></script>
   <script src="displayController.js"></script>
-  <script src="gameController.js"></script>
   <script src="iconPreviewController.js"></script>
-  <script src="inputController.js"></script>
   <script src="inventoryController.js"></script>
   <script src="inventoryCombineController.js"></script>
   <script src="mapZoomController.js"></script>
   <script src="responseController.js"></script>
-  <script src="roomPreviewController.js"></script>
   <script src="statusController.js"></script>
   <script src="talkController.js"></script>
   <!--  -->
@@ -88,19 +86,16 @@
   <!-- <script src="/script/paper/dist/paper-core.min.js"></script> -->
 </head>
 
-<body ng-app="demo" ng-controller="GameController" hsm-machine="machine" hsm-log="log" hsm-transition="log.warn('transitioning', $source.name, '->', $target.name)">
-  <!--  hsm-enter="log.enter($state)" hsm-exit="log.exit($state)"-->
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" hsm-transition="log.warn('transitioning', $source.name, '->', $target.name)">
+  <!-- hsm-enter="log.enter($state)" hsm-exit="log.exit($state)"> -->
   <header id="status-bar" ng-controller="StatusController">
     <span class="ga-noselect" id="status-left">{{status.left}}</span>
     <span class="ga-noselect" id="status-right">{{status.right}}</span>
   </header>
-  <!-- actions held out above ga-play to handle mouse/offset display of menu;
-  the alternative would be to add the action bar to root dynamically, but angular doesnt like custom elements being attached to the dom via script. -->
-  <ng-include src="'states.html'"></ng-include>
   <div class="talk ga-noselect" ng-controller="TalkController"></div>
   <div id="ga-play" class="ga-noselect" ga-map-color>
     <div ng-view="'play.html'"></div>
-    <div ng-include="'buttonBar.html'"></div>
+    <ng-include src="'game.html'"></ng-include>
     <div ng-controller="ResponseController"></div>
     <div ng-include="'combineBox.html'"></div>
     <div ng-include="'commentBox.html'"></div>

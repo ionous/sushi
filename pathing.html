@@ -3,6 +3,6 @@
     <hsm-event on="mousedown" goto="Planning"></hsm-event>
     <hsm-event on="move-arrived" run="pathing.target() ? avatar.interact(pathing.target()) : 'Planning'"></hsm-event>
     <hsm-event on="move-blocked" run="pathing.target() ? avatar.interact(pathing.target()) : 'Planning'"></hsm-event>
-    <hsm-event on="ga-update" run="pathing.update($evt.dt)"></hsm-event>
+    <hsm-event on="update-game" run="pathing.update($evt.dt)"></hsm-event>
     <!-- maybe move-blocked? -->
   </hsm-state>
