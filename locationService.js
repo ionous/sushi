@@ -50,6 +50,7 @@ angular.module('demo')
           var path = p.join("/");
           // change it.
           loc = next;
+          $log.debug(path);
           $location.path(path).search('item', next.item);
           //
           return loading.promise;
@@ -69,8 +70,14 @@ angular.module('demo')
         item: function() {
           return loc.item;
         },
-        next: function(r, v, i) {
-          return new Location(r, v, i);
+        nextRoom: function(room) {
+          return new Location(room);
+        },
+        nextView: function(view) {
+          return new Location(loc.room, view);
+        },
+        nextItem: function(item) {
+          new Location(loc.room, loc.view, item)
         },
         currentLocation: function() {
           return loc;
@@ -79,13 +86,13 @@ angular.module('demo')
           return changeLocation(next);
         },
         changeRoom: function(room) {
-          return changeLocation(new Location(room));
+          return changeLocation(locationService.nextRoom(view));
         },
         changeView: function(view) {
-          return changeLocation(new Location(loc.room, view));
+          return changeLocation(locationService.nextView(view));
         },
         changeItem: function(item) {
-          return changeLocation(new Location(loc.room, loc.view, item));
+          return changeLocation(locationService.nextItem(item));
         },
         // the loading promise is used by server events to delay the processing of the next event until the map has finished loading completely.....
         // FIX: remove this now that we have states.

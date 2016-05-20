@@ -1,11 +1,11 @@
 <!-- -->
-<hsm-state name="Game" game-control="game" hsm-enter="game.newGame()" hsm-exit="game.quit()">
+<hsm-state name="Game" game-control="game" hsm-enter="game.newGame(stream)" hsm-exit="game.quit()" process-control="stream">
   <!-- in general, probably best not to use enter to make state rich changes:
   however, we need to execute a staged-bootstrap, and we can do that via 'gotos' -->
   <hsm-state name="GamePending">
     <hsm-event on="game-created" goto="GameCreated"></hsm-event>
   </hsm-state>
-  <hsm-state name="GameCreated" map-control="map" server-control="server" process-control="stream" hsm-enter="server.bind($evt.gameId, stream)" hsm-exit="server.bind(false)">
+  <hsm-state name="GameCreated" map-control="map" action-service="actions" hsm-enter="actions.bind(game)" hsm-exit="actions.release()">
     <hsm-state player-control="player" hsm-exit="player.destroy()">
       <!--  -->
       <hsm-state name="Initialize">
@@ -17,7 +17,7 @@
           <hsm-event on="map-loaded" run="player.link()"></hsm-event>
           <hsm-event on="map-loaded" goto="FirstTurn"></hsm-event>
         </hsm-state>
-        <hsm-state name="FirstTurn" hsm-enter="server.post({'in':'start'})">
+        <hsm-state name="FirstTurn" hsm-enter="game.start()">
           <hsm-event on="stream-processing" goto="GameStarted"></hsm-event>
         </hsm-state>
       </hsm-state>
@@ -33,22 +33,24 @@
             <hsm-event on="map-loaded" goto="MapDataLoaded"></hsm-event>
           </hsm-state>
         </hsm-state>
-        <!--  -->
-        <hsm-state name="Play">
-          <hsm-state name="WaitingOnProcess">
-            <hsm-event on="stream-empty" goto="GameIsActive"></hsm-event>
+        <!--  when we start play, we assume that there are events to process -->
+        <hsm-state name="Play" hsm-init="WaitingOnProcess" avatar-control="avatar" avatar-size="12" hsm-enter="avatar.create(player.getChara(), map.get('physics'), map.get('pads'))" hsm-exit="avatar.destroy()">
+          <hsm-state name="GameIsActive" update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
+            <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
+            <hsm-event on="update-game" run="map.update($evt.dt)"></hsm-event>
+            <ng-include src="'playing.html'"></ng-include>
           </hsm-state>
+          <!--  -->
+          <hsm-event on="map-loading" goto="WaitingOnMap"></hsm-event>
+          <hsm-event on="actions-running" goto="WaitingOnProcess"></hsm-event>
+          <hsm-event on="stream-processing" goto="WaitingOnProcess"></hsm-event>
           <!-- happens in zooming only, if process loads a map we are still waiting on process. -->
           <hsm-state name="WaitingOnMap">
             <hsm-event on="map-loaded" run="player.link()"></hsm-event>
             <hsm-event on="map-loaded" goto="GameIsActive"></hsm-event>
           </hsm-state>
-          <hsm-state name="GameIsActive" update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
-            <hsm-event on="map-loading" goto="WaitingOnMap"></hsm-event>
-            <hsm-event on="stream-processing" goto="WaitingOnProcess"></hsm-event>
-            <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
-            <hsm-event on="update-game" run="map.update($evt.dt)"></hsm-event>
-            <ng-include src="'playing.html'"></ng-include>
+          <hsm-state name="WaitingOnProcess">
+            <hsm-event on="stream-empty" goto="GameIsActive"></hsm-event>
           </hsm-state>
         </hsm-state>
         <!-- currently, the stream parses at full steam whether we want it to or not.
@@ -62,14 +64,11 @@
           <hsm-state name="Processing" parallel="true">
             <hsm-event on="stream-empty" goto="WaitingToProcess"></hsm-event>
             <!--  -->
-            <hsm-state game-listener="roomChange" hsm-enter="roomChange.listen('player', 'x-rel')" hsm-exit="roomChange.reset()">
+            <hsm-state game-listener="roomChange" hsm-enter="roomChange.listen('player', 'x-rel')" hsm-exit="roomChange.silence()">
               <!-- locator is going to raise its own loading events  -->
               <hsm-event on="roomChange" when="$evt.data.prop=='object-whereabouts'" run="map.changeRoom($evt.data.next).then($evt.resolve())"></hsm-event>
             </hsm-state>
-            <!--  -->
-            <hsm-state text-control="text" game-listener="printText" hsm-enter="printText.listen('*', ['print', 'say'])" hsm-exit="printText.reset()">
-              <hsm-event on="printText" run="text.addLines($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
-            </hsm-state>
+            
           </hsm-state>
         </hsm-state>
       </hsm-state>

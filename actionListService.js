@@ -9,7 +9,9 @@ angular.module('demo')
           id: act.id,
           name: act.name.split(' ', 1)[0],
           iconClass: IconService.getIconClass(act.id),
-          runIt: act.runIt,
+          runIt: function(p, c) {
+            return act.runIt(p, c);
+          }
         }
       };
       // creates a filter for actions requiring one object
@@ -37,37 +39,39 @@ angular.module('demo')
           }
         }
       };
-
-      return ActionService.getPromisedActions().then(function(allActions) {
-        var getSingleActions = function(obj, classInfo, context) {
+      // promise of a service.
+      var getSingleActions = function(obj, classInfo, context) {
+        return ActionService.getActions().then(function(allActions) {
           // create a filter for the actions for the requested object ( and context )
           var filter = newActionFilter(obj, classInfo, context);
           // input will add all of the actions with 1 noun; 0 for player.
           return allActions.filter(filter).map(makeAction);
-        };
+        });
+      };
 
-        var getMultiActions = function(c2, c1) {
+      var getMultiActions = function(c2, c1) {
+        return ActionService.getActions().then(function(allActions) {
           var filter = newMultiFilter(c2, c1);
           return allActions.filter(filter).map(makeAction);
-        };
+        });
+      };
 
-        return {
-          getObjectActions: function(obj, context) {
-            return ClassService.getClass(obj.type).then(function(classInfo) {
-              return getSingleActions(obj, classInfo, (obj.id == "player") ?
-                "player" : (classInfo.contains("doors") ? "doors" : context));
-            });
-          },
-          getItemActions: function(obj, context) {
-            return ClassService.getClass(obj.type).then(function(classInfo) {
-              return getSingleActions(obj, classInfo, context);
-            });
-          },
-          getMultiActions: function(o2, o1) {
-            return $q.all([ClassService.getClass(o2.type), ClassService.getClass(o1.type)]).then(function(classes) {
-              return getMultiActions(classes.shift(), classes.shift());
-            });
-          },
-        } // return the service
-      }); // get promised actions
+      return {
+        getObjectActions: function(obj, context) {
+          return ClassService.getClass(obj.type).then(function(classInfo) {
+            return getSingleActions(obj, classInfo, (obj.id == "player") ?
+              "player" : (classInfo.contains("doors") ? "doors" : context));
+          });
+        },
+        getItemActions: function(obj, context) {
+          return ClassService.getClass(obj.type).then(function(classInfo) {
+            return getSingleActions(obj, classInfo, context);
+          });
+        },
+        getMultiActions: function(o2, o1) {
+          return $q.all([ClassService.getClass(o2.type), ClassService.getClass(o1.type)]).then(function(classes) {
+            return getMultiActions(classes.shift(), classes.shift());
+          });
+        },
+      }; // return the service
     }); // factory

@@ -5,17 +5,38 @@
  */
 angular.module('demo')
 
-
 // FIX: replace getPromisedGame with $scope.game
 // NOTE: the player and display service are listed as dependencies
 // that precreates those objects before we start talking to the server.
 .factory('GameService', function(
-  JsonService,
-  PostalService,
+  JsonService, PostalService,
   $http, $log, $q) {
   var currentFrame;
   var deferGame = $q.defer();
   var promisedGame = deferGame.promise;
+
+  var GameWrapper = function(ent) {
+    this.ent = ent;
+    this.id = ent.id;
+  };
+  GameWrapper.prototype.request = function(resType, resName) {
+    var url = ['/game', this.id, resType];
+    if (resName) {
+      url.push(resName);
+    }
+    url = url.join('/');
+    // FIX? add to postal service?
+    return $http.get(url).then(function(resp) {
+      var src = resp.data;
+      var doc = angular.isArray(src.data) ?
+        JsonService.parseMultiDoc(src, resType) :
+        JsonService.parseObjectDoc(src, resType);
+      return doc;
+    });
+  };
+  GameWrapper.prototype.post = function(data) {
+    return PostalService.post(this.id, data);
+  };
 
   /**
    * Handler of cachable (constant) data. 
@@ -41,18 +62,7 @@ angular.module('demo')
     var c = r.cache[id];
     if (!c || (!forever && c['frame'] != currentFrame)) {
       var promise = promisedGame.then(function(game) {
-        var url = ['/game', game.id, r.type];
-        if (id) {
-          url.push(id);
-        }
-        url = url.join('/');
-        return $http.get(url);
-      }).then(function(resp) {
-        var src = resp.data;
-        var doc = angular.isArray(src.data) ?
-          JsonService.parseMultiDoc(src, r.type) :
-          JsonService.parseObjectDoc(src, r.type);
-        return doc;
+        return game.request(r.type, id);
       });
       r.cache[id] = {
         'promise': promise,
@@ -67,10 +77,15 @@ angular.module('demo')
     // FIX: eliminate this from game code first via the states
     // then, eliminate from behind the scenes by parameterizing the state controls.
     hack: function(game) {
-      deferGame.resolve(game);
+      var gameapi= new GameWrapper(game);
+      deferGame.resolve(gameapi);
+      return gameapi;
     },
     getPromisedGame: function() {
-      return promisedGame;
+      //backwards compat
+      return promisedGame.then(function(game) {
+        return game.ent;
+      });
     },
     // i tried having a function here to delay resolve
     // but it couldnt well distinguish b/t "lists" (no id) and id for the same types because the resource class stored one function per type.
@@ -80,7 +95,7 @@ angular.module('demo')
      * Type can be either a "ref" ( an object containing type and id fields ); or the actual resource type ( as a string ).
      */
     getFrameData: function(type, id, forever) {
-      // FIX: move current frame, into a frame state.
+      // ensure frame is up to date, FIX: move current frame, into a frame state.
       currentFrame = PostalService.frame();
       //
       if (angular.isObject(type)) {

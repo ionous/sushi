@@ -74,37 +74,6 @@ var makeMoveKeys = function(moveKeys) {
   return moveKeys;
 };
 
-// interesting that "directive injection" could have/be used for services too;
-// "normalizing" a bit the difference between the two.
-angular.module('demo')
-  .directiveAs = function(directiveName, requireOrFn, fnOpt) {
-    var require, fn;
-    if (!fnOpt) {
-      fn = requireOrFn;
-    } else {
-      require = requireOrFn;
-      fn = fnOpt;
-    }
-    var requires = [directiveName].concat(require || []);
-    return this.directive(directiveName, function($log) {
-      return {
-        controller: fn,
-        require: requires,
-        link: function(scope, element, attrs, controllers) {
-          var ctrl = controllers[0];
-          var directiveAttr = attrs[directiveName];
-          var scopeAs = ctrl.init.apply(ctrl, [directiveAttr].concat(controllers.slice(1)));
-          if (!scopeAs) {
-            var msg = "directiveAs init returned null";
-            $log.error(msg, directiveName, directiveAttr);
-            throw new Error(msg);
-          }
-          scope[directiveAttr] = scopeAs;
-        },
-      }
-    });
-  };
-
 angular.module('demo')
 
 // expose service as directive
@@ -119,9 +88,10 @@ angular.module('demo')
     };
   })
 
+
 // raise events
 .directiveAs("gameListener", ["^^hsmMachine"],
-  function($q, EventService) {
+  function($log, $q, EventService) {
     var ctrl = this;
     ctrl.init = function(name, hsmMachine) {
       var listeners;
@@ -147,25 +117,16 @@ angular.module('demo')
             if (!defer) {
               defer = $q.defer();
             }
-            return function() {
-              defer.resolve();
-            };
+            // returns the function to be called.
+            return defer.resolve;
           },
         });
-        if (defer) {
-          var state = defer.promise.$$state;
-          if (!state.status && !state.pending) {
-            var msg = "game listener deferral has gone unused; game will hang.";
-            $log.error(name, msg);
-            throw new Error(msg);
-          }
-          return defer.promise;
-        }
+        return defer && defer.promise;
       };
       // exposed to scope:
       return {
         silence: silence,
-        listen: function(tgts, evts) {
+        listen: function(tgt, evts) {
           silence();
           listeners = EventService.listen(tgt, evts, response);
         }
@@ -175,75 +136,66 @@ angular.module('demo')
 
 // -created
 .directiveAs("gameControl", ["^^hsmMachine"],
-  function(EventStreamService, GameService, PostalService,
+  function(GameService, PostalService,
     $location, $log, $q, $scope) {
     this.init = function(name, hsmMachine) {
-      var currentGame;
-      return {
-        newGame: function() {
-          // force us somewhere, anywhere: so that ng-view will trigger on the first map path change; ng-view in an ng-if does *not* work, or it could be an alternative.
-          var ohsomuchtrouble = "/new";
-          var defer = $q.defer();
-          if ($location.path() == ohsomuchtrouble) {
-            defer.resolve();
-          } else {
-            var off1 = $scope.$on("$locationChangeSuccess", defer.resolve);
-            defer.promise.then(off1);
-            $location.path(ohsomuchtrouble);
-          };
+      var ctrl = this;
+      var currentGame, processControl;
+      this.start = function() {
+        this.post({
+          'in': 'start'
+        });
+      };
+      this.post = function(what) {
+        currentGame.post(what).then(function(res) {
+          return processControl.queue(res.frame, res.events || []);
+        });
+      };
+      this.newGame = function(_processControl) {
+        processControl = _processControl;
+        // force us somewhere, anywhere: so that ng-view will trigger on the first map path change; ng-view in an ng-if does *not* work, or it could be an alternative.
+        var ohsomuchtrouble = "/new";
+        var defer = $q.defer();
+        if ($location.path() == ohsomuchtrouble) {
+          defer.resolve();
+        } else {
+          var off1 = $scope.$on("$locationChangeSuccess", defer.resolve);
+          defer.promise.then(off1);
+          $location.path(ohsomuchtrouble);
+        };
 
-          defer.promise.then(function() {
-            PostalService.post("new", {}).then(function(res) {
-              if (res.events) {
-                // FIX: status bar sets; this pushes them off till later, should that be known, explicit in the outer machine.
-                EventStreamService.queueEvents(res.frame, res.events);
-              }
-              return res.game;
-            }).then(function(game) {
-              currentGame = game;
-              GameService.hack(game);
-              hsmMachine.emit([name, "created"].join('-'), {
-                game: game,
-                gameId: game.id,
-              });
-            })
-          });
-        },
-        currentGame: function() {
-          return currentGame;
-        },
-        quit: function() {
-          throw new Error("well that was unexpected");
+        defer.promise.then(function() {
+          PostalService.post("new", {}).then(function(res) {
+            if (res.events) {
+              processControl.queue(res.frame, res.events);
+            }
+            return res.game;
+          }).then(function(game) {
+            currentGame = GameService.hack(game);
+            hsmMachine.emit([name, "created"].join('-'), {
+              game: game,
+              gameId: game.id,
+            });
+          })
+        });
+      };
+      this.request = function(type, id) {
+        if (!currentGame) {
+          throw new Error("not in game");
         }
+        if (angular.isObject(type)) {
+          id = type.id;
+          type = type.type;
+        }
+        return currentGame.request(type, id);
       };
-    };
+      this.quit = function() {
+        throw new Error("well that was unexpected");
+      };
+      return this;
+    }; //init
   })
 
-// bind, post
-.directiveAs("serverControl", ["^^hsmMachine"],
-  function(PostalService) {
-    this.init = function(name, hsmMachine) {
-      var gameId, stream;
-      return {
-        bind: function(_gameId, _stream) {
-          // bind false is okay.
-          if (_stream && !_gameId) {
-            throw new Error("unknown game");
-          }
-          gameId = _gameId;
-          stream = _stream;
-        },
-        post: function(data) {
-          if (!gameId || !stream) {
-            throw new Error("server not bound");
-          }
-          PostalService.post(gameId, data).then(function(res) {
-            stream.queue(res.frame, res.events || []);
-          });
-        },
-      };
-    };
-  })
 
 // -processing, -empty
 .directiveAs("processControl", ["^^hsmMachine"],
@@ -333,6 +285,7 @@ angular.module('demo')
 .directiveAs("mapControl", ["^^hsmMachine"],
   function(CollisionService, LayerService, LocationService, MapService, ObjectService, UpdateService,
     $log, $element, $q, $rootScope) {
+    var hsmMachine;
     // returns a promise:
     var loadMap = function(mapEl, next) {
       var mapName = next.mapName();
@@ -349,6 +302,9 @@ angular.module('demo')
 
             // fix: cant assume all layers have physics.
             var physicsLayer = map.findLayer("$collide");
+            if (!physicsLayer) {
+              throw new Error("no physics not supported");
+            }
             var physics = CollisionService.newScene(tree.bounds);
             physics.makeWalls(physicsLayer.getShapes());
 
@@ -383,7 +339,7 @@ angular.module('demo')
         this.defer = null;
       }
       if (this.map) {
-        var key = this.map.tree;
+        var tree = this.map.tree;
         if (tree) {
           tree.nodes.destroyNode();
           tree.el.remove();
@@ -391,8 +347,50 @@ angular.module('demo')
         this.map = null;
       }
     };
-    this.init = function(name, hsmMachine) {
+    this.changeLocation = function(next) {
       var ctrl = this;
+      if (next.changes(LocationService.currentLocation())) {
+        $log.info("loading", next.toString());
+        hsmMachine.emit([ctrl.name, "loading"].join('-'), next);
+        ctrl.destroyMap();
+        // after the url changes, angular changes the ng-view, and recreates the map element.
+        var defer = ctrl.defer = $q.defer();
+        var off = $rootScope.$on("ga-map-created", function(evt, mapSlot, mapEl, mapScope) {
+          off();
+          loadMap(mapEl, next).then(function(map) {
+            defer.resolve({
+              map: map,
+              where: next,
+              scope: mapScope
+            });
+          });
+        });
+        // if canceled, none of the data gets applied to ctrl,scope.
+        defer.promise.then(function(res) {
+          ctrl.where = res.where;
+          ctrl.map = res.map;
+          ctrl.defer = null;
+          // size the view
+          res.scope.style = {
+            'position': 'relative',
+            'width': res.map.bounds.x + 'px',
+            'height': res.map.bounds.y + 'px',
+          };
+          res.scope.loaded = true;
+          LocationService.finishedLoading(res.where);
+        });
+
+        // the promise is resolved by finished loading
+        // FIX: can remove that entirely if we can move all location changes here.
+        LocationService.changeLocation(next).then(function(now) {
+          hsmMachine.emit([ctrl.name, "loaded"].join('-'), now);
+        });
+      }
+    };
+    this.init = function(name, _hsmMachine) {
+      hsmMachine = _hsmMachine;
+      var ctrl = this;
+      ctrl.name = name;
       return {
         // suspicious of exposing resources object directly to scope watchers
         get: function(key) {
@@ -405,10 +403,10 @@ angular.module('demo')
           return ret;
         },
         update: function(dt) {
-          $log.info("update", $element);
+          //$log.info("update", $element);
           var uframe = UpdateService.debugFrame();
           if (ctrl.frame == uframe) {
-            $log.error(ctrl.frame, uframe);  
+            $log.error(ctrl.frame, uframe);
             throw new Error("doubled");
           }
           ctrl.frame = uframe;
@@ -419,53 +417,22 @@ angular.module('demo')
           ctrl.map.physics.step(dt);
         },
         // return a promise
-        changeRoom: function(where) {
-          var next = LocationService.next(where);
-          //
-          if (next.changes(LocationService.currentLocation())) {
-            hsmMachine.emit([name, "loading"].join('-'), next);
-            //
-            ctrl.destroyMap();
-            // after the url bar changes, angular will change the view, will recreate the map element.
-            var defer = ctrl.defer = $q.defer();
-            var off = $rootScope.$on("ga-map-created", function(evt, mapSlot, mapEl, mapScope) {
-              off();
-              loadMap(mapEl, next).then(function(map) {
-                defer.resolve({
-                  map: map,
-                  where: next,
-                  scope: mapScope
-                });
-              });
-            }); // on
-            // if canceled, none of the data gets applied to ctrl,scope.
-            defer.promise.then(function(res) {
-              ctrl.where = res.where;
-              ctrl.map = res.map;
-              ctrl.defer = null;
-              // size the view
-              res.scope.style = {
-                'position': 'relative',
-                'width': res.map.bounds.x + 'px',
-                'height': res.map.bounds.y + 'px',
-              };
-              res.scope.loaded = true;
-              LocationService.finishedLoading(res.where);
-            });
+        changeRoom: function(room) {
+          ctrl.changeLocation(LocationService.nextRoom(room));
+        },
+        changeView: function(view) {
+          ctrl.changeLocation(LocationService.nextView(view));
+        },
+        changeItem: function(item) {
+          ctrl.changeLocation(LocationService.nextItem(item));
+        },
 
-            // the promise is resolved by finished loading
-            // FIX: would like to remove that entirely.
-            LocationService.changeLocation(next).then(function(now) {
-              hsmMachine.emit([name, "loaded"].join('-'), now);
-            });
-          }
-        }
       };
     };
   })
 
 .directiveAs("gaKeys", ["^^hsmMachine"],
-  function($log, $rootElement) {
+  function($log, $scope, $rootElement) {
     var moveKeys = makeMoveKeys({}); // index -> name
     var all = {};
     var moving = 0;
@@ -507,7 +474,9 @@ angular.module('demo')
             var old = moving;
             moving += which * (keydown ? 1 : -1);
           }
-          hsmMachine.emit("ga-key", new KeyEvent(which, keydown));
+          $scope.$apply(function() {
+            hsmMachine.emit("ga-key", new KeyEvent(which, keydown));
+          });
         }
       };
       return {
@@ -597,7 +566,7 @@ angular.module('demo')
           hsmMachine.emit(name, evt);
         };
         this.createAt = function(elfn) {
-          var el = elfn();
+          el = elfn();
           cursor = CursorService.newCursor(el);
           el.on(reflectList, reflect);
         };
@@ -671,6 +640,7 @@ angular.module('demo')
     this.init = function(name, hsmMachine) {
       var evt;
       var update = function(dt) {
+        // NOTE! doesnt call apply... hmmm...
         hsmMachine.emit(evt, {
           dt: dt
         });
@@ -886,8 +856,8 @@ angular.module('demo')
         return target ? avatar.getFeet() : avatar.getCenter();
       };
 
-      this.init = function(name, hsmMachine_) {
-        hsmMachine = hsmMachine_;
+      this.init = function(name, _hsmMachine) {
+        hsmMachine = _hsmMachine;
         return this;
       };
       this.target = function() {
@@ -916,7 +886,7 @@ angular.module('demo')
         arrival.setDest(pos);
       };
       this.stop = function() {
-        $log.info("stopped!");
+        //$log.info("stopped!");
         arrival.setDest(false);
         avatar.move(false);
       };
@@ -963,7 +933,7 @@ angular.module('demo')
         blocks: TextService.getDisplay().blocks,
         submit: function(userInput) {
           if (userInput) {
-            gameControl.postGameData({
+            gameControl.post({
               'in': userInput,
             });
           }
@@ -1045,34 +1015,31 @@ angular.module('demo')
         var obj = target.object;
         var view = target.view;
 
-        var pending = $q.defer();
-        var config = ActionListService.then(function(actionList) {
-          var pendingActions;
-          var combining = CombinerService.getCombiner();
-          if (obj) {
-            if (!combining) {
-              pendingActions = actionList.getObjectActions(obj);
-            } else {
-              pendingActions = actionList.getMultiActions(obj, combining);
-            }
-          } // obj
-          return $q.when(pendingActions).then(function(actions) {
-            var zoom = view && IconService.getIcon("$zoom");
-            if (!actions && !zoom) {
-              throw new Error("no actions found");
-            }
-            return {
-              actions: actions,
-              //combining: combining,
-              zoom: zoom,
-              pos: barpos,
-              view: view,
-            };
-          });
+        var pendingActions;
+        var combining = CombinerService.getCombiner();
+        if (obj) {
+          if (!combining) {
+            pendingActions = ActionListService.getObjectActions(obj);
+          } else {
+            pendingActions = ActionListService.getMultiActions(obj, combining);
+          }
+        } // obj
+        var pendingConfig = $q.when(pendingActions).then(function(actions) {
+          var zoom = view && IconService.getIcon("$zoom");
+          if (!actions && !zoom) {
+            throw new Error("no actions found");
+          }
+          return {
+            actions: actions,
+            //combining: combining,
+            zoom: zoom,
+            pos: barpos,
+            view: view,
+            objectId: obj.id,
+          };
         });
-        config.then(pending.resolve, pending.reject);
 
-        modal = $uibModal.open({
+        var mdl = modal = $uibModal.open({
           templateUrl: 'actionBar.html',
           controllerAs: name,
           controller: function(config) {
@@ -1086,13 +1053,19 @@ angular.module('demo')
             }
             bar.actions = config.actions;
             bar.zoom = config.zoom;
-
+            var objId = config.objectId;
             bar.runAction = function(act) {
-              hsmMachine.emit("demo-action", act);
+              // FIX: probably this should raise an action event
+              // probably the actions services should expose an api to run an action
+              // ( then we arent forced to use just the button bar -- could have a hot bar, or whatever )
+              act.runIt(objId);
+              // may already be closed due to state change,
+              // but since its cancelable.....
+              // mdl.close("tried action");
+              // eh... lets just see what happens -- bascially the bar wouldnt go away
+              // and thats a bad thing... how?
               //    var combine = this.combining && this.combining.id;
-              // var object = this.subject.object;
               // act.runIt(object.id, combine);
-              // this.close("ran action");
             };
             bar.zoomView = function(act) {
               //this.subject.view;
@@ -1107,7 +1080,7 @@ angular.module('demo')
           windowClass: "ga-action-win",
           windowTopClass: "ga-action-top",
           resolve: {
-            config: pending.promise,
+            config: pendingConfig,
           },
         }); // model.open
 

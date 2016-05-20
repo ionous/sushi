@@ -1,4 +1,4 @@
-<hsm-state name="Playing" avatar-control="avatar" avatar-size="12" hsm-enter="avatar.create(player.getChara(), map.get('physics'), map.get('pads'))" hsm-exit="avatar.destroy()">
+<hsm-state name="Playing">
   <hsm-state>
     <hsm-state name="Commanding" mouse-control="mouse" hsm-enter="mouse.createAt(map.get('mapEl'))" hsm-exit="mouse.destroy()">
       <hsm-state parallel="true" mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(mouse,map.get('hitGroups'))" hsm-exit="mouseTarget.release()">

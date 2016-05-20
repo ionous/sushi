@@ -1,4 +1,5 @@
 <hsm-state name="Interact" ga-keys="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
+  <!-- <hsm-event on="ga-key" when="$evt.actionKey()" run="map.changeView('blast')"></hsm-event> -->
   <hsm-event on="approach" run="avatar.onLandingPads($evt.target) ? avatar.interact($evt.target) : 'Pathing'"></hsm-event>
   <hsm-event on="direct" goto="Directing"></hsm-event>
   <!-- might "beep" when not on pads -->
@@ -28,9 +29,10 @@
     </hsm-state>
   </hsm-state>
   <hsm-state name="ActionBarOpen" action-bar="actionBar" hsm-enter="actionBar.createAt(map.get('mapEl'), $evt.target)" hsm-exit="actionBar.destroy()">
+    <!-- actions running handled at the GameIsActive level -->
     <hsm-event on="ga-key" when="$evt.escapeKey()" goto="ActionBarClosed"></hsm-event>
     <hsm-event on="ga-key" when="$evt.moveKey(true)" goto="KeyWalking"></hsm-event>
-    <hsm-event on="demo-action" goto="ActionBarClosed"></hsm-event>
-    <hsm-event on="demo-zoom" goto="ActionBarClosed"></hsm-event>
+    <!-- we run the change view action, and we let the map handler pull us out of the action bar; ( as opposed to jumping to some specific state ) -->
+    <hsm-event on="demo-zoom" run="map.changeView($evt.view)"></hsm-event>
   </hsm-state>
 </hsm-state>

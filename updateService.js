@@ -12,7 +12,10 @@ angular.module('demo')
       var lastTime;
       var request, timer;
       var update = function(time) {
-        //$log.info("update", frame);
+        // $log.info("update", frame);
+        // if (frame>20) {
+        //   return;
+        // }
         if (lastTime) {
           var dt = (time - lastTime) * 0.001;
           fns.forEach(function(fn) {

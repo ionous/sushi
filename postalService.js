@@ -16,7 +16,7 @@ angular.module('demo')
           }
 
           var url = ['/game', where].join('/');
-          $log.info("PostalService: post", where, what);
+          //$log.debug("PostalService: post", where, what.toString());
 
           return $http.post(url, what).then(function(resp) {
             var doc = JsonService.parseObjectDoc(resp.data, 'post');

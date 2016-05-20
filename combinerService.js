@@ -10,32 +10,33 @@ angular.module('demo')
       $log, $q, $rootElement, $rootScope) {
 
       var updateMultiActions = function(srcItem) {
-        return ActionListService.then(function(actionList) {
-          var itemActions = {};
-          var build = function(list, context) {
-            var wait = Object.keys(list).filter(function(id) {
-              return (srcItem.id != id);
-            }).map(function(id) {
-              var item = EntityService.getById(id);
-              return actionList.getMultiActions(item, srcItem).then(
-                function(actions) {
-                  if (actions && actions.length) {
-                    // $log.info("CombinerService: adding", id, actions);
-                    itemActions[id] = actions;
-                  }
-                  return actions;
-                });
-            });
-            return $q.all(wait);
-          };
-          var p = EntityService.getById("player");
-          var worn = build(p.clothing, "worn");
-          var carried = build(p.inventory, "carried");
-          return $q.all([worn, carried]).then(function() {
-            return itemActions;
+        var itemActions = {};
+        //
+        var build = function(list, context) {
+          var wait = Object.keys(list).filter(function(id) {
+            return (srcItem.id != id);
+          }).map(function(id) {
+            var item = EntityService.getById(id);
+            return ActionListService.getMultiActions(item, srcItem).then(
+              function(actions) {
+                if (actions && actions.length) {
+                  // $log.info("CombinerService: adding", id, actions);
+                  itemActions[id] = actions;
+                }
+                return actions;
+              });
           });
+          return $q.all(wait);
+        };
+        //
+        var p = EntityService.getById("player");
+        var worn = build(p.clothing, "worn");
+        var carried = build(p.inventory, "carried");
+        return $q.all([worn, carried]).then(function() {
+          return itemActions;
         });
-      }
+
+      };
 
       var combining = false;
       var lastItem, lastActions;
