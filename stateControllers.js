@@ -101,12 +101,20 @@ angular.module('demo')
           listeners = null;
         }
       };
-      var response = function(data, tgt, evt) {
+      ctrl.$onDestroy = function() {
+        if (listeners) {
+          $log.error("gameListener", name, "still active");
+          silence();
+        }
+      };
+      var emit = function(data, tgt, evt, endEvent) {
         var defer; // lazily created, so only used if accessed.
         hsmMachine.emit(name, {
           data: data,
           name: evt,
           tgt: tgt,
+          start: !endEvent,
+          end: !!endEvent,
           defer: function() {
             if (!defer) {
               defer = $q.defer();
@@ -123,12 +131,26 @@ angular.module('demo')
         });
         return defer && defer.promise;
       };
+      // be a little explict so that if the event service wants to send us extra params...
+      // we only pass the params we are expecting.
+      var sendEventStart = function(d, t, e) {
+        return emit(d, t, e, false);
+      };
+      var sendEventEnd = function(d, t, e) {
+        return emit(d, t, e, true);
+      };
       // exposed to scope:
       return {
         silence: silence,
-        listen: function(tgt, evts) {
+        listen: function(tgt, evts, startEnd) {
           silence();
-          listeners = EventService.listen(tgt, evts, response);
+          var handler = !startEnd ?
+            sendEventStart : {
+              start: sendEventStart,
+              end: sendEventEnd,
+            };
+          //$log.info("gameListener", name, tgt, evts, startEnd);
+          listeners = EventService.listen(tgt, evts, handler);
         }
       };
     }; // init
@@ -142,13 +164,16 @@ angular.module('demo')
       var ctrl = this;
       var currentGame, processControl;
       this.start = function() {
+        hsmMachine.emit([name, "starting"].join("-"));
         this.post({
           'in': 'start'
+        }).then(function() {
+          hsmMachine.emit([name, "started"].join("-"));
         });
       };
       this.post = function(what) {
-        currentGame.post(what).then(function(res) {
-          return processControl.queue(res.frame, res.events || []);
+        return currentGame.post(what).then(function(res) {
+          processControl.queue(res.frame, res.events || []);
         });
       };
       this.newGame = function(_processControl) {
@@ -196,19 +221,32 @@ angular.module('demo')
     }; //init
   })
 
-
 // -processing, -empty
 .directiveAs("processControl", ["^^hsmMachine"],
   function($timeout, EventStreamService) {
     this.init = function(name, hsmMachine) {
-      return {
-        queue: function(frame, events) {
-          $timeout(function() {
-            hsmMachine.emit([name, "processing"].join('-'), {});
-            EventStreamService.queueEvents(frame, events).handleEvents().then(function() {
-              hsmMachine.emit([name, "empty"].join('-'), {});
-            });
+      var handleEvents = function() {
+        $timeout(function() {
+          hsmMachine.emit([name, "processing"].join('-'), {});
+          EventStreamService.handleEvents().then(function() {
+            hsmMachine.emit([name, "empty"].join('-'), {});
           });
+        });
+      };
+      var active;
+      return {
+        process: function(enable) {
+          var enabled = angular.isUndefined(enabled) || enabled;
+          if (!active && enabled) {
+            handleEvents();
+          }
+          active = enabled;
+        },
+        queue: function(frame, events) {
+          EventStreamService.queueEvents(frame, events);
+          if (active) {
+            handleEvents();
+          }
         }
       };
     };
@@ -922,7 +960,52 @@ angular.module('demo')
         }
       };
     }) // move control
+  .directiveAs('modalControl', ["^^hsmMachine"],
+    function($log, $uibModal) {
+      this.init = function(name, hsmMachine) {
+        var modal;
+        this.show = function(source, params) {
+          if (modal) {
+            modal.dismiss(source);
+            modal = false;
+          }
+          //
+          modal = $uibModal.open(params);
+          modal.result.then(function() {
+            hsmMachine.emit([name, "closed"].join("-"), {
+              name: name,
+              source: source,
+              result: result,
+            });
+          }, function(reason) {
+            hsmMachine.emit([name, "dismissed"].join("-"), {
+              name: name,
+              source: source,
+              reason: reason,
+            });
+          });
+          hsmMachine.emit([name, "opening"].join("-"), {
+            name: name,
+          });
+          return modal;
+        };
+        return {
+          // b/c show takes so many angular commands,
+          // we expect that its shown by a directive or controller
+          // we export close and dismiss, similar uibModal's $close, $dismiss.
+          close: function(result) {
+            modal.close(result);
+            modal = null;
+          },
+          dismiss: function(reason) {
+            modal.dismiss(reason);
+            modal = null;
+          },
+        }
+      }; //init
+    })
 
+// fix, convert to dismiss.
 .directiveAs("consoleControl", ["^^gameControl", "^^hsmMachine"],
   function($log, $uibModal, TextService) {
     this.init = function(name, gameControl, hsmMachine) {

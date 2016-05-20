@@ -5,6 +5,7 @@ angular.module('demo')
     function(EventService, EntityService,
       $element, $log, $q, $rootElement, $rootScope, $scope, $timeout,
       SKIP_DIALOG) {
+      return false;
 
       var overgrey = angular.element('<div class="overgrey"></div>');
       var bubble = angular.element('<div class="bubble"></div>');
