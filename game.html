@@ -36,6 +36,7 @@
         <hsm-state name="Play" hsm-init="WaitingOnProcess" avatar-control="avatar" avatar-size="12" hsm-enter="avatar.create(player.getChara(), map.get('physics'), map.get('pads'))" hsm-exit="avatar.destroy()">
           <hsm-state name="WaitingOnProcess">
             <hsm-event on="stream-empty" goto="GameIsActive"></hsm-event>
+            <!-- note: since all dialogs, speech, etc. are opened during processing, we dont need special handling of window-opened, etc. -->
           </hsm-state>
           <hsm-state name="WaitingOnMap">
             <hsm-event on="map-loaded" run="player.link()"></hsm-event>
@@ -60,28 +61,7 @@
             <hsm-event on="stream-processing" goto="Processing"></hsm-event>
           </hsm-state>
           <!-- parallel due to the lack of multiple enter events -->
-          <hsm-state name="Processing" parallel="true">
-            <hsm-event on="stream-empty" goto="WaitingToProcess"></hsm-event>
-            <!--  -->
-            <hsm-state game-listener="roomChange" hsm-enter="roomChange.listen('player', 'x-rel')" hsm-exit="roomChange.silence()">
-              <!-- locator is going to raise its own loading events  -->
-              <hsm-event on="roomChange" when="$evt.data.prop=='object-whereabouts'" run="map.changeRoom($evt.data.next).then($evt.resolve())"></hsm-event>
-            </hsm-state>
-            <!--  the default text handler, always active, stores the lines in global memory, primarily for the the sake of the console. FIX: rework to capture into the console directly.-->
-            <hsm-state text-control="text" game-listener="printText" hsm-enter="printText.listen('*', ['print', 'say'])" hsm-exit="printText.silence()">
-              <hsm-event on="printText" run="text.addLines($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
-            </hsm-state>
-            <!-- other text handlers do other things.... -->
-            <hsm-state popup-control="popup" game-listener="reportView" hsm-enter="reportView.listen('*', 'reporting-the-view', true)" hsm-exit="reportView.silence()">
-              <hsm-state name="DisplayStoryText" game-listener="popupText" hsm-enter="popupText.listen('_display_', 'print')" hsm-exit="popupText.silence()">
-                <hsm-event on="popupText" run="popup.show($evt.data).then($evt.resolve())"></hsm-event>
-              </hsm-state>
-              <hsm-event on="reportView" when="$evt.start" goto="SilenceRoomEntryText"></hsm-event>
-              <hsm-event on="reportView" when="$evt.end" goto="DisplayStoryText"></hsm-event>
-              <hsm-state name="SilenceRoomEntryText">
-              </hsm-state>
-            </hsm-state>
-          </hsm-state>
+          <ng-include src="'processing.html'"></ng-include>
         </hsm-state>
       </hsm-state>
     </hsm-state>

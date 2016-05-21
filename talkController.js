@@ -1,23 +1,25 @@
 'use strict';
 
 angular.module('demo')
-  .controller('TalkController',
-    function(EventService, EntityService,
-      $element, $log, $q, $rootElement, $rootScope, $scope, $timeout,
-      SKIP_DIALOG) {
-      return false;
+  .directiveAs('talkControl', ["^modalControl"], function(
+    EntityService,
+    $log, $q, $rootElement, $timeout) {
+    this.init = function(name, modalControl) {
 
-      var overgrey = angular.element('<div class="overgrey"></div>');
-      var bubble = angular.element('<div class="bubble"></div>');
-      var el = $element;
+      var overgrey = angular.element('<div class="overgrey ga-noselect"></div>');
+      var bubble = angular.element('<div class="bubble ga-noselect"></div>');
+      // var el = angular.element('<div class="talk ga-noselect"></div>');
+      // $rootElement.prepend(el);
+      var el= overgrey;
 
       //$log.info("TalkController: base pos", baseLeft, baseTop);
 
-      var Talker = function(id, displayGroup, canvi) {
+      var Talker = function(id, displayGroup,canvi) {
         var pos = displayGroup.pos;
         var size = canvi.getSize();
         var adjust = pt(0, 0);
-        // the images have different spacings in them... :(
+        // hmmm.... the images have different spacings in them... :(
+        // should probably be part of a character description.
         switch (id) {
           case "alice":
           case "player":
@@ -32,36 +34,56 @@ angular.module('demo')
             adjust.y = 48;
             break;
         };
-        $log.info("TalkController:", id, adjust);
+        //$log.info("TalkController:", id, adjust.x, adjust.y);
 
-        var fini = $q.defer();
-        this.finished = fini.promise;
-        this.finished.finally(function() {
+        var defer = $q.defer();
+
+        // api for modal control:
+        this.result = defer.promise;
+
+        this.close = function(result) {
+          defer.resolve(result);
+        };
+        this.dismiss = function(reason) {
+          defer.reject(reason);
+        };
+
+        //
+        defer.promise.finally(function() {
+          ///$log.info("TalkController: finally.");
           bubble.remove();
         });
 
         var displayText = function(text) {
+          //$log.debug("TalkController: display", text);
+          // prepare to center bubble over chara
           bubble.css({
             "visibility": "hidden",
             "top": "",
             "left": adjust.x + "px",
             "bottom": adjust.y + "px",
           });
+          // assign text:
           bubble.text(text);
-          display.group.el.prepend(bubble);
+          // move bubble to character
+          // FIX? if i leave bubble as a child of element, i do not get the expected positions -- its as if the size is some scale of the text.
+          // note: window resizing can changes client coords, so must sample rect each time;
+          // we dont have to dynamically change those coords once the dom lays things out.
+          displayGroup.el.prepend(bubble);
 
-          // ive no idea why, but if i leave bubble as a child of $element, and measure manually these i do not get the expected positions -- its as if the size is some scale of the text.
-          // also, note: window resizing changes client coords, so must sample rect each time.
+          // measure window
           var base = el[0].getBoundingClientRect();
           var baseLeft = base.left;
           var baseTop = base.top;
 
+          // measure text 
           var r = bubble[0].getBoundingClientRect();
           var top = r.top - baseTop;
           var left = r.left - baseLeft;
-          $log.info("TalkController: measured", left, top);
-
+          
+          // move bubble back.
           el.append(bubble);
+          // center bubble and display:
           bubble.css({
             "visibility": "",
             "top": top + "px",
@@ -86,44 +108,34 @@ angular.module('demo')
             }
           }
           // done.
-          fini.resolve();
+          defer.resolve("done!");
         };
-      };
-
-      var rub = EventService.listen("*", "say", function(data, actorId) {
-        if (data && data.length && !SKIP_DIALOG) {
+      }; // Talker.
+      return {
+        say: function(actorId, data) {
+          if (!data || !data.length) {
+            return $q.when();
+          }
           var actor = EntityService.getById(actorId);
-          var objectDisplay = actor.objectDisplay;
-          //
+          var objectDisplay = actor && actor.objectDisplay;
           if (!objectDisplay) {
-            $log.error("dont know how to display text", actorId, data);
+            var msg = "dont know how to display text";
+            $log.error(msg, actorId, data);
+            throw new Error(msg);
           } else {
             var talker = new Talker(actorId, objectDisplay.group, objectDisplay.canvi);
-            $rootScope.$broadcast("window change", "talk opened");
-
-            // empty the array so no other layer can grab the data
-            // (changing event system to use scope events and then stopping propogation might work too)
             var lines = data.slice();
-            while (data.length) {
-              data.pop();
-            }
-            //
-            talker.finished.finally(function() {
-              overgrey.remove();
-              $rootScope.$broadcast("window change", "talk closed");
-            });
             $rootElement.prepend(overgrey);
             $timeout(function() {
               talker.process(lines);
             });
-            return talker.finished;
+            modalControl.present("talk", talker);
+            return talker.result.finally(function() {
+              overgrey.remove();
+            });
           }
-        }
-      });
 
-      $scope.$on("$destroy", function() {
-        rub();
-        overgrey.remove();
-      });
-
-    });
+        }, //say
+      }; // return
+    }; // init
+  });

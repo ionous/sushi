@@ -964,14 +964,13 @@ angular.module('demo')
     function($log, $uibModal) {
       this.init = function(name, hsmMachine) {
         var modal;
-        this.show = function(source, params) {
+        // newModal: an object with: close, dismiss, and .result
+        this.present = function(source, newModal) {
           if (modal) {
             modal.dismiss(source);
-            modal = false;
           }
-          //
-          modal = $uibModal.open(params);
-          modal.result.then(function() {
+          modal = newModal;
+          modal.result.then(function(result) {
             hsmMachine.emit([name, "closed"].join("-"), {
               name: name,
               source: source,
@@ -988,6 +987,9 @@ angular.module('demo')
             name: name,
           });
           return modal;
+        };
+        this.show = function(source, params) {
+          return this.present(source, $uibModal.open(params));
         };
         return {
           // b/c show takes so many angular commands,

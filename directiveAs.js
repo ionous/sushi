@@ -25,12 +25,14 @@ angular.module('demo')
           var ctrl = controllers[0];
           var directiveAttr = attrs[directiveName];
           var scopeAs = ctrl.init.apply(ctrl, [directiveAttr].concat(controllers.slice(1)));
-          if (!scopeAs) {
-            var msg = "directiveAs init returned null";
+          if (angular.isUndefined(scopeAs)) {
+            var msg = "directiveAs init missing return value";
             $log.error(msg, directiveName, directiveAttr);
             throw new Error(msg);
           }
-          scope[directiveAttr] = scopeAs;
+          if (scopeAs !== null) {
+            scope[directiveAttr] = scopeAs;
+          }
         },
       }
     });

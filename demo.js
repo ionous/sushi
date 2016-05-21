@@ -6,7 +6,6 @@
 // it clears the contents of the app and resulting in many strange errors.
 angular
   .module('demo', ['ui.bootstrap', 'ngAnimate', 'ngRoute', 'mosaic', 'hsm'])
-  .constant('SKIP_DIALOG', true)
   .config(['$controllerProvider', '$routeProvider',
     function($controllerProvider, $routeProvider) {
 
