@@ -12,8 +12,8 @@
     <hsm-event on="demo-settings" goto="Settings"></hsm-event>
     <!--  -->
     <hsm-state name="WindowOpened">
-      <hsm-event on="ga-window-closed" goto="Commanding"></hsm-event>
       <hsm-state name="ConsoleSub">
+        <hsm-event on="console-closed" goto="Commanding"></hsm-event>
       </hsm-state>
       <hsm-state name="Inventory" inventory-control="inv" hsm-enter="inv.show()" hsm-exit="inv.hide()">
       </hsm-state>

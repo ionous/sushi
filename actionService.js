@@ -66,7 +66,7 @@ angular.module('demo')
           'ctx': ctxId,
         });
         if (!evt.defaultPrevented) {
-          hsmMachine.emit([name, "running"].join("-"), post);
+          hsmMachine.emit(name, "running", post);
           // so many questions: should every event be tied to an action
           // or, shoud we grab events elsewhere and run some action.
           // i think i like the sensibility of the former.

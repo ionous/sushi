@@ -3,7 +3,7 @@
     <hsm-event on="demo-console" goto="ConsoleOpen"></hsm-event>
   </hsm-state>
   <hsm-state name="ConsoleOpen" console-control="console" hsm-enter="console.show()" hsm-init="game.isProcessing() ? 'ConsoleInputDisabled' : 'ConsoleInputEnabled'" hsm-exit="console.hide()">
-    <hsm-event on="ga-window-closed" goto="ConsoleClosed"></hsm-event>
+    <hsm-event on="console-closed" goto="ConsoleClosed"></hsm-event>
     <!-- for this to work right, to be able to open and close the console at will while the game is processing, we need to be able to evaluate "is processing" of something like the game. -->
     <hsm-state name="ConsoleInputDisabled" hsm-enter="console.allowInput(false)">
       <hsm-event on="game-event" when="$evt.finished" goto='ConsoleInputEnabled'></hsm-event>

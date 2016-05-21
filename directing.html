@@ -1,10 +1,10 @@
 <hsm-state name="Directing" move-control="director" hsm-enter="director.start(avatar)" hsm-exit="director.stop()">
     <hsm-state hsm-enter="mouseTarget.ghost(avatar.object)" hsm-exit="mouseTarget.ghost(false)">
-      <hsm-event on="mouseTargetChanged" run="$evt.target ? 'PlayerDirectTarget' : 'PlayerDirectPos'"></hsm-event>
+      <hsm-event on="mouseTarget-changed" run="$evt.target ? 'PlayerDirectTarget' : 'PlayerDirectPos'"></hsm-event>
       <!-- end the move -->
-      <hsm-event on="mouseup" goto="Planning"></hsm-event>
-      <hsm-event on="move-arrived" run="log.info('arrived!')"></hsm-event>
-      <!-- <hsm-event on="move-blocked" run="log.info('blocked!')"></hsm-event> -->
+      <hsm-event on="mouse-up" goto="Planning"></hsm-event>
+      <hsm-event on="director-arrived" run="log.info('arrived!')"></hsm-event>
+      <!-- <hsm-event on="director-blocked" run="log.info('blocked!')"></hsm-event> -->
       <!-- execute the move -->
       <hsm-event on="update-game" run="director.update($evt.dt, true)"></hsm-event>
       <div>
@@ -12,15 +12,15 @@
         <hsm-state name="PlayerDirectWait"></hsm-state>
         <!-- move the player towards a specific target -->
         <hsm-state name="PlayerDirectTarget" hsm-enter="director.setTarget($evt.target)">
-          <hsm-event on="mouseup" run="avatar.interact(director.target())"></hsm-event>
+          <hsm-event on="mouse-up" run="avatar.interact(director.target())"></hsm-event>
           <!-- stop until our parent state gets a target change or mouse up-->
-          <hsm-event on="move-arrived" run="director.stop()"></hsm-event>
+          <hsm-event on="director-arrived" run="director.stop()"></hsm-event>
         </hsm-state>
         <!-- move the player towards a specific position -->
         <hsm-state name="PlayerDirectPos" hsm-enter="director.moveTo(mouse.pos())">
-          <hsm-event on="mousemove" run="director.moveTo(mouse.pos())"></hsm-event>
+          <hsm-event on="mouse-move" run="director.moveTo(mouse.pos())"></hsm-event>
           <!-- stop until we mouse move somewhere new -->
-          <hsm-event on="move-arrived" run="director.stop()"></hsm-event>
+          <hsm-event on="director-arrived" run="director.stop()"></hsm-event>
         </hsm-state>
       </div>
     </hsm-state>

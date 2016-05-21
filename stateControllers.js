@@ -164,11 +164,11 @@ angular.module('demo')
       var ctrl = this;
       var currentGame, processControl;
       this.start = function() {
-        hsmMachine.emit([name, "starting"].join("-"));
+        hsmMachine.emit(name, "starting", {});
         this.post({
           'in': 'start'
         }).then(function() {
-          hsmMachine.emit([name, "started"].join("-"));
+          hsmMachine.emit(name, "started", {});
         });
       };
       this.post = function(what) {
@@ -197,7 +197,7 @@ angular.module('demo')
             return res.game;
           }).then(function(game) {
             currentGame = GameService.hack(game);
-            hsmMachine.emit([name, "created"].join('-'), {
+            hsmMachine.emit(name, "created", {
               game: game,
               gameId: game.id,
             });
@@ -227,9 +227,9 @@ angular.module('demo')
     this.init = function(name, hsmMachine) {
       var handleEvents = function() {
         $timeout(function() {
-          hsmMachine.emit([name, "processing"].join('-'), {});
+          hsmMachine.emit(name, "processing", {});
           EventStreamService.handleEvents().then(function() {
-            hsmMachine.emit([name, "empty"].join('-'), {});
+            hsmMachine.emit(name, "empty", {});
           });
         });
       };
@@ -260,7 +260,7 @@ angular.module('demo')
       var destroy = function() {
         var okay = player || pending;
         if (okay) {
-          hsmMachine.emit([name, "destroyed"].join('-'), {
+          hsmMachine.emit(name, "destroyed", {
             player: player
           });
           if (pending) {
@@ -276,7 +276,7 @@ angular.module('demo')
         // raises -located
         locate: function() {
           PlayerService.fetchWhere().then(function(where) {
-            hsmMachine.emit([name, "located"].join('-'), {
+            hsmMachine.emit(name, "located", {
               where: where.id,
             });
           });
@@ -302,14 +302,14 @@ angular.module('demo')
           destroy();
           // uses a separate defered to reject on destroy.
           var pending = $q.defer();
-          hsmMachine.emit([name, "creating"].join('-'), {});
+          hsmMachine.emit(name, "creating", {});
           CharaService.newChara(obj.id, imagePath, size).then(function(player) {
             pending.resolve(player);
           });
           pending.promise.then(function(p) {
             pending = null;
             player = p;
-            hsmMachine.emit([name, "created"].join('-'), {
+            hsmMachine.emit(name, "created", {
               player: p
             });
           });
@@ -389,7 +389,7 @@ angular.module('demo')
       var ctrl = this;
       if (next.changes(LocationService.currentLocation())) {
         $log.info("loading", next.toString());
-        hsmMachine.emit([ctrl.name, "loading"].join('-'), next);
+        hsmMachine.emit(ctrl.name, "loading", next);
         ctrl.destroyMap();
         // after the url changes, angular changes the ng-view, and recreates the map element.
         var defer = ctrl.defer = $q.defer();
@@ -421,7 +421,7 @@ angular.module('demo')
         // the promise is resolved by finished loading
         // FIX: can remove that entirely if we can move all location changes here.
         LocationService.changeLocation(next).then(function(now) {
-          hsmMachine.emit([ctrl.name, "loaded"].join('-'), now);
+          hsmMachine.emit(ctrl.name, "loaded", now);
         });
       }
     };
@@ -513,7 +513,7 @@ angular.module('demo')
             moving += which * (keydown ? 1 : -1);
           }
           $scope.$apply(function() {
-            hsmMachine.emit("ga-key", new KeyEvent(which, keydown));
+            hsmMachine.emit(name, new KeyEvent(which, keydown));
           });
         }
       };
@@ -559,7 +559,7 @@ angular.module('demo')
             if (next) {
               next.pos = mouse.pos();
             }
-            hsmMachine.emit("mouseTargetChanged", {
+            hsmMachine.emit(name, "changed", {
               target: next
             });
             currentSubject = next;
@@ -588,20 +588,22 @@ angular.module('demo')
       // exposed to scope
       var Mouse = function() {
         // jquery (sometimes?) fakes the event names
+        // we ask for mouseenter, it gives us mouseover.
         var reflect = function(evt) {
-          var name;
+          var type;
           switch (evt.type) {
             case "mouseover":
-              name = "mouseenter";
+              type = "enter";
               break;
             case "mouseout":
-              name = "mouseleave";
+              type = "leave";
               break;
             default:
-              name = evt.type;
+              type = evt.type.slice("mouse".length);
               break;
           };
-          hsmMachine.emit(name, evt);
+          //$log.warn(evt.type, type);
+          hsmMachine.emit(name, type, evt);
         };
         this.createAt = function(elfn) {
           el = elfn();
@@ -679,13 +681,13 @@ angular.module('demo')
       var evt;
       var update = function(dt) {
         // NOTE! doesnt call apply... hmmm...
-        hsmMachine.emit(evt, {
+        hsmMachine.emit(name, evt, {
           dt: dt
         });
       };
       return {
         start: function(sub) {
-          evt = [name, sub].join("-");
+          evt = sub;
           UpdateService.update(update);
         },
         end: function() {
@@ -697,7 +699,8 @@ angular.module('demo')
 
 .directive("avatarControl", function($log) {
   var avatarControl = function() {};
-  avatarControl.prototype.init = function(hsmMachine, size) {
+  avatarControl.prototype.init = function(name, hsmMachine, size) {
+    this.name = name;
     this.hsmMachine = hsmMachine;
     this.size = size || 12;
     return this;
@@ -728,7 +731,7 @@ angular.module('demo')
     if (!(target instanceof Subject)) {
       throw new Error("not target");
     };
-    this.hsmMachine.emit("interact", {
+    this.hsmMachine.emit(this.name, "interact", {
       target: target
     });
   };
@@ -737,13 +740,13 @@ angular.module('demo')
     if (target && !(target instanceof Subject)) {
       throw new Error("not target");
     };
-    this.hsmMachine.emit("approach", {
+    this.hsmMachine.emit(this.name, "approach", {
       target: target,
       pos: pos,
     });
   };
   avatarControl.prototype.direct = function() {
-    this.hsmMachine.emit("direct");
+    this.hsmMachine.emit(this.name, "direct", {});
   };
   avatarControl.prototype.walk = function(yesNo) {
     //$log.debug("avatar: walk", yesNo);
@@ -846,46 +849,35 @@ angular.module('demo')
       var hsmMachine = controllers[1];
       var name = attrs["avatarControl"];
       var size = attrs["avatarSize"];
-      scope[name] = ctrl.init(hsmMachine, size);
+      scope[name] = ctrl.init(name, hsmMachine, size);
     },
   };
 })
 
-.directive("gaTimeout", function($timeout) {
-  var Timeout = function() {
-    this.promise = null;
-  };
-  Timeout.prototype.init = function(hsmMachine) {
-    this.hsmMachine = hsmMachine;
-  };
-  Timeout.prototype.timeout = function(ms, evt) {
-    var hsmMachine = this.hsmMachine;
-    this.promise = $timeout(function() {
-      hsmMachine.emit(evt);
-    }, ms);
-  };
-  Timeout.prototype.cancel = function() {
-    $timeout.cancel(this.promise);
-    this.promise = null;
-  };
-  return {
-    controller: Timeout,
-    require: ["gaTimeout", "^^hsmMachine"],
-    link: function(scope, element, attrs, controllers) {
-      var ctrl = controllers[0];
-      var hsmMachine = controllers[1];
-      ctrl.init(hsmMachine);
-      // 
-      var name = attrs["gaTimeout"];
-      scope[name] = ctrl;
-    },
+.directiveAs("gaTimeout", ["^^hsmMachine"], function($timeout) {
+  var promise = null;
+  this.init = function(name, hsmMachine) {
+    return {
+      timeout: function(ms) {
+        promise = $timeout(function() {
+          hsmMachine.emit(name, "timeout", {
+            elapsed: ms
+          });
+        }, ms)
+      },
+      cancel: function() {
+        $timeout.cancel(promise);
+        promise = null;
+      },
+    };
   };
 })
 
 .directiveAs("moveControl", ["^^hsmMachine"],
     function($log) {
       // moves the avatar to the 
-      var hsmMachine,
+      var name,
+        hsmMachine,
         avatar, // avatar ctrl
         target, // Subject or null
         arrival, // move helper
@@ -894,7 +886,8 @@ angular.module('demo')
         return target ? avatar.getFeet() : avatar.getCenter();
       };
 
-      this.init = function(name, _hsmMachine) {
+      this.init = function(_name, _hsmMachine) {
+        name = _name;
         hsmMachine = _hsmMachine;
         return this;
       };
@@ -950,7 +943,7 @@ angular.module('demo')
         var arrives = arrival.move(next);
         if (arrives) {
           if (arrives.arrived || arrives.blocked) {
-            hsmMachine.emit(arrives.blocked ? "move-blocked" : "move-arrived", {
+            hsmMachine.emit(name, arrives.blocked ? "blocked" : "arrived", {
               target: target
             });
           } else {
@@ -971,19 +964,19 @@ angular.module('demo')
           }
           modal = newModal;
           modal.result.then(function(result) {
-            hsmMachine.emit([name, "closed"].join("-"), {
+            hsmMachine.emit(name, "closed", {
               name: name,
               source: source,
               result: result,
             });
           }, function(reason) {
-            hsmMachine.emit([name, "dismissed"].join("-"), {
+            hsmMachine.emit(name, "dismissed", {
               name: name,
               source: source,
               reason: reason,
             });
           });
-          hsmMachine.emit([name, "opening"].join("-"), {
+          hsmMachine.emit(name, "opening", {
             name: name,
           });
           return modal;
@@ -1041,7 +1034,7 @@ angular.module('demo')
           // modal.result neither gets resolved nor rejected *unless* you close,dismiss with a value -- ie. not from a user close; on the other hand modal.closed always gets resolved (even if dismissed), but no value is passed. *sigh*
           modal.closed.then(function() {
             if (!modalDismissed) {
-              hsmMachine.emit("ga-window-closed", {
+              hsmMachine.emit(name, "closed", {
                 name: name,
               });
             }
@@ -1154,7 +1147,7 @@ angular.module('demo')
             };
             bar.zoomView = function(act) {
               //this.subject.view;
-              hsmMachine.emit("demo-zoom", {
+              hsmMachine.emit(name, "zoom", {
                 view: config.view,
               });
             };
