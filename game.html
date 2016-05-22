@@ -5,7 +5,7 @@
   <hsm-state name="GamePending">
     <hsm-event on="game-created" goto="GameCreated"></hsm-event>
   </hsm-state>
-  <hsm-state name="GameCreated" map-control="map" action-service="actions" hsm-enter="actions.bind(game)" hsm-exit="actions.release()">
+  <hsm-state name="GameCreated" map-control="map" action-service="actions" hsm-enter="actions.bind(game)" hsm-exit="actions.release() || map.destroy()">
     <hsm-state player-control="player" hsm-exit="player.destroy()">
       <!--  -->
       <hsm-state name="Initialize">
@@ -14,48 +14,53 @@
         </hsm-state>
         <hsm-state name="LocatingPlayer" hsm-enter="player.locate()">
           <hsm-event on="player-located" run="map.changeRoom($evt.where)"></hsm-event>
-          <hsm-event on="map-loaded" run="player.link()"></hsm-event>
           <hsm-event on="map-loaded" run="game.start()"></hsm-event>
         </hsm-state>
         <hsm-event on="game-started" goto="GameStarted"></hsm-event>
       </hsm-state>
       <!--  -->
-      <hsm-state name="GameStarted" parallel="true" modal-control="modal" hsm-exit="modal.dismiss('game stopping')">
+      <hsm-state name="GameStarted" parallel="true" modal-control="modal" mouse-control="mouse" hsm-exit="modal.dismiss()">
         <!-- allow the console once the game has been started; it waits for 'demo-console'  -->
-        <ng-include src="'console.html'"></ng-include>
-        <!-- might exist to change cursor state -->
-        <hsm-state name="MapData">
-          <hsm-state name="MapDataLoaded">
-            <hsm-event on="map-loading" goto="MapDataLoading"></hsm-event>
+        <!-- <ng-include src="'console.html'"></ng-include> -->
+        <!-- Mouse friendly - may want a special cursor for loading or processing tho currently we need the map element for the bounds.... -->
+        <hsm-state name="Mouse">
+          <hsm-event on="map-loading" goto="MouseRegionLoading"></hsm-event>
+          <hsm-state name="MouseRegionLoaded" hsm-enter="mouse.bindTo(map)" hsm-exit="mouse.destroy()">
+            <ng-include src="'hover.html'"></ng-include>
           </hsm-state>
-          <hsm-state name="MapDataLoading">
-            <hsm-event on="map-loaded" goto="MapDataLoaded"></hsm-event>
+          <hsm-state name="MouseRegionLoading">
+            <hsm-event on="map-loaded" goto="MouseRegionLoaded"></hsm-event>
           </hsm-state>
         </hsm-state>
-        <!--  when we start play, we assume that there are events to process -->
-        <hsm-state name="Play" hsm-init="WaitingOnProcess" avatar-control="avatar" avatar-size="12" hsm-enter="avatar.create(player.getChara(), map.get('physics'), map.get('pads'))" hsm-exit="avatar.destroy()">
-          <hsm-state name="WaitingOnProcess">
-            <hsm-event on="stream-empty" goto="GameIsActive"></hsm-event>
-            <!-- note: since all dialogs, speech, etc. are opened during processing, we dont need special handling of window-opened, etc. -->
+        <!--  -->
+        <hsm-state name="Play">
+          <hsm-state name="PlaySpaceLoaded" hsm-init="stream.processsing() ? 'WaitingOnProcess' : 'GameIsActive'" hsm-enter="player.linkup()">
+            <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
+            <!-- note: tangible does its own thing during stream-processing. -->
+            <hsm-event on="stream-processing" run="WaitingOnProcess"></hsm-event>
+            <!--  -->
+            <hsm-state name="GameIsActive" key-control="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
+              <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()" hsm-init="map.get('physics') ? 'Tangible' : 'Ethereal'">
+                <!-- shared game actions: -->
+                <hsm-event on="update-game" run="map.update($evt.dt)"></hsm-event>
+                <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
+                <hsm-event on="actionBar-zoom" run="map.changeView($evt.view)"></hsm-event>
+                <hsm-event on="actionBar-act" run="game.post($evt.action)"></hsm-event>
+                <!--  -->
+                <ng-include src="'ethereal.html'"></ng-include>
+                <ng-include src="'tangible.html'"></ng-include>
+              </hsm-state>
+            </hsm-state>
+            <hsm-state name="WaitingOnProcess">
+              <hsm-event on="stream-empty" goto="GameIsActive"></hsm-event>
+            </hsm-state>
           </hsm-state>
-          <hsm-state name="WaitingOnMap">
-            <hsm-event on="map-loaded" run="player.link()"></hsm-event>
-            <hsm-event on="map-loaded" goto="GameIsActive"></hsm-event>
+          <hsm-state name="PlaySpaceLoading">
+            <hsm-event on="map-loaded" goto="PlaySpaceLoaded"></hsm-event>
           </hsm-state>
-          <hsm-state name="GameIsActive" update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
-            <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
-            <hsm-event on="update-game" run="map.update($evt.dt)"></hsm-event>
-            <ng-include src="'playing.html'"></ng-include>
-          </hsm-state>
-          <!--  -->
-          <hsm-event on="map-loading" goto="WaitingOnMap"></hsm-event>
-          <hsm-event on="actions-running" goto="WaitingOnProcess"></hsm-event>
-          <hsm-event on="stream-processing" goto="WaitingOnProcess"></hsm-event>
-          <!-- happens in zooming only, if process loads a map we are still waiting on process. -->
         </hsm-state>
-        <!-- currently, the stream parses at full steam whether we want it to or not.
-    it's not controlled by the machine, and it takes some work to synchronize with it. -->
-        <hsm-state name="Processor" hsm-enter="stream.process()" hsm-exit="stream.process(false)">
+        <!--  -->
+        <hsm-state name="Process" hsm-enter="stream.process()" hsm-exit="stream.process(false)">
           <hsm-state name="WaitingToProcess">
             <!-- one of the big insights of the morning is responds to events generated by actions, dont try to goto a state in an action. -->
             <hsm-event on="stream-processing" goto="Processing"></hsm-event>

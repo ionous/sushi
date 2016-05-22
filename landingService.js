@@ -75,7 +75,8 @@ angular.module('demo')
       this.grid = grid; // source map grid data
       this.pads = pads; // indices of marked tiles
     };
-    LandingPads.prototype.getPad = function(pos) {
+    // returns a crash pad under the passed position.
+    LandingPads.prototype.getPadAt = function(pos) {
       var grid = this.grid;
       var shrink = pt_div(pos, grid.cellSize);
       var cell = pt_floor(shrink);
@@ -90,7 +91,7 @@ angular.module('demo')
         }
       }
     };
-    // returns a cached point based on center pos.
+    // returns a crash pad closest to the passed pos.
     LandingPads.prototype.getClosestPad = function(pos) {
       if (!pos) {
         throw new Error("pos undefined");

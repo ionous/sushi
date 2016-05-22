@@ -9,17 +9,25 @@
     <hsm-event on="printText" run="text.addLines($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
   </hsm-state>
   <!-- characters saying dialog -->
-  <hsm-state talk-control="talk" game-listener="speech" hsm-enter="speech.listen('*', 'say')" hsm-exit="speech.silence()">
-    <hsm-event on="speech" run="talk.say($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
+  <hsm-state hsm-init="'TalkDisabled'">
+    <hsm-state talk-control="talk" game-listener="speech" hsm-enter="speech.listen('*', 'say')" hsm-exit="speech.silence()">
+      <hsm-event on="speech" run="talk.say($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
+    </hsm-state>
+    <hsm-state name="TalkDisabled">
+    </hsm-state>
   </hsm-state>
   <!-- other text handlers do other things.... -->
-  <hsm-state popup-control="popup" game-listener="reportView" hsm-enter="reportView.listen('*', 'reporting-the-view', true)" hsm-exit="reportView.silence()">
-    <hsm-state name="DisplayStoryText" game-listener="popupText" hsm-enter="popupText.listen('_display_', 'print')" hsm-exit="popupText.silence()">
-      <hsm-event on="popupText" run="popup.show($evt.data).then($evt.resolve())"></hsm-event>
+  <hsm-state hsm-init="'PopupDisabled'">
+    <hsm-state popup-control="popup" game-listener="reportView" hsm-enter="reportView.listen('*', 'reporting-the-view', true)" hsm-exit="reportView.silence()">
+      <hsm-state name="DisplayStoryText" game-listener="popupText" hsm-enter="popupText.listen('_display_', 'print')" hsm-exit="popupText.silence()">
+        <hsm-event on="popupText" run="popup.show($evt.data).then($evt.resolve())"></hsm-event>
+      </hsm-state>
+      <hsm-event on="reportView" when="$evt.start" goto="SilenceRoomEntryText"></hsm-event>
+      <hsm-event on="reportView" when="$evt.end" goto="DisplayStoryText"></hsm-event>
+      <hsm-state name="SilenceRoomEntryText">
+      </hsm-state>
     </hsm-state>
-    <hsm-event on="reportView" when="$evt.start" goto="SilenceRoomEntryText"></hsm-event>
-    <hsm-event on="reportView" when="$evt.end" goto="DisplayStoryText"></hsm-event>
-    <hsm-state name="SilenceRoomEntryText">
+    <hsm-state name="PopupDisabled">
     </hsm-state>
   </hsm-state>
 </hsm-state>

@@ -8,7 +8,3 @@ var Subject = function(obj, view, path) {
 Subject.prototype.toString = function() {
   return "target:" + this.path;
 };
-
-Subject.prototype.getCurrentPad = function(pos) {
-  return this.pads && this.pads.getPad(pos);
-};

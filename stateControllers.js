@@ -58,22 +58,6 @@ var Arrival = function(pos) {
   };
 };
 
-var makeMoveKeys = function(moveKeys) {
-  var keyList = {
-    'up': [87, 38, 104],
-    'left': [65, 37, 100],
-    'down': [83, 40, 98],
-    'right': [68, 39, 102]
-  };
-  for (var k in keyList) {
-    var list = keyList[k];
-    list.forEach(function(n) {
-      moveKeys[n] = k;
-    });
-  };
-  return moveKeys;
-};
-
 angular.module('demo')
 
 // expose service as directive
@@ -225,16 +209,22 @@ angular.module('demo')
 .directiveAs("processControl", ["^^hsmMachine"],
   function($timeout, EventStreamService) {
     this.init = function(name, hsmMachine) {
+      var processing;
       var handleEvents = function() {
         $timeout(function() {
+          processing = false;
           hsmMachine.emit(name, "processing", {});
           EventStreamService.handleEvents().then(function() {
+            processing = false;
             hsmMachine.emit(name, "empty", {});
           });
         });
       };
       var active;
       return {
+        processing: function() {
+          return processing;
+        },
         process: function(enable) {
           var enabled = angular.isUndefined(enabled) || enabled;
           if (!active && enabled) {
@@ -281,21 +271,33 @@ angular.module('demo')
             });
           });
         },
-        exists: function() {
-          return !!player;
-        },
-        getChara: function() {
+        linkup: function() {
           if (!player) {
             throw new Error("player doesnt exist");
           }
-          return player;
-        },
-        // FIX: this is a hack to get the player image to attach to the current map -- better? would during draw or something? needs some  thought. maybe a characters list in the map? then we could map.update() and the characters would too.
-        link: function() {
-          player.link();
+          // FIX: this is a hack to get the player image to attach to the current map -- better? would during draw or something? needs some  thought. maybe a characters list in the map? then we could map.update() and the characters would too.
+          return player.linkup();
         },
         update: function(dt) {
           player.draw(dt);
+        },
+        // target is of type "Subject"
+        interact: function(target) {
+          hsmMachine.emit(name, "interact", {
+            target: target
+          });
+        },
+        // target is of type "Subject"
+        approach: function(target, pos) {
+          hsmMachine.emit(name, "approach", {
+            target: target,
+            pos: pos,
+          })
+        },
+        // target is of type "Subject"
+        faceTarget: function(target, pos) {
+          // FIX: face target?
+          player.face(pos);
         },
         // raises -creating, -created
         create: function(imagePath, size) {
@@ -318,10 +320,45 @@ angular.module('demo')
     }; //init
   })
 
+// 
+.directiveAs("physicsControl", ["^^hsmMachine"],
+  function(CollisionService) {
+    this.init = function(hsmMachine) {
+      var scene;
+      return {
+        create: function(physics) {
+          if (scene) {
+            scene.destroyScene();
+          }
+          if (physics.shapes) {
+            scene = CollisionService.newScene(physics.bounds);
+            scene.makeWalls(physics.shapes);
+          }
+        },
+        exists: function() {
+          return !!scene;
+        },
+        step: function(dt) {
+          if (!angular.isNumber(dt) && !isFinite(dt)) {
+            throw new Error("bad dt");
+          }
+          return scene && scene.step(dt);
+        },
+        addProp: function(pos, size) {
+          return scene.addProp(pos, size);
+        },
+        destroy: function() {
+          if (scene) {
+            scene.destroyScene();
+          }
+        }
+      };
+    }
+  })
 
 // -loaded, -loading, changeRoom
 .directiveAs("mapControl", ["^^hsmMachine"],
-  function(CollisionService, LayerService, LocationService, MapService, ObjectService, UpdateService,
+  function(LayerService, LocationService, MapService, ObjectService, UpdateService,
     $log, $element, $q, $rootScope) {
     var hsmMachine;
     // returns a promise:
@@ -337,29 +374,22 @@ angular.module('demo')
           // tree contains: el, bounds, nodes
           var allPads = [];
           return LayerService.createLayers(mapEl, map, room, allPads).then(function(tree) {
-
-            // fix: cant assume all layers have physics.
-            var physicsLayer = map.findLayer("$collide");
-            if (!physicsLayer) {
-              throw new Error("no physics not supported");
-            }
-            var physics = CollisionService.newScene(tree.bounds);
-            physics.makeWalls(physicsLayer.getShapes());
-
+            var collide = map.findLayer("$collide");
             return {
               tree: tree,
               bounds: tree.bounds,
               hitGroups: tree.nodes.ctx.hitGroup,
-              physics: physics,
+              physics: {
+                bounds: tree.bounds,
+                shapes: collide.getShapes(),
+              },
               pads: allPads,
               //https://docs.angularjs.org/error/$parse/isecdom?p0=mouse.createAt(map.get(%27mapEl
               // FIX? should i use an ElementSlotService instead?
               // the angular docs say "using a dom node in an expression is a known way to execute arbitrary javascript code."
               // known? known by whom? how? show me!
               // i cant guard against bad behaviour unless its explained.
-              mapEl: function() {
-                return mapEl;
-              },
+              mapEl: mapEl,
             };
           }); // createLayers
         }); // object service
@@ -448,11 +478,6 @@ angular.module('demo')
             throw new Error("doubled");
           }
           ctrl.frame = uframe;
-
-          if (!angular.isNumber(dt) && !isFinite(dt)) {
-            throw new Error("bad dt");
-          }
-          ctrl.map.physics.step(dt);
         },
         // return a promise
         changeRoom: function(room) {
@@ -464,61 +489,102 @@ angular.module('demo')
         changeItem: function(item) {
           ctrl.changeLocation(LocationService.nextItem(item));
         },
-
       };
     };
   })
 
-.directiveAs("gaKeys", ["^^hsmMachine"],
+.directiveAs("keyControl", ["^^hsmMachine"],
   function($log, $scope, $rootElement) {
-    var moveKeys = makeMoveKeys({}); // index -> name
-    var all = {};
-    var moving = 0;
+    var keyValues = {
+      'up': [87, 38, 104],
+      'left': [65, 37, 100],
+      'down': [83, 40, 98],
+      'right': [68, 39, 102],
+      'shift': [16],
+      'action': [13, 32],
+      'escape': [27],
+    };
+    var makeKeybits = function(src, dst) {
+      for (var k in src) {
+        var list = src[k];
+        list.forEach(function(n, i) {
+          dst[n] = {
+            bit: i,
+            key: k
+          };
+        });
+      };
+      return dst;
+    };
 
-    var KeyEvent = function(which, down) {
-      this.which = which;
-      this.keydown = down;
-      this.keyup = !down;
+    var keybits = makeKeybits(keyValues, {}); // which -> name
+    var moveKeys = ['up', 'left', 'down', 'right'];
+    var currentKeys = {}; // key names -> int
+
+    var KeyEvent = function(name, pressed) {
+      this.name = name;
+      this.pressed = pressed;
     };
     KeyEvent.prototype.shiftKey = function() {
-      return this.which == 16;
+      return this.name == 'shift';
     };
-    KeyEvent.prototype.moveKey = function(test) {
-      if (angular.isUndefined(test) || (test == this.keydown)) {
-        return moveKeys[this.which];
+    KeyEvent.prototype.moveKey = function(isPressed) {
+      if (angular.isUndefined(isPressed) || (isPressed == this.pressed)) {
+        var yes = moveKeys.indexOf(this.name) >= 0;
+        return yes && this.name;
       }
     };
-    KeyEvent.prototype.moving = function() {
-      return moving != 0;
-    };
     KeyEvent.prototype.actionKey = function() {
-      return (this.which == 32) || (this.which == 13);
+      return this.name == 'action';
     };
     KeyEvent.prototype.escapeKey = function() {
-      return this.keyup && (this.which == 27);
+      return this.pressed && this.name == 'escape';
     };
     //
-    var reflectList = [
+    var shiftPressed, reflectList = [
       "keyup", "keydown"
     ];
     this.init = function(name, hsmMachine) {
       var el = $rootElement;
+      var ctrl = this;
       var handleKey = function(e) {
-        var keydown = e.type == "keydown";
         var which = e.which;
-        if (keydown != !!all[which]) {
-          all[which] = keydown;
-          if (moveKeys[which]) {
-            var old = moving;
-            moving += which * (keydown ? 1 : -1);
+        var keybit = keybits[which];
+        // we only care about some specific keys:
+        if (keybit) {
+          var keyname = keybit.key;
+          var mask = 1 << keybit.bit;
+          var prev = currentKeys[keyname] || 0;
+          var wasPressed = (prev & mask) != 0;
+          var nowPressed = e.type == "keydown";
+          if (nowPressed != wasPressed) {
+            var val = (prev ^ mask);
+            currentKeys[keyname] = val;
+            var key = new KeyEvent(keyname, nowPressed);
+            $scope.$apply(function() {
+              hsmMachine.emit(name, key);
+            });
           }
-          $scope.$apply(function() {
-            hsmMachine.emit(name, new KeyEvent(which, keydown));
-          });
+        }
+      }; // handleKey
+      this.buttons = function(name) {
+        if (angular.isUndefined(name)) {
+          return currentKeys;
+        } else {
+          return currentKeys[name];
         }
       };
+      this.moving = function(log) {
+        var val = 0;
+        moveKeys.forEach(function(key) {
+          val += (currentKeys[key] || 0);
+        });
+        return val > 0;
+      };
+      var ctrl = this;
       return {
         listen: function(log) {
+          currentKeys = {};
           reflectList.forEach(function(r) {
             el.on(r, handleKey);
           });
@@ -527,6 +593,12 @@ angular.module('demo')
           reflectList.forEach(function(r) {
             el.off(r, handleKey);
           });
+        },
+        buttons: function(b) {
+          return ctrl.buttons(b);
+        },
+        moving: function() {
+          return ctrl.moving();
         },
       };
     };
@@ -583,6 +655,7 @@ angular.module('demo')
   function(CursorService, $log) {
     // eventually what i want is to track the mouse always so i can tell in out of bounds at all time.
     var reflectList = "mouseenter mouseleave mousemove mousedown mouseup";
+    var ctrl = this;
     this.init = function(name, hsmMachine) {
       var cursor, el;
       // exposed to scope
@@ -605,8 +678,8 @@ angular.module('demo')
           //$log.warn(evt.type, type);
           hsmMachine.emit(name, type, evt);
         };
-        this.createAt = function(elfn) {
-          el = elfn();
+        this.bindTo = function(map) {
+          el = map.get("mapEl");
           cursor = CursorService.newCursor(el);
           el.on(reflectList, reflect);
         };
@@ -645,9 +718,39 @@ angular.module('demo')
           return cursor.present;
         };
       }; // Mouse
-      return new Mouse();
+      return this.mouse = new Mouse();
     };
   })
+
+.directiveAs("hoverControl", ["^^mouseControl", "^^hsmMachine"],
+  function() {
+    this.init = function(name, mouseControl, hsmMachine) {
+      var highlight;
+      return {
+        start: function() {
+          highlight = "none";
+        },
+        select: function(target) {
+          if (target) {
+            hsmMachine.emit(name, "select", {
+              target: target,
+              pos: mouseControl.mouse.pos(),
+            });
+          }
+        },
+        highlight: function(target) {
+          if (highlight !== target) {
+            highlight = target;
+            hsmMachine.emit(name, "highlight", {
+              target: target,
+              pos: mouseControl.mouse.pos(),
+            });
+          }
+        },
+      };
+    };
+  })
+
 
 // currently, ng-view creates and destroys the map element dynamically
 // we use that as our hook to start and stop loading data
@@ -697,162 +800,148 @@ angular.module('demo')
     };
   })
 
-.directive("avatarControl", function($log) {
-  var avatarControl = function() {};
-  avatarControl.prototype.init = function(name, hsmMachine, size) {
-    this.name = name;
-    this.hsmMachine = hsmMachine;
-    this.size = size || 12;
-    return this;
-  };
-  avatarControl.prototype.destroy = function() {
-    $log.info("avatar destroyed");
-    this.chara = this.walking = this.pads = false;
-    this.prop.remove();
-    this.prop = false;
-  };
-  // sometime between link and 
-  avatarControl.prototype.create = function(chara, physics, pads) {
-    //$log.info("avatar created", chara, chara.getFeet());
-    this.chara = chara;
-    this.pads = pads;
-    this.prop = physics.addProp(chara.getFeet(), this.size);
-    this.buttons = {
-      up: 0,
-      down: 0,
-      right: 0,
-      left: 0
-    };
-    this.moveDir = false;
-    this.slideDir = false;
-    this.walking = false;
-  };
-  avatarControl.prototype.interact = function(target) {
-    if (!(target instanceof Subject)) {
-      throw new Error("not target");
-    };
-    this.hsmMachine.emit(this.name, "interact", {
-      target: target
-    });
-  };
-  // maybe pull machine into scope instead?
-  avatarControl.prototype.approach = function(target, pos) {
-    if (target && !(target instanceof Subject)) {
-      throw new Error("not target");
-    };
-    this.hsmMachine.emit(this.name, "approach", {
-      target: target,
-      pos: pos,
-    });
-  };
-  avatarControl.prototype.direct = function() {
-    this.hsmMachine.emit(this.name, "direct", {});
-  };
-  avatarControl.prototype.walk = function(yesNo) {
-    //$log.debug("avatar: walk", yesNo);
-    this.walking = yesNo;
-  };
-  avatarControl.prototype.nudge = function(moveKey, yesNo) {
-    if (!moveKey && angular.isUndefined(yesNo)) {
-      this.slideDir = false;
-      this.resetMove();
-    } else if (moveKey) {
-      var b = this.buttons;
-      b[moveKey] = yesNo ? 1 : 0;
-      //
-      var diff = pt(b.right - b.left, b.down - b.up);
-      var len = pt_dot(diff, diff);
-      //
-      var slide = (len >= 1e-3) && pt_scale(diff, 1.0 / Math.sqrt(len));
-      this.slideDir = slide;
-      //$log.debug("avatar: nudge", moveKey, yesNo, b, slide);
-    }
-  };
-  // move in the normalized direction
-  avatarControl.prototype.move = function(dir) {
-    this.moveDir = dir;
-    this.resetMove();
-  };
-  avatarControl.prototype.resetMove = function() {
-    if (!this.moveDir && !this.slideDir) {
-      this.prop.setVel(false);
-      this.chara.setSpeed(false);
-      return true;
-    }
-  };
-  avatarControl.prototype.update = function() {
-    if (!this.resetMove()) {
-      // animation facing.
-      var face = this.moveDir || this.slideDir;
-      this.chara.setFacing(face.x, face.y);
-      // animation speed.
-      this.chara.setSpeed(this.walking ? 1 : 2);
-      // physics speed.
-      var dir = this.slideDir || this.moveDir;
-      var vel = pt_scale(dir, this.walking ? 1 : 3);
-      this.prop.setVel(vel);
-      // position based on last physics.
-      var feet = this.prop.getFeet();
-      var corner = pt_sub(feet, this.chara.feet);
-      this.chara.setCorner(corner);
-    }
-  };
-  avatarControl.prototype.getFeet = function() {
-    return this.prop.getFeet();
-  };
-  avatarControl.prototype.getCenter = function() {
-    var next = this.prop.getFeet();
-    var corner = pt_sub(next, this.chara.feet);
-    return pt_add(corner, this.chara.center);
-  };
-  avatarControl.prototype.face = function(target, pos) {
-    // var pad = target && target.getCurrentPad(this.chara.getFeet());
-    // if (pad) {
-    //   this.chara.faceTarget(pad);
-    // }
-    var src = target ? this.chara.getFeet() : this.chara.getCenter();
-    var diff = pt_sub(pos, src);
-    var mag = pt_dot(diff, diff);
+.directiveAs("landingPadControl",
+  function($log) {
+    this.init = function(name) {
+      var landingPads = [];
+      this.init = function() {
+        var msg = "already initialized";
+        $log.error(msg, name);
+        throw new Error(msg);
+      };
+      this.attach = function(pads) {
+        landingPads = pads;
+      };
+      this.destroy = function() {
+        landingPads = [];
+      };
+      // ? move to pads control, which takes a chara or pos
+      // returns the closest subject the avatar is standing on.
+      // in order to open the action bar -- interact
+      this.getBestPad = function(avatar) {
+        var close;
+        var src = avatar.getFeet();
+        landingPads.forEach(function(pads) {
+          var pad = pads.getClosestPad(src);
+          if (!close || (pad.dist < close.dist)) {
+            close = pad;
+          }
+        });
+        // pad subject comes from add+andingData: object || view
+        return close && close.subject;
+      };
+      this.getClosestPad = function(avatar, target) {
+        var src = avatar.getFeet();
+        return target && target.pads && target.pads.getClosestPad(src);
+      };
+      // returns true if the avatar is standing on the landing pads of the target.
+      this.onLandingPads = function(avatar, target) {
+        var src = avatar.getFeet();
+        if (!src) {
+          throw new Error("landing pads src null");
+        }
+        return target && target.pads && target.pads.getPadAt(src);
+      };
+      return this;
+    }; //init
+  })
 
-    if (mag > 1e-3) {
-      var dir = pt_scale(diff, 1.0 / Math.sqrt(mag));
-      //$log.info("avatar: face target", dir.x, dir.y);
-      this.chara.setFacing(dir.x, dir.y);
+.directiveAs("avatarControl", ["^keyControl", "^^landingPadControl", "^^hsmMachine"],
+  function($attrs, $log) {
+    this.init = function(name, keyControl, landingPadControl, hsmMachine) {
+      var chara, prop;
+      var moveDir;
+
+      var arrestMovement = function() {
+        if (prop) {
+          prop.setVel(false);
+        }
+        if (chara) {
+          chara.setSpeed(false);
+        }
+      };
+
+      var reduce = function(val) {
+        return val ? 1.0 : 0.0;
+      };
+
+      var avatar = {
+        // sometime between link and 
+        create: function(_chara, physics, size) {
+          chara = _chara;
+          prop = physics.addProp(chara.getFeet(), size || 12);
+          if (!prop) {
+            throw new Error("prop not created");
+          }
+          // FIX: ghost .object
+        },
+        destroy: function() {
+          arrestMovement();
+          chara = false;
+          if (prop) {
+            prop.remove();
+            prop = false;
+          }
+        },
+        getCenter: function() {
+          var next = prop.getFeet();
+          var corner = pt_sub(next, chara.feet);
+          return pt_add(corner, chara.center);
+        },
+        getFeet: function() {
+          return prop.getFeet();
+        },
+        faceTarget: function(target, pos) {
+          var set;
+          var pad = landingPadControl.getClosestPad(avatar, target);
+          if (pad) {
+            var angle = pad.getAngle();
+            if (angle) {
+              var ca = chara.getAngle();
+              if (Math.abs(angle - ca) > 45) {
+                chara.setAngle(angle);
+                set = angle;
+              }
+            }
+          }
+          $log.warn("avatar faceTarget", target.toString(), pos, set);
+        },
+        // move in the normalized direction
+        move: function(dir) {
+          moveDir = dir;
+        },
+        stop: arrestMovement,
+        update: function(dt) {
+          var b = keyControl.buttons();
+          var diff = pt(reduce(b.right) - reduce(b.left), reduce(b.down) - reduce(b.up));
+          var len = pt_dot(diff, diff);
+          var slideDir = (len >= 1e-3) && pt_scale(diff, 1.0 / Math.sqrt(len));
+          //
+          var dir = slideDir || moveDir;
+          if (!dir) {
+            arrestMovement();
+          } else {
+            var walking = keyControl.buttons('shift');
+
+            // animation facing.
+            var face = dir;
+            chara.setFacing(face.x, face.y);
+            // animation speed.
+            chara.setSpeed(walking ? 1 : 2);
+            // physics speed.
+
+            var vel = pt_scale(dir, walking ? 1 : 3);
+            prop.setVel(vel);
+            // position based on last physics.
+            var feet = prop.getFeet();
+            var corner = pt_sub(feet, chara.feet);
+            chara.setCorner(corner);
+          }
+        },
+      };
+      return avatar;
     }
-
-  };
-  // returns the closest subject the avatar is standing on.
-  // in order to open the action bar -- interact
-  avatarControl.prototype.landing = function() {
-    var close;
-    var src = this.chara.getFeet();
-    this.pads.forEach(function(pads) {
-      var pad = pads.getClosestPad(src);
-      if (!close || (pad.dist < close.dist)) {
-        close = pad;
-      }
-    });
-    // pad subject comes from add+andingData: object || view
-    return close && close.subject;
-  };
-  // returns true if the avatar is standing on the landing pads of the target.
-  avatarControl.prototype.onLandingPads = function(target) {
-    var pad = target && target.getCurrentPad(this.chara.getFeet());
-    return !!pad;
-  };
-
-  return {
-    controller: avatarControl,
-    require: ["avatarControl", "^^hsmMachine"],
-    link: function(scope, element, attrs, controllers) {
-      var ctrl = controllers[0];
-      var hsmMachine = controllers[1];
-      var name = attrs["avatarControl"];
-      var size = attrs["avatarSize"];
-      scope[name] = ctrl.init(name, hsmMachine, size);
-    },
-  };
-})
+  })
 
 .directiveAs("gaTimeout", ["^^hsmMachine"], function($timeout) {
   var promise = null;
@@ -882,10 +971,6 @@ angular.module('demo')
         target, // Subject or null
         arrival, // move helper
         forceRetarget;
-      var getPhysicalPos = function() {
-        return target ? avatar.getFeet() : avatar.getCenter();
-      };
-
       this.init = function(_name, _hsmMachine) {
         name = _name;
         hsmMachine = _hsmMachine;
@@ -899,8 +984,9 @@ angular.module('demo')
           throw new Error("invalid target");
         }
         avatar = _avatar;
-        arrival = new Arrival(getPhysicalPos());
         target = _target;
+        var first = target ? avatar.getFeet() : avatar.getCenter();
+        arrival = new Arrival(first);
         if (!target) {
           arrival.setDest(pos);
         }
@@ -916,17 +1002,15 @@ angular.module('demo')
         target = null;
         arrival.setDest(pos);
       };
-      this.stop = function() {
-        //$log.info("stopped!");
+      this.pause = function() {
         arrival.setDest(false);
-        avatar.move(false);
       };
       var setTarget = this.setTarget = function(_target) {
         target = _target;
         forceRetarget = true;
       };
       this.update = function(dt, retarget) {
-        var next = getPhysicalPos();
+        var next = target ? avatar.getFeet() : avatar.getCenter();
         if (target && (retarget || forceRetarget)) {
           var pos = target.pos;
           if (target.pads) {
@@ -976,8 +1060,9 @@ angular.module('demo')
               reason: reason,
             });
           });
-          hsmMachine.emit(name, "opening", {
+          hsmMachine.emit(name, "opened", {
             name: name,
+            source: source,
           });
           return modal;
         };
@@ -1068,27 +1153,38 @@ angular.module('demo')
     };
   })
 
-.directiveAs("actionBar", ["^^hsmMachine"],
+.directiveAs("actionBar", ["^^hsmMachine", "^^modalControl"],
   function(ActionListService, CombinerService, IconService,
     $log, $q, $uibModal) {
-    this.init = function(name, hsmMachine) {
-      var modal, pending;
-      var destroy = this.destroy = function() {
+    this.init = function(name, hsmMachine, modalControl) {
+      var modal, pending, displayEl;
+      this.destroy = function() {
+        this.dismiss("destroyed");
+        displayEl = null;
+      };
+      this.dismiss = function(reason) {
         // *sigh* along with all of the other uibmodal oddities
         // you cant dismiss the modal before its dependencies are resolved.
         // by mapping them through a deferred, we can cancel the deferred
         if (pending) {
-          pending.reject();
+          pending.reject(reason);
+          pending = null;
         }
         if (modal) {
-          modal.dismiss();
+          modal.dismiss(reason);
           modal = null;
         }
       };
-      this.createAt = function(elfn, target) {
-        var displayEl = elfn();
-        destroy();
-        $log.info("showing action bar", target);
+      this.bindTo = function(map) {
+        displayEl = map.get("mapEl");
+      };
+      this.open = function(target) {
+        if (modal) {
+          throw new Error("egh?");
+        }
+        this.dismiss("opening");
+        //
+        $log.info("showing action bar", target.toString());
         var barpos = target.pos;
         var obj = target.object;
         var view = target.view;
@@ -1117,7 +1213,7 @@ angular.module('demo')
           };
         });
 
-        var mdl = modal = $uibModal.open({
+        modal = modalControl.show(name, {
           templateUrl: 'actionBar.html',
           controllerAs: name,
           controller: function(config) {
@@ -1133,13 +1229,15 @@ angular.module('demo')
             bar.zoom = config.zoom;
             var objId = config.objectId;
             bar.runAction = function(act) {
-              // FIX: probably this should raise an action event
-              // probably the actions services should expose an api to run an action
-              // ( then we arent forced to use just the button bar -- could have a hot bar, or whatever )
-              act.runIt(objId);
+              var post = act.runIt(objId);
+              if (post) {
+                hsmMachine.emit(name, "act", {
+                  action: post
+                });
+              }
               // may already be closed due to state change,
               // but since its cancelable.....
-              // mdl.close("tried action");
+              // modal.close("tried action");
               // eh... lets just see what happens -- bascially the bar wouldnt go away
               // and thats a bad thing... how?
               //    var combine = this.combining && this.combining.id;

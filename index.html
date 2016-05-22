@@ -88,8 +88,9 @@
   <!-- <script src="/script/paper/dist/paper-core.min.js"></script> -->
 </head>
 
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" hsm-transition="log.warn('transitioning', $source.name, '->', $target.name)" hsm-emit="$evt.name!='update-game' && log.info('emit', $evt.name)">
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" hsm-transition="1 && log.warn('transitioning', $source.name, '->', $target.name)" hsm-emit="0 && $evt.name!='update-game' &&  log.info('emit', $evt.name)">
   <!-- hsm-enter="log.enter($state)" hsm-exit="log.exit($state)">
+    
    -->
   <header id="status-bar" ng-controller="StatusController">
     <span class="ga-noselect" id="status-left">{{status.left}}</span>

@@ -26,14 +26,14 @@ angular.module('demo')
         this.tilesize = tilesize;
         this.framesWide = Math.floor(img.width / tilesize);
       };
-      Chara.prototype.link = function() {
+      Chara.prototype.linkup = function() {
         // FIX; this is very backwards, we should be able to create the character and later asign it to the map.
         // that the object has the display is also questionable re: states.
         var objectDisplay = this.obj.objectDisplay;
         if (!objectDisplay) {
           throw new Error("no display for object", this.obj.id);
         }
-        var display= this.display = objectDisplay.group;
+        var display = this.display = objectDisplay.group;
         var canvas = this.canvas = objectDisplay.canvi.el[0];
         this.upperLeft = display.pos;
         //
@@ -41,6 +41,7 @@ angular.module('demo')
         var h = this.canvas.height;
         this.feet = pt(0.5 * w, h);
         this.center = pt(0.5 * w, 0.5 * h);
+        return this;
       };
       Chara.prototype.setCorner = function(pos) {
         var index = Math.floor(pos.y + this.feet.y);
@@ -81,16 +82,13 @@ angular.module('demo')
         }
         //$log.info(x,y ,this.nextface, this.facing);
       };
-      Chara.prototype.faceTarget = function(pad) {
-        //$log.info("arrived", pad ? pad.getFacingName() + pad.getAngle() + " deg" : "");
-        if (pad) {
-          var angle = pad.getAngle();
-          if (angle) {
-            var ca = this.getAngle();
-            if (Math.abs(angle - ca) > 45) {
-              this.setAngle(angle);
-            }
-          }
+      Chara.prototype.face = function(pos) {
+        var src = this.getCenter();
+        var diff = pt_sub(pos, src);
+        var mag = pt_dot(diff, diff);
+        if (mag > 1e-3) {
+          var dir = pt_scale(diff, 1.0 / Math.sqrt(mag));
+          this.setFacing(dir.x, dir.y);
         }
       };
       Chara.prototype.setSpeed = function(speed) {

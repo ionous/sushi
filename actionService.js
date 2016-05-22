@@ -25,12 +25,11 @@ angular.module('demo')
 
 // still cant decide: when is it better to provide an api to init
 // and when is it better to init implicitly, ex. through promises
-.directiveAs("actionService", ["^^hsmMachine"],
+.directiveAs("actionService",
   function(ActionService, $log, $rootScope) {
-    this.init = function(name, hsmMachine) {
+    this.init = function(name) {
 
-      var promisedActions, currentGame;
-      var currentRound = 0;
+      var promisedActions;
 
       var ActionInfo = function(act, round) {
         var name = act.attr['act'];
@@ -46,11 +45,6 @@ angular.module('demo')
       };
 
       ActionInfo.prototype.runIt = function(propId, ctxId) {
-        if (!currentGame || (this.round != currentRound)) {
-          var msg = "action from released game"
-          $log.info(msg, !!currentGame, currentRound, this.round);
-          throw new Error(msg);
-        }
         var actId = this.id;
         var post = {
           'act': actId,
@@ -66,11 +60,7 @@ angular.module('demo')
           'ctx': ctxId,
         });
         if (!evt.defaultPrevented) {
-          hsmMachine.emit(name, "running", post);
-          // so many questions: should every event be tied to an action
-          // or, shoud we grab events elsewhere and run some action.
-          // i think i like the sensibility of the former.
-          return currentGame.post(post);
+          return post;
         }
       };
 
@@ -79,13 +69,9 @@ angular.module('demo')
           if (promisedActions) {
             throw new Error("already bound");
           }
-          var thisRound = currentRound + 1;
-          currentRound = thisRound;
-          currentGame = game;
-          // backcompat
           ActionService.bind(scope);
           //
-          promisedActions = currentGame.request('action').then(
+          promisedActions = game.request('action').then(
             function(doc) {
               var ret = []; // chain promises to request a series of actions.
               var actions = doc.data;
@@ -98,7 +84,7 @@ angular.module('demo')
                 // nope: keep going.
                 var actRef = actions[ret.length];
                 return game.request(actRef).then(function(doc) {
-                  var act = new ActionInfo(doc.data, thisRound);
+                  var act = new ActionInfo(doc.data);
                   ret.push(act);
                   return repeat();
                 });
@@ -110,7 +96,6 @@ angular.module('demo')
           throw new Error("cant release till ActionService factory has been removed");
           // really would need a reject for early exit anyway
           promisedActions = null;
-          currentGame = null;
         },
         getActions: function() {
           return promisedActions;

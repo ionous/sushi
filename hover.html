@@ -1,5 +1,5 @@
 <!-- mouse input tweaks the cursor, and raises events which effect player control. -->
-<hsm-state name="Hover" hsm-init="mouse.inBounds() ? 'InBounds' : 'OutOfBounds'">
+<hsm-state name="Hover" hsm-init="mouse.inBounds() ? 'InBounds' : 'OutOfBounds'" mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(mouse,map.get('hitGroups'))" hsm-exit="mouseTarget.release()">
   <hsm-state name="OutOfBounds" hsm-enter="mouse.show(false)">
     <hsm-event on="mouse-enter" goto="InBounds"></hsm-event>
     <hsm-event on="mouse-move" goto="InBounds"></hsm-event>
@@ -9,52 +9,54 @@
     <hsm-event on="flash-cursor" goto="MouseFlash"> </hsm-event>
     <hsm-event on="vanish-cursor" goto="MouseVanish"> </hsm-event>
     <!-- now wait for mouse down -->
-    <hsm-state name="MouseHighlight" hsm-enter="mouseTarget.reset()">
+    <hsm-state name="MouseHighlight" hover-control="hover" hsm-enter="hover.start(mouseTarget.reset())">
       <hsm-event on="mouse-down" goto="MouseWait"> </hsm-event>
       <hsm-state>
         <!-- note: because the avatar can move, we have to check every frame. -->
-        <hsm-event on="update-game" when="mouseTarget()" run="!avatar.onLandingPads(mouseTarget()) ? mouse.show('disk') : mouse.show('bullseye')"> </hsm-event>
-        <hsm-event on="mouseTarget-changed" when="!$evt.target" run="mouse.show('pointer')"></hsm-event>
+        <hsm-event on="update-game" run="hover.highlight(mouseTarget())"> </hsm-event>
+        <hsm-event on="mouse-down" run="hover.select(mouseTarget())"></hsm-event>
+        <!-- <hsm-event on="mouseTarget-changed" when="!$evt.target" run="mouse.show('pointer')"></hsm-event> -->
       </hsm-state>
       <!-- change the cursor into a different cursor for a short period of time -->
-      <hsm-state name="MouseFlash" hsm-enter="mouse.show($evt)" hsm-exit="mouse.show('pointer')">
+      <hsm-state name="MouseFlash" hsm-enter="mouse.show($evt)"">
         <hsm-state ga-timeout="flash" hsm-enter="flash.timeout(200)" hsm-exit="flash.cancel()">
           <!-- <hsm-event on="mouse-move" goto="MouseHighlight"></hsm-event> -->
           <hsm-event on="flash-timeout" goto="MouseHighlight"></hsm-event>
         </hsm-state>
       </hsm-state>
       <!-- hide the cursor until its moved -->
-      <hsm-state name="MouseVanish" hsm-enter="mouse.show(false)" hsm-exit="mouse.show('pointer')">
+      <hsm-state name="MouseVanish" hsm-enter="mouse.show(false)" hsm-exit="mouse.show( 'pointer')">
         <hsm-event on="mouse-move" goto="MouseHighlight"></hsm-event>
         <hsm-event on="reveal-cursor" goto="MouseHighlight"></hsm-event>
       </hsm-state>
     </hsm-state>
     <hsm-state name="MouseWait" ga-timeout="wait" hsm-enter="wait.timeout(150)" hsm-exit="wait.cancel()">
-      <hsm-event on="mouse-up" run="log.info('MouseWait: mouseup')"></hsm-event>
-      <hsm-event on="avatar-direct" run="log.info('MouseWait: direct')"></hsm-event>
-      <hsm-event on="wait-timeout" run="log.info('MouseWait: wait')"></hsm-event>
+      <hsm-event on="mouse-up" run="log.info( 'MouseWait: mouseup')"></hsm-event>
+      <hsm-event on="avatar-direct" run="log.info( 'MouseWait: direct')"></hsm-event>
+      <hsm-event on="wait-timeout" run="log.info( 'MouseWait: wait')"></hsm-event>
       <!--  -->
       <hsm-event on="avatar-direct" goto="MouseDirect"></hsm-event>
-      <!-- <hsm-event on="avatar-approach" goto="MouseHighlight"></hsm-event> -->
-      <hsm-event on="avatar-approach" run="machine.emit('flash-cursor', mouseTarget() ? 'bullseye' : 'arrow')"></hsm-event>
+      <!-- <hsm-event on="player-approach" goto="MouseHighlight"></hsm-event> -->
+      <hsm-event on="player-approach" run="machine.emit( 'flash-cursor', mouseTarget() ? 'bullseye' : 'arrow')"></hsm-event>
       <!-- on timeout or drag, begin a directed move -->
-      <!-- <hsm-event on="app-dragstart" run="avatar.direct()"> </hsm-event> -->
-      <hsm-event on="wait-timeout" run="avatar.direct()"> </hsm-event>
+      <!-- <hsm-event on="app-dragstart" run="player.direct()"> </hsm-event> -->
+      <hsm-event on="wait-timeout" run="machine.emit( 'avatar-direct')"> </hsm-event>
       <!-- on mouse up within time - ie. a click - the player selects the target -->
-      <hsm-event on="mouse-up" run="avatar.approach(mouseTarget(), mouse.pos())"></hsm-event>
+      <hsm-event on="mouse-up" run="player.approach(mouseTarget(), mouse.pos())"></hsm-event>
     </hsm-state>
     <!-- while directing, the cursor changes to a chevron (➢) for surface points, or a down arrow (↓) for subjects; note: even points on a collision surface are accepted. -->
-    <hsm-state name="MouseDirect" hsm-enter="mouseTarget.reset()" hsm-exit="mouse.show('pointer')">
+    <hsm-state name="MouseDirect" hsm-enter="mouseTarget.reset()" hsm-exit="mouse.show( 'pointer')">
       <hsm-event on="mouse-up" goto="MouseHighlight"></hsm-event>
-      <hsm-event on="mouseTarget-changed" run="$evt.target ?'MouseDirectTarget' :'MouseDirectPos'"></hsm-event>
+      <hsm-event on="mouseTarget-changed" run="$evt.target ? 'MouseDirectTarget' : 'MouseDirectPos'"></hsm-event>
       <hsm-event on="move-arrived" goto="MouseDirectDefault"></hsm-event>
-      <hsm-state name="MouseDirectDefault" hsm-enter="!avatar.onLandingPads($evt.target) ? mouse.show('pointer') : mouse.show('bullseye')">
+      <hsm-state name="MouseDirectDefault">
+      <!--  hsm-enter="!pads.onLandingPads(avatar, $evt.target) ? mouse.show( 'pointer') : mouse.show( 'bullseye')" -->
         <hsm-event on="mouse-move" goto="MouseDirectPos"></hsm-event>
       </hsm-state>
-      <hsm-state name="MouseDirectPos" hsm-enter="mouse.show('chev')" hsm-exit="mouse.setAngle()">
-        <hsm-event on="update-game" run="mouse.setAngle(avatar.getCenter())"> </hsm-event>
+      <hsm-state name="MouseDirectPos" hsm-enter="mouse.show( 'chev')" hsm-exit="mouse.setAngle()">
+        <hsm-event on="update-game" run="mouse.setAngle(player.getCenter())"> </hsm-event>
       </hsm-state>
-      <hsm-state name="MouseDirectTarget" hsm-enter="mouse.show('arrow')">
+      <hsm-state name="MouseDirectTarget" hsm-enter="mouse.show( 'arrow')">
       </hsm-state>
     </hsm-state>
   </hsm-state>

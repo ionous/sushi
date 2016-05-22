@@ -12,7 +12,7 @@
         <hsm-state name="PlayerDirectWait"></hsm-state>
         <!-- move the player towards a specific target -->
         <hsm-state name="PlayerDirectTarget" hsm-enter="director.setTarget($evt.target)">
-          <hsm-event on="mouse-up" run="avatar.interact(director.target())"></hsm-event>
+          <hsm-event on="mouse-up" run="player.interact(director.target())"></hsm-event>
           <!-- stop until our parent state gets a target change or mouse up-->
           <hsm-event on="director-arrived" run="director.stop()"></hsm-event>
         </hsm-state>
@@ -20,7 +20,7 @@
         <hsm-state name="PlayerDirectPos" hsm-enter="director.moveTo(mouse.pos())">
           <hsm-event on="mouse-move" run="director.moveTo(mouse.pos())"></hsm-event>
           <!-- stop until we mouse move somewhere new -->
-          <hsm-event on="director-arrived" run="director.stop()"></hsm-event>
+          <hsm-event on="director-arrived" run="director.pause()"></hsm-event>
         </hsm-state>
       </div>
     </hsm-state>

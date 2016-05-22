@@ -1,8 +1,8 @@
 <!-- move the avatar to a specific target ( or position ) until interrupted-->
   <hsm-state name="Pathing" move-control="pathing" hsm-enter="pathing.start(avatar, $evt.target,$evt.pos)" hsm-exit="pathing.stop()">
     <hsm-event on="mouse-down" goto="Planning"></hsm-event>
-    <hsm-event on="pathing-arrived" run="pathing.target() ? avatar.interact(pathing.target()) : 'Planning'"></hsm-event>
-    <hsm-event on="pathing-blocked" run="pathing.target() ? avatar.interact(pathing.target()) : 'Planning'"></hsm-event>
+    <hsm-event on="pathing-arrived" run="player.interact(pathing.target())"></hsm-event>
+    <hsm-event on="pathing-blocked" run="player.interact(pathing.target())"></hsm-event>
     <hsm-event on="update-game" run="pathing.update($evt.dt)"></hsm-event>
     <!-- maybe move-blocked? -->
   </hsm-state>
