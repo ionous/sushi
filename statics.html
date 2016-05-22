@@ -1,0 +1,21 @@
+<hsm-state name="Statics" action-bar="actionBar" hsm-enter="actionBar.bindTo(map)" hsm-exit="actionBar.destroy()" hsm-init="stream.processing() ? 'StaticsPause' : 'StaticsPlay'">
+  <hsm-state name="StaticsPlay">
+    <hsm-event on="hover-select" run="player.faceTarget($evt.target, $evt.pos)"></hsm-event>
+    <hsm-event on="hover-highlight" run="mouse.show(!$evt.target?'pointer':'bullseye')"></hsm-event>
+    <hsm-event on="player-approach" when="$evt.target" run="actionBar.open($evt.target)"></hsm-event>
+    <hsm-event on="player-interact" when="$evt.target" run="actionBar.open($evt.target)"></hsm-event>
+    <hsm-event on="modal-opened" when="$evt.source =='actionBar'" goto="StaticsActionBar"></hsm-event>
+    <hsm-event on="modal-closed" when="$evt.source =='actionBar'" goto="StaticsPlay"></hsm-event>
+    <!--   -->
+    <hsm-state>
+    </hsm-state>
+    <hsm-state name="StaticsActionBar" hsm-exit="actionBar.dismiss($evt.name)">
+      <hsm-event on="keys" when="$evt.escapeKey()" run="actionBar.dismiss('escape pressed')"></hsm-event>
+    </hsm-state>
+  </hsm-state>
+  <!--  -->
+  <hsm-state name="StaticsPause">
+    <hsm-event on="stream-empty" goto="StaticsPlay"></hsm-event>
+  </hsm-state>
+  <hsm-event on="stream-processing" goto="StaticsPause"></hsm-event>
+</hsm-state>

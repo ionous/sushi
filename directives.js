@@ -45,34 +45,4 @@ angular.module('demo')
           });
         }
       };
-    })
-  .directive('gaClickReturn',
-    function(ViewReturnService, $log, $timeout) {
-      return {
-        // having a scope object creates an "isolate" scope,
-        // it seems to hide any changes we make OTHER than the fields listed.
-        // we want the NAME of the field from the directive -- so theres no way to list in advance ( through the link function anyway ) that name as a literal --
-        // we use attr directly instead.
-        // scope: { attr: "@gaClickReturn" },
-        link: function(scope, el, attr) {
-          var msgvar = attr["gaClickReturn"];
-          var currentAct = null;
-          // listen for the desire to return to prior view ( msg,act can be null )
-          var xview = ViewReturnService.changedReturn(function(msg, act) {
-            scope[msgvar] = msg;
-            currentAct = act;
-          });
-          scope.$on("$destroy", xview);
-          // when clicking the element (ex. a button) run the return action.
-          el.on("click", function() {
-            var act = currentAct;
-            currentAct = null;
-            if (act) {
-              scope.$apply(function() {
-                act();
-              });
-            }
-          });
-        },
-      };
     });

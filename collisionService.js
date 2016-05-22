@@ -35,8 +35,10 @@ angular.module('demo')
         }
       };
       Scene.prototype.destroyScene = function() {
-        this.world.clear();
-        this.world = null;
+        if (this.world) {
+          this.world.clear();
+          this.world = null;
+        }
         return false;
       };
       Scene.prototype.addWall = function(min, max) {

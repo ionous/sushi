@@ -1,0 +1,12 @@
+<hsm-state name="Startup" hsm-enter="log.info('starting')">
+  <hsm-event on="game-started" goto="GameStarted"></hsm-event>
+  <!--  -->
+  <hsm-state name="CreatingPlayer" hsm-enter="player.create('/bin/images/princess.png', 64)">
+    <hsm-event on="player-created" goto="LocatingPlayer">
+  </hsm-state>
+  <hsm-state name="LocatingPlayer" hsm-enter="player.locate()">
+    <hsm-event on="player-located" run="map.changeRoom($evt.where)"></hsm-event>
+    <hsm-event on="map-loaded" run="log.info('map loaded')"></hsm-event>
+    <hsm-event on="map-loaded" run="game.start()"></hsm-event>
+  </hsm-state>
+</hsm-state>

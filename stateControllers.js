@@ -322,39 +322,86 @@ angular.module('demo')
 
 // 
 .directiveAs("physicsControl", ["^^hsmMachine"],
-  function(CollisionService) {
-    this.init = function(hsmMachine) {
-      var scene;
-      return {
-        create: function(physics) {
-          if (scene) {
-            scene.destroyScene();
+    function(CollisionService) {
+      this.init = function(hsmMachine) {
+        var scene;
+        return {
+          create: function(physics) {
+            if (scene) {
+              scene.destroyScene();
+              scene = null;
+            }
+            if (physics.shapes) {
+              scene = CollisionService.newScene(physics.bounds);
+              scene.makeWalls(physics.shapes);
+            }
+          },
+          exists: function() {
+            return !!scene;
+          },
+          step: function(dt) {
+            if (!angular.isNumber(dt) && !isFinite(dt)) {
+              throw new Error("bad dt");
+            }
+            return scene && scene.step(dt);
+          },
+          addProp: function(pos, size) {
+            return scene.addProp(pos, size);
+          },
+          destroy: function() {
+            if (scene) {
+              scene.destroyScene();
+              scene = null;
+            }
+          },
+        }; // return export to scope
+      }; // init
+    }) // physicsControl
+
+.directiveAs("viewControl", ["^^hsmMachine"],
+    function(ElementSlotService, $log, $scope) {
+      this.init = function(name, hsmMachine) {
+        var currentEl, currentScope, currentMap, lastRoom;
+        var returnToRoom = function() {
+          if (currentMap) {
+            $scope.$apply(function() {
+              currentMap.changeRoom(lastRoom);
+            });
           }
-          if (physics.shapes) {
-            scene = CollisionService.newScene(physics.bounds);
-            scene.makeWalls(physics.shapes);
+          disconnect();
+        };
+        var disconnect = function() {
+          if (currentEl) {
+            currentEl.off("click", returnToRoom);
+            currentEl = null;
           }
-        },
-        exists: function() {
-          return !!scene;
-        },
-        step: function(dt) {
-          if (!angular.isNumber(dt) && !isFinite(dt)) {
-            throw new Error("bad dt");
+          if (currentScope) {
+            currentScope.msg = false;
           }
-          return scene && scene.step(dt);
-        },
-        addProp: function(pos, size) {
-          return scene.addProp(pos, size);
-        },
-        destroy: function() {
-          if (scene) {
-            scene.destroyScene();
-          }
-        }
-      };
-    }
-  })
+          currentMap = null;
+        };
+        return {
+          disconnect: disconnect,
+          connect: function(map, slotName, message) {
+            disconnect();
+            var slot = ElementSlotService.get(slotName);
+            currentEl = slot.element;
+            currentScope = slot.scope;
+
+            var loc = map.get("location");
+            var viewing = loc.view;
+
+            if (viewing) {
+              $log.info("connecting", map, slotName, message);
+              currentMap = map;
+              lastRoom = loc.room;
+              currentEl.on("click", returnToRoom);
+              currentScope.msg = message;
+            }
+          },
+        }; //return: export to scope
+      }; //init
+    }) // viewControl
 
 // -loaded, -loading, changeRoom
 .directiveAs("mapControl", ["^^hsmMachine"],
@@ -374,12 +421,13 @@ angular.module('demo')
           // tree contains: el, bounds, nodes
           var allPads = [];
           return LayerService.createLayers(mapEl, map, room, allPads).then(function(tree) {
-            var collide = map.findLayer("$collide");
+            var collide = map.findLayer("$collide") || false;
             return {
+              location: next,
               tree: tree,
               bounds: tree.bounds,
               hitGroups: tree.nodes.ctx.hitGroup,
-              physics: {
+              physics: collide && {
                 bounds: tree.bounds,
                 shapes: collide.getShapes(),
               },
@@ -415,6 +463,7 @@ angular.module('demo')
         this.map = null;
       }
     };
+
     this.changeLocation = function(next) {
       var ctrl = this;
       if (next.changes(LocationService.currentLocation())) {
@@ -463,12 +512,15 @@ angular.module('demo')
         // suspicious of exposing resources object directly to scope watchers
         get: function(key) {
           var ret = ctrl.map[key];
-          if (!ret) {
+          if (angular.isUndefined(ret)) {
             var msg = "resource not found";
             $log.error(msg, key);
             throw new Error(msg);
           };
           return ret;
+        },
+        loaded: function() {
+          return !!ctrl.map;
         },
         update: function(dt) {
           //$log.info("update", $element);
@@ -529,13 +581,19 @@ angular.module('demo')
       return this.name == 'shift';
     };
     KeyEvent.prototype.moveKey = function(isPressed) {
+      var ret;
       if (angular.isUndefined(isPressed) || (isPressed == this.pressed)) {
         var yes = moveKeys.indexOf(this.name) >= 0;
-        return yes && this.name;
+        ret = yes && this.name;
       }
+      return ret;
     };
-    KeyEvent.prototype.actionKey = function() {
-      return this.name == 'action';
+    KeyEvent.prototype.actionKey = function(isPressed) {
+      var ret;
+      if (angular.isUndefined(isPressed) || (isPressed == this.pressed)) {
+        ret = this.name == 'action';
+      }
+      return ret;
     };
     KeyEvent.prototype.escapeKey = function() {
       return this.pressed && this.name == 'escape';
@@ -943,11 +1001,13 @@ angular.module('demo')
     }
   })
 
-.directiveAs("gaTimeout", ["^^hsmMachine"], function($timeout) {
+.directiveAs("gaTimeout", ["^^hsmMachine"], 
+  function($log, $timeout) {
   var promise = null;
   this.init = function(name, hsmMachine) {
     return {
       timeout: function(ms) {
+        //$log.info("timeout", name, "start");
         promise = $timeout(function() {
           hsmMachine.emit(name, "timeout", {
             elapsed: ms
@@ -955,6 +1015,7 @@ angular.module('demo')
         }, ms)
       },
       cancel: function() {
+        //$log.info("timeout", name, "cancel");
         $timeout.cancel(promise);
         promise = null;
       },
@@ -1209,7 +1270,7 @@ angular.module('demo')
             zoom: zoom,
             pos: barpos,
             view: view,
-            objectId: obj.id,
+            objectId: obj && obj.id,
           };
         });
 

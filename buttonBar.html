@@ -1,6 +1,6 @@
- <!-- && !runningAction && !processingFrame -->
-<div class="ga-buttonbar ga-left ga-show" ng-show="msg">
-  <a class="btn btn-primary btn-lg" ga-click-return="msg" uib-tooltip="{{msg}}" tooltip-placement="right" tooltip-class="ga-xtip">
+<!-- && !runningAction && !processingFrame -->
+<div class="ga-buttonbar ga-left ga-show" ng-show="!hideViewButton && clickReturn.msg" element-slot="clickReturn">
+  <a class="btn btn-primary btn-lg" uib-tooltip="{{clickReturn.msg}}" tooltip-placement="right" tooltip-class="ga-xtip">
     <i class="fa fa-undo"></i>
   </a>
 </div>
