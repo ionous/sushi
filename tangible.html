@@ -25,7 +25,7 @@
             <hsm-event on="keys" when="$evt.escapeKey()" goto="Planning"></hsm-event>
             <hsm-state name="KeyWalking" hsm-enter="machine.emit('vanish-cursor')" hsm-exit="machine.emit('reveal-cursor')">
               <hsm-event on="keys" when="!keys.moving()" goto="Planning"></hsm-event>
-              <hsm-event on="keys" when="$evt.moveKey(true)" goto="''"></hsm-event>
+              <hsm-event on="keys" when="$evt.moveKey(true)" goto=""></hsm-event>
             </hsm-state>
             <hsm-state>
               <ng-include src="'pathing.html'"></ng-include>
