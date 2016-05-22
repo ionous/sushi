@@ -11,7 +11,7 @@ angular.module('demo')
     this.init = function(name, modalControl) {
       return {
         show: function(lines) {
-          var modal = modalControl.show(name, {
+          var modal = modalControl.open(name, {
             animation: false,
             backdropClass: "ga-notifydrop",
             template: '<div class="ga-notify-box"><p class="ga-noselect" ng-repeat="l in lines track by $index">{{l}}</div>',

@@ -1,4 +1,4 @@
-<hsm-state name="Processing" parallel="true" hsm-enter="log.info('processing!')">
+<hsm-state name="Processing" parallel="true">
   <!-- listen for player movement room-to-room -->
   <hsm-state game-listener="roomChange" hsm-enter="roomChange.listen('player', 'x-rel')" hsm-exit="roomChange.silence()">
     <hsm-event on="roomChange" when="$evt.data.prop=='object-whereabouts'" run="map.changeRoom($evt.data.next).then($evt.resolve())"></hsm-event>
@@ -8,7 +8,7 @@
     <hsm-event on="printText" run="text.addLines($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
   </hsm-state>
   <!-- characters saying dialog -->
-  <hsm-state hsm-init="0 && 'TalkEnabled'">
+  <hsm-state hsm-init="1 && 'TalkEnabled'">
     <hsm-state>
     </hsm-state>
     <hsm-state name="TalkEnabled" talk-control="talk" game-listener="speech" hsm-enter="speech.listen('*', 'say')" hsm-exit="speech.silence()">
@@ -16,7 +16,7 @@
     </hsm-state>
   </hsm-state>
   <!-- other text handlers do other things.... -->
-  <hsm-state hsm-init="0 && 'PopupEnabled'">
+  <hsm-state hsm-init="1 && 'PopupEnabled'">
     <hsm-state>
     </hsm-state>
     <hsm-state name="PopupEnabled" popup-control="popup" game-listener="reportView" hsm-enter="reportView.listen('*', 'reporting-the-view', true)" hsm-exit="reportView.silence()">

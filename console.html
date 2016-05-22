@@ -2,14 +2,15 @@
   <hsm-state name="ConsoleClosed">
     <hsm-event on="demo-console" goto="ConsoleOpen"></hsm-event>
   </hsm-state>
-  <hsm-state name="ConsoleOpen" console-control="console" hsm-enter="console.show()" hsm-init="game.isProcessing() ? 'ConsoleInputDisabled' : 'ConsoleInputEnabled'" hsm-exit="console.hide()">
-    <hsm-event on="console-closed" goto="ConsoleClosed"></hsm-event>
-    <!-- for this to work right, to be able to open and close the console at will while the game is processing, we need to be able to evaluate "is processing" of something like the game. -->
+  <hsm-state name="ConsoleOpen" console-control="console" hsm-enter="console.show()" hsm-init="stream.processing() ? 'ConsoleInputDisabled' : 'ConsoleInputEnabled'" hsm-exit="console.dismiss('exiting')">
+    <hsm-event on="modal-closed" goto="ConsoleClosed"></hsm-event>
+    
     <hsm-state name="ConsoleInputDisabled" hsm-enter="console.allowInput(false)">
-      <hsm-event on="game-event" when="$evt.finished" goto='ConsoleInputEnabled'></hsm-event>
+      <hsm-event on="stream-empty" goto="ConsoleInputEnabled"></hsm-event>
     </hsm-state>
     <hsm-state name="ConsoleInputEnabled" hsm-enter="console.allowInput(true)">
-      <hsm-event on="console-input" run="game.submit(console.echo($evt.input), 'ConsoleInputDisabled')"></hsm-event>
+      <hsm-event on="stream-processing" goto="ConsoleInputDisabled"></hsm-event>
+      <!-- the console win submits user input to the console api -->
     </hsm-state>
   </hsm-state>
 </hsm-state>

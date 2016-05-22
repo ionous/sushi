@@ -19,12 +19,16 @@ angular.module('demo')
     };
   })
   .directive('gaAutoFocus',
-    function($timeout) {
+    function($log, $timeout) {
       return {
-        link: function(scope, el) {
-          $timeout(function() {
-            el[0].focus();
-          });
+
+        link: function(scope, el, attrs) {
+          var focus = function() {
+            $timeout(function() {
+              el[0].focus();
+            });
+          };
+          scope.$watch(attrs["gaAutoFocus"], focus);
         }
       };
     })

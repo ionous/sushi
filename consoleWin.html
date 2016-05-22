@@ -10,8 +10,8 @@
     </ul>
   </div>
   <div>
-    <form id="f" ng-submit="console.submit(input.reset())">
-      <input id="q" name="q" type="text" ng-model="input.userInput" autocomplete="off" ng-disabled="console.inputEnabled" ga-auto-focus />
-    </form>
+    <form id="f" ng-submit="console.submit(input.extract())">
+      <input id="q" name="q" type="text" ng-model="input.userInput" autocomplete="off" ng-disabled="!console.inputEnabled" ga-auto-focus="console.inputEnabled">
+      </form>
   </div>
 </div>

@@ -1,4 +1,4 @@
-<hsm-state name="Startup" hsm-enter="log.info('starting')">
+<hsm-state name="Startup">
   <hsm-event on="game-started" goto="GameStarted"></hsm-event>
   <!--  -->
   <hsm-state name="CreatingPlayer" hsm-enter="player.create('/bin/images/princess.png', 64)">

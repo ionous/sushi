@@ -73,6 +73,7 @@
   <script src="commentBoxController.js"></script>
   <script src="displayController.js"></script>
   <script src="iconPreviewController.js"></script>
+  <script src="inputController.js"></script>
   <script src="inventoryController.js"></script>
   <script src="inventoryCombineController.js"></script>
   <script src="mapZoomController.js"></script>
@@ -89,7 +90,7 @@
 </head>
 
 <body ng-app="demo" hsm-machine="machine" hsm-log="log" 
-  hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name)" 
+  hsm-transition="1 && log.warn('transitioning', $source.name, '->', $target.name)" 
   hsm-emit="0 && $evt.name!='update-game' &&  log.info('emit', $evt.name)">
   <!-- hsm-enter="log.enter($state)" hsm-exit="log.exit($state)">
    -->

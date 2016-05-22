@@ -7,7 +7,7 @@ angular.module('demo')
   .controller('InputController',
     function(TextService, GameService, $log, $scope) {
       this.userInput = '';
-      this.reset = function() {
+      this.extract = function() {
         var input = this.userInput;
         this.userInput = '';
         return input;

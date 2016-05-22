@@ -156,8 +156,21 @@ angular.module('demo')
         });
       };
       this.post = function(what) {
+        hsmMachine.emit(name, "posting", {
+          what: what
+        });
         return currentGame.post(what).then(function(res) {
+          hsmMachine.emit(name, "posted", {
+            frame: res.frame,
+            events: res.events,
+          });
+          // fine for now:....
           processControl.queue(res.frame, res.events || []);
+        }, function(reason) {
+          $log.error("gameControl: post", name, "error:", reason);
+          hsmMachine.emit(name, "error", {
+            reason: reason
+          });
         });
       };
       this.newGame = function(_processControl) {
@@ -210,10 +223,15 @@ angular.module('demo')
   function($timeout, EventStreamService) {
     this.init = function(name, hsmMachine) {
       var processing;
+      var prime = function() {
+        if (!processing) {
+          processing = true;
+          hsmMachine.emit(name, "processing", {});
+        }
+      };
       var handleEvents = function() {
         $timeout(function() {
-          processing = false;
-          hsmMachine.emit(name, "processing", {});
+          prime();
           EventStreamService.handleEvents().then(function() {
             processing = false;
             hsmMachine.emit(name, "empty", {});
@@ -222,7 +240,11 @@ angular.module('demo')
       };
       var active;
       return {
-        processing: function() {
+        processing: function(force) {
+          // hack? to allow our posting of messages to look like processing
+          if (force) {
+            prime();
+          }
           return processing;
         },
         process: function(enable) {
@@ -1001,27 +1023,27 @@ angular.module('demo')
     }
   })
 
-.directiveAs("gaTimeout", ["^^hsmMachine"], 
+.directiveAs("gaTimeout", ["^^hsmMachine"],
   function($log, $timeout) {
-  var promise = null;
-  this.init = function(name, hsmMachine) {
-    return {
-      timeout: function(ms) {
-        //$log.info("timeout", name, "start");
-        promise = $timeout(function() {
-          hsmMachine.emit(name, "timeout", {
-            elapsed: ms
-          });
-        }, ms)
-      },
-      cancel: function() {
-        //$log.info("timeout", name, "cancel");
-        $timeout.cancel(promise);
-        promise = null;
-      },
+    var promise = null;
+    this.init = function(name, hsmMachine) {
+      return {
+        timeout: function(ms) {
+          //$log.info("timeout", name, "start");
+          promise = $timeout(function() {
+            hsmMachine.emit(name, "timeout", {
+              elapsed: ms
+            });
+          }, ms)
+        },
+        cancel: function() {
+          //$log.info("timeout", name, "cancel");
+          $timeout.cancel(promise);
+          promise = null;
+        },
+      };
     };
-  };
-})
+  })
 
 .directiveAs("moveControl", ["^^hsmMachine"],
     function($log) {
@@ -1112,13 +1134,13 @@ angular.module('demo')
             hsmMachine.emit(name, "closed", {
               name: name,
               source: source,
-              result: result,
+              result: result || "closed",
             });
           }, function(reason) {
-            hsmMachine.emit(name, "dismissed", {
+            hsmMachine.emit(name, "closed", {
               name: name,
               source: source,
-              reason: reason,
+              reason: reason || "dismissed",
             });
           });
           hsmMachine.emit(name, "opened", {
@@ -1127,7 +1149,7 @@ angular.module('demo')
           });
           return modal;
         };
-        this.show = function(source, params) {
+        this.open = function(source, params) {
           return this.present(source, $uibModal.open(params));
         };
         return {
@@ -1147,9 +1169,9 @@ angular.module('demo')
     })
 
 // fix, convert to dismiss.
-.directiveAs("consoleControl", ["^^gameControl", "^^hsmMachine"],
-  function($log, $uibModal, TextService) {
-    this.init = function(name, gameControl, hsmMachine) {
+.directiveAs("consoleControl", ["^^gameControl", "^^modalControl"],
+  function($log, $timeout, TextService) {
+    this.init = function(name, gameControl, modalControl) {
       var modal, modalDismissed;
       // the machine defines the scope of the modal window.
       var innerScope = {
@@ -1164,36 +1186,32 @@ angular.module('demo')
         },
       };
       return {
+        dismiss: function(reason) {
+          if (modal) {
+            modal.dismiss(reason);
+            modal = null;
+          }
+        },
         show: function() {
           if (modal) {
-            throw new Error("console already opened");
+            modal.dismiss(reason);
           }
-          modalDismissed = false;
-          modal = $uibModal.open({
+          modal = modalControl.open(name, {
             windowTopClass: 'ga-console',
-            templateUrl: 'console.html',
+            templateUrl: 'consoleWin.html',
             controller: function($scope) {
-              // pretend we are "controller as"
               $scope[name] = innerScope;
             },
           });
-          // modal.result neither gets resolved nor rejected *unless* you close,dismiss with a value -- ie. not from a user close; on the other hand modal.closed always gets resolved (even if dismissed), but no value is passed. *sigh*
-          modal.closed.then(function() {
-            if (!modalDismissed) {
-              hsmMachine.emit(name, "closed", {
-                name: name,
-              });
-            }
-          });
         },
         allowInput: function(yesNo) {
-          innerScope.inputEnabled = !!yesNo;
+          if (!angular.isUndefined(yesNo)) {
+            var yes = !!yesNo;
+            //$log.debug("console", name, "allow input", yes);
+            innerScope.inputEnabled = yes;
+          }
+          return innerScope.inputEnabled;
         },
-        hide: function() {
-          modalDismissed = true;
-          modal.dismiss();
-          modal = null;
-        }
       };
     };
   })
@@ -1240,9 +1258,6 @@ angular.module('demo')
         displayEl = map.get("mapEl");
       };
       this.open = function(target) {
-        if (modal) {
-          throw new Error("egh?");
-        }
         this.dismiss("opening");
         //
         $log.info("showing action bar", target.toString());
@@ -1274,7 +1289,7 @@ angular.module('demo')
           };
         });
 
-        modal = modalControl.show(name, {
+        modal = modalControl.open(name, {
           templateUrl: 'actionBar.html',
           controllerAs: name,
           controller: function(config) {
