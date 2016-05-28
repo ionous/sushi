@@ -1,5 +1,9 @@
 <!-- mouse input tweaks the cursor, and raises events which effect player control. -->
 <hsm-state name="Hover" hsm-init="mouse.inBounds() ? 'InBounds' : 'OutOfBounds'" mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(mouse,map.get('hitGroups'))" hsm-exit="mouseTarget.release()">
+  <hsm-event on="mouse-hidden" goto="MouseHidden"></hsm-event>
+  <hsm-state name="MouseHidden">
+    <hsm-event on="mouse-shown" goto="Hover"></hsm-event>
+  </hsm-state>
   <hsm-state name="OutOfBounds" hsm-enter="mouse.show(false)">
     <hsm-event on="mouse-enter" goto="InBounds"></hsm-event>
     <hsm-event on="mouse-move" goto="InBounds"></hsm-event>
@@ -9,7 +13,6 @@
     <hsm-event on="flash-cursor" goto="MouseFlash"> </hsm-event>
     <hsm-event on="vanish-cursor" goto="MouseVanish"> </hsm-event>
     <!-- <hsm-event on="player-approach" goto="MouseHighlight"></hsm-event> -->
-    <hsm-event on="avatar-approach" run="log.info( 'MouseWait: approach')"></hsm-event>
     <hsm-event on="player-approach" run="machine.emit( 'flash-cursor', mouseTarget() ? 'bullseye' : 'arrow')"></hsm-event>
     <!-- now wait for mouse down -->
     <hsm-state name="MouseHighlight" hover-control="hover" hsm-enter="hover.start(mouseTarget.reset())">
@@ -22,7 +25,7 @@
       </hsm-state>
       <!-- change the cursor into a different cursor for a short period of time -->
       <hsm-state name="MouseFlash" hsm-enter="mouse.show($evt)">
-        <hsm-state ga-timeout="flash" hsm-enter="flash.timeout(200)" hsm-exit="flash.cancel()">
+        <hsm-state timeout-control="flash" hsm-enter="flash.timeout(200)" hsm-exit="flash.cancel()">
           <!-- <hsm-event on="mouse-move" goto="MouseHighlight"></hsm-event> -->
           <hsm-event on="flash-timeout" goto="MouseHighlight"></hsm-event>
         </hsm-state>
@@ -33,15 +36,12 @@
         <hsm-event on="reveal-cursor" goto="MouseHighlight"></hsm-event>
       </hsm-state>
     </hsm-state>
-    <hsm-state name="MouseWait" ga-timeout="wait" hsm-enter="wait.timeout(150)" hsm-exit="wait.cancel()">
+    <hsm-state name="MouseWait" timeout-control="wait" hsm-enter="wait.timeout(150)" hsm-exit="wait.cancel()">
       <!--  -->
-      <hsm-event on="avatar-direct" run="log.info('MouseWait: direct')"></hsm-event>
       <hsm-event on="avatar-direct" goto="MouseDirect"></hsm-event>
       <!-- on timeout or drag, begin a directed move -->
-      <hsm-event on="wait-timeout" run="log.info('MouseWait: wait')"></hsm-event>
       <hsm-event on="wait-timeout" run="machine.emit('avatar-direct')"> </hsm-event>
       <!-- on mouse up within time - ie. a click - the player selects the target -->
-      <hsm-event on="mouse-up" run="log.info('MouseWait: mouseup')"></hsm-event>
       <hsm-event on="mouse-up" run="player.approach(mouseTarget(), mouse.pos())"></hsm-event>
     </hsm-state>
     <!-- while directing, the cursor changes to a chevron (➢) for surface points, or a down arrow (↓) for subjects; note: even points on a collision surface are accepted. -->

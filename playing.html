@@ -1,0 +1,58 @@
+<hsm-state name="Playing" view-control="view" hsm-enter="view.connect(map, 'clickReturn', 'Return to room...')" hsm-exit="view.disconnect()">
+  <hsm-state hsm-enter="mouse.bindTo('gameMap')" hsm-exit="mouse.destroy()">
+    <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
+      <hsm-state key-control="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
+        <hsm-state parallel="true">
+          <ng-include src="'console.html'"></ng-include>
+          <!-- we run one of physics or not-physics -->
+          <hsm-state name="PlayOne" hsm-init="map.get('physics') ? 'Physics' : 'Statics'">
+            <ng-include src="'statics.html'"></ng-include>
+            <ng-include src="'physics.html'"></ng-include>
+          </hsm-state>
+          <!-- we always hover -->
+          <hsm-state name="Hovering" hsm-init="stream.processing() ? 'HoverSuspended' : 'Hover'">
+            <ng-include src="'hover.html'"></ng-include>
+            <!-- we keep hover alive for the action bar. -->
+            <hsm-event on="modal-opened" when="$evt.source!='actionBar'" goto="HoverModal"></hsm-event>
+            <hsm-state name="HoverSuspended" hsm-enter="mouse.show(false)">
+              <hsm-event on="stream-empty" goto="Hovering"></hsm-event>
+            </hsm-state>
+            <hsm-state name="HoverModal" hsm-enter="mouse.show(false)">
+              <hsm-event on="modal-closed" goto="Hovering"></hsm-event>
+            </hsm-state>
+          </hsm-state>
+          <!-- shared in both physics and non-physics -->
+          <hsm-state name="SharedPlay" hsm-init="stream.processing() ? 'SharedGameProcessing' : 'SharedGameRunning'" inventory-control="inv">
+            <hsm-event on="player-quip" run="game.post($evt.post)"></hsm-event>
+            <hsm-event on="player-action" run="game.post($evt.action)"></hsm-event>
+            <hsm-event on="player-zoom" run="map.changeView($evt.view)"></hsm-event>
+            <hsm-event on="demo-inventory" run="inv.showInventory('items', picker)"></hsm-event>
+            <!--  -->
+            <hsm-state name="SharedGameRunning">
+              <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
+            </hsm-state>
+            <!-- action bar open; doesnt use overgey. -->
+            <hsm-event on="modal-opened" when="$evt.source=='actionBar'" goto="SharedAction"></hsm-event>
+            <hsm-state name="SharedAction">
+              <hsm-event on="keys" when="$evt.escapeKey()" run="modal.dismiss('escape')"></hsm-event>
+              <hsm-event on="modal-closed" goto="SharedPlay"></hsm-event>
+            </hsm-state>
+            <!-- some random modal opened; includes overgrey and key absorption. -->
+            <hsm-event on="modal-opened" goto="SharedModal"></hsm-event>
+            <hsm-state name="SharedModal" overgrey-control="overgrey" hsm-enter="overgrey.show()" hsm-exit="overgrey.show(false)">
+              <hsm-event on="modal-closed" goto="SharedPlay"></hsm-event>
+              <hsm-event on="overgrey-clicked" run="modal.dismiss('overgrey')"></hsm-event>
+              <hsm-event on="keys" when="$evt.escapeKey()" run="modal.dismiss('escape')"></hsm-event>
+              <hsm-event on="keys" goto=""></hsm-event>
+            </hsm-state>
+            <!--  -->
+            <hsm-event on="stream-processing" goto="SharedGameProcessing"></hsm-event>
+            <hsm-state name="SharedGameProcessing">
+              <hsm-event on="stream-empty" goto="SharedPlay"></hsm-event>
+            </hsm-state>
+          </hsm-state>
+        </hsm-state>
+      </hsm-state>
+    </hsm-state>
+  </hsm-state>
+</hsm-state>

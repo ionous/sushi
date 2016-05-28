@@ -4,12 +4,22 @@
     <i class="fa fa-undo"></i>
   </a>
 </div>
-<div class="ga-buttonbar ga-right ga-show" ng-controller="ButtonBarController">
+<div class="ga-buttonbar ga-right ga-show">
   <a class="btn btn-primary btn-lg" ng-click="machine.emit('demo-console')" uib-tooltip="Console" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
     <i class="fa fa-terminal"></i>
   </a>
-  <a class="btn btn-primary btn-lg" ng-click="machine.emit('demo-inventory')" uib-tooltip="Items" tooltip-placement="auto bottom" tooltip-class="ga-xtip" ng-controller="InventoryButtonController">
+  <a class="btn btn-primary btn-lg" ng-click="machine.emit('demo-inventory')" uib-tooltip="Items" tooltip-placement="auto bottom" tooltip-class="ga-xtip" inventory-button-control="invButton">
     <i class="fa fa-suitcase"></i>
+    <hsm-state>
+      <hsm-state name="PulseCheck">
+        <hsm-event on="invChange" when="$evt.data.op=='add'" goto="Pulse"></hsm-event>
+      </hsm-state>
+      <hsm-state name="Pulse" hsm-enter="invButton.addPulse()" hsm-exit="invButton.removePulse()">
+        <hsm-state timeout-control="pulse" hsm-enter="pulse.timeout(1250)" hsm-exit="pulse.cancel()">
+          <hsm-event on="pulse-timeout" goto="PulseCheck"></hsm-event>
+        </hsm-state>
+      </hsm-state>
+    </hsm-state>
   </a>
   <a class="btn btn-primary btn-lg disabled" ng-click="machine.emit('demo-settings')" uib-tooltip="Settings" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
     <i class="fa fa-gear"></i>

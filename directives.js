@@ -21,7 +21,6 @@ angular.module('demo')
   .directive('gaAutoFocus',
     function($log, $timeout) {
       return {
-
         link: function(scope, el, attrs) {
           var focus = function() {
             $timeout(function() {

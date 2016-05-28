@@ -15,17 +15,45 @@
       <hsm-event on="speech" run="talk.say($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
     </hsm-state>
   </hsm-state>
-  <!-- other text handlers do other things.... -->
-  <hsm-state hsm-init="1 && 'PopupEnabled'">
-    <hsm-state>
-    </hsm-state>
-    <hsm-state name="PopupEnabled" popup-control="popup" game-listener="reportView" hsm-enter="reportView.listen('*', 'reporting-the-view', true)" hsm-exit="reportView.silence()">
-      <hsm-state name="DisplayStoryText" game-listener="popupText" hsm-enter="popupText.listen('_display_', 'print')" hsm-exit="popupText.silence()">
-        <hsm-event on="popupText" run="popup.show($evt.data).then($evt.resolve())"></hsm-event>
-      </hsm-state>
-      <hsm-event on="reportView" when="$evt.start" goto="SilenceRoomEntryText"></hsm-event>
-      <hsm-event on="reportView" when="$evt.end" goto="DisplayStoryText"></hsm-event>
-      <hsm-state name="SilenceRoomEntryText">
+  <!--  -->
+  <hsm-state game-listener="offers" hsm-enter="offers.listen('*', 'being-offered', true)" hsm-exit="offers.silence()">
+    <hsm-event on="offers" run="playerDialog.addQuip($evt.tgt)"></hsm-event>
+  </hsm-state>
+  <!-- popup story text -->
+  <hsm-state game-listener="storyText" hsm-enter="storyText.listen('_display_', 'print')" hsm-exit="storyText.silence()">
+    <hsm-state game-listener="reportView" hsm-enter="reportView.listen('*', 'reporting-the-view', true)" hsm-exit="reportView.silence()">
+      <hsm-state game-listener="comments" hsm-enter="comments.listen('player', 'printing-conversation-choices', true)" hsm-exit="comments.silence()">
+        <hsm-state game-listener="vending" hsm-enter="vending.listen('vending-machine', 'offering-vendibles', true)" hsm-exit="vending.silence()">
+          <!--  -->
+          <hsm-state name="StoryText" hsm-init="1 && 'PopupsEnabled'">
+            <hsm-state name="PopupsDisabled">
+            </hsm-state>
+            <!--  -->
+            <hsm-event on="stream-empty" run="log.warn('STREAM EMPTY')"></hsm-event>
+            <hsm-event on="stream-empty" run="playerDialog.showChoices()"></hsm-event>
+            <hsm-event on="comments" goto="CaptureComments"></hsm-event>
+            <hsm-event on="vending" goto="CaptureVendibles"></hsm-event>
+            <!-- dialog choices -->
+            <hsm-state name="CaptureComments">
+              <hsm-event on="storyText" run="playerDialog.addChoice($evt.data)"></hsm-event>
+              <hsm-event on="comments" goto="StoryText"></hsm-event>
+            </hsm-state>
+            <hsm-state name="CaptureVendibles">
+              <hsm-event on="storyText" run="playerDialog.addChoice($evt.data)"></hsm-event>
+              <hsm-event on="vending" run="playerDialog.addFallback('0', 'Never mind.')"></hsm-event>
+              <hsm-event on="vending" goto="StoryText"></hsm-event>
+            </hsm-state>
+            <!-- regular story text popups -->
+            <hsm-state name="PopupsEnabled" popup-control="popup">
+              <hsm-event on="storyText" run="popup.show('popupBox', $evt.data).then($evt.resolve())"></hsm-event>
+            </hsm-state>
+            <!-- room entry prints nothing-->
+            <hsm-event on="reportView" goto="SilenceRoomEntryText"></hsm-event>
+            <hsm-state name="SilenceRoomEntryText">
+              <hsm-event on="reportView" goto="StoryText"></hsm-event>
+            </hsm-state>
+          </hsm-state>
+        </hsm-state>
       </hsm-state>
     </hsm-state>
   </hsm-state>

@@ -1,3 +1,4 @@
+<!-- modified from uib's exampe to remove indicators and change slide text,class. -->
 <div class="modal-body ga-carousel">
   <script type="text/ng-template" id="carousel.html">
     <div ng-mouseenter="pause()" ng-mouseleave="play()" class="carousel" ng-swipe-right="prev()" ng-swipe-left="next()">
@@ -17,15 +18,16 @@
       </ol> -->
     </div>
   </script>
+  <!-- carousel is uib's default carousel template -->
   <uib-carousel template-url="carousel.html" no-transition="!transition">
     <uib-slide ng-repeat="slide in slides" active="slide.active">
-      <div ng-controller="slideController" class="ga-slide ga-noselect">
+      <div ng-controller="ItemSlideController" class="ga-slide ga-noselect">
         <img ng-src="{{slideImage}}" style="margin:auto;">
       </div>
     </uib-slide>
   </uib-carousel>
   <div class="ga-picker-caption ga-noselect">
     <!-- <p style="text-align: center;">Slide {{carousel.slide.id}}</p> -->
-    <p style="text-align: center;">{{picker.current.name}}</p>
+    <p style="text-align: center;">{{currentSlide.name}}</p>
   </div>
 </div>

@@ -1,4 +1,4 @@
-<hsm-state name="Statics" action-bar="actionBar" hsm-enter="actionBar.bindTo(map)" hsm-exit="actionBar.destroy()" hsm-init="stream.processing() ? 'StaticsPause' : 'StaticsPlay'">
+<hsm-state name="Statics" action-bar-control="actionBar" hsm-enter="actionBar.bindTo('gameMap')" hsm-exit="actionBar.destroy()" hsm-init="stream.processing() ? 'StaticsPause' : 'StaticsPlay'">
   <hsm-state name="StaticsPlay">
     <hsm-event on="hover-select" run="player.faceTarget($evt.target, $evt.pos)"></hsm-event>
     <hsm-event on="hover-highlight" run="mouse.show(!$evt.target?'pointer':'bullseye')"></hsm-event>
@@ -10,7 +10,6 @@
     <hsm-state>
     </hsm-state>
     <hsm-state name="StaticsActionBar" hsm-exit="actionBar.dismiss($evt.name)">
-      <hsm-event on="keys" when="$evt.escapeKey()" run="actionBar.dismiss('escape pressed')"></hsm-event>
     </hsm-state>
   </hsm-state>
   <!--  -->

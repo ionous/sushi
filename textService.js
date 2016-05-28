@@ -99,22 +99,6 @@ angular.module('demo')
          * @callback handler
          * @param { Array.<string> } lines
          */
-        pushHandler: function(handler) {
-          if (!angular.isFunction(handler)) {
-            throw new Error("pushed not a function");
-          }
-          handlers.push(handler);
-        },
-        removeHandler: function(handler) {
-          var idx = handlers.indexOf(handler);
-          if (idx >= 0) {
-            handlers.splice(idx, 1);
-          }
-        },
-        // write to the "screen" directly.
-        echo: function(text) {
-          defaultHandler([text], display.id);
-        },
         // add to the list of all text, bit by bit.
         addLines: function(speaker, lines) {
           if (angular.isUndefined(lines)) {

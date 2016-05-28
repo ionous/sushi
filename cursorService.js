@@ -4,7 +4,7 @@
  */
 angular.module('demo')
   .factory('CursorService',
-    function(UpdateService, $log, $rootElement, $rootScope) {
+    function(UpdateService, $log, $rootElement) {
       var clientX, clientY;
       $rootElement.on("mousemove", function(evt) {
         clientX = evt.clientX;

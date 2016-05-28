@@ -3,18 +3,15 @@
 angular.module('demo')
   .directiveAs('talkControl', ["^modalControl"], function(
     EntityService,
-    $log, $q, $rootElement, $timeout) {
+    $log, $q, $rootElement, $scope, $timeout) {
     this.init = function(name, modalControl) {
 
-      var overgrey = angular.element('<div class="overgrey ga-noselect"></div>');
       var bubble = angular.element('<div class="bubble ga-noselect"></div>');
-      // var el = angular.element('<div class="talk ga-noselect"></div>');
-      // $rootElement.prepend(el);
-      var el= overgrey;
+      var el = $rootElement;
 
       //$log.info("TalkController: base pos", baseLeft, baseTop);
 
-      var Talker = function(id, displayGroup,canvi) {
+      var Talker = function(id, displayGroup, canvi) {
         var pos = displayGroup.pos;
         var size = canvi.getSize();
         var adjust = pt(0, 0);
@@ -34,27 +31,8 @@ angular.module('demo')
             adjust.y = 48;
             break;
         };
-        //$log.info("TalkController:", id, adjust.x, adjust.y);
 
-        var defer = $q.defer();
-
-        // api for modal control:
-        this.result = defer.promise;
-
-        this.close = function(result) {
-          defer.resolve(result);
-        };
-        this.dismiss = function(reason) {
-          defer.reject(reason);
-        };
-
-        //
-        defer.promise.finally(function() {
-          ///$log.info("TalkController: finally.");
-          bubble.remove();
-        });
-
-        var displayText = function(text) {
+        this.displayText = function(text) {
           //$log.debug("TalkController: display", text);
           // prepare to center bubble over chara
           bubble.css({
@@ -80,7 +58,7 @@ angular.module('demo')
           var r = bubble[0].getBoundingClientRect();
           var top = r.top - baseTop;
           var left = r.left - baseLeft;
-          
+
           // move bubble back.
           el.append(bubble);
           // center bubble and display:
@@ -92,27 +70,13 @@ angular.module('demo')
           });
         };
 
-        var processLines = this.process = function(lines) {
-          // process a non-blank line till we're out of lines.
-          while (lines.length) {
-            var text = lines.shift();
-            if (text) {
-              displayText(text);
-
-              // process the next line ater clicking
-              overgrey.one("click", function() {
-                processLines(lines);
-              });
-              // early-return after processing a line.
-              return;
-            }
-          }
-          // done.
-          defer.resolve("done!");
+        this.hide = function() {
+          bubble.remove();
         };
       }; // Talker.
       return {
         say: function(actorId, data) {
+          $log.info("say", actorId);
           if (!data || !data.length) {
             return $q.when();
           }
@@ -122,20 +86,32 @@ angular.module('demo')
             var msg = "dont know how to display text";
             $log.error(msg, actorId, data);
             throw new Error(msg);
-          } else {
-            var talker = new Talker(actorId, objectDisplay.group, objectDisplay.canvi);
-            var lines = data.slice();
-            $rootElement.prepend(overgrey);
-            $timeout(function() {
-              talker.process(lines);
-            });
-            modalControl.present("talk", talker);
-            return talker.result.finally(function() {
-              overgrey.remove();
-            });
           }
 
+          var talker = new Talker(actorId, objectDisplay.group, objectDisplay.canvi);
+          var defer = $q.defer();
+          var lines = data.slice();
+
+          // process a non-blank line till we're out of lines.
+          var process = function() {
+            $timeout(function() {
+              while (lines.length) {
+                var text = lines.shift();
+                if (text) {
+                  talker.displayText(text);
+                  var modalInstance = modalControl.open("talk");
+                  modalInstance.closed.finally(process);
+                  return;
+                }
+              }
+              defer.resolve("finished talking");
+              talker.hide();
+            });
+          };
+          process();
+          return defer.promise;
         }, //say
+
       }; // return
     }; // init
   });

@@ -4,61 +4,31 @@
   <hsm-state name="GamePending">
     <hsm-event on="game-created" goto="GameCreated"></hsm-event>
   </hsm-state>
-  <hsm-state name="GameCreated" map-control="map" action-service="actions" hsm-enter="actions.bind(game)" hsm-exit="actions.release() || map.destroy()">
-    <hsm-state player-control="player" hsm-exit="player.destroy()" hsm-init="'Startup'">
-      <ng-include src="'startup.html'"></ng-include>
-      <!--  -->
-      <hsm-state name="GameStarted" parallel="true" modal-control="modal" mouse-control="mouse" hsm-exit="modal.dismiss()">
-        <!-- allow the console once the game has been started; it waits for 'demo-console'  -->
-        <span ng-show="hsmState.active"><div ng-include="'buttonBar.html'"></div></span>
-        <!--  raises -processing and -empty depending on state of process queue -->
-        <hsm-state name="Process" hsm-enter="stream.process()" hsm-exit="stream.process(false)">
-          <hsm-event on="game-posting" run="stream.processing(true)"></hsm-event>
-          <ng-include src="'processing.html'"></ng-include>
-        </hsm-state>
-        <!--  -->
-        <hsm-state name="Play" hsm-init="!map.loaded() ? 'PlaySpaceLoading' : 'PlaySpaceLoaded'">
-          <hsm-state name="PlaySpaceLoading">
-            <hsm-event on="map-loaded" goto="PlaySpaceLoaded"></hsm-event>
-          </hsm-state>
-          <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
-          <!-- states for common map resources-->
-          <hsm-state name="PlaySpaceLoaded" view-control="view" hsm-enter="view.connect(map, 'clickReturn', 'Return to room...')" hsm-exit="view.disconnect()">
-            <hsm-state hsm-enter="mouse.bindTo(map)" hsm-exit="mouse.destroy()" hsm-enter="mouse.bindTo(map)" hsm-exit="mouse.destroy()">
-              <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
-                <hsm-state key-control="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
-                  <hsm-state parallel="true">
-                    <ng-include src="'console.html'"></ng-include>
-                    <!-- we run one of physics or not-physics -->
-                    <hsm-state name="PlayOne" hsm-init="map.get('physics') ? 'Physics' : 'Statics'">
-                      <ng-include src="'statics.html'"></ng-include>
-                      <ng-include src="'physics.html'"></ng-include>
-                    </hsm-state>
-                    <!-- shared in both physics and non-physics -->
-                    <hsm-state name="PlayShared" hsm-init="stream.processing() ? 'SharedGameProcessing' : 'SharedGameRunning'">
-                      <hsm-state name="SharedGameRunning">
-                        <!-- <hsm-event on="keys" when="$evt.actionKey(true)" run="map.changeView( 'blast')"></hsm-event> -->
-                        <hsm-event on="update-game" run="map.update($evt.dt)"></hsm-event>
-                        <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
-                        <hsm-event on="actionBar-zoom" run="log.info('ZOOM', $evt.view)"></hsm-event>
-                        <hsm-event on="actionBar-zoom" run="map.changeView($evt.view)"></hsm-event>
-                        <hsm-event on="actionBar-act" run="log.info('ACT', $evt.action)"></hsm-event>
-                        <hsm-event on="actionBar-act" run="game.post($evt.action)"></hsm-event>
-                        <hsm-event on="stream-processing" goto="SharedGameProcessing"></hsm-event>
-                        <!-- we might want a different cursor for processing, here for now because of console window; want to disable mouse when in console -->
-                        <ng-include src="'hover.html'"></ng-include>
-                      </hsm-state>
-                      <hsm-state name="SharedGameProcessing">
-                        <hsm-event on="stream-empty" goto="SharedGameRunning"></hsm-event>
-                      </hsm-state>
-                      <!-- console suspends all shared events -->
-                      <hsm-event on="modal-opened" when="$evt.source=='console'" goto="SharedSuspended"></hsm-event>
-                      <hsm-state name="SharedSuspended" hsm-enter="keys.silence()" hsm-exit="keys.listen()">
-                        <hsm-event on="modal-closed" when="$evt.source='console'" goto="PlayShared"></hsm-event>
-                      </hsm-state>
-                    </hsm-state>
-                  </hsm-state>
+  <hsm-state name="GameCreated" map-control="map" hsm-exit="map.destroy()">
+    <hsm-state action-service="actions" hsm-enter="actions.bind(game)" hsm-exit="actions.bind(false)">
+      <hsm-state player-dialog-control="playerDialog" hsm-enter="playerDialog.bindTo('commentBox')" hsm-exit="playerDialog.destroy()">
+        <hsm-state picker-control="picker" game-listener="invChange" hsm-enter="invChange.listen('player', 'x-mod')" hsm-exit="invChange.silence()">
+          <hsm-event on="invChange" run="picker.setCurrent($evt.data.child, $evt.data.op == 'add')"></hsm-event>
+          <!--  -->
+          <hsm-state player-control="player" hsm-exit="player.destroy()" hsm-init="'Startup'">
+            <ng-include src="'startup.html'"></ng-include>
+            <!-- startup goes here when done: -->
+            <hsm-state name="GameStarted" parallel="true" mouse-control="mouse" picker-control="picker" 
+            hsm-enter='game.post({act: "greet", tgt: "alien-boy", ctx: null})'>
+              <!-- allow the console once the game has been started; it waits for 'demo-console' -->
+              <span ng-show="hsmState.active"><div ng-include="'buttonBar.html'"></div></span>
+              <!-- raises -processing and -empty depending on state of process queue -->
+              <hsm-state hsm-enter="stream.process()" hsm-exit="stream.process(false)">
+                <hsm-event on="game-posting" run="stream.processing(true)"></hsm-event>
+                <ng-include src="'processing.html'"></ng-include>
+              </hsm-state>
+              <!-- loading and playing the game -->
+              <hsm-state hsm-init="!map.loaded() ? 'PlaySpaceLoading' : 'Playing'">
+                <hsm-state name="PlaySpaceLoading">
+                  <hsm-event on="map-loaded" goto="Playing"></hsm-event>
                 </hsm-state>
+                <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
+                <ng-include src="'playing.html'"></ng-include>
               </hsm-state>
             </hsm-state>
           </hsm-state>

@@ -64,7 +64,7 @@ angular.module('demo')
       Chara.prototype.setAngle = function(angle) {
         var rnd = Math.floor(angle / 90) * 90;
         var i = angles.indexOf(rnd);
-        $log.info("Chara: set angle:", angle, ", rounding to:", rnd, "at:", i);
+        //$log.info("Chara: set angle:", angle, ", rounding to:", rnd, "at:", i);
         if (i != -1) {
           this.nextface = i;
         }

@@ -1,0 +1,11 @@
+<div class="ga-notify">
+  <div popup-box-control="popup">
+    <div ng-if="popup.lines" ng-click="popup.clicked()">
+      <div class="ga-notify-box">
+        <p class="ga-noselect" ng-repeat="l in popup.lines track by $index">
+          {{l}}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

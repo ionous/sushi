@@ -6,6 +6,9 @@
 angular.module('demo')
   .controller('InputController',
     function(TextService, GameService, $log, $scope) {
+      var modal= $scope.modal;
+      $scope.console= modal.contents;
+      //
       this.userInput = '';
       this.extract = function() {
         var input = this.userInput;

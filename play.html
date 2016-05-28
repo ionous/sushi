@@ -3,7 +3,7 @@
   <div ng-controller="roomController">
     <div ng-controller="viewController">
       <div ng-controller="itemController">
-        <div ga-map="gameMap" ng-show="gameMap.loaded" ng-style="gameMap.style" class="ga-show">
+        <div ga-map="gameMap" ng-show="gameMap.loaded" ng-style="gameMap.style" class="ga-show" element-slot="gameMap">
         </div>
       </div>
     </div>

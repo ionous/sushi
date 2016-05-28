@@ -1,7 +1,9 @@
-<div ga-comment-capture>
-  <div class="ga-comment-box" ng-if="comments" ng-controller="CommentController">
-    <ul uib-collapse="!allowChoices" collapsed="collapsed()">
-      <li ng-repeat="text in choices track by $index" ng-click="select($index)" class="ga-noselect">
+<div comment-box-control="commentBox">
+hewrlewlew!?
+  <div class="ga-comment-box">
+  <!-- uib-collapse="!allowChoices" -->
+    <ul >
+      <li ng-repeat="text in choices track by $index" ng-click="commentBox.select($index)" class="ga-noselect">
         {{text}}
       </li>
     </ul>

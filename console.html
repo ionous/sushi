@@ -2,7 +2,7 @@
   <hsm-state name="ConsoleClosed">
     <hsm-event on="demo-console" goto="ConsoleOpen"></hsm-event>
   </hsm-state>
-  <hsm-state name="ConsoleOpen" console-control="console" hsm-enter="console.show()" hsm-init="stream.processing() ? 'ConsoleInputDisabled' : 'ConsoleInputEnabled'" hsm-exit="console.dismiss('exiting')">
+  <hsm-state name="ConsoleOpen" console-control="console" hsm-enter="console.show('consoleWindow')" hsm-init="stream.processing() ? 'ConsoleInputDisabled' : 'ConsoleInputEnabled'" hsm-exit="console.dismiss('exiting')">
     <hsm-event on="modal-closed" goto="ConsoleClosed"></hsm-event>
     
     <hsm-state name="ConsoleInputDisabled" hsm-enter="console.allowInput(false)">

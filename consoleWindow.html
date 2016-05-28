@@ -1,4 +1,4 @@
-<div class="modal-body" ng-controller="InputController as input">
+<div ng-controller="InputController as input" class="ga-modal ga-console">
   <div class="scroll-text" ga-scrolldown="console.blocks">
     <ul>
       <li ng-repeat="block in console.blocks track by $index">
@@ -12,6 +12,6 @@
   <div>
     <form id="f" ng-submit="console.submit(input.extract())">
       <input id="q" name="q" type="text" ng-model="input.userInput" autocomplete="off" ng-disabled="!console.inputEnabled" ga-auto-focus="console.inputEnabled">
-      </form>
+    </form>
   </div>
 </div>

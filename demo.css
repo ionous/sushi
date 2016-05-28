@@ -41,31 +41,36 @@ body {
   text-shadow: 1px 0px #2e6da4, -1px 0px #2e6da4, 0px 1px #2e6da4, 0px -1px #2e6da4, 1px 1px 2px black;
 }
 
-
-/* 
-  override modal fixed
-*/
-
-.ga-action-win {
+.ga-modal {
+  z-index: 3000;
   position: absolute;
 }
 
-.ga-action-win > .modal-dialog {
-  margin: 0;
+.ga-console {
+  left: 100px;
+  width: 600px;
+  background-color: white;
+  border-style: solid;
+  border-width: 3px;
+  overflow-y: scroll;
 }
 
-.ga-action-win > .modal-dialog > .modal-content {
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  -o-border-radius: 0px;
-  border-radius: 0px;
-  border: 0px;
-}
 
-body > canvas {
-  z-index: 8000;
-  position: absolute;
-  opacity: 0.8;
+/*position: absolute;
+  background-color: rgba(10, 10, 10, 0.5);
+  left: 0px;
+  bottom: 0px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  padding-top: 0.5em;
+  width: 800px;
+  z-index: 1000;
+  color: silver;*/
+
+div.ga-action-win {
+  border-color: red;
+  border-style: solid;
+  border-width: 1px;
 }
 
 * {
@@ -102,6 +107,7 @@ form > * {
 
 
 /* http://nicolasgallagher.com/pure-css-speech-bubbles/demo/ */
+
 .bubble {
   position: absolute;
   /* because the bubble floats above the modal, disable mouse interaction */
@@ -148,6 +154,15 @@ div.overgrey {
   z-index: 1000;
 }
 
+modal-window {
+  position: absolute;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 3000;
+}
+
 #ga-play {
   /*overflow: hidden;*/
   width: 800px;
@@ -157,10 +172,11 @@ div.overgrey {
   border-color: #075698;*/
   border-radius: 20px;
   margin: 3px;
-  position: relative;
+  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
+  /*cursor:none;*/
   /*cursor: crosshair !important;*/
 }
 
@@ -363,8 +379,13 @@ div.ga-notify p {
   margin-bottom: 0.1em;
 }
 
-div.ga-picker .modal-content {
+
+/* .modal-content */
+
+div.ga-picker {
   background-color: #337AB7;
+  z-index: 3000;
+  width: 100%;
 }
 
 .scroll-text {

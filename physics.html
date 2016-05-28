@@ -1,21 +1,20 @@
 <hsm-state name="Physics" physics-control="physics" hsm-enter="physics.create(map.get('physics'))" hsm-exit="physics.destroy()">
   <hsm-state landing-pad-control="pads" hsm-enter="pads.attach(map.get('pads'))" hsm-exit="pads.destroy()">
-    <hsm-state action-bar="actionBar" hsm-enter="actionBar.bindTo(map)" hsm-exit="actionBar.destroy()">
+    <hsm-state action-bar-control="actionBar" hsm-enter="actionBar.bindTo('gameMap')" hsm-exit="actionBar.destroy()">
       <hsm-state avatar-control="avatar" hsm-enter="avatar.create(player.linkup(), physics, 12)" hsm-exit="avatar.destroy()" hsm-init="stream.processing() ? 'PhysicsPause' : 'PhysicsPlay'" hsm-exit="pads.destroy()">
         <!--  -->
         <hsm-event on="avatar-direct" goto="Directing"></hsm-event>
         <!-- might "beep" when not on pads -->
-        <hsm-event on="player-approach" run="pads.onLandingPads(avatar, $evt.target) ? avatar.interact($evt.target) : 'Pathing'"></hsm-event>
+        <hsm-event on="player-approach" run="pads.onLandingPads(avatar, $evt.target) ? player.interact($evt.target) : 'Pathing'"></hsm-event>        
         <hsm-event on="player-interact" run="pads.onLandingPads(avatar, $evt.target)? actionBar.open($evt.target) : 'Planning'"></hsm-event>
         <hsm-event on="hover-select" run="avatar.faceTarget($evt.target, $evt.pos)"></hsm-event>
         <hsm-event on="hover-highlight" run="mouse.show( !$evt.target ? 'pointer' : (!pads.onLandingPads(avatar, $evt.target) ? 'disk' : 'bullseye'))"></hsm-event>
         <!--  -->
         <hsm-event on="keys" when="$evt.moveKey(true)" goto="KeyWalking"></hsm-event>
-        <hsm-event on="modal-opened" when="$evt.source =='actionBar'" goto="PhysicsActionBar"></hsm-event>
-        <hsm-event on="modal-closed" when="$evt.source =='actionBar'" goto="PhysicsPlay"></hsm-event>
+        <hsm-event on="modal-opened" goto="PhysicsModal"></hsm-event>
         <!--  -->
         <hsm-state name="PhysicsPlay">
-          <!-- disabled the keyboard action key. need a real location for every target to center the menu. <hsm-event on="keys" when="$evt.keydown && $evt.actionKey()" run="avatar.interact( pads.closestLanding(chara.getFeet()))"></hsm-event> -->
+          <!-- disabled the keyboard action key. need a real location for every target to center the menu. <hsm-event on="keys" when="$evt.keydown && $evt.actionKey()" run="player.interact( pads.closestLanding(chara.getFeet()))"></hsm-event> -->
           <hsm-event on="update-game" run="physics.step($evt.dt)"></hsm-event>
           <hsm-state name="Planning">
             <hsm-event on="keys" when="$evt.moveKey(true)" goto="KeyWalking"> </hsm-event>
@@ -33,9 +32,8 @@
             </hsm-state>
           </hsm-state>
         </hsm-state>
-        <hsm-state name="PhysicsActionBar" hsm-exit="actionBar.dismiss($evt.name)">
-          <!-- running actions handled at the GameIsActive level -->
-          <hsm-event on="keys" when="$evt.escapeKey()" run="actionBar.dismiss('escape')"></hsm-event>
+        <hsm-state name="PhysicsModal" hsm-exit="modal.dismiss($evt.name)">
+          <hsm-event on="modal-closed" goto="PhysicsPlay"></hsm-event>
         </hsm-state>
         <!--  -->
         <hsm-state name="PhysicsPause">
