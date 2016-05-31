@@ -1,6 +1,6 @@
-<div class="ga-comment-box" uib-collapse="!items.combining" ng-controller="CombineBoxController" expanding="expanding()" collapsed="collapsed()">
+<div class="ga-comment-box" element-slot="combineBox" uib-collapse="!combineBox.visible">
   <p class="ga-context-info ga-noselect">
-    <img ng-src="{{image}}">
-    <span>{{text}}</span>
+    <img ng-src="{{combineBox.image}}">
+    <span>Select an object in the world{{combineBox.items?", or in your inventory":""}}.</span>
   </p>
 </div>

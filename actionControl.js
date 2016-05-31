@@ -2,11 +2,10 @@
 
 angular.module('demo')
 
-.directiveAs("actionBarControl", 
-  ["^^hsmMachine", "^^modalControl", "^^mouseControl"],
-  function(ActionListService, CombinerService, IconService,
+.directiveAs("actionBarControl", ["^^hsmMachine", "^^modalControl", "^^mouseControl", "^^combinerControl"],
+  function(ActionListService, IconService,
     $log, $q, $uibModal) {
-    this.init = function(name, hsmMachine, modalControl, mouseControl) {
+    this.init = function(name, hsmMachine, modalControl, mouseControl, combinerControl) {
       var actionBarModal, displaySlot;
       this.bindTo = function(slotName) {
         displaySlot = slotName;
@@ -28,8 +27,9 @@ angular.module('demo')
         var obj = target.object;
         var view = target.view;
 
+        var combining = combinerControl.item();
+
         var pendingActions;
-        var combining = CombinerService.getCombiner();
         if (obj) {
           if (!combining) {
             pendingActions = ActionListService.getObjectActions(obj);
@@ -44,7 +44,6 @@ angular.module('demo')
           }
           return {
             actions: actions,
-            //combining: combining,
             zoom: zoom,
             barpos: barpos,
             style: (barpos) && {
@@ -57,9 +56,7 @@ angular.module('demo')
             runAction: function(act) {
               $log.info("runAction", act);
               var objId = obj && obj.id;
-              //    var combine = this.combining && this.combining.id;
-              // act.runIt(object.id, combine);
-              var post = act.runIt(objId);
+              var post = act.runIt(objId, combining && combining.id);
               if (post) {
                 hsmMachine.emit("player-action", {
                   action: post
@@ -79,9 +76,6 @@ angular.module('demo')
         mdl.closed.finally(function() {
           mouseControl.hide(false);
         });
-        // mdl.closed.finally.then(function() {
-        //   CombinerService.setCombiner(null);
-        // }); // closed
       }; // open
       return this;
     }; //init

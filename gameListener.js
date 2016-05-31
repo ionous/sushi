@@ -27,12 +27,6 @@ angular.module('demo')
           tgt: tgt,
           start: !endEvent,
           end: !!endEvent,
-          defer: function() {
-            if (!defer) {
-              defer = $q.defer();
-            }
-            return defer;
-          },
           resolve: function() {
             if (!defer) {
               defer = $q.defer();

@@ -101,7 +101,7 @@ angular.module('demo')
         return this.states.indexOf(state) >= 0;
       };
 
-      Entity.prototype.printedName = function(state) {
+      Entity.prototype.printedName = function() {
         return this.attr['kinds-printed-name'] || this.id.replace(/-/g, " ");
       };
 
@@ -131,6 +131,7 @@ angular.module('demo')
           'ent': this,
           'op': 'add',
           'child': child,
+          adding: true,
         });
       };
 
@@ -143,6 +144,7 @@ angular.module('demo')
           'ent': this,
           'op': 'rem',
           'child': child,
+          removing: true,
         });
       };
 

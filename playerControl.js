@@ -22,6 +22,7 @@ angular.module('demo')
           }
         }
       };
+
       return {
         destroy: destroy,
         // raises -located

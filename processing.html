@@ -29,7 +29,6 @@
             <hsm-state name="PopupsDisabled">
             </hsm-state>
             <!--  -->
-            <hsm-event on="stream-empty" run="log.warn('STREAM EMPTY')"></hsm-event>
             <hsm-event on="stream-empty" run="playerDialog.showChoices()"></hsm-event>
             <hsm-event on="comments" goto="CaptureComments"></hsm-event>
             <hsm-event on="vending" goto="CaptureVendibles"></hsm-event>

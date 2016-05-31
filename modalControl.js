@@ -10,6 +10,7 @@ angular.module('demo')
         name: '@' // unique id for modal window
       },
       controller: function(ElementSlotService, $element, $log, $scope) {
+        // note: by the time we get here, scope is already set with the directive's params.
         ElementSlotService.bind($scope.name, $element, $scope);
       },
       // directiveAs doesnt have templates... 
@@ -79,6 +80,16 @@ angular.module('demo')
           name: name,
           source: slotName,
           modalInstance: modal,
+          matches: function() {
+            var yes;
+            for (var i = 0; i < arguments.length; i += 1) {
+              if (arguments[i] == name) {
+                yes = true;
+                break;
+              }
+            }
+            return yes;
+          }
         });
         // wrap params in a defer so we can cancel on an early close.
         $q.when(params).then(input.resolve, input.reject);

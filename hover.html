@@ -13,7 +13,7 @@
     <hsm-event on="flash-cursor" goto="MouseFlash"> </hsm-event>
     <hsm-event on="vanish-cursor" goto="MouseVanish"> </hsm-event>
     <!-- <hsm-event on="player-approach" goto="MouseHighlight"></hsm-event> -->
-    <hsm-event on="player-approach" run="machine.emit( 'flash-cursor', mouseTarget() ? 'bullseye' : 'arrow')"></hsm-event>
+    <hsm-event on="player-approach" run="machine.emit('flash-cursor', mouseTarget() ? 'bullseye' : 'arrow')"></hsm-event>
     <!-- now wait for mouse down -->
     <hsm-state name="MouseHighlight" hover-control="hover" hsm-enter="hover.start(mouseTarget.reset())">
       <hsm-event on="mouse-down" goto="MouseWait"> </hsm-event>

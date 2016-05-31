@@ -46,7 +46,7 @@ angular.module('demo')
           size: width,
         },
         combine: {
-          cls: 'fa-paper-plane-o',
+          cls: 'fa-sun-o',
           hotspot: center,
           size: width,
         }

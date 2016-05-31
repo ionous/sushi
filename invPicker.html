@@ -1,8 +1,0 @@
-<div ng-include="'picker.html'"></div>
-<div class="ga-buttonbar ga-center" ng-if="itemActions">
-  <a ng-repeat="act in itemActions track by act.id" class="btn btn-primary" uib-tooltip="{{act.name}}" ng-click="click(act)" tooltip-placement="bottom" tooltip-class="ga-xtip">
-    <i ng-class="act.iconClass"></i>
-  </a><!--no space between tags --><a ng-if="slides.length && combine" class="btn btn-primary" uib-tooltip="Use Item" ng-click="combineClicked()" tooltip-placement="bottom" tooltip-class="ga-xtip">
-    <i ng-class="combine.iconClass"></i>
-  </a>
-</div>

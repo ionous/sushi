@@ -8,11 +8,16 @@ angular.module('demo')
 // -created
 .directiveAs("gameControl", ["^^hsmMachine"],
   function(GameService, PostalService,
-    $location, $log, $q, $scope) {
+    $location, $log, $q, $scope, $timeout) {
     this.init = function(name, hsmMachine) {
       delete this.init;
-      var currentGame, processControl;
+      var currentGame, processControl, lastFrame;
+      var starting= false;
       this.start = function() {
+        if (starting) {
+          throw new Error("starting");
+        }
+        starting= true;
         hsmMachine.emit(name, "starting", {});
         this.post({
           'in': 'start'
@@ -30,12 +35,14 @@ angular.module('demo')
             events: res.events,
           });
           // fine for now:....
+          lastFrame = res.frame;
           processControl.queue(res.frame, res.events || []);
         }, function(reason) {
           $log.error("gameControl: post", name, "error:", reason);
           hsmMachine.emit(name, "error", {
             reason: reason
           });
+          processControl.queue(lastFrame, []);
         });
       };
       this.newGame = function(_processControl) {
@@ -54,6 +61,7 @@ angular.module('demo')
         defer.promise.then(function() {
           PostalService.post("new", {}).then(function(res) {
             if (res.events) {
+              lastFrame = res.frame;
               processControl.queue(res.frame, res.events);
             }
             return res.game;

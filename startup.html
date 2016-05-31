@@ -6,7 +6,6 @@
   </hsm-state>
   <hsm-state name="LocatingPlayer" hsm-enter="player.locate()">
     <hsm-event on="player-located" run="map.changeRoom($evt.where)"></hsm-event>
-    <hsm-event on="map-loaded" run="log.info('map loaded')"></hsm-event>
     <hsm-event on="map-loaded" run="game.start()"></hsm-event>
   </hsm-state>
 </hsm-state>

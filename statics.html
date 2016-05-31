@@ -2,8 +2,8 @@
   <hsm-state name="StaticsPlay">
     <hsm-event on="hover-select" run="player.faceTarget($evt.target, $evt.pos)"></hsm-event>
     <hsm-event on="hover-highlight" run="mouse.show(!$evt.target?'pointer':'bullseye')"></hsm-event>
-    <hsm-event on="player-approach" when="$evt.target" run="actionBar.open($evt.target)"></hsm-event>
-    <hsm-event on="player-interact" when="$evt.target" run="actionBar.open($evt.target)"></hsm-event>
+    <hsm-event on="player-approach" when="$evt.target" run="actionBar.open($evt.target, combiner.item())"></hsm-event>
+    <hsm-event on="player-interact" when="$evt.target" run="actionBar.open($evt.target, combiner.item())"></hsm-event>
     <hsm-event on="modal-opened" when="$evt.source =='actionBar'" goto="StaticsActionBar"></hsm-event>
     <hsm-event on="modal-closed" when="$evt.source =='actionBar'" goto="StaticsPlay"></hsm-event>
     <!--   -->

@@ -37,7 +37,6 @@
   <script src="charaService.js"></script>
   <script src="classService.js"></script>
   <script src="collisionService.js"></script>
-  <script src="combinerService.js"></script>
   <script src="controllerService.js"></script>
   <script src="cursorService.js"></script>
   <script src="displayService.js"></script>
@@ -68,13 +67,17 @@
   <!--  controls -->
   <script src="actionControl.js"></script>
   <script src="avatarControl.js"></script>
+  <script src="buttonControl.js"></script>
   <script src="consoleControl.js"></script>
+  <script src="combinerControl.js"></script>
+  <script src="combineCheckControl.js"></script>
+  <script src="combinePanelControl.js"></script>
   <script src="gaMap.js"></script>
   <script src="gameControl.js"></script>
   <script src="gameListener.js"></script>
   <script src="hoverControl.js"></script>
   <script src="inventoryControl.js"></script>
-  <script src="inventoryButtonControl.js"></script>
+  <script src="itemsControl.js"></script>
   <script src="keyControl.js"></script>
   <script src="landingPadControl.js"></script>
   <script src="mapControl.js"></script>
@@ -83,9 +86,9 @@
   <script src="mouseTarget.js"></script>
   <script src="moveControl.js"></script>
   <script src="overgreyControl.js"></script>
-  <script src="pickerControl.js"></script>
   <script src="playerControl.js"></script>
   <script src="playerDialogControl.js"></script>
+  <script src="playerItemControl.js"></script>
   <script src="popupControl.js"></script>
   <script src="processControl.js"></script>
   <script src="physicsControl.js"></script>
@@ -98,13 +101,12 @@
   <!-- components  -->
   <!-- controllers  -->
   <script src="actionController.js"></script>
-  <script src="combineBoxController.js"></script>
   <script src="commentBoxController.js"></script>
   <script src="displayController.js"></script>
   <script src="inputController.js"></script>
-  <script src="itemsController.js"></script>
-  <script src="inventoryCombineController.js"></script>
-  <script src="mapZoomController.js"></script>
+  <script src="itemSlideController.js"></script>
+  <!-- <script src="mapZoomController.js"></script>
+   -->
   <script src="statusController.js"></script>
   <!--  -->
   <script src="mosaic/map.js"></script>
@@ -115,26 +117,26 @@
   <!-- <script src="/script/paper/dist/paper-core.min.js"></script> -->
 </head>
 
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" hsm-transition="1 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-emit="0 && $evt.name!='update-game' &&  log.info('emit', $evt.name)" modal-control="modal">
-  <!-- hsm-enter="log.enter($state)" hsm-exit="log.exit($state)">
-   -->
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" hsm-transition="1 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-emit="0 && $evt.name!='update-game' &&  log.info('emit', $evt.name)"  hsm-enter="1 && $state.name.indexOf('hsmState') &&log.enter($state)" hsm-exit="0 && log.exit($state)">
+  <ng-include src="'game.html'"></ng-include>
+  <!--  -->
   <header id="status-bar" ng-controller="StatusController">
     <span class="ga-noselect" id="status-left">{{status.left}}</span>
     <span class="ga-noselect" id="status-right">{{status.right}}</span>
   </header>
   <div id="ga-play" class="ga-noselect" ga-map-color element-slot="gameWindow">
     <div ng-view="'play.html'"></div>
-    <ng-include src="'game.html'"></ng-include>
+    <div ng-include="'buttonBar.html'"></div>
+  <ng-include src="'combineBox.html'"></ng-include>
   </div>
   <!-- modal poups -->
-  <modal-window name="items" group="modal" src="'itemsWindow.html'"></modal-window>
+  <modal-window name="itemsWindow" group="modal" src="'itemsWindow.html'"></modal-window>
   <modal-window name="consoleWindow" group="modal" src="'consoleWindow.html'"></modal-window>
   <modal-window name="popupBox" group="modal" src="'popupBox.html'"></modal-window>
   <modal-window name="actionBar" group="modal" src="'actionBar.html'"></modal-window>
   <modal-window name="talk" group="modal" src="'talkBubble.html'"></modal-window>
   <modal-window name="commentBox" group="modal" src="'commentBox.html'"></modal-window>
   <!--  -->
-  <ng-include src="'combineBox.html'"></ng-include>
 </body>
 
 </html>

@@ -10,7 +10,7 @@ angular.module('demo')
           var defer= $q.defer();
           var modal= modalControl.open(where, data);
           modal.closed.finally(defer.resolve);
-          return defer;
+          return defer.promise;
         }
       };
     };

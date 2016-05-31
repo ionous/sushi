@@ -9,6 +9,7 @@ angular.module('demo')
     var ctrl = this;
     this.init = function(name, hsmMachine) {
       var cursor, cursorEl, hidden;
+      var aliases = {};
       // exposed to scope
       var Mouse = function() {
         // jquery (sometimes?) fakes the event names
@@ -31,6 +32,11 @@ angular.module('demo')
             hsmMachine.emit(name, type, evt);
           });
         };
+        // hack to override targeting cursor for combine
+        // FIX: it should be possible to control this through states alone.
+        this.alias = function(c1, c2) {
+          aliases[c1] = c2;
+        };
         this.bindTo = function(cursorSlot) {
           cursorEl = ElementSlotService.get(cursorSlot).element;
           cursor = CursorService.newCursor(cursorEl);
@@ -44,11 +50,12 @@ angular.module('demo')
           cursor = null;
         };
         this.show = function(yes) {
-          var show= angular.isUndefined(yes) || yes;
+          var show = angular.isUndefined(yes) || yes;
           //$log.debug("cursor", show);
           cursor.show(!!show);
           if (angular.isString(show)) {
-            if (cursor.setCursor(show)) {
+            var next = aliases[show] || show;
+            if (cursor.setCursor(next)) {
               cursor.setAngle(0);
             }
           }
