@@ -8,15 +8,16 @@ angular.module('demo')
     this.init = function(name, hsmMachine) {
       return {
         timeout: function(ms) {
-          //$log.info("timeout", name, "start");
+          //$log.debug("timeoutControl", name, "start");
           promise = $timeout(function() {
+            //$log.debug("timeoutControl", name, "timeout");
             hsmMachine.emit(name, "timeout", {
               elapsed: ms
             });
           }, ms)
         },
         cancel: function() {
-          //$log.info("timeout", name, "cancel");
+          //$log.debug("timeoutControl", name, "cancel");
           $timeout.cancel(promise);
           promise = null;
         },

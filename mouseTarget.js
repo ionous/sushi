@@ -29,20 +29,17 @@ angular.module('demo')
             if (next) {
               next.pos = mouse.pos();
             }
+            $log.info("mouseTarget", name, "changed", next);
+            currentSubject = next;
             hsmMachine.emit(name, "changed", {
               target: next
             });
-            currentSubject = next;
           }
         };
         UpdateService.update(update);
         // stop updating the current target
         target.release = function() {
           UpdateService.stop(update);
-        };
-        // force a mouse target change next update
-        target.reset = function() {
-          reset = true;
         };
       };
       return target;

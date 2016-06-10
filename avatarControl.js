@@ -2,10 +2,10 @@
 
 angular.module('demo')
 
-.directiveAs("avatarControl", ["^keyControl", "^^landingPadControl", "^^hsmMachine"],
+.directiveAs("avatarControl", ["^keyControl", "^^hsmMachine"],
   function($attrs, $log) {
-    this.init = function(name, keyControl, landingPadControl, hsmMachine) {
-      var chara, prop;
+    this.init = function(name, keyControl, hsmMachine) {
+      var chara, prop, pads;
       var moveDir;
 
       var arrestMovement = function() {
@@ -31,6 +31,14 @@ angular.module('demo')
           }
           // FIX: ghost .object
         },
+        // returns true if the avatar is standing on the landing pads of the target.
+
+        touches: function(target) {
+          var src = this.getFeet();
+          var touches = target && target.pads && target.pads.getPadAt(src);
+          $log.info("avatar touches", target && target.path, !!touches);
+          return touches;
+        },
         destroy: function() {
           arrestMovement();
           chara = false;
@@ -47,9 +55,27 @@ angular.module('demo')
         getFeet: function() {
           return prop.getFeet();
         },
-        faceTarget: function(target, pos) {
+        // ? move to pads control, which takes a chara or pos
+        // returns the closest subject the avatar is standing on.
+        // in order to open the action bar -- interact
+        // pads.attach(map.get('pads'))
+        // this.getBestPad = function(avatar) {
+        //   var close;
+        //   var src = avatar.getFeet();
+        //   landingPads.forEach(function(pads) {
+        //     var pad = pads.getClosestPad(src);
+        //     if (!close || (pad.dist < close.dist)) {
+        //       close = pad;
+        //     }
+        //   });
+        //   // pad subject comes from add+andingData: object || view
+        //   return close && close.subject;
+        // }
+        // 
+        faceTarget: function(target) {
           var set;
-          var pad = landingPadControl.getClosestPad(avatar, target);
+          var src = this.getFeet();
+          var pad = target && target.pads && target.pads.getClosestPad(src);
           if (pad) {
             var angle = pad.getAngle();
             if (angle) {
@@ -60,10 +86,9 @@ angular.module('demo')
               }
             }
           }
-          $log.warn("avatar faceTarget", target.toString(), pos, set);
         },
         // move in the normalized direction
-        move: function(dir) {
+        setMoveDir: function(dir) {
           moveDir = dir;
         },
         stop: arrestMovement,

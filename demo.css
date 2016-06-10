@@ -20,6 +20,21 @@ body {
   -webkit-font-smoothing: subpixel-antialiased;
 }
 
+.state-display {
+  position: absolute;
+  left: 0px;
+  overflow: scroll;
+  max-height: 672px;
+  margin:0 auto;
+}
+hsm-state {
+  margin-left: 2px;
+  display: block;
+}
+.hsm-state-label {
+  font-size: x-small;
+}
+
 .nav,
 .pagination,
 .carousel,

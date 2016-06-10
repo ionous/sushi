@@ -1,14 +1,13 @@
-<hsm-state name="Game" game-control="game" hsm-enter="game.newGame(stream)" hsm-exit="game.quit()" process-control="stream">
-  <!-- in general, probably best not to use enter to make state rich changes:
+<!-- in general, probably best not to use enter to make state rich changes:
   however, we need to execute a staged-bootstrap, and we can do that via 'gotos' -->
-  <hsm-state name="GamePending">
-    <hsm-event on="game-created" goto="GameCreated"></hsm-event>
-  </hsm-state>
-  <hsm-state name="GameCreated" map-control="map" hsm-exit="map.destroy()">
-    <hsm-state action-service="actions" hsm-enter="actions.bind(game)" hsm-exit="actions.bind(false)">
-      <hsm-state player-dialog-control="playerDialog" hsm-enter="playerDialog.bindTo('commentBox')" hsm-exit="playerDialog.destroy()">
-        <hsm-state player-control="player" hsm-exit="player.destroy()" hsm-init="'Startup'">
-          <ng-include src="'startup.html'"></ng-include>
+<hsm-state name="Game" game-control="game" hsm-enter="game.newGame(stream)" hsm-exit="game.quit()" process-control="stream">
+  <hsm-state map-control="map" hsm-exit="map.destroy()">
+    <hsm-state player-control="player" hsm-exit="player.destroy()" hsm-init="'Startup'">
+      <!--  -->
+      <ng-include src="'startup.html'"></ng-include>
+      <!--  -->
+      <hsm-state action-service="actions" hsm-enter="actions.bind(game)" hsm-exit="actions.bind(false)">
+        <hsm-state player-dialog-control="playerDialog" hsm-enter="playerDialog.bindTo('commentBox')" hsm-exit="playerDialog.destroy()">
           <!-- startup goes here when done: -->
           <hsm-state name="GameStarted" parallel="true">
             <!-- raises -processing and -empty depending on state of process queue -->

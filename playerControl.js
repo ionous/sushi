@@ -45,16 +45,22 @@ angular.module('demo')
         },
         // target is of type "Subject"
         interact: function(target) {
+          $log.info("playerControl", name, "interact");
           hsmMachine.emit(name, "interact", {
             target: target
           });
         },
         // target is of type "Subject"
         approach: function(target, pos) {
+          $log.info("playerControl", name, "approach", target, pos);
           hsmMachine.emit(name, "approach", {
             target: target,
             pos: pos,
           })
+        },
+        direct: function() {
+          $log.info("playerControl", name, "direct");
+          hsmMachine.emit(name, "direct", {})
         },
         // target is of type "Subject"
         faceTarget: function(target, pos) {
@@ -66,7 +72,7 @@ angular.module('demo')
           destroy();
           // uses a separate defered to reject on destroy.
           var pending = $q.defer();
-          hsmMachine.emit(name, "creating", {});
+          // XXX - hsmMachine.emit(name, "creating", {});
           CharaService.newChara(obj.id, imagePath, size).then(function(player) {
             pending.resolve(player);
           });

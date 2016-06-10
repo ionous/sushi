@@ -79,7 +79,6 @@
   <script src="inventoryControl.js"></script>
   <script src="itemsControl.js"></script>
   <script src="keyControl.js"></script>
-  <script src="landingPadControl.js"></script>
   <script src="mapControl.js"></script>
   <script src="modalControl.js"></script>
   <script src="mouseControl.js"></script>
@@ -113,13 +112,9 @@
   <script src="mosaic/mosaic.js"></script>
   <script src="mosaic/point.js"></script>
   <script src="mosaic/sprite.js"></script>
-  <!--  -->
-  <!-- <script src="/script/paper/dist/paper-core.min.js"></script> -->
 </head>
 
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" hsm-transition="1 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-emit="0 && $evt.name!='update-game' &&  log.info('emit', $evt.name)"  hsm-enter="1 && $state.name.indexOf('hsmState') &&log.enter($state)" hsm-exit="0 && log.exit($state)">
-  <ng-include src="'game.html'"></ng-include>
-  <!--  -->
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-emit="0 && $evt.name!='update-game' &&  log.info('emit', $evt.name)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)">
   <header id="status-bar" ng-controller="StatusController">
     <span class="ga-noselect" id="status-left">{{status.left}}</span>
     <span class="ga-noselect" id="status-right">{{status.right}}</span>
@@ -127,7 +122,7 @@
   <div id="ga-play" class="ga-noselect" ga-map-color element-slot="gameWindow">
     <div ng-view="'play.html'"></div>
     <div ng-include="'buttonBar.html'"></div>
-  <ng-include src="'combineBox.html'"></ng-include>
+    <ng-include src="'combineBox.html'"></ng-include>
   </div>
   <!-- modal poups -->
   <modal-window name="itemsWindow" group="modal" src="'itemsWindow.html'"></modal-window>
@@ -136,6 +131,12 @@
   <modal-window name="actionBar" group="modal" src="'actionBar.html'"></modal-window>
   <modal-window name="talk" group="modal" src="'talkBubble.html'"></modal-window>
   <modal-window name="commentBox" group="modal" src="'commentBox.html'"></modal-window>
+  <!--  -->
+  <div class="state-display">
+    ....
+    <ng-include src="'game.html'"></ng-include>
+    ....
+  </div>
   <!--  -->
 </body>
 

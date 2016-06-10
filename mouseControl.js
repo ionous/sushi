@@ -71,6 +71,7 @@ angular.module('demo')
             if (dist > 1e-3) {
               var r = pt_scale(diff, 1.0 / Math.sqrt(dist));
               a = Math.atan2(r.y, r.x);
+              //$log.debug("angle", a);
             }
           }
           cursor.setAngle(a);

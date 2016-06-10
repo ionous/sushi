@@ -1,9 +1,6 @@
 'use strict';
 
-
 angular.module('demo')
-
-
 
 // -created
 .directiveAs("gameControl", ["^^hsmMachine"],
@@ -14,6 +11,7 @@ angular.module('demo')
       var currentGame, processControl, lastFrame;
       var starting= false;
       this.start = function() {
+        $log.warn(name, "starting!");
         if (starting) {
           throw new Error("starting");
         }

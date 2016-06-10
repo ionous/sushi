@@ -95,6 +95,7 @@ angular.module('demo')
         // the promise is resolved by finished loading
         // FIX: can remove that entirely if we can move all location changes here.
         LocationService.changeLocation(next).then(function(now) {
+          $log.warn(ctrl.name, "loaded!");
           hsmMachine.emit(ctrl.name, "loaded", now);
         });
       }
