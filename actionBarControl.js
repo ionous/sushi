@@ -62,14 +62,14 @@ angular.module('demo')
               var objId = obj && obj.id;
               var post = act.runIt(objId, combining && combining.id);
               if (post) {
-                hsmMachine.emit("player-action", {
+                hsmMachine.emit(name, "action", {
                   action: post
                 });
               }
             }, // runAction
             zoomView: function(act) {
               //this.subject.view;
-              hsmMachine.emit("player-view", {
+              hsmMachine.emit(name, "view", {
                 view: view,
               });
             }

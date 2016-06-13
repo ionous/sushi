@@ -27,8 +27,9 @@
             <hsm-state name="SharedPlay" hsm-init="stream.processing() ? 'SharedGameProcessing' : (modal.showing() ? 'SharedModal' : 'SharedGameRunning')">
               <!-- FIX? maybe we should just post these directly? -->
               <hsm-event on="player-quip" run="game.post($evt.post)"></hsm-event>
-              <hsm-event on="player-action" run="game.post($evt.action)"></hsm-event>
-              <hsm-event on="player-zoom" run="map.changeView($evt.view)"></hsm-event>
+              <!-- FIX: move to somewhere more sensible.... -->
+              <hsm-event on="action-bar-action" run="game.post($evt.action)"></hsm-event>
+              <hsm-event on="action-bar-zoom" run="map.changeView($evt.view)"></hsm-event>
               <!-- keep updating the player (drawing) so that facing changes as we open the menu work;
                   basically there's a one frame timing issue b/t requesting facing, and drawing the change -->
               <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>

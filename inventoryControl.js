@@ -2,7 +2,6 @@
 
 angular.module('demo')
 
-
 // opens the inventory window;
 // pairs with itemsControl
 .directiveAs('inventoryControl', ["^^hsmMachine", "^^modalControl", "^^combinerControl"],
@@ -13,14 +12,14 @@ angular.module('demo')
         var scope = {
           close: function(reason) {
             if (modal) {
-              modal.dismiss(reason);
+              modal.dismiss(reason || "close called");
               modal = false;
             }
           },
-          open: function(items, itemActions) {
-            var combining = combinerControl.item();
+          open: function(items, combining, itemActions) {
+            $log.info("inventoryControl", name, "opening", combining ? "combining" : "not combining", itemActions ? "have actions" : "no actions");
 
-            scope.close("opening");            
+            scope.close("opening");
             var mdl = modal = modalControl.open(itemsWindow, {
               items: function() {
                 return items;
@@ -33,15 +32,17 @@ angular.module('demo')
               },
               clicked: function(item, act) {
                 if (!act) {
-                  combinerControl.startCombining(item);
+                  // starting combining
+                  hsmMachine.emit(name, "combine", {
+                    item: item,
+                  });
                 } else {
                   var post = act.runIt(item.id, combining && combining.id);
-                  $log.info("POST", post);
-                  if (post) {
-                    hsmMachine.emit("player-action", {
-                      action: post
-                    });
-                  }
+                  hsmMachine.emit(name, "action", {
+                    item: item,
+                    combining: combining,
+                    action: post,
+                  });
                 }
               },
             });

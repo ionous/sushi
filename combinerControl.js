@@ -8,20 +8,10 @@ angular.module('demo')
 .directiveAs("combinerControl", ["^hsmMachine"],
   function($log, $q) {
     this.init = function(name, hsmMachine) {
-      var source;
+      var source = null;
       this.item = function() {
         return source;
       };
-      this.startCombining = function(item) {
-        if (source != item) {
-          source = item;
-          hsmMachine.emit(name, "combine", {
-            item: item,
-            combining: !!item,
-          });
-        }
-      };
-      var ctrl = this;
       var scope = {
         item: function() {
           return source;
@@ -30,10 +20,25 @@ angular.module('demo')
           return !!source;
         },
         reset: function() {
-          ctrl.startCombining(false);
+          if (source) {
+            $log.info("combinerControl", name, "reset", source.toString());
+            hsmMachine.emit(name, "reset", {
+              item: source,
+            });
+            source = null;
+          }
         },
         startCombining: function(item) {
-          ctrl.startCombining(item);
+          if (!item) {
+            var msg = "startCombining, item is null";
+            $log.error("combinerControl", name, msg);
+            throw new Error(msg);
+          }
+          source = item;
+          $log.info("combinerControl", name, "combining", source.toString());
+          hsmMachine.emit(name, "start", {
+            item: source,
+          });
         },
       }; // scope
       return scope;

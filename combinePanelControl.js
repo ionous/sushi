@@ -3,11 +3,11 @@
  */
 angular.module('demo')
 
-.directiveAs("combinePanelControl", ["^combinerControl"],
+.directiveAs("combinePanelControl",
   function(ElementSlotService, ItemService, $log, $q) {
     var combineBox = ElementSlotService.get("combineBox").scope;
 
-    this.init = function(name, combinerControl) {
+    this.init = function(name) {
       var defer = null;
       var scope = {
         close: function() {
@@ -22,8 +22,7 @@ angular.module('demo')
             combineBox.items = yes;
           }
         },
-        open: function() {
-          var item = combinerControl.item();
+        open: function(item) {
           scope.close();
           //
           if (item) {

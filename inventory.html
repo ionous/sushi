@@ -1,67 +1,75 @@
-<hsm-state player-item-control="items" hsm-enter="items.collect()" hsm-exit="items.destroy()">
-  <hsm-state button-control="inventoryButton"  parallel="true">
+<hsm-state name="Inventory" player-item-control="items" hsm-enter="items.collect()" hsm-exit="items.destroy()">
+  <hsm-state button-control="invButton" inventory-control="invWin" parallel="true">
     <!-- pulses in parallel, because ( among other issues ) stream end will kill the pulse -->
-    <hsm-state name="InvPulser">
+    <hsm-state>
       <hsm-state name="InvNotPulsing">
         <hsm-event on="items-added" goto="InvPulsing"></hsm-event>
       </hsm-state>
-      <hsm-state name="InvPulsing" hsm-enter="inventoryButton.pulse()" hsm-exit="inventoryButton.pulse(false)">
+      <hsm-state name="InvPulsing" hsm-enter="invButton.pulse()" hsm-exit="invButton.pulse(false)">
         <hsm-state timeout-control="pulse" hsm-enter="pulse.timeout(1250)" hsm-exit="pulse.cancel()">
           <hsm-event on="pulse-timeout" goto="InvNotPulsing"></hsm-event>
         </hsm-state>
       </hsm-state>
     </hsm-state>
-    <!-- fix? feels strange to forever be duplicating processing -->
-    <hsm-state name="Inventory" hsm-init="stream.processing() ? 'InventoryProcessing' : 'InventoryClosed'" inventory-control="invWin" hsm-exit="invWin.close()">
-      <hsm-event on="stream-processing" goto="InventoryProcessing"></hsm-event>
-      <!-- player has asked to start/stop combining an item, this changes our inventory button and contents of inventory window, forces our inventory window closed.-->
-      <hsm-event on="combiner-combine" goto="InventoryClosed"></hsm-event>
-      <!--  -->
-      <hsm-state name="InventoryClosed" hsm-init="!combiner.combining() ? 'NotCombining' : 'Combining'">
-        <!--  closed, not combining -->
-        <hsm-state name="NotCombining" hsm-enter="inventoryButton.enable(!items.empty())">
-          <hsm-event on="inventoryButton-clicked" run="invWin.open(items)"></hsm-event>
+    <!--  -->
+    <hsm-state>
+      <hsm-state name="ItemsClosed">
+        <hsm-event on="inv-win-opened" goto="ItemsOpened"></hsm-event>
+        <hsm-event on="action-bar-action" run="combiner.reset()"></hsm-event>
+        <!-- can we keep the combiner without too much trouble during zoom? -->
+      </hsm-state>
+      <hsm-state name="ItemsOpened" hsm-init="$evt.combining ? 'CanFinishCombine' : 'CanStartCombine'" hsm-exit="invWin.close('items closed')">
+        <!-- FIX: as much as possible, i think this should probably be a request: -close instead of -closed; modal would need some changes. -->
+        <hsm-event on="inv-win-closed" goto="ItemsClosed"></hsm-event>
+        <!-- action includes combine information if any -->
+        <hsm-event on="inv-win-action" goto="ItemsClosed" run="game.post($evt.action)"></hsm-event>
+        <!-- keys? -->
+        <hsm-state name="CanStartCombine">
+          <hsm-event on="inv-win-combine" goto="ItemsClosed" run="combiner.startCombining($evt.item, 'clicked')"></hsm-event>
         </hsm-state>
-        <!--  closed, combining-->
-        <hsm-state name="Combining" combine-panel-control="panel" hsm-enter="panel.open()" hsm-exit="panel.close()">
+        <hsm-state name="CanFinishCombine">
+          <hsm-event on="inv-win-action" run="combiner.reset()"></hsm-event>
+        </hsm-state>
+      </hsm-state>
+    </hsm-state>
+    <!--  -->
+    <hsm-state hsm-init="stream.processing() && 'ItemsProcessing'">
+      <hsm-event on="stream-processing" goto="ItemsProcessing"></hsm-event>
+      <!-- not combining -->
+      <hsm-state name="NotCombining" hsm-enter="invButton.enable(!items.empty())">
+        <hsm-event on="inv-button-clicked" run="invWin.open(items)"></hsm-event>
+        <hsm-event on="combiner-start" goto="Combining"></hsm-event>
+      </hsm-state>
+      <!-- combining-->
+      <hsm-state name="Combining" hsm-exit="combiner.reset()">
+        <hsm-event on="combiner-reset" goto="NotCombining"></hsm-event>
+        <!--  -->
+        <hsm-state combine-panel-control="panel" hsm-enter="panel.open($evt.item)" hsm-exit="panel.close()">
           <hsm-state hsm-enter="mouse.alias('bullseye', 'combine')" hsm-exit="mouse.alias('bullseye')">
-            <!-- cancel combining on escape, or a modal opened -->
-            <hsm-event on="keys" when="$evt.escapeKey()" run="combiner.reset()"></hsm-event>
-            <hsm-event on="modal-opened" run="combiner.reset()"></hsm-event>
+            <hsm-event on="keys" when="$evt.escapeKey()" goto="NotCombining"></hsm-event>
             <!--  -->
-            <hsm-state combine-check-control="invCombine" hsm-enter="invCombine.start(items, combiner.item())" hsm-exit="invCombine.stop()">
-              <hsm-state name="CombineChecking" hsm-enter="inventoryButton.enable(false)">
-                <hsm-event on="invCombine-checked" goto="CombineChecked"></hsm-event>
+            <hsm-state combine-check-control="invCombine" hsm-enter="invCombine.start($evt.item, items)" hsm-exit="invCombine.stop()">
+              <hsm-state name="CombineChecking" hsm-enter="invButton.enable(false)">
+                <hsm-event on="inv-combine-checked" goto="CombineChecked"></hsm-event>
               </hsm-state>
-              <hsm-state name="CombineChecked" hsm-enter="inventoryButton.enable(!invCombine.empty())">
+              <hsm-state name="CombineChecked" hsm-enter="invButton.enable(!invCombine.empty())">
                 <hsm-state hsm-enter="panel.enableInventoryMessage(!invCombine.empty())">
-                  <hsm-event on="inventoryButton-clicked" run="invWin.open(items, invCombine.itemActions())"></hsm-event>
+                  <hsm-event on="inv-button-clicked" run="invWin.open(items, invCombine.item(), invCombine.itemActions())"></hsm-event>
                 </hsm-state>
               </hsm-state>
             </hsm-state>
           </hsm-state>
         </hsm-state>
-        <!--  -->
       </hsm-state>
-      <!--  ~InventoryClosed -->
-      <hsm-event on="invWin-opened" goto="InventoryOpen"></hsm-event>
-      <hsm-state name="InventoryOpen" hsm-exit="invWin.close($evt.name)">
-        <hsm-event on="invWin-closed" goto="Inventory"></hsm-event>
-        <!-- keys? -->
-      </hsm-state>
-      <!--  ~InventoryOpen -->
-      <hsm-state name="InventoryProcessing" hsm-enter="inventoryButton.enable(false)">
+      <hsm-state name="ItemsProcessing" hsm-enter="invButton.enable(false)">
         <hsm-state game-listener="invChange" hsm-enter="invChange.listen('player', 'x-mod')" hsm-exit="invChange.silence()">
-          <!-- modify our item list as needed; really only happens during processing. -->
+          <!-- modify our inventory in response to the server giving or removing the player some items. -->
           <hsm-event on="invChange" when="$evt.data.adding" run="items.add($evt.data.child, $evt.data.prop)"></hsm-event>
           <hsm-event on="invChange" when="$evt.data.removing" run="items.remove($evt.data.child)"></hsm-event>
-          <hsm-event on="stream-empty" goto="Inventory"></hsm-event>
+          <hsm-event on="stream-empty" goto="NotCombining"></hsm-event>
         </hsm-state>
       </hsm-state>
-      <!-- ~InventoryProcessing -->
     </hsm-state>
-    <!-- ~Inventory -->
+    <!-- ^~button helper -->
   </hsm-state>
-  <!-- ~button -->
 </hsm-state>
-<!-- ~items -->

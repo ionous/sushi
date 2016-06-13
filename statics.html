@@ -4,7 +4,7 @@
     <hsm-event on="update-game" run="mouseTarget.update(mouse.pos())"></hsm-event>
     <hsm-event on="mouse-target-changed" goto="StaticTargeting"></hsm-event>
     <!--  -->
-    <hsm-event on="modal-opened" when="$evt.source =='actionBar'" goto="StaticsActionBar"></hsm-event>
+    <hsm-event on="modal-opened" when="$evt.matches('actionBar')"  goto="StaticsActionBar"></hsm-event>
     <hsm-event on="modal-opened" goto="StaticsModal"></hsm-event>
     <!--  -->
     <hsm-state name="StaticTargeting" hsm-init="mouseTarget() ? 'StaticHasTarget' : 'StaticNoTarget'">
@@ -18,7 +18,7 @@
     </hsm-state>
     <!--   -->
     <hsm-state name="StaticsActionBar" hsm-enter="mouseTarget.ghost(actionBar.target())" hsm-exit="mouseTarget.ghost(false)">
-      <hsm-state hsm-exit="actionBar.dismiss($evt.name)">
+      <hsm-state hsm-exit="actionBar.dismiss($evt)">
         <hsm-event on="modal-closed" goto="StaticTargeting"></hsm-event>
       </hsm-state>
     </hsm-state>

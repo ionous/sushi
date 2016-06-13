@@ -10,14 +10,18 @@ angular.module('demo')
     $log, $q) {
 
     this.init = function(name, hsmMachine) {
-      var pending, itemActions;
+      var pending, combining, itemActions;
       var scope = {
         cancel: function() {
           if (pending) {
             pending.reject("cancelled");
             pending = null;
           }
+          combining = null;
           itemActions = null;
+        },
+        item: function() {
+          return combining;
         },
         itemActions: function() {
           return itemActions;
@@ -28,20 +32,30 @@ angular.module('demo')
           }
           return !itemActions.length;
         },
-        start: function(items, item) {
+        start: function(item, items) {
+          if (!item) {
+            throw new Error("missing item");
+          }
+          if (!items) {
+            throw new Error("missing items");
+          }
           scope.cancel();
           pending = $q.defer();
           hsmMachine.emit(name, "checking", {})
           items.getCombinations(item).then(pending.resolve, pending.reject);
           //
           pending.promise.then(function(ia) {
+            combining = item;
             itemActions = ia;
             hsmMachine.emit(name, "checked", {
+              item: item,
               itemActions: ia
             })
           }, function(r) {
-            itemActions = false;
+            combining = null;
+            itemActions = null;
             hsmMachine.emit(name, "failed", {
+              item: item,
               reason: r
             })
           });
