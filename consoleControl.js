@@ -6,6 +6,9 @@ angular.module('demo')
   function($log, TextService) {
     this.init = function(_, gameControl, modalControl) {
       var modal;
+      // FIX? ideal would be to listen to the same stream as the text display;
+      // have our own blocks to play with.
+      var blocks = TextService.getDisplay().blocks;
       return {
         dismiss: function(reason) {
           if (modal) {
@@ -19,9 +22,15 @@ angular.module('demo')
           }
           var mdl = modal = modalControl.open(what, {
             inputEnabled: false,
-            blocks: TextService.getDisplay().blocks,
+            // block.speaker=name, block.text=[]string
+            blocks: blocks,
             submit: function(userInput) {
               if (userInput) {
+                blocks.push({
+                  input: true,
+                  text: ["> " + userInput]
+                });
+
                 gameControl.post({
                   'in': userInput,
                 });

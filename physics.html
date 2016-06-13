@@ -1,6 +1,6 @@
 <hsm-state name="Physics" physics-control="physics" hsm-enter="physics.create(map.get('physics'))" hsm-exit="physics.destroy()">
   <hsm-state action-bar-control="actionBar" hsm-enter="actionBar.bindTo('gameMap')" hsm-exit="actionBar.destroy()">
-    <hsm-state name="PhysicsReady" avatar-control="avatar" hsm-enter="avatar.create(player.linkup(), physics, 12)" hsm-exit="avatar.destroy()" hsm-init="stream.processing() ? 'PhysicsPause' : 'PhysicsPlay'" hsm-exit="pads.destroy()">
+    <hsm-state name="PhysicsReady" avatar-control="avatar" hsm-enter="avatar.create(player.linkup(), physics, 12)" hsm-exit="avatar.destroy()" hsm-init="stream.processing() ? 'PhysicsPause' : (modal.showing() ? 'PhysicsModal' : 'PhysicsPlay')" hsm-exit="pads.destroy()">
       <!--  -->
       <hsm-event on="modal-opened" when="$evt.matches('actionBar')" goto="PhysicsActions"></hsm-event>
       <hsm-event on="modal-opened" goto="PhysicsModal"></hsm-event>

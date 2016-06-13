@@ -25,12 +25,14 @@ body {
   left: 0px;
   overflow: scroll;
   max-height: 672px;
-  margin:0 auto;
+  margin: 0 auto;
 }
+
 hsm-state {
   margin-left: 2px;
   display: block;
 }
+
 .hsm-state-label {
   font-size: x-small;
 }
@@ -113,9 +115,15 @@ form > * {
   top: 0;
 }
 
-.speaker {
+.ga-console .speaker {
   font-size: large;
   color: red;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.ga-console .input li {
+  font-size: large;
   font-style: italic;
   font-weight: bold;
 }

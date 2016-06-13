@@ -12,7 +12,7 @@
               <ng-include src="'physics.html'"></ng-include>
             </hsm-state>
             <!-- we always hover -->
-            <hsm-state name="Hovering" hsm-init="stream.processing() ? 'HoverProcessing' : 'Hover'">
+            <hsm-state name="Hovering" hsm-init="stream.processing() ? 'HoverProcessing' : (modal.showing() ? 'HoverModal' : 'Hover')">
               <ng-include src="'hover.html'"></ng-include>
               <!-- we keep hover alive for the action bar. -->
               <hsm-event on="modal-opened" when="!$evt.matches('actionBar','combiner')" goto="HoverModal"></hsm-event>
@@ -24,7 +24,7 @@
               </hsm-state>
             </hsm-state>
             <!-- shared in both physics and non-physics -->
-            <hsm-state name="SharedPlay" hsm-init="stream.processing() ? 'SharedGameProcessing' : 'SharedGameRunning'">
+            <hsm-state name="SharedPlay" hsm-init="stream.processing() ? 'SharedGameProcessing' : (modal.showing() ? 'SharedModal' : 'SharedGameRunning')">
               <!-- FIX? maybe we should just post these directly? -->
               <hsm-event on="player-quip" run="game.post($evt.post)"></hsm-event>
               <hsm-event on="player-action" run="game.post($evt.action)"></hsm-event>

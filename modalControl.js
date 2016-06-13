@@ -60,6 +60,9 @@ angular.module('demo')
         this.dismiss = function(reason) {
           close(reason || "dismissed", false);
         };
+        this.showing = function() {
+          return !closed;
+        };
       }; // newModal
 
       var showWindow = function(slotName, displaySlot, params) {
@@ -105,6 +108,9 @@ angular.module('demo')
       var modalInstance;
 
       var scope = {
+        showing : function() {
+          return modalInstance && modalInstance.showing();
+        },
         dismiss: function(reason) {
           return modalInstance && modalInstance.dismiss(reason || 'dismissed');
         },
