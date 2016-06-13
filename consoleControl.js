@@ -12,13 +12,13 @@ angular.module('demo')
       return {
         dismiss: function(reason) {
           if (modal) {
-            modal.dismiss(reason);
+            modal.dismiss(reason || "console dismiss called");
             modal = null;
           }
         },
         show: function(what) {
           if (modal) {
-            modal.dismiss(reason);
+            modal.dismiss(reason || "console showing");
           }
           var mdl = modal = modalControl.open(what, {
             inputEnabled: false,
