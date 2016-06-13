@@ -77,13 +77,13 @@ angular.module('demo')
         var modal = modalInstance = new Modal(slot, input, result);
 
         hsmMachine.emit(name, "opened", {
-          name: name,
-          source: slotName,
+          name: name,   // ex. modal
+          source: slotName, // ex. actionBar
           modalInstance: modal,
           matches: function() {
             var yes;
             for (var i = 0; i < arguments.length; i += 1) {
-              if (arguments[i] == name) {
+              if (arguments[i] == slotName) {
                 yes = true;
                 break;
               }
