@@ -2,11 +2,10 @@
 
 angular.module('demo')
 
-.directiveAs("avatarControl", ["^keyControl", "^^hsmMachine"],
+.directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl"],
   function($attrs, $log) {
-    this.init = function(name, keyControl, hsmMachine) {
+    this.init = function(name, hsmMachine, keyControl) {
       var chara, prop, pads;
-      var moveDir;
 
       var arrestMovement = function() {
         if (prop) {
@@ -32,11 +31,9 @@ angular.module('demo')
           // FIX: ghost .object
         },
         // returns true if the avatar is standing on the landing pads of the target.
-
         touches: function(target) {
           var src = this.getFeet();
           var touches = target && target.pads && target.pads.getPadAt(src);
-          $log.info("avatar touches", target && target.path, !!touches);
           return touches;
         },
         destroy: function() {
@@ -72,7 +69,7 @@ angular.module('demo')
         //   return close && close.subject;
         // }
         // 
-        faceTarget: function(target) {
+        lookAt: function(target) {
           var set;
           var src = this.getFeet();
           var pad = target && target.pads && target.pads.getClosestPad(src);
@@ -87,19 +84,21 @@ angular.module('demo')
             }
           }
         },
-        // move in the normalized direction
-        setMoveDir: function(dir) {
-          moveDir = dir;
-        },
         stop: arrestMovement,
-        update: function(dt) {
-          var b = keyControl.buttons();
+        // move in the normalized direction
+        slide: function(dt, buttons) {
+          var b = buttons;
           var diff = pt(reduce(b.right) - reduce(b.left), reduce(b.down) - reduce(b.up));
           var len = pt_dot(diff, diff);
           var slideDir = (len >= 1e-3) && pt_scale(diff, 1.0 / Math.sqrt(len));
-          //
-          var dir = slideDir || moveDir;
-          if (!dir) {
+          if (!slideDir) {
+            arrestMovement();
+          } else {
+            avatar.update(dt, slideDir);
+          }
+        },
+        update: function(dt, dir) {
+          if (!dir || !dt) {
             arrestMovement();
           } else {
             var walking = keyControl.buttons('shift');

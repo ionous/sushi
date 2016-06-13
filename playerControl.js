@@ -63,7 +63,8 @@ angular.module('demo')
           hsmMachine.emit(name, "direct", {})
         },
         // target is of type "Subject"
-        faceTarget: function(target, pos) {
+        facePos: function(pos) {
+          $log.error("is this working?!");
           // FIX: face target?
           player.face(pos);
         },

@@ -49,6 +49,19 @@ angular.module('demo')
           cursor.destroyCursor();
           cursor = null;
         };
+        // needs more thought -- higher.
+        // this.hide = function(yes) {
+        //           var wasVisible= hidden <= 0;
+        //           hidden += yes ? 1 : -1;
+        //           var nowVisible= hidden <= 0;
+        //           if (wasVisible != nowVisible) {
+        //               cursor.show(nowVisible);
+        //               hsmMachine.emit(name, nowVisible ? "hidden" : "shown", {
+        //                 mouse: this.mouse
+        //               });
+        //             }
+        //           }
+        //         };
         this.show = function(yes) {
           var show = angular.isUndefined(yes) || yes;
           //$log.debug("cursor", show);
@@ -80,16 +93,16 @@ angular.module('demo')
           return cursor.present;
         };
       }; // Mouse
+      var mouse = new Mouse();
       this.hide = function(hide) {
         if (hide != hidden) {
           hidden = hide;
           cursor.show(!!hidden);
           hsmMachine.emit(name, hidden ? "hidden" : "shown", {
-            mouse: this.mouse
+            mouse: mouse
           });
         }
       };
-
-      return this.mouse = new Mouse();
+      return mouse;
     };
   })

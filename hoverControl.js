@@ -6,28 +6,25 @@ angular.module('demo')
   function() {
     this.init = function(name, mouseControl, hsmMachine) {
       var highlight;
-      return {
-        start: function() {
-          highlight = "none";
-        },
-        select: function(target) {
-          if (target) {
-            hsmMachine.emit(name, "select", {
-              target: target,
-              pos: mouseControl.mouse.pos(),
-            });
-          }
-        },
-        highlight: function(target) {
-          if (highlight !== target) {
-            highlight = target;
-            hsmMachine.emit(name, "highlight", {
-              target: target,
-              pos: mouseControl.mouse.pos(),
-            });
-          }
-        },
+      var emit = function(evt, pos) {
+        hsmMachine.emit(name, evt, {
+          pos: pos,
+        });
       };
-    };
-  })
-
+      return {
+        // like the first mouse down from a double click;
+        // the machine typically follows this by either a -direct or a -select.
+        press: function(pos) {
+          emit("press", pos);
+        },
+        // like a click: the machine excludes direct until -press.
+        select: function(pos) {
+          emit("select", pos);
+        },
+        // like a drag; the machine excludes press and select till mouse-up.
+        direct: function(pos) {
+          emit("direct", pos);
+        },
+      }; // scope
+    }; // init
+  }); // hoverControl directiveAs

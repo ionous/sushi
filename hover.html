@@ -1,5 +1,5 @@
 <!-- mouse input tweaks the cursor, and raises events which effect player control. -->
-<hsm-state name="Hover" hsm-init="mouse.inBounds() ? 'InBounds' : 'OutOfBounds'">
+<hsm-state name="Hover" hover-control="hover" hsm-init="mouse.inBounds() ? 'InBounds' : 'OutOfBounds'">
   <hsm-event on="mouse-hidden" goto="MouseHidden"></hsm-event>
   <hsm-state name="MouseHidden">
     <hsm-event on="mouse-shown" goto="Hover"></hsm-event>
@@ -8,38 +8,23 @@
     <hsm-event on="mouse-enter" goto="InBounds"></hsm-event>
     <hsm-event on="mouse-move" goto="InBounds"></hsm-event>
   </hsm-state>
-  <hsm-state name="InBounds" hsm-exit="mouse.show(false)">
+  <hsm-state name="InBounds" hsm-enter="mouse.show()">
     <hsm-event on="mouse-leave" goto="OutOfBounds"> </hsm-event>
     <!-- now wait for mouse down -->
-    <hsm-state name="MouseHighlight" hover-control="hover" hsm-enter="hover.start()">
-      <!-- note: because the avatar can move, and because that doesnt raise an event, we have to check for highlight changes every frame. -->
-      <hsm-event on="update-game" run="hover.highlight(mouseTarget())"> </hsm-event>
-      <hsm-event on="mouse-down" goto="MouseDown" run="hover.select(mouseTarget())"></hsm-event>
-    </hsm-state>
-    <!-- hide the cursor until its moved -->
-    <hsm-event on="vanish-cursor" goto="MouseVanish"> </hsm-event>
-    <hsm-state name="MouseVanish" hsm-enter="mouse.show(false)" hsm-exit="mouse.show( 'pointer')">
-      <hsm-event on="mouse-move" goto="MouseHighlight"></hsm-event>
-      <hsm-event on="reveal-cursor" goto="MouseHighlight"></hsm-event>
+    <hsm-state name="MouseHighlight">
+      <hsm-event on="mouse-down" goto="MouseDown" run="hover.press(mouse.pos())"></hsm-event>
     </hsm-state>
     <!-- mouse -->
     <hsm-state name="MouseDown" timeout-control="wait" hsm-enter="wait.timeout(150)" hsm-exit="wait.cancel()">
-      <!-- on timeout or drag, begin a directed move. -->
-      <hsm-event on="wait-timeout" run="player.direct()" goto="MouseDirecting"> </hsm-event>
-      <!-- on mouse up within time - ie. a click, begin a pathing move. -->
-      <hsm-event on="mouse-up" run="player.approach(mouseTarget(), mouse.pos())" goto="MouseApproach"></hsm-event>
+      <!-- on mouse up within time - ie. something like a click.   -->
+      <hsm-event on="mouse-up" run="hover.select(mouse.pos())" goto="MouseHighlight"></hsm-event>
+      <!-- on timeout begin a directed move - ie. something like a drag. -->
+      <!-- FIX? should this also happen if the mouse is moved past a tolerance? the time is pretty short, so maybe it doesnt matter. -->
+      <hsm-event on="wait-timeout" run="hover.direct(mouse.pause())" goto="MouseDirecting"> </hsm-event>
     </hsm-state>
-    <!-- while directing, control over the mouse cursor is handled elsewhere.
-    on exit, we restore that cursor to a known good state. -->
-    <hsm-state name="MouseDirecting" hsm-exit="mouse.show('pointer')">
+    <!-- FIX? raise a direct end? -->
+    <hsm-state name="MouseDirecting">
       <hsm-event on="mouse-up" goto="MouseHighlight"></hsm-event>
-    </hsm-state>
-  </hsm-state>
-  <!-- while approaching, the player can freely use the mouse; we just flash the cursor for a bit. -->
-  <hsm-state name="MouseApproach" hsm-enter="mouse.show(mouseTarget() ? 'bullseye' : 'arrow')"  hsm-exit="mouse.show('pointer')">
-    <hsm-event on="mouse-move" goto="MouseHighlight"></hsm-event>
-    <hsm-state timeout-control="flash" hsm-enter="flash.timeout(200)" hsm-exit="flash.cancel()">
-      <hsm-event on="flash-timeout" goto="MouseHighlight"></hsm-event>
     </hsm-state>
   </hsm-state>
 </hsm-state>

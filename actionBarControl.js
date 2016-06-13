@@ -6,7 +6,7 @@ angular.module('demo')
   function(ActionListService, IconService,
     $log, $q, $uibModal) {
     this.init = function(name, hsmMachine, modalControl, mouseControl, combinerControl) {
-      var actionBarModal, displaySlot;
+      var actionBarModal, displaySlot, currentTarget;
       this.bindTo = function(slotName) {
         displaySlot = slotName;
       };
@@ -19,8 +19,12 @@ angular.module('demo')
           actionBarModal = null;
         }
       };
+      this.target = function() {
+        return currentTarget;
+      };
       this.open = function(target) {
         this.dismiss("opening");
+        currentTarget = target;
         //
         $log.info("showing action bar", target.toString());
         var barpos = target.pos;

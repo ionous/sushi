@@ -85,12 +85,15 @@ angular.module('demo')
     Mover.prototype.getPos = function(targeting) {
       return targeting ? this.avatar.getFeet() : this.avatar.getCenter();
     };
-    Mover.prototype.move = function(pos) {
-      this.avatar.setMoveDir(pos);
+    Mover.prototype.stop = function() {
+      this.avatar.stop(false);
+    };
+    Mover.prototype.move = function(dt, dir) {
+      this.avatar.update(dt, dir);
     };
     Mover.prototype.faceTarget = function(target) {
       // a little odd - avatar duplicates the feet test.
-      this.avatar.faceTarget(target);
+      this.avatar.lookAt(target);
     };
 
     this.init = function(name, hsmMachine) {
@@ -113,13 +116,13 @@ angular.module('demo')
           arrival.setDest(dest);
         },
         stop: function() {
-          mover.move(false);
+          mover.stop();
           arrival = null;
           mover = null;
           target = null;
         },
         pause: function() {
-          mover.move(false);
+          mover.stop();
           paused = true;
         },
         moveTo: function(pos) {
@@ -145,7 +148,7 @@ angular.module('demo')
           var dest = target && getTargetPos(currentPos, target);
           arrival.setDest(dest);
         },
-        faceTarget: function() {
+        adjustFacing: function() {
           $log.info("attempting to face target", target);
           if (target) {
             mover.faceTarget(target);
@@ -154,7 +157,7 @@ angular.module('demo')
         updateMove: function(dt) {
           // 1. move character to physics location
           if (paused) {
-            mover.move(false);
+            mover.stop();
           } else {
             var pos = mover.getPos(!!target);
             var move = arrival.moveTowards(pos);
@@ -164,7 +167,7 @@ angular.module('demo')
                 $log.error("avatar should have been paused!");
                 moveError = true;
               }
-              mover.move(false);
+              mover.stop();
             } else {
               moveError = false;
               if (move.arrived || move.blocked) {
@@ -173,7 +176,7 @@ angular.module('demo')
                 });
               } else {
                 // 2. sets vel of physics ( dir + walking speed )
-                mover.move(move.dir);
+                mover.move(dt, move.dir);
               }
             }
           }

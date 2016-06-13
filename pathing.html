@@ -1,9 +1,25 @@
 <!-- move the avatar to a specific target ( or position ) until interrupted-->
-<hsm-state name="Pathing" move-control="pathing" hsm-enter="pathing.start(avatar,$evt.target,$evt.pos,true)" hsm-exit="pathing.stop()">
+<hsm-state name="Pathing" move-control="pathing" hsm-enter="pathing.start(avatar, mouseTarget(), $evt.pos, true)" hsm-init="mouseTarget() ? 'PathToTarget' : 'PathToPos'" hsm-exit="pathing.stop()">
+  <hsm-event on="keys" when="$evt.escapeKey()" goto="Planning"></hsm-event>
   <hsm-event on="mouse-down" goto="Planning"></hsm-event>
-  <hsm-event on="pathing-arrived" run="pathing.faceTarget()"></hsm-event>
-  <hsm-event on="pathing-arrived" run="player.interact(pathing.target())"></hsm-event>
-  <hsm-event on="pathing-blocked" run="player.interact(pathing.target())"></hsm-event>
   <hsm-event on="update-game" run="pathing.updateMove($evt.dt)"></hsm-event>
+  <!-- while pathing, the player can freely use the mouse; 
+  we change the cursor temporarily, basically until the player moves the mouse and we get a mouse-target-changed. all other things being equal, it sticks to its special look. -->
+  <hsm-state name="PathToTarget" hsm-enter="mouse.show('bullseye')">
+    <hsm-event on="pathing-arrived" run="player.interact(pathing.target())"></hsm-event>
+    <hsm-event on="pathing-blocked" run="player.interact(pathing.target())"></hsm-event>
+    <hsm-event on="pathing-arrived" run="pathing.adjustFacing()"></hsm-event>
+    <!-- <hsm-event on="mouse-target-changed" run="mouse.show('pointer')"></hsm-event> 
+    this will happen automatically already anyway -->
+  </hsm-state>
+  <hsm-state name="PathToPos" hsm-enter="mouse.show('arrow')">
+    <hsm-event on="pathing-arrived" goto="Planning"></hsm-event>
+    <hsm-event on="pathing-blocked" goto="Planning"></hsm-event>
+    <hsm-state hsm-exit="mouse.show('pointer')">
+      <hsm-event on="mouse-move" run="mouse.show('pointer')" goto="PathMoved"></hsm-event>
+    </hsm-state>
+    <hsm-state name="PathMoved">
+    </hsm-state>
+  </hsm-state>
   <!-- maybe move-blocked? -->
 </hsm-state>

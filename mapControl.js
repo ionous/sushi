@@ -105,6 +105,9 @@ angular.module('demo')
       var ctrl = this;
       ctrl.name = name;
       return {
+        name: function() {
+          return name;
+        },
         // suspicious of exposing resources object directly to scope watchers
         get: function(key) {
           var ret = ctrl.map[key];
