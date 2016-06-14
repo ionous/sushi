@@ -8,7 +8,7 @@ angular.module('demo')
 
     var loadImage = function(imageSrc) {
       if (!imageSrc) {
-        throw new Error("CanvasService: image not defined");
+        throw new Error("image not defined");
       }
       var defer = $q.defer();
       //

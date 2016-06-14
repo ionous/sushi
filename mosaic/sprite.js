@@ -12,15 +12,15 @@ var scratch = null;
 
 // helper to access the sprite data.
 var Sprite = function(src, ofs, size, image) {
-  this.src= src;
-  this.ofs= ofs;
-  this.size= size;
+  this.src = src;
+  this.ofs = ofs;
+  this.size = size;
   this._image = image;
 };
 
 // cache a new image source containing the pixel data for this sprite.
 Sprite.prototype.image = function() {
-  if (!this._image) {
+  if (!this._image && this.src) {
     var img = new Image();
     img.src = this.src;
     this._image = img;
@@ -57,10 +57,12 @@ Sprite.prototype.fillCanvas = function(canvas, rot) {
   var x = this.ofs.x * this.size.x;
   var y = this.ofs.y * this.size.y;
   var img = this.image();
-  ctx.clearRect(-wx, -wy, this.size.x, this.size.y);
-  ctx.drawImage(img,
-    x, y, this.size.x, this.size.y, -wx, -wy, this.size.x, this.size.y);
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (img) {
+    ctx.clearRect(-wx, -wy, this.size.x, this.size.y);
+    ctx.drawImage(img,
+      x, y, this.size.x, this.size.y, -wx, -wy, this.size.x, this.size.y);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
 };
 
 // create a new canvas (element) filling it with the image of this sprite.

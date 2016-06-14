@@ -116,14 +116,18 @@ angular.module('demo')
         }
       };
       var service = {
-        newChara: function(id, path, size) {
+        newChara: function(id, imageSrc, size) {
+          if (!imageSrc) {
+            throw new Error("image not defined");
+          }
+          //$log.info("CharaService: loadImage", imageSrc);
           var obj = EntityService.getById(id);
           var defer = $q.defer();
           var img = new Image();
           img.onload = function() {
             defer.resolve(new Chara(obj, img, size || 64));
           };
-          img.src = path;
+          img.src = imageSrc;
           return defer.promise;
         }
       };

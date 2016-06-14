@@ -15,7 +15,8 @@ angular.module('demo')
             defer.reject("closing");
             defer = null;
           }
-          combineBox.items = combineBox.image = combineBox.visible = false;
+          combineBox.items = combineBox.visible = false;
+          combineBox.image = null;
         },
         enableInventoryMessage: function(yes) {
           if (defer) {
