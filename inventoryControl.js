@@ -4,23 +4,22 @@ angular.module('demo')
 
 // opens the inventory window;
 // pairs with itemsControl
-.directiveAs('inventoryControl', ["^^hsmMachine", "^^modalControl", "^^combinerControl"],
+.directiveAs('inventoryControl', ["^^hsmMachine", "^^modalControl"],
     function($q, $log) {
-      this.init = function(name, hsmMachine, modalControl, combinerControl) {
-        var itemsWindow = 'itemsWindow';
+      this.init = function(name, hsmMachine, modalControl) {
+        var invWin = 'invWin';
         var modal;
         var scope = {
           close: function(reason) {
             if (modal) {
-              modal.dismiss(reason || "close called");
-              modal = false;
+              modal.close(reason || "close called");
+              modal = null;
             }
           },
           open: function(items, combining, itemActions) {
             $log.info("inventoryControl", name, "opening", combining ? "combining" : "not combining", itemActions ? "have actions" : "no actions");
 
-            scope.close("opening");
-            var mdl = modal = modalControl.open(itemsWindow, {
+            var mdl = modal = modalControl.open(invWin, {
               items: function() {
                 return items;
               },
@@ -38,23 +37,13 @@ angular.module('demo')
                   });
                 } else {
                   var post = act.runIt(item.id, combining && combining.id);
-                  hsmMachine.emit(name, "action", {
+                  hsmMachine.emit(name, "activate", {
                     item: item,
                     combining: combining,
                     action: post,
                   });
                 }
               },
-            });
-            mdl.closed.finally(function(r) {
-              hsmMachine.emit(name, "closed", {
-                modal: mdl,
-                reason: r,
-              });
-            });
-            //
-            hsmMachine.emit(name, "opened", {
-              modal: mdl
             });
           }, // show inventory
         }; // export to scope

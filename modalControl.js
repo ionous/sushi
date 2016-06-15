@@ -4,61 +4,92 @@ angular.module('demo')
   .directive('modalWindow', function() {
     return {
       restrict: 'E',
+      // i like this specification of attributes, but wish it didnt bind to scope.
       scope: {
         modal: '<group', // modal control
         src: '<', // ng-included
-        name: '@' // unique id for modal window
+        name: '@', // unique id for modal window
+        overgrey: "<?" // use overgrey?
       },
-      controller: function(ElementSlotService, $element, $log, $scope) {
-        // note: by the time we get here, scope is already set with the directive's params.
-        ElementSlotService.bind($scope.name, $element, $scope);
-      },
-      // directiveAs doesnt have templates... 
-      // nor can it make an isolate....
-      // the way angular exposes things makes life more difficult than i think it should have to be.
+      // directiveAs doesnt have templates...  nor can it make an isolate....
+      // the way angular exposes things makes life more difficult than i think it needs to be.
       template: '<span ng-if="modal.topWindow==name">' +
         '<ng-include src="src"></ng-include>' +
-        '</span>'
+        '</span>',
+      controller: function(ElementSlotService, $element, $log, $rootElement, $scope) {
+        // note: by the time we get here, scope is already set with the directive's params.
+        var name = $scope.name;
+        var modal = $scope.modal;
+        var og = $scope.overgrey;
+        //
+        ElementSlotService.bind(name, $element, $scope);
+        //
+        var useOg = angular.isUndefined(og) || og;
+        //$log.debug("modalWindow", $scope.name, "useOg", useOg, og);
+        if (useOg) {
+          var overgrey = angular.element('<div class="overgrey ga-noselect"></div>');
+
+          $scope.$watch("modal.topWindow", function(newValue) {
+            if (newValue != name) {
+              overgrey.remove();
+            } else {
+              $rootElement.prepend(overgrey);
+              overgrey.on("click", function() {
+                // send a message to the statechart a close is requested
+                modal.dismiss("overgrey");
+              });
+            }
+          });
+        }
+      },
     };
   })
 
 .directiveAs('modalControl', ["^hsmMachine"],
   function(ElementSlotService, $log, $q) {
     this.init = function(name, hsmMachine) {
-
       // modal instance object
-      var Modal = function(slot, input, result) {
+      var Modal = function(slot, input, result, previousParent) {
         var modal = this;
         var closed = false;
         // can only be closed once.
-        var close = function(resultOrReason, closeNotDismiss) {
+        var close = function(reason) {
           if (!closed) {
             closed = true;
-            input.reject(resultOrReason);
-            if (closeNotDismiss) {
-              result.resolve(resultOrReason);
-            } else {
-              result.reject(resultOrReason);
-            }
-            // changes the meaning of result,reason to something easier to parse.
-            var why = closeNotDismiss ? "closed" : "dismissed";
-            $log.info("modalControl:", name, slot.name, why, why != resultOrReason ? resultOrReason : "");
+            // specific event:
+            var which = slot.name;
+            hsmMachine.emit(which, "closed", {
+              reason: reason,
+            });
+            // common event:
             hsmMachine.emit(name, "closed", {
               name: name,
-              source: slot.name,
-              reason: why,
-              result: resultOrReason,
+              source: which,
+              reason: reason,
             });
+            //$log.info("modalControl: closed", name, slot.name, reason);
+            input.reject(reason);
+            result.resolve(reason);
+            // patch: when the map gets removed, windows attached to the map get destroyed
+            // in order to be able to re-open them later, we have to keep them alive.
+            if (previousParent) {
+              previousParent.append(slot.element);
+            }
           }
         };
         this.slot = slot;
         this.resolved = input.promise;
         this.closed = result.promise;
-        this.close = function(result) {
-          close(result || "closed", true);
+        this.close = function(reason) {
+          close(reason || "closed", true);
         };
         this.dismiss = function(reason) {
-          close(reason || "dismissed", false);
+          // removing emit of modal for specifics:
+          var which = slot.name;
+          $log.info("modalControl", name, "dismiss", which, reason);
+          hsmMachine.emit(which, "dismiss", {
+            reason: reason,
+          });
         };
         this.showing = function() {
           return !closed;
@@ -68,25 +99,33 @@ angular.module('demo')
       var showWindow = function(slotName, displaySlot, params) {
         // note: with <modal-window> wont actually show till topWindow is ready.
         var slot = ElementSlotService.get(slotName);
+        var previousParent;
         if (displaySlot) {
           var display = ElementSlotService.get(displaySlot);
           if (display) {
+            previousParent = slot.element.parent();
             display.element.append(slot.element);
           }
         }
         //
-        var input = $q.defer(); // params resolved after open.
-        var result = $q.defer(); // resolved when closed, rejected when dismissed.
-        var modal = modalInstance = new Modal(slot, input, result);
+        var input = $q.defer(); // params resolved after open; rejected if closed early.
+        var result = $q.defer(); // resolved when closed.
+        var modal = modalInstance = new Modal(slot, input, result, previousParent);
 
+        // specific event:
+        var which = slotName;
+        hsmMachine.emit(which, "opened", {
+          modalInstance: modal,
+        });
+        // common event:
         hsmMachine.emit(name, "opened", {
-          name: name,   // ex. modal
-          source: slotName, // ex. actionBar
+          name: name, // ex. modal
+          source: which, // ex. actionBar
           modalInstance: modal,
           matches: function() {
             var yes;
             for (var i = 0; i < arguments.length; i += 1) {
-              if (arguments[i] == slotName) {
+              if (arguments[i] == which) {
                 yes = true;
                 break;
               }
@@ -99,7 +138,7 @@ angular.module('demo')
         // used to copy in contents, but since modal is assigned via modal-window 
         // that doesnt seem needed any more.
         input.promise.catch(function(r) {
-          modal.dismiss(r || "resolved failed");
+          modal.close(r || "resolved failed");
         });
         return modal;
       }; // show, returns a new modal instance
@@ -108,14 +147,20 @@ angular.module('demo')
       var modalInstance;
 
       var scope = {
-        showing : function() {
-          return modalInstance && modalInstance.showing();
+        showing: function() {
+          var ret= modalInstance && modalInstance.showing();
+          //$log.info("showing", ret);
+          return ret;
         },
+        // dismiss raises an event, requesting the close of the window
+        // good to use in window controllers
         dismiss: function(reason) {
           return modalInstance && modalInstance.dismiss(reason || 'dismissed');
         },
+        // close removes the window
+        // good to use in the statechart
         close: function(reason) {
-          return modalInstance && modalInstance.dismiss(reason || 'closed');
+          return modalInstance && modalInstance.close(reason || 'closed');
         },
         // this gets called *alot* using topWindow instead
         // opened: function(name) {
@@ -130,7 +175,7 @@ angular.module('demo')
         var displaySlot = paramOrNull ? displayOrParam : null;
 
         if (modalInstance) {
-          modalInstance.dismiss("opening:" + slotName);
+          modalInstance.close("opening:" + slotName);
         }
 
         var modal = showWindow(slotName, displaySlot, params);

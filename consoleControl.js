@@ -10,15 +10,15 @@ angular.module('demo')
       // have our own blocks to play with.
       var blocks = TextService.getDisplay().blocks;
       return {
-        dismiss: function(reason) {
+        close: function(reason) {
           if (modal) {
-            modal.dismiss(reason || "console dismiss called");
+            modal.close(reason || "console close called");
             modal = null;
           }
         },
-        show: function(what) {
+        open: function(what) {
           if (modal) {
-            modal.dismiss(reason || "console showing");
+            modal.close(reason || "console showing");
           }
           var mdl = modal = modalControl.open(what, {
             inputEnabled: false,

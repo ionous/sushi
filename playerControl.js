@@ -64,8 +64,6 @@ angular.module('demo')
         },
         // target is of type "Subject"
         facePos: function(pos) {
-          $log.error("is this working?!");
-          // FIX: face target?
           player.face(pos);
         },
         // raises -creating, -created

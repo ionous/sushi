@@ -6,15 +6,13 @@ angular.module('demo')
   ElementSlotService, EntityService,
   $log, $q, $rootElement, $timeout) {
   this.init = function(name, modalControl) {
-
-    var bubble = angular.element('<div class="bubble ga-noselect"></div>');
-
     //$log.info("TalkController: base pos", baseLeft, baseTop);
-
     var Talker = function(id, displayGroup, canvi) {
       var pos = displayGroup.pos;
       var size = canvi.getSize();
       var adjust = pt(0, 0);
+      var bubble = angular.element('<div class="bubble ga-noselect"></div>');
+
       // hmmm.... the images have different spacings in them... :(
       // should probably be part of a character description.
       switch (id) {
@@ -30,6 +28,9 @@ angular.module('demo')
           adjust.x = -40;
           adjust.y = 48;
           break;
+      };
+      this.hideText = function() {
+        bubble.remove();
       };
 
       this.displayText = function(parent, text) {
@@ -69,46 +70,65 @@ angular.module('demo')
         });
       };
     }; // Talker.
-    return {
+    var currentTalker, currentModal, currentLines, currentDefer;
+    var scope = {
+      empty: function() {
+        return !currentLines || !currentLines.length;
+      },
+      next: function() {
+        if (!currentTalker) {
+          throw new Error("no ones talking");
+        }
+        if (!currentLines || !currentLines.length) {
+          throw new Error("nothing to say");
+        }
+        var text = currentLines.shift();
+        // get parent each time because it can change across maps, etc.
+        var parent = ElementSlotService.get("gameMap").element;
+        var mdl = currentModal = modalControl.open("talk");
+        // FIX: do we really need modal?
+        // were procesing anyway, so theres no physicsplay etc.
+        // can turn overgrey into a service if desired.
+        currentTalker.displayText(parent, text);
+      },
+      close: function(reason) {
+        if (currentTalker) {
+          currentTalker.hideText();
+          currentTalker = null;
+        }
+        if (currentModal) {
+          currentModal.close(reason || "talker closed");
+          currentModal = null;
+        }
+        currentLines = null;
+        if (currentDefer) {
+          currentDefer.resolve(reason);
+          currentDefer = null;
+        }
+      },
       say: function(actorId, data) {
         $log.info("say", actorId);
         if (!data || !data.length) {
           return $q.when();
         }
         var actor = EntityService.getById(actorId);
-        var objectDisplay = actor && actor.objectDisplay;
-        if (!objectDisplay) {
+        var objDisp = actor && actor.objectDisplay;
+        if (!objDisp) {
           var msg = "dont know how to display text";
           $log.error(msg, actorId, data);
           throw new Error(msg);
         }
-        var talker = new Talker(actorId, objectDisplay.group, objectDisplay.canvi);
-        var defer = $q.defer();
-        var lines = data.slice();
-        var parent = ElementSlotService.get("gameMap").element;
+        var talker = currentTalker = new Talker(actorId, objDisp.group, objDisp.canvi);
+        var defer = currentDefer = $q.defer();
+        var lines = currentLines = data.slice();
 
-        // process a non-blank line till we're out of lines.
-        var process = function() {
-          $timeout(function() {
-            while (lines.length) {
-              var text = lines.shift();
-              if (text) {
-                var modal = modalControl.open("talk");
-                talker.displayText(parent, text);
-                modal.closed.finally(function() {
-                  bubble.remove();
-                  process();
-                });
-                return;
-              }
-            }
-            defer.resolve("finished talking");
-          });
-        };
-        process();
+        $timeout(function() {
+          scope.next();
+        });
+
         return defer.promise;
       }, //say
-
-    }; // return
+    }; // scope
+    return scope;
   }; // init
 });

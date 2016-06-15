@@ -7,9 +7,11 @@ angular.module('demo')
     this.init = function(name, mouseControl, hsmMachine) {
       var highlight;
       var emit = function(evt, pos) {
-        hsmMachine.emit(name, evt, {
-          pos: pos,
-        });
+        if (!mouseControl.mouse.hidden()) {
+          hsmMachine.emit(name, evt, {
+            pos: pos,
+          });
+        }
       };
       return {
         // like the first mouse down from a double click;

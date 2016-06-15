@@ -1,20 +1,16 @@
 <hsm-state name="Physics" physics-control="physics" hsm-enter="physics.create(map.get('physics'))" hsm-exit="physics.destroy()">
-  <hsm-state action-bar-control="actionBar" hsm-enter="actionBar.bindTo('gameMap')" hsm-exit="actionBar.destroy()">
-    <hsm-state name="PhysicsReady" avatar-control="avatar" hsm-enter="avatar.create(player.linkup(), physics, 12)" hsm-exit="avatar.destroy()" hsm-init="stream.processing() ? 'PhysicsPause' : (modal.showing() ? 'PhysicsModal' : 'PhysicsPlay')" hsm-exit="pads.destroy()">
-      <!--  -->
-      <hsm-event on="modal-opened" when="$evt.matches('actionBar')" goto="PhysicsActions"></hsm-event>
-      <hsm-event on="modal-opened" goto="PhysicsModal"></hsm-event>
-      <!--  -->
-      <hsm-state name="PhysicsPlay" mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(map, avatar)" hsm-exit="mouseTarget.release()">
+  <hsm-state avatar-control="avatar" hsm-enter="avatar.create(player.linkup(), physics, 12)" hsm-exit="avatar.destroy()" hsm-init="turn.paused() && 'PhysicsPause'" hsm-exit="pads.destroy()">
+    <hsm-state name="PhysicsPlay" mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(map, avatar)" hsm-exit="mouseTarget.release()" hsm-init="modal.showing() && 'PhysicsModal'">
+      <hsm-state name="PhysicsUpdating">
         <hsm-event on="player-interact" when="!avatar.touches($evt.target)" goto="Planning"></hsm-event>
         <hsm-event on="player-interact" run="actionBar.open($evt.target, combiner.item())"></hsm-event>
-        <!-- directing and planning both use mouse target to change the cursor apperance -->
-        <hsm-event on="update-game" run="mouseTarget.update(mouse.pos())"></hsm-event>
-        <!--  -->
         <hsm-event on="keys" when="$evt.moveKey(true)" goto="KeyWalking"></hsm-event>
         <!-- disabled the keyboard action key. need a real location for every target to center the menu. <hsm-event on="keys" when="$evt.keydown && $evt.actionKey()" run="player.interact( pads.closestLanding(chara.getFeet()))"></hsm-event> -->
+        <hsm-event on="update-game" run="mouseTarget.update(mouse.pos())"></hsm-event>
         <hsm-event on="update-game" run="physics.step($evt.dt)"></hsm-event>
+        <!--  -->
         <ng-include src="'directing.html'"></ng-include>
+        <!-- ^~Directing -->
         <hsm-state name="MouseHovering" hsm-enter="mouse.show('pointer')">
           <!--  -->
           <hsm-event on="mouse-target-changed" run="mouse.show( !$evt.target ? 'pointer' : (!$evt.touches ? 'disk' : 'bullseye'))"></hsm-event>
@@ -28,27 +24,34 @@
           <hsm-state name="Planning">
             <hsm-event on="keys" when="$evt.moveKey(true)" goto="KeyWalking"> </hsm-event>
           </hsm-state>
+          <!-- ^~Planning -->
           <ng-include src="'keyWalking.html'"></ng-include>
+          <!-- ^~KeyWalking -->
           <ng-include src="'pathing.html'"></ng-include>
+          <!-- ^~Pathing -->
+          <hsm-event on="action-bar-opened" goto="PhysicsActions"></hsm-event>
           <hsm-state name="PhysicsActions" hsm-enter="mouseTarget.ghost(actionBar.target())" hsm-exit="mouseTarget.ghost(false)">
-            <hsm-state hsm-exit="actionBar.dismiss($evt)">
-              <!-- FIX? should probably move action bar away from modal. *sigh* -->
-              <hsm-event on="modal-opened" when="$evt.matches('actionBar')" goto=""></hsm-event>
-              <!-- action bar handling happens elsewhere, but we still allow hovering;
-            if hover gets keys shortcuts, might look at how to include rename states -->
-              <hsm-event on="modal-closed" goto="Planning"></hsm-event>
+            <hsm-state hsm-exit="actionBar.dismiss('physics')">
+              <hsm-event on="modal-opened" goto=""></hsm-event>
+              <hsm-event on="action-bar-closed" goto="Planning"></hsm-event>
             </hsm-state>
           </hsm-state>
+          <!-- ^~PhysicsActions -->
         </hsm-state>
+        <!-- ^~MouseHovering -->
       </hsm-state>
+      <!-- ^~PhysicsUpdating -->
+      <hsm-event on="modal-opened" goto="PhysicsModal"></hsm-event>
       <hsm-state name="PhysicsModal">
-        <hsm-event on="modal-closed" goto="PhysicsReady"></hsm-event>
+        <hsm-event on="modal-closed" goto="PhysicsPlay"></hsm-event>
       </hsm-state>
-      <!--  -->
-      <hsm-event on="stream-processing" goto="PhysicsPause"></hsm-event>
-      <hsm-state name="PhysicsPause">
-        <hsm-event on="stream-empty" goto="PhysicsReady"></hsm-event>
-      </hsm-state>
+      <!-- ^~PhysicsModal -->
     </hsm-state>
+    <!-- ^~PhysicsPlay -->
+    <hsm-event on="turn-paused" goto="PhysicsPause"></hsm-event>
+    <hsm-state name="PhysicsPause">
+      <hsm-event on="turn-playing" goto="PhysicsPlay"></hsm-event>
+    </hsm-state>
+    <!-- ^~PhysicsPause -->
   </hsm-state>
 </hsm-state>

@@ -12,14 +12,21 @@
     <hsm-state>
     </hsm-state>
     <hsm-state name="TalkEnabled" talk-control="talk" game-listener="speech" hsm-enter="speech.listen('*', 'say')" hsm-exit="speech.silence()">
-      <hsm-event on="speech" run="talk.say($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
+      <hsm-state>
+        <hsm-event on="speech" goto="Speaking" run="talk.say($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
+      </hsm-state>
+      <hsm-state name="Speaking" hsm-exit="talk.close('exit')">
+        <hsm-event on="talk-closed" goto="TalkEnabled"></hsm-event>
+        <hsm-event on="talk-dismiss" when="!talk.empty()" run="talk.next()" goto=""></hsm-event>
+        <hsm-event on="talk-dismiss" run="talk.close('finished')"></hsm-event>
+      </hsm-state>
     </hsm-state>
   </hsm-state>
   <!--  -->
-  <hsm-state game-listener="offers" hsm-enter="offers.listen('*', 'being-offered', true)" hsm-exit="offers.silence()">
-    <hsm-event on="offers" run="playerDialog.addQuip($evt.tgt)"></hsm-event>
+  <hsm-state game-listener="offers" hsm-enter="offers.listen('*', 'being-offered')" hsm-exit="offers.silence()">
+    <hsm-event on="offers" run="dialog.addQuip($evt.tgt)"></hsm-event>
   </hsm-state>
-  <!-- popup story text -->
+  <!-- handle story text -->
   <hsm-state game-listener="storyText" hsm-enter="storyText.listen('_display_', 'print')" hsm-exit="storyText.silence()">
     <hsm-state game-listener="reportView" hsm-enter="reportView.listen('*', 'reporting-the-view', true)" hsm-exit="reportView.silence()">
       <hsm-state game-listener="comments" hsm-enter="comments.listen('player', 'printing-conversation-choices', true)" hsm-exit="comments.silence()">
@@ -29,27 +36,32 @@
             <hsm-state name="PopupsDisabled">
             </hsm-state>
             <!--  -->
-            <hsm-event on="stream-empty" run="playerDialog.showChoices()"></hsm-event>
             <hsm-event on="comments" goto="CaptureComments"></hsm-event>
             <hsm-event on="vending" goto="CaptureVendibles"></hsm-event>
             <!-- dialog choices -->
             <hsm-state name="CaptureComments">
-              <hsm-event on="storyText" run="playerDialog.addChoice($evt.data)"></hsm-event>
-              <hsm-event on="comments" goto="StoryText"></hsm-event>
+              <hsm-event on="storyText" run="dialog.addChoice($evt.data)"></hsm-event>
+              <hsm-event on="comments" when="$evt.end" goto="StoryText"></hsm-event>
             </hsm-state>
+            <!-- vendible choices -->
             <hsm-state name="CaptureVendibles">
-              <hsm-event on="storyText" run="playerDialog.addChoice($evt.data)"></hsm-event>
-              <hsm-event on="vending" run="playerDialog.addFallback('0', 'Never mind.')"></hsm-event>
-              <hsm-event on="vending" goto="StoryText"></hsm-event>
+              <hsm-event on="storyText" run="dialog.addChoice($evt.data)"></hsm-event>
+              <hsm-event on="vending" when="$evt.end" goto="StoryText" run="dialog.addFallback('0', 'Never mind.')"></hsm-event>
             </hsm-state>
             <!-- regular story text popups -->
             <hsm-state name="PopupsEnabled" popup-control="popup">
-              <hsm-event on="storyText" run="popup.show('popupBox', $evt.data).then($evt.resolve())"></hsm-event>
+              <hsm-state>
+                <hsm-event on="storyText" goto="PopupDisplayed" run="popup.open('popupBox', $evt.data).then($evt.resolve())"></hsm-event>
+              </hsm-state>
+              <hsm-state name="PopupDisplayed" hsm-exit="popup.close('exit')">
+                <hsm-event on="popup-box-closed" goto="PopupsEnabled"></hsm-event>
+                <hsm-event on="popup-box-dismiss" run="popup.close($evt.reason)"></hsm-event>
+              </hsm-state>
             </hsm-state>
             <!-- room entry prints nothing-->
             <hsm-event on="reportView" goto="SilenceRoomEntryText"></hsm-event>
             <hsm-state name="SilenceRoomEntryText">
-              <hsm-event on="reportView" goto="StoryText"></hsm-event>
+              <hsm-event on="reportView" when="$evt.end" goto="StoryText"></hsm-event>
             </hsm-state>
           </hsm-state>
         </hsm-state>

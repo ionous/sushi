@@ -2,37 +2,34 @@
 
 angular.module('demo')
 
-.directiveAs("actionBarControl", ["^^hsmMachine", "^^modalControl", "^^mouseControl", "^^combinerControl"],
+.directiveAs("actionBarControl", ["^^hsmMachine", "^^modalControl", "^^mouseControl"],
   function(ActionListService, IconService,
     $log, $q, $uibModal) {
-    this.init = function(name, hsmMachine, modalControl, mouseControl, combinerControl) {
+    this.init = function(name, hsmMachine, modalControl, mouseControl) {
       var actionBarModal, displaySlot, currentTarget;
       this.bindTo = function(slotName) {
         displaySlot = slotName;
       };
-      this.destroy = function() {
-        this.dismiss("destroyed");
-      };
       this.dismiss = function(reason) {
+        return actionBarModal && actionBarModal.dismiss(reason);
+      };
+      this.close = function(reason) {
         if (actionBarModal) {
-          actionBarModal.dismiss(reason);
+          actionBarModal.close(reason);
           actionBarModal = null;
         }
       };
       this.target = function() {
         return currentTarget;
       };
-      this.open = function(target) {
-        this.dismiss("opening");
+      this.open = function(target, combining) {
+        this.close("opening");
         currentTarget = target;
         //
         $log.info("showing action bar", target.toString());
         var barpos = target.pos;
         var obj = target.object;
         var view = target.view;
-
-        var combining = combinerControl.item();
-
         var pendingActions;
         if (obj) {
           if (!combining) {
@@ -58,7 +55,7 @@ angular.module('demo')
             mouseControl: mouseControl,
             objectId: obj && obj.id,
             runAction: function(act) {
-              $log.info("runAction", act);
+              $log.info("actionBarControl", name, "runAction", act);
               var objId = obj && obj.id;
               var post = act.runIt(objId, combining && combining.id);
               if (post) {
@@ -68,18 +65,15 @@ angular.module('demo')
               }
             }, // runAction
             zoomView: function(act) {
-              //this.subject.view;
-              hsmMachine.emit(name, "view", {
+              $log.info("actionBarControl", name, "zoomView", view);
+              hsmMachine.emit(name, "zoom", {
                 view: view,
               });
             }
           }; // return config
         });
         //
-        var mdl = actionBarModal = modalControl.open(name, displaySlot, pendingConfig);
-        mdl.closed.finally(function() {
-          mouseControl.hide(false);
-        });
+        actionBarModal = modalControl.open(name, displaySlot, pendingConfig);
       }; // open
       return this;
     }; //init

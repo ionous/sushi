@@ -7,24 +7,9 @@ angular.module('demo')
     this.init = function(_, hsmMachine) {
       var modal = $scope.modal;
       var contents = modal.contents;
-      var quips = contents.quips;
       var comments = contents.comments;
-      $log.info("commentBoxControl", quips, comments);
-
-      // add a function to respond to comments
-      var runComment = function(i) {
-        var comment = comments[i];
-        var quip = quips[i];
-        $log.info("commentBoxControl: selected", quip, comment);
-        hsmMachine.emit('player-quip', {
-          'comment': comment,
-          'quip': quip,
-          'post': {
-            'in': quip
-          }
-        });
-      };
-
+      $log.info("commentBoxControl", comments);
+      
       // the comment box opens and closes on the presence of comments; we display choices.
       $scope.choices = comments;
 
@@ -39,8 +24,9 @@ angular.module('demo')
         //  collapsed="collapsed()" could wait till collapse to run comment....
         select: function(i) {
           if ($scope.allowChoices) {
-            $scope.allowChoices = false;
-            return runComment(i);
+            if (contents.select(i)) {
+              $scope.allowChoices = false;
+            }
           };
         }
       };

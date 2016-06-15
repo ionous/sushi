@@ -3,7 +3,7 @@
 angular.module('demo')
 
 .directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl"],
-  function($attrs, $log) {
+  function($log) {
     this.init = function(name, hsmMachine, keyControl) {
       var chara, prop, pads;
 

@@ -35,6 +35,9 @@ angular.module('demo')
         }
         var display = this.display = objectDisplay.group;
         var canvas = this.canvas = objectDisplay.canvi.el[0];
+        if (!canvas) {
+          throw new Error("no canvas for object", this.obj.id);
+        }
         this.upperLeft = display.pos;
         //
         var w = this.canvas.width;
@@ -96,6 +99,12 @@ angular.module('demo')
       };
       Chara.prototype.draw = function(dt, force) {
         var canvas = this.canvas;
+        if (!canvas) {
+          var msg = "linkup not called";
+          $log.error(msg, this.obj.id);
+          throw new Error(msg);
+        }
+        
         var frame = 0;
         if (!this.speed) {
           this.time = 0;

@@ -5,13 +5,21 @@ angular.module('demo')
 .directiveAs('popupControl', ["^modalControl"],
   function($log, $q) {
     this.init = function(name, modalControl) {
+      var modal;
       return {
-        show: function(where, data) {
-          var defer= $q.defer();
-          var modal= modalControl.open(where, data);
-          modal.closed.finally(defer.resolve);
+        open: function(where, data) {
+          var defer = $q.defer();
+          var mdl = modal = modalControl.open(where, data);
+          mdl.closed.finally(defer.resolve);
           return defer.promise;
-        }
+        },
+        close: function(reason) {
+          if (modal) {
+            var mdl = modal;
+            modal = null;
+            mdl.close(reason);
+          }
+        },
       };
     };
   })
@@ -19,13 +27,12 @@ angular.module('demo')
 .directiveAs('popupBoxControl',
   function($log, $scope) {
     this.init = function(name) {
-      var modal= $scope.modal;
-      var lines= modal.contents;
-      
+      var modal = $scope.modal;
+      var lines = modal.contents;
       return {
         lines: lines,
-        clicked: function() {
-          modal.dismiss("popup clicked");
+        dismiss: function(reason) {
+          modal.dismiss(reason);
         },
       };
     };

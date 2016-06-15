@@ -8,7 +8,7 @@ angular.module('demo')
     var reflectList = "mouseenter mouseleave mousemove mousedown mouseup";
     var ctrl = this;
     this.init = function(name, hsmMachine) {
-      var cursor, cursorEl, hidden;
+      var cursor, cursorEl, hidden = 0;
       var aliases = {};
       // exposed to scope
       var Mouse = function() {
@@ -49,23 +49,37 @@ angular.module('demo')
           cursor.destroyCursor();
           cursor = null;
         };
-        // needs more thought -- higher.
-        // this.hide = function(yes) {
-        //           var wasVisible= hidden <= 0;
-        //           hidden += yes ? 1 : -1;
-        //           var nowVisible= hidden <= 0;
-        //           if (wasVisible != nowVisible) {
-        //               cursor.show(nowVisible);
-        //               hsmMachine.emit(name, nowVisible ? "hidden" : "shown", {
-        //                 mouse: this.mouse
-        //               });
-        //             }
-        //           }
-        //         };
+        // overrides show, must be paired
+        this.hide = function(yes) {
+          var hide = angular.isUndefined(yes) || yes;
+          var wasHidden = this.hidden();
+          hidden += hide ? 1 : -1;
+          var nowHidden = this.hidden();
+          if (wasHidden != nowHidden) {
+            // patch:
+            // we can get a hide after the cursor has been destroyed
+            // ( ex. map change )
+            // let hide live for ever ( rely on statechart to keep its value good )
+            // but only effect the cursor if its bound.
+            if (cursor) {
+              cursor.show(!nowHidden);
+            }
+            var emit = nowHidden ? "hidden" : "shown";
+            //$log.debug("mouseControl", name, emit);
+            hsmMachine.emit(name, emit, {
+              mouse: this.mouse
+            });
+          }
+        };
+        this.hidden = function() {
+          return hidden > 0;
+        };
         this.show = function(yes) {
           var show = angular.isUndefined(yes) || yes;
           //$log.debug("cursor", show);
-          cursor.show(!!show);
+          if (!this.hidden()) {
+            cursor.show(!!show);
+          }
           if (angular.isString(show)) {
             var next = aliases[show] || show;
             if (cursor.setCursor(next)) {
@@ -94,14 +108,9 @@ angular.module('demo')
         };
       }; // Mouse
       var mouse = new Mouse();
+      this.mouse = mouse;
       this.hide = function(hide) {
-        if (hide != hidden) {
-          hidden = hide;
-          cursor.show(!!hidden);
-          hsmMachine.emit(name, hidden ? "hidden" : "shown", {
-            mouse: mouse
-          });
-        }
+        return mouse.hide(hide);
       };
       return mouse;
     };

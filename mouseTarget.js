@@ -82,7 +82,7 @@ angular.module('demo')
             if (subject) {
               subject.pos = mousePos;
             }
-            $log.info("mouseTarget", name, "changed", subject ? subject.path : "-", touches ? "near" : "far", subjectChanged  ? "subject" : "", touchesChanged ? "touches" : "" );
+            //$log.debug("mouseTarget", name, "changed", subject ? subject.path : "-", touches ? "near" : "far", subjectChanged  ? "subject" : "", touchesChanged ? "touches" : "" );
             hsmMachine.emit(name, "changed", {
               target: subject,
               touches: touches,

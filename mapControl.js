@@ -123,12 +123,15 @@ angular.module('demo')
         },
         // return a promise
         changeRoom: function(room) {
+          $log.info("mapControl", name, "changeRoom", room);
           ctrl.changeLocation(LocationService.nextRoom(room));
         },
         changeView: function(view) {
+          $log.info("mapControl", name, "changeView", view);
           ctrl.changeLocation(LocationService.nextView(view));
         },
         changeItem: function(item) {
+          $log.info("mapControl", name, "changeItem", item);
           ctrl.changeLocation(LocationService.nextItem(item));
         },
       };

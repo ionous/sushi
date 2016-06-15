@@ -12,11 +12,21 @@ angular.module('demo')
     var mouse = bar.mouseControl;
     // FIX: this sucks. i really simpler mouse panel overlay system
     // theres html and css trickery involved.
+    var hid = false;
+    var hide = function(yes) {
+      if (hid != yes) {
+        mouse.hide(yes);
+        hid = yes;
+      }
+    };
+    $element.on("$destroy", function() {
+      hide(false);
+    });
     $element.on("mouseenter", function() {
-      mouse.hide(true);
+      hide(true);
     });
     $element.on("mouseleave", function() {
-      mouse.hide(false);
+      hide(false);
     });
     return null;
   };

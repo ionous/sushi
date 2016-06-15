@@ -7,7 +7,7 @@
       <ng-include src="'startup.html'"></ng-include>
       <!--  -->
       <hsm-state action-service="actions" hsm-enter="actions.bind(game)" hsm-exit="actions.bind(false)">
-        <hsm-state player-dialog-control="playerDialog" hsm-enter="playerDialog.bindTo('commentBox')" hsm-exit="playerDialog.destroy()">
+        <hsm-state player-dialog-control="dialog" hsm-enter="dialog.bindTo('commentBox')" hsm-exit="dialog.destroy()">
           <!-- startup goes here when done: -->
           <hsm-state name="GameStarted" parallel="true">
             <!-- raises -processing and -empty depending on state of process queue -->

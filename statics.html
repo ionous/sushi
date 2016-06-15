@@ -1,34 +1,35 @@
-<hsm-state name="Statics" action-bar-control="actionBar" hsm-enter="actionBar.bindTo('gameMap')" hsm-exit="actionBar.destroy()" hsm-init="stream.processing() ? 'StaticsPause' : (modal.showing() ? 'StaticsModal' : 'StaticsPlay')">
-  <hsm-state name="StaticsPlay" mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(map)" hsm-exit="mouseTarget.release()">
+<hsm-state name="Statics" hsm-init="turn.paused() && 'StaticsPause'" hsm-enter="player.linkup()">
+  <hsm-state name="StaticsPlay" mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(map)" hsm-exit="mouseTarget.release()" hsm-init="modal.showing() && 'StaticsModal'">
     <!--  -->
-    <hsm-event on="update-game" run="mouseTarget.update(mouse.pos())"></hsm-event>
-    <hsm-event on="mouse-target-changed" goto="StaticTargeting"></hsm-event>
-    <!--  -->
-    <hsm-event on="modal-opened" when="$evt.matches('actionBar')"  goto="StaticsActionBar"></hsm-event>
+    <hsm-state name="StaticTargeting">
+      <hsm-event on="update-game" run="mouseTarget.update(mouse.pos())"></hsm-event>
+      <hsm-event on="mouse-target-changed" run="mouse.show( !$evt.target ? 'pointer' : 'bullseye' )"></hsm-event>
+      <hsm-event on="hover-press" run="player.facePos($evt.pos)"></hsm-event>
+      <hsm-event on="hover-press" run="actionBar.dismiss('press')"></hsm-event>
+      <hsm-event on="hover-select" when="mouseTarget()" run="actionBar.open(mouseTarget(), combiner.item())"></hsm-event>
+      <hsm-event on="action-bar-opened" goto="StaticsActions"></hsm-event>
+      <!--  -->
+      <hsm-state name="StaticsPlanning"></hsm-state>
+      <!-- ^~StaticsPlanning -->
+      <hsm-state name="StaticsActions" hsm-enter="mouseTarget.ghost(actionBar.target())" hsm-exit="mouseTarget.ghost(false)">
+        <hsm-state hsm-exit="actionBar.dismiss('statics')" hsm-init="mouse.hidden() && 'ActionMouseHidden'">
+          <hsm-event on="modal-opened" goto=""></hsm-event>
+          <hsm-event on="action-bar-closed" goto="StaticsPlanning"></hsm-event>
+        </hsm-state>
+      </hsm-state>
+      <!-- ^~StaticsActions -->
+    </hsm-state>
+    <!--  ^~StaticTargeting -->
     <hsm-event on="modal-opened" goto="StaticsModal"></hsm-event>
-    <!--  -->
-    <hsm-state name="StaticTargeting" hsm-init="mouseTarget() ? 'StaticHasTarget' : 'StaticNoTarget'">
-      <hsm-state name="StaticNoTarget" hsm-enter="mouse.show('pointer')">
-      </hsm-state>
-      <hsm-state name="StaticHasTarget" hsm-enter="mouse.show('bullseye')">
-        <hsm-event on="hover-press" run="player.facePos($evt.pos)"></hsm-event>
-        <hsm-event on="hover-select" run="actionBar.open(mouseTarget(), combiner.item())"></hsm-event>
-        <hsm-event on="player-interact" run="actionBar.open(mouseTarget(), combiner.item())"></hsm-event>
-      </hsm-state>
+    <hsm-state name="StaticsModal">
+      <hsm-event on="modal-closed" goto="StaticsPlay"></hsm-event>
     </hsm-state>
-    <!--   -->
-    <hsm-state name="StaticsActionBar" hsm-enter="mouseTarget.ghost(actionBar.target())" hsm-exit="mouseTarget.ghost(false)">
-      <hsm-state hsm-exit="actionBar.dismiss($evt)">
-        <hsm-event on="modal-closed" goto="StaticTargeting"></hsm-event>
-      </hsm-state>
-    </hsm-state>
+    <!-- ^~StaticsModal -->
   </hsm-state>
-  <hsm-state name="StaticsModal">
-    <hsm-event on="modal-closed" goto="StaticsPlay"></hsm-event>
-  </hsm-state>
-  <!--  -->
-  <hsm-event on="stream-processing" goto="StaticsPause"></hsm-event>
+  <!-- ^~StaticsPlay -->
+  <hsm-event on="turn-paused" goto="StaticsPause"></hsm-event>
   <hsm-state name="StaticsPause">
-    <hsm-event on="stream-empty" goto="StaticsPlay"></hsm-event>
+    <hsm-event on="turn-playing" goto="StaticsPlay"></hsm-event>
   </hsm-state>
+  <!-- ^~StaticsPause -->
 </hsm-state>
