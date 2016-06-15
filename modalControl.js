@@ -11,12 +11,13 @@ angular.module('demo')
         name: '@', // unique id for modal window
         overgrey: "<?" // use overgrey?
       },
+      require: ["modalWindow"],
       // directiveAs doesnt have templates...  nor can it make an isolate....
       // the way angular exposes things makes life more difficult than i think it needs to be.
       template: '<span ng-if="modal.topWindow==name">' +
         '<ng-include src="src"></ng-include>' +
         '</span>',
-      controller: function(ElementSlotService, $element, $log, $rootElement, $scope) {
+      controller: function(ElementSlotService, $element, $log, $scope) {
         // note: by the time we get here, scope is already set with the directive's params.
         var name = $scope.name;
         var modal = $scope.modal;
@@ -27,22 +28,24 @@ angular.module('demo')
         var useOg = angular.isUndefined(og) || og;
         //$log.debug("modalWindow", $scope.name, "useOg", useOg, og);
         if (useOg) {
-          var overgrey = angular.element('<div class="overgrey ga-noselect"></div>');
-
+          var overgrey;
           $scope.$watch("modal.topWindow", function(newValue) {
             if (newValue != name) {
-              overgrey.remove();
+              if (overgrey) {
+                overgrey.remove();
+                overgrey = null;
+              }
             } else {
-              $rootElement.prepend(overgrey);
+              overgrey = angular.element('<div class="overgrey ga-noselect"></div>');
+              $element.prepend(overgrey);
               overgrey.on("click", function() {
-                // send a message to the statechart a close is requested
-                modal.dismiss("overgrey");
+                modal.dismiss(); // request to dismiss
               });
             }
           });
         }
-      },
-    };
+      }, // controller
+    }; // return
   })
 
 .directiveAs('modalControl', ["^hsmMachine"],
@@ -148,7 +151,7 @@ angular.module('demo')
 
       var scope = {
         showing: function() {
-          var ret= modalInstance && modalInstance.showing();
+          var ret = modalInstance && modalInstance.showing();
           //$log.info("showing", ret);
           return ret;
         },

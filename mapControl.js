@@ -83,10 +83,8 @@ angular.module('demo')
           ctrl.defer = null;
           // size the view
           res.scope.style = {
-            'position': 'relative',
             'width': res.map.bounds.x + 'px',
             'height': res.map.bounds.y + 'px',
-            'cursor': 'none'
           };
           res.scope.loaded = true;
           LocationService.finishedLoading(res.where);

@@ -1,6 +1,6 @@
-<div class="ga-picker" items-control="items">
+<div class="ga-picker" items-control="items" uib-collapse="!items.visible" expanded="items.expanded()" collapsing="collapsing()">
   <div ng-include="'picker.html'"></div>
-  <div class="ga-buttonbar ga-center" ng-if="currentActions">
+  <div class="ga-buttonbar ga-invbar" ng-if="currentActions && items.barVisible">
     <a ng-repeat="act in currentActions track by act.id" class="btn btn-primary" uib-tooltip="{{act.name}}" ng-click="items.clicked(currentSlide, act)" tooltip-placement="bottom" tooltip-class="ga-xtip">
       <i ng-class="act.iconClass"></i>
     </a><!--no space between tags--><a ng-if="slides.length && combine" class="btn btn-primary" uib-tooltip="Use Item" ng-click="items.clicked(currentSlide)" tooltip-placement="bottom" tooltip-class="ga-xtip">
@@ -8,4 +8,3 @@
     </a>
   </div>
 </div>
-</span>

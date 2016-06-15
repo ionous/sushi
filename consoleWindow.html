@@ -1,4 +1,4 @@
-<div ng-controller="InputController as input" class="ga-modal ga-console">
+<div ng-controller="InputController as input" class="ga-console" uib-collapse="!console.visible">
   <div class="scroll-text" ga-scrolldown="console.blocks">
     <ul>
       <li ng-repeat="block in console.blocks track by $index">

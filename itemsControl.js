@@ -10,7 +10,7 @@ angular.module('demo')
     this.init = function(name) {
       var contents = $scope.modal.contents;
       var items = contents.items();
-      var itemActions= contents.itemActions();
+      var itemActions = contents.itemActions();
       var combining = contents.combining();
 
       // we write into scope directly for sake of backwards comapt.
@@ -20,8 +20,8 @@ angular.module('demo')
 
       $scope.currentSlide = false;
       $scope.currentActions = [];
-      var c= $scope.combine = !combining && IconService.getIcon("$use");
-      
+      var c = $scope.combine = !combining && IconService.getIcon("$use");
+
       var newSlide = function(item, defaultActions) {
         var context = item.context;
         var isActive = items.isCurrent(item);
@@ -70,10 +70,13 @@ angular.module('demo')
         });
       }
 
-      return {
+      var scope = {
+        visible: true,
+        barVisible: true,
         clicked: function(slide, act) {
           contents.clicked(slide.item, act);
         },
       };
+      return scope;
     };
   });

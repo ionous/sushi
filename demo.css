@@ -5,19 +5,116 @@
 }
 */
 
-
-/*.ga-debug {
-  visibility: hidden;
-}
-*/
-
 body {
-  /*background-color: aliceblue;*/
-  width: 800px;
-  margin: 0 auto;
-  margin-top: 1em;
   /* light text on dark backgrounds; safari looks different than other browsers */
   -webkit-font-smoothing: subpixel-antialiased;
+  overflow: hidden;
+}
+
+
+/**/
+
+.nav,
+.pagination,
+.carousel,
+.panel-title a {
+  cursor: pointer;
+}
+
+.ga-cursor {
+  position: absolute;
+  /*z-index: 1000;*/
+  color: lightsteelblue;
+  pointer-events: none;
+  text-shadow: 1px 0px #2e6da4, -1px 0px #2e6da4, 0px 1px #2e6da4, 0px -1px #2e6da4, 1px 1px 2px black;
+}
+* {
+  font-size: 16px;
+}
+
+div.overgrey {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  /*z-index: 1500;*/
+  /*background-color: yellow;*/
+  opacity: 0;
+}
+
+.ga-noselect {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  cursor: default;
+}
+
+
+/* ----------------------------------------------
+  main display
+*/
+
+main {
+  position: relative;
+}
+
+.ga-play {
+  position: absolute;
+  width: 800px;
+  height: 672px;
+  border-radius: 20px;
+  background-color: tan;
+  top: 50%;
+  left: 50%;
+  padding: 0px;
+  margin-left: -400px;
+}
+
+.ga-map {
+  cursor: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.ga-canvas,
+.ga-display {
+  margin: 0;
+  padding: 0;
+}
+
+
+/* ----------------------------------------------
+  status  bar
+*/
+
+header {
+  position: relative;
+}
+
+.ga-status {
+  position: relative;
+  width: 800px;
+  min-height: 1.5em;
+  left: 50%;
+  padding: 0px;
+  margin-left: -400px;
+  /*padding-left: 1em;
+  padding-right: 1em;*/
+}
+
+.whereabouts {
+  font-weight: bold;
+}
+
+.story-title {
+  font-weight: bold;
+  float: right;
 }
 
 .state-display {
@@ -28,10 +125,14 @@ body {
   max-height: 600px;
   margin: 0 auto;
   border: thin solid black;
-
   background-color: white;
   padding: 2px;
-} 
+}
+
+
+/* ----------------------------------------------
+  states debugging
+*/
 
 hsm-state {
   margin-left: 2px;
@@ -42,82 +143,159 @@ hsm-state {
   font-size: x-small;
 }
 
-.nav,
-.pagination,
-.carousel,
-.panel-title a {
-  cursor: pointer;
-}
 
-.ga-canvas,
-.ga-display {
-  margin: 0;
-  padding: 0;
-}
+/* ----------------------------------------------
+  action  bar
+*/
 
-.ga-cursor {
+.ga-actionbar {
   position: absolute;
   z-index: 1000;
-  color: lightsteelblue;
-  pointer-events: none;
-  text-shadow: 1px 0px #2e6da4, -1px 0px #2e6da4, 0px 1px #2e6da4, 0px -1px #2e6da4, 1px 1px 2px black;
-}
-
-.ga-modal {
-  z-index: 3000;
-  position: absolute;
-}
-
-.ga-console {
-  left: 100px;
-  width: 600px;
-  background-color: white;
   border-style: solid;
   border-width: 3px;
-  overflow-y: scroll;
+  /*border-color: rgba(176, 196, 222, 0.8);*/
+  border-color: lightsteelblue;
+  border-radius: 50% !important;
+  outline: none !important;
+  width: 84px;
+  height: 84px;
+  margin-left: -42px;
+  margin-top: -42px;
 }
 
-
-/*position: absolute;
-  background-color: rgba(10, 10, 10, 0.5);
-  left: 0px;
-  bottom: 0px;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  padding-top: 0.5em;
-  width: 800px;
-  z-index: 1000;
-  color: silver;*/
-
-div.ga-action-win {
-  border-color: red;
-  border-style: solid;
-  border-width: 1px;
+.ga-actionbar .btn {
+  position: absolute;
+  background-color: lightslategrey;
+  color: white;
+  border-width: 3px;
+  border-color: lightsteelblue;
+  border-radius: 50% !important;
+  outline: none !important;
+  font-size: xx-small;
+  width: 42px;
+  height: 42px;
+  line-height: 42px;
+  margin: 0px;
+  padding: 0px;
 }
 
-* {
-  font-size: 16px;
+/* ----------------------------------------------
+  button bar
+*/
+
+.ga-buttonbar {
+  position: absolute;
+  /*z-index: 500;*/
 }
 
-#status-bar {
-  padding-left: 1em;
-  padding-right: 1em;
-  text-shadow: 1px 1px 1px white;
-  font-weight: bold;
+.ga-buttonbar .btn {
+  margin: 0.2em 0.3em;
+  border-radius: 50% !important;
+  outline: none !important;
 }
 
-#status-right {
-  float: right;
+div.ga-xtip > div.tooltip-inner {
+  font-size: small;
+  text-transform: capitalize;
 }
 
-form > * {
-  width: 100%;
-}
-
-.mapLayer {
+.ga-left {
   position: absolute;
   left: 0;
   top: 0;
+  width: 50%;
+}
+
+.ga-right {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+
+/* ----------------------------------------------
+  inventory 
+*/
+
+div.carousel {
+  min-width: 64px;
+  min-height: 64px;
+}
+
+.ga-picker-caption {
+  color: white;
+  text-transform: capitalize;
+}
+
+div.ga-picker {
+  position: absolute;
+  background-color: #337AB7;
+  /*width: 60%;
+  left: 20%;*/
+  left: 160px;
+  width: 480px;
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+
+.carousel-control {
+  background-image: none !important;
+}
+
+.ga-slide {
+  min-width: 64px;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+}
+
+.ga-slide img {
+  max-width: 64px;
+  max-height: 64px;
+}
+
+.ga-invbar {
+  position: absolute;
+  bottom: -30px;
+  width: 100%;
+  display: flex;
+  /*align-items: center;*/
+  justify-content: center;
+}
+
+
+/* ----------------------------------------------
+  console
+*/
+
+.ga-console {
+  position: absolute;
+  left: 160px;
+  width: 480px;
+  /*width: 60%;
+  left: 20%;*/
+  background-color: rgba(10, 10, 10, 0.5);
+  border-style: ridge;
+  border-top-style: none;
+  border-width: 3px;
+  padding: 10px;
+  overflow-y: hidden;
+  color: white;
+  text-shadow: 2px 2px #232927;
+}
+
+.ga-console ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ga-console li {
+  margin-top: 0.5em;
+}
+
+.ga-console form {
+  margin-top: 1em;
 }
 
 .ga-console .speaker {
@@ -133,8 +311,108 @@ form > * {
   font-weight: bold;
 }
 
+.ga-console form > * {
+  width: 100%;
+}
 
-/* http://nicolasgallagher.com/pure-css-speech-bubbles/demo/ */
+.ga-console .scroll-text {
+  max-height: 500px;
+  overflow-y: scroll;
+}
+
+
+/* ----------------------------------------------
+ comment ( and combine ) panels 
+*/
+
+.ga-comment-box {
+  position: absolute;
+  background-color: rgba(10, 10, 10, 0.5);
+  left: 0px;
+  bottom: 0px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  padding-top: 0.5em;
+  width: 100%;
+  color: silver;
+}
+
+.ga-comment-box ul {
+  list-style-type: none;
+}
+
+.ga-comment-box li {
+  text-decoration: none;
+  -webkit-transition: color 0.3s;
+  -moz-transition: color 0.3s;
+  transition: color 0.3s;
+  font-weight: 700;
+  text-shadow: 1px 1px 1px #000;
+  font-size: 1.35em;
+}
+
+.ga-comment-box li:hover {
+  color: white;
+  cursor: pointer;
+}
+
+.ga-comment-box img {
+  max-width: 32px;
+  max-height: 32px;
+}
+
+
+/* ----------------------------------------------
+  combine box 
+*/
+
+.ga-context-info {
+  font-style: italic;
+  margin-left: 2em;
+  font-weight: 700;
+  text-shadow: 1px 1px 1px #000;
+  font-size: 1.35em;
+}
+
+
+/* ----------------------------------------------
+  popup 
+*/
+
+.ga-notify {
+  position: absolute;
+  background-color: white;
+  max-width: 500px;
+  max-height: 400px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /*box-shadow: 3px 3px 5px 6px black; */
+  box-shadow: 1px 10px 6px -6px black;
+  border-radius: 20px;
+  border-width: 3px;
+  /*border-style: inset;
+  border-color: white;*/
+  overflow-y: scroll;
+}
+
+div.ga-notify-box {
+  padding: 0.5em 1.5em;
+}
+
+div.ga-notify p {
+  padding: 0px;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+}
+
+
+/* ----------------------------------------------
+ talk bubbles, based on:
+ http://nicolasgallagher.com/pure-css-speech-bubbles/demo/
+*/
 
 .bubble {
   position: absolute;
@@ -173,257 +451,10 @@ form > * {
   border-color: transparent #075698;
 }
 
-div.overgrey {
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  position: absolute;
-  z-index: 1000;
-}
 
-modal-window {
-  position: absolute;
-  margin: 0 auto;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 3000;
-}
-
-#ga-play {
-  /*overflow: hidden;*/
-  width: 800px;
-  height: 672px;
-  /*border-width: 3px;
-  border-style: solid;
-  border-color: #075698;*/
-  border-radius: 20px;
-  margin: 3px;
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /*cursor:none;*/
-  /*cursor: crosshair !important;*/
-}
-
-.ga-combining #ga-play {
-  /*cursor: copy !important;*/
-}
-
-.ga-noselect {
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-  cursor: default;
-}
-
-.ga-left {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 50%;
-}
-
-.ga-right {
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-
-.ga-center {
-  position: absolute;
-  bottom: -30px;
-  width: 100%;
-  display: flex;
-  /*align-items: center;*/
-  justify-content: center;
-}
-
-.ga-actionbar {
-  position: absolute;
-  z-index: 1000;
-  border-style: solid;
-  border-width: 3px;
-  /*border-color: rgba(176, 196, 222, 0.8);*/
-  border-color: lightsteelblue;
-  border-radius: 50% !important;
-  outline: none !important;
-  width: 84px;
-  height: 84px;
-  margin-left: -42px;
-  margin-top: -42px;
-}
-
-.ga-actionbar .btn {
-  position: absolute;
-  background-color: lightslategrey;
-  color: white;
-  border-width: 3px;
-  border-color: lightsteelblue;
-  border-radius: 50% !important;
-  outline: none !important;
-  font-size: xx-small;
-  width: 42px;
-  height: 42px;
-  line-height: 42px;
-  margin: 0px;
-  padding: 0px;
-}
-
-.ga-buttonbar {
-  position: absolute;
-}
-
-.ga-buttonbar .btn {
-  margin: 0.2em 0.3em;
-  border-radius: 50% !important;
-  outline: none !important;
-}
-
-div.ga-xtip > div.tooltip-inner {
-  font-size: small;
-  text-transform: capitalize;
-}
-
-.ga-console ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-.ga-console li {
-  margin-top: 0.5em;
-}
-
-.ga-console form {
-  margin-top: 1em;
-}
-
-.ga-comment-box {
-  position: absolute;
-  background-color: rgba(10, 10, 10, 0.5);
-  left: 0px;
-  bottom: 0px;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  padding-top: 0.5em;
-  width: 800px;
-  z-index: 1000;
-  color: silver;
-}
-
-.ga-comment-box ul {
-  list-style-type: none;
-}
-
-.ga-comment-box li {
-  text-decoration: none;
-  -webkit-transition: color 0.3s;
-  -moz-transition: color 0.3s;
-  transition: color 0.3s;
-  font-weight: 700;
-  text-shadow: 1px 1px 1px #000;
-  font-size: 1.35em;
-}
-
-.ga-comment-box li:hover {
-  color: white;
-  cursor: pointer;
-}
-
-.ga-context-info {
-  font-style: italic;
-  margin-left: 2em;
-  font-weight: 700;
-  text-shadow: 1px 1px 1px #000;
-  font-size: 1.35em;
-}
-
-.ga-slide {
-  min-width: 64px;
-  min-height: 64px;
-  display: flex;
-  align-items: center;
-}
-
-.ga-slide img {
-  max-width: 64px;
-  max-height: 64px;
-}
-
-.ga-comment-box img {
-  max-width: 32px;
-  max-height: 32px;
-}
-
-div.carousel {
-  min-width: 64px;
-  min-height: 64px;
-}
-
-.ga-picker-caption {
-  color: white;
-  text-transform: capitalize;
-}
-
-.ga-notifydrop {
-  opacity: 0 !important;
-}
-
-div.ga-notify > div {
-  margin: 0;
-  background-color: white;
-  position: absolute;
-  max-width: 500px;
-  max-height: 400px;
-  /*half of the play space s*/
-  top: 338px;
-  left: 50%;
-  margin-right: -50%;
-  transform: translate(-50%, -50%);
-  /*box-shadow: 3px 3px 5px 6px black; */
-  box-shadow: 1px 10px 6px -6px black;
-  border-radius: 20px;
-  border-width: 3px;
-  /*border-style: inset;
-  border-color: white;*/
-  overflow-y: scroll;
-}
-
-div.ga-notify-box {
-  padding: 0.5em 1.5em;
-}
-
-div.ga-notify p {
-  padding: 0px;
-  padding-left: 1.5em;
-  padding-right: 1.5em;
-  margin-top: 0.1em;
-  margin-bottom: 0.1em;
-}
-
-
-/* .modal-content */
-
-div.ga-picker {
-  background-color: #337AB7;
-  z-index: 3000;
-  width: 100%;
-}
-
-.scroll-text {
-  max-height: 600px;
-  overflow-y: auto;
-}
-
-.carousel-control {
-  background-image: none !important;
-}
+/* ----------------------------------------------
+  animations 
+*/
 
 .ga-show {
   -webkit-transition: all linear 0.5s;
@@ -480,3 +511,4 @@ div.ga-picker {
     box-shadow: 0 0 0 35px rgba(51, 122, 183, 0);
   }
 }
+

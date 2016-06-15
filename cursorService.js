@@ -53,12 +53,14 @@ angular.module('demo')
       };
       //var lights = [cursors.pointer, cursors.disk, cursors.bullseye];
       //<i class="fa fa-shield"></i>
-      var Cursor = function(parentEl) {
+      var Cursor = function(focusEl, displayEl) {
         var el = this.el = angular.element("<div class='ga-cursor'></div>");
         var inner = this.inner = angular.element("<i class='fa noshape'></i>");
+        if (!displayEl) {
+          displayEl = focusEl;
+        }
 
-        this.pos = pt(0, 0); // 
-        this.client = pt(0, 0); // cursor position client coords
+        this.pos = pt(0, 0); // ;
         this.shows = true;
         this.present = true;
         this.shape = {
@@ -69,7 +71,7 @@ angular.module('demo')
         this.angle = 0;
         this.enabled = true;
         el.append(inner);
-        parentEl.append(el);
+        displayEl.append(el);
         //
         var c = this;
 
@@ -77,15 +79,17 @@ angular.module('demo')
           c.draw();
         });
 
+        this.displayEdge= displayEl[0];
+        var focusEdge = this.focusEdge= focusEl[0];
         var updatePos = function(evt) {
-          var rect = evt.currentTarget.getBoundingClientRect();
-          var x = Math.floor(evt.clientX - rect.left);
-          var y = Math.floor(evt.clientY - rect.top);
-          c.setPos(x, y, evt.clientX, evt.clientY);
+          var focus = focusEdge.getBoundingClientRect();
+          var x = Math.floor(evt.clientX - focus.left);
+          var y = Math.floor(evt.clientY - focus.top);
+          c.setPos(x, y);
         };
-        parentEl.on("mousemove", updatePos);
+        focusEl.on("mousemove", updatePos);
         this.off = function() {
-          parentEl.off("mousemove", updatePos);
+          focusEl.off("mousemove", updatePos);
         };
       };
       Cursor.prototype.setAngle = function(rad) {
@@ -115,6 +119,8 @@ angular.module('demo')
         this.el = null;
         this.inner = null;
         this.pos = null;
+        this.displayEdge = null;
+        this.focusEdge= null;
         this.cursors = null;
         return false;
       };
@@ -139,7 +145,14 @@ angular.module('demo')
           this.inner.addClass(shape.cls);
           this.shape = shape;
         }
-        var p = pt_sub(this.pos, shape.hotspot);
+        var pos = pt_sub(this.pos, shape.hotspot);
+
+        // we assume that display is larger / contains focus
+        // find offset of focus from display, and add that to the mouse.
+        var dr= this.displayEdge.getBoundingClientRect();
+        var fr= this.focusEdge.getBoundingClientRect();
+        var ofs= pt(fr.left- dr.left, fr.top- dr.top);
+        var p = pt(pos.x + ofs.x, pos.y + ofs.y);
 
         this.el.css({
           "left": p.x + "px",
@@ -159,18 +172,15 @@ angular.module('demo')
           return true;
         }
       };
-      Cursor.prototype.setPos = function(x, y, cx, cy) {
-        if (this.pos.x != x || this.pos.y != y) {
-          this.pos.x = x;
-          this.pos.y = y;
-          this.client.x = cx;
-          this.client.y = cy;
-        }
+      Cursor.prototype.setPos = function(x, y) {
+        this.pos.x = x;
+        this.pos.y = y;
         return this;
       };
       var cursorService = {
-        newCursor: function(el, rel) {
-          return new Cursor(el);
+        // appends to el, uses mousemove over that element to listen for changes.
+        newCursor: function(focusEl, displayEl) {
+          return new Cursor(focusEl, displayEl);
         }
       };
       return cursorService;

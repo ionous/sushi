@@ -20,7 +20,6 @@
   <script src="/script/angular/angular.js"></script>
   <script src="/script/angular-animate/angular-animate.min.js"></script>
   <script src="/script/angular-route/angular-route.min.js"></script>
-  <!-- <script src="/script/angular-bootstrap/ui-bootstrap-tpls.min.js"></script> -->
   <script src="/script/angular-bootstrap/ui-bootstrap-tpls.js"></script>
   <link rel="stylesheet" href="demo.css">
   <link rel="stylesheet" href="mosaic/mosaic.css">
@@ -101,7 +100,7 @@
   <!-- components  -->
   <!-- controllers  -->
   <script src="actionController.js"></script>
-  <script src="commentBoxController.js"></script>
+  <script src="commentBoxControl.js"></script>
   <script src="displayController.js"></script>
   <script src="inputController.js"></script>
   <script src="itemSlideController.js"></script>
@@ -116,27 +115,29 @@
 </head>
 
 <body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)">
-  <header id="status-bar" ng-controller="StatusController">
-    <span class="ga-noselect" id="status-left">{{status.left}}</span>
-    <span class="ga-noselect" id="status-right">{{status.right}}</span>
+  <header ng-controller="StatusController">
+    <div class="ga-status">
+      <span class="ga-noselect whereabouts">{{status.left}}</span>
+      <span class="ga-noselect story-title">{{status.right}}</span>
+    </div>
   </header>
-  <div id="ga-play" class="ga-noselect" ga-map-color element-slot="gameWindow">
-    <div ng-view="'play.html'"></div>
-    <div ng-include="'buttonBar.html'"></div>
-    <ng-include src="'combineBox.html'"></ng-include>
-  </div>
-  <!-- modal poups -->
-  <modal-window name="invWin" group="modal" src="'invWin.html'"></modal-window>
-  <modal-window name="consoleWindow" group="modal" src="'consoleWindow.html'"></modal-window>
-  <modal-window name="popupBox" group="modal" src="'popupBox.html'"></modal-window>
-  <modal-window name="actionBar" group="modal" src="'actionBar.html'" overgrey="false"></modal-window>
-  <modal-window name="talk" group="modal" src="'talkBubble.html'"></modal-window>
-  <modal-window name="commentBox" group="modal" src="'commentBox.html'"></modal-window>
-  <!--  -->
-  <div class="state-display">
+  <main>
+    <div class="ga-play ga-noselect" ga-map-color element-slot="gameWindow">
+      <div ng-view="'play.html'"></div>
+      <div ng-include="'buttonBar.html'"></div>
+      <div element-slot="mouseDisplay"></div>
+      <div ng-include="'combineBox.html'"></div>
+      <modal-window name="commentBox" group="modal" src="'commentBox.html'"></modal-window>
+      <modal-window name="actionBar" group="modal" src="'actionBar.html'" overgrey="false"></modal-window>
+      <modal-window name="talk" group="modal" src="'talkBubble.html'"></modal-window>
+      <modal-window name="invWin" group="modal" src="'invWin.html'"></modal-window>
+      <modal-window name="consoleWindow" group="modal" src="'consoleWindow.html'"></modal-window>
+      <modal-window name="popupBox" group="modal" src="'popupBox.html'"></modal-window>
+    </div>
+  </main>
+  <footer class="state-display">
     <ng-include src="'game.html'"></ng-include>
-  </div>
-  <!--  -->
+  </footer>
 </body>
 
 </html>

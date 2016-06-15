@@ -4,31 +4,34 @@ angular.module('demo')
 
 .directiveAs('commentBoxControl', ["^hsmMachine"],
   function($element, $log, $scope, $timeout) {
-    this.init = function(_, hsmMachine) {
+    this.init = function(name, hsmMachine) {
       var modal = $scope.modal;
       var contents = modal.contents;
       var comments = contents.comments;
       $log.info("commentBoxControl", comments);
-      
+
       // the comment box opens and closes on the presence of comments; we display choices.
       $scope.choices = comments;
 
-      // start collapsed, wait to open:
-      $scope.allowChoices = false;
-      $timeout(function() {
-        $log.info("allow choices", true);
-        $scope.allowChoices = true;
-      });
-
-      return {
+      var scope = {
         //  collapsed="collapsed()" could wait till collapse to run comment....
+        visible: false,
         select: function(i) {
-          if ($scope.allowChoices) {
+          $log.info("commentBoxControl", name, "selected", i);
+          if (scope.visible) {
             if (contents.select(i)) {
-              $scope.allowChoices = false;
+              scope.visible = false;
             }
           };
         }
       };
+      // start collapsed, wait to open:
+      $timeout(function() {
+        $log.info("allow choices", true);
+        scope.visible = true;
+      });
+
+
+      return scope;
     };
   });

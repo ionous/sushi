@@ -1,5 +1,5 @@
 <hsm-state name="Playing" view-control="view" hsm-enter="view.connect(map, 'clickReturn', 'Return to room...')" hsm-exit="view.disconnect()">
-  <hsm-state mouse-control="mouse" hsm-enter="mouse.bindTo('gameMap')" hsm-exit="mouse.destroy()">
+  <hsm-state mouse-control="mouse" hsm-enter="mouse.bindTo('gameMap', 'mouseDisplay')" hsm-exit="mouse.destroy()">
     <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
       <hsm-state key-control="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
         <hsm-state action-bar-control="actionBar" hsm-enter="actionBar.bindTo('gameMap')">
@@ -52,11 +52,13 @@
               </hsm-state>
               <!-- ^~SharedTurn -->
               <hsm-state name="SharedDialog" hsm-enter="dialog.open()" hsm-exit="dialog.close()">
-                <hsm-event on="dialog-quip" run="game.post($evt.post)" goto="SharedGame"></hsm-event>
+                <hsm-state hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
+                  <hsm-event on="dialog-quip" run="game.post($evt.post)" goto="SharedGame"></hsm-event>
+                </hsm-state>
               </hsm-state>
               <!-- ^~SharedDialog -->
               <hsm-event on="stream-processing" goto="SharedProcessing"></hsm-event>
-              <hsm-state name="SharedProcessing">
+              <hsm-state name="SharedProcessing" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
                 <hsm-event on="stream-empty" when="!dialog.empty()" goto="SharedDialog"></hsm-event>
                 <hsm-event on="stream-empty" goto="SharedTurn"></hsm-event>
               </hsm-state>

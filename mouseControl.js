@@ -8,7 +8,7 @@ angular.module('demo')
     var reflectList = "mouseenter mouseleave mousemove mousedown mouseup";
     var ctrl = this;
     this.init = function(name, hsmMachine) {
-      var cursor, cursorEl, hidden = 0;
+      var cursor, focusEl, hidden = 0;
       var aliases = {};
       // exposed to scope
       var Mouse = function() {
@@ -37,15 +37,16 @@ angular.module('demo')
         this.alias = function(c1, c2) {
           aliases[c1] = c2;
         };
-        this.bindTo = function(cursorSlot) {
-          cursorEl = ElementSlotService.get(cursorSlot).element;
-          cursor = CursorService.newCursor(cursorEl);
-          cursorEl.on(reflectList, reflect);
+        this.bindTo = function(focusSlot, displaySlot) {
+          focusEl = ElementSlotService.get(focusSlot).element;
+          var displayEl = displaySlot && ElementSlotService.get(displaySlot).element;
+          cursor = CursorService.newCursor(focusEl, displayEl);
+          focusEl.on(reflectList, reflect);
         };
         this.destroy = function() {
           cursor.show(false);
-          cursorEl.off(reflectList, reflect);
-          cursorEl = null;
+          focusEl.off(reflectList, reflect);
+          focusEl = null;
           cursor.destroyCursor();
           cursor = null;
         };
@@ -65,7 +66,7 @@ angular.module('demo')
               cursor.show(!nowHidden);
             }
             var emit = nowHidden ? "hidden" : "shown";
-            //$log.debug("mouseControl", name, emit);
+            $log.debug("mouseControl", name, emit);
             hsmMachine.emit(name, emit, {
               mouse: this.mouse
             });
