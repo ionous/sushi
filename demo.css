@@ -28,6 +28,7 @@ body {
   pointer-events: none;
   text-shadow: 1px 0px #2e6da4, -1px 0px #2e6da4, 0px 1px #2e6da4, 0px -1px #2e6da4, 1px 1px 2px black;
 }
+
 * {
   font-size: 16px;
 }
@@ -41,6 +42,16 @@ div.overgrey {
   /*z-index: 1500;*/
   /*background-color: yellow;*/
   opacity: 0;
+}
+
+.ga-greyignore > div.overgrey {
+  cursor: not-allowed;
+}
+
+.ga-greydismiss > div.overgrey {
+  /*cursor: pointer;
+  its actually nice to see some change in the cursor i think*/
+  cursor: default;
 }
 
 .ga-noselect {
@@ -178,6 +189,7 @@ hsm-state {
   margin: 0px;
   padding: 0px;
 }
+
 
 /* ----------------------------------------------
   button bar
@@ -380,6 +392,15 @@ div.ga-picker {
 */
 
 .ga-notify {
+  cursor: pointer;
+}
+
+.ga-notify p {
+  /*override no-select which resets the cursor to default*/
+  cursor: pointer;
+}
+
+.ga-notify {
   position: absolute;
   background-color: white;
   max-width: 500px;
@@ -408,16 +429,17 @@ div.ga-notify p {
   margin-bottom: 0.1em;
 }
 
-
 /* ----------------------------------------------
  talk bubbles, based on:
  http://nicolasgallagher.com/pure-css-speech-bubbles/demo/
 */
 
-.bubble {
+.ga-bubble {
+  cursor: pointer;
+}
+
+.ga-bubble {
   position: absolute;
-  /* because the bubble floats above the modal, disable mouse interaction */
-  pointer-events: none;
   z-index: 1000;
   min-width: 140px;
   max-width: 220px;
@@ -438,7 +460,7 @@ div.ga-notify p {
   border-radius: 15px;
 }
 
-.bubble:after {
+.ga-bubble:after {
   content: "";
   position: absolute;
   /* value = - border-top-width - border-bottom-width */
@@ -511,4 +533,3 @@ div.ga-notify p {
     box-shadow: 0 0 0 35px rgba(51, 122, 183, 0);
   }
 }
-

@@ -6,74 +6,90 @@ angular.module('demo')
   ElementSlotService, EntityService,
   $log, $q, $rootElement, $timeout) {
   this.init = function(name, modalControl) {
-    //$log.info("TalkController: base pos", baseLeft, baseTop);
-    var Talker = function(id, displayGroup, canvi) {
-      var pos = displayGroup.pos;
-      var size = canvi.getSize();
-      var adjust = pt(0, 0);
-      var bubble = angular.element('<div class="bubble ga-noselect"></div>');
 
-      // hmmm.... the images have different spacings in them... :(
-      // should probably be part of a character description.
+    // hmmm.... the images have different spacings in them... :(
+    // should probably be part of a character/state description.
+    var adjust = function(id) {
+      var up = 15; // size of the bubble tail
       switch (id) {
         case "alice":
         case "player":
-          adjust.x = -25;
-          adjust.y = size.y;
+          up = 4; // alice has a lot of whitespace
           break;
         case "sam":
-          adjust.y = size.y;
-          break;
-        default:
-          adjust.x = -40;
-          adjust.y = 48;
+          up = 0;
           break;
       };
-      this.hideText = function() {
-        bubble.remove();
-      };
+      return up;
+    };
 
-      this.displayText = function(parent, text) {
+    var Talker = function(id) {
+      var bubble;
+      var removeBubble = function() {
+          if (bubble) {
+            bubble.remove();
+            bubble = null;
+          }
+        }
+        
+      // request this every time in case the map or actor state changes
+      var getCharRect = function() {
+        var actor = EntityService.getById(id);
+        var objDisp = actor && actor.objectDisplay;
+        var canvi = objDisp && objDisp.canvi;
+        if (!canvi) {
+          var msg = "dont know how to display text";
+          $log.error(msg, id, data);
+          throw new Error(msg);
+        }
+        return canvi.el[0].getBoundingClientRect();
+      };
+      this.destroy = function() {
+        removeBubble();
+      };
+      this.displayText = function(mdl, text) {
+        var displayEl = mdl.slot.element;
+        var charRect = getCharRect();
+
+        removeBubble();
         // prepare to center bubble over chara
+        bubble = angular.element('<div class="ga-bubble ga-noselect"></div>');
         bubble.css({
-          "visibility": "hidden",
-          "top": "",
-          "left": adjust.x + "px",
-          "bottom": adjust.y + "px",
+          "visibility": "hidden"
         });
-        // assign text:
+
+        // assign text, and measure:
         bubble.text(text);
-        // move bubble to character
-        // FIX? if i leave bubble as a child of element, i do not get the expected positions -- its as if the size is some scale of the text.
-        // note: window resizing can changes client coords, so must sample rect each time;
-        // we dont have to dynamically change those coords once the dom lays things out.
-        displayGroup.el.prepend(bubble);
+        displayEl.append(bubble);
+        var textRect = bubble[0].getBoundingClientRect();
 
-        // measure window
-        var base = parent[0].getBoundingClientRect();
-        var baseLeft = base.left;
-        var baseTop = base.top;
+        // our coordinates need to be relative to mdl
+        // ( our map edge cancels out because, while we need to subtract it from chara, we need to add it back in for the bubble )
+        var displayRect = displayEl[0].getBoundingClientRect();
+        var charx = charRect.left + (0.5 * charRect.width);
+        var chary = charRect.top;
+        
+        // get current size and position of character
+        var shift = adjust(id);
+        var x = charx - textRect.left - displayRect.left;
+        var y = chary - textRect.height - displayRect.top - shift;
 
-        // measure text 
-        var r = bubble[0].getBoundingClientRect();
-        var top = r.top - baseTop;
-        var left = r.left - baseLeft;
-
-        // move bubble back.
-        parent.append(bubble);
         // center bubble and display:
         bubble.css({
           "visibility": "",
-          "top": top + "px",
-          "left": left + "px",
-          "bottom": "",
+          "left": x + "px",
+          "top": y + "px",
+        });
+        bubble.one("click", function() {
+          mdl.dismiss("bubble clicked");
         });
       };
     }; // Talker.
     var currentTalker, currentModal, currentLines, currentDefer;
     var scope = {
-      empty: function() {
-        return !currentLines || !currentLines.length;
+      finished: function() {
+        var empty = !currentLines || !currentLines.length;
+        return empty;
       },
       next: function() {
         if (!currentTalker) {
@@ -82,22 +98,19 @@ angular.module('demo')
         if (!currentLines || !currentLines.length) {
           throw new Error("nothing to say");
         }
-        var text = currentLines.shift();
-        // get parent each time because it can change across maps, etc.
-        var parent = ElementSlotService.get("gameMap").element;
         var mdl = currentModal = modalControl.open("talk");
-        // FIX: do we really need modal?
-        // were procesing anyway, so theres no physicsplay etc.
-        // can turn overgrey into a service if desired.
-        currentTalker.displayText(parent, text);
+        var text = currentLines.shift();
+        currentTalker.displayText(mdl, text);
       },
-      close: function(reason) {
+      cleanup: function(reason) {
+        reason = reason || "talkControl cleanup";
+        $log.info("talkControl", name, "cleanup", reason);
         if (currentTalker) {
-          currentTalker.hideText();
+          currentTalker.destroy();
           currentTalker = null;
         }
         if (currentModal) {
-          currentModal.close(reason || "talker closed");
+          currentModal.close(reason);
           currentModal = null;
         }
         currentLines = null;
@@ -107,18 +120,10 @@ angular.module('demo')
         }
       },
       say: function(actorId, data) {
-        $log.info("say", actorId);
         if (!data || !data.length) {
           return $q.when();
         }
-        var actor = EntityService.getById(actorId);
-        var objDisp = actor && actor.objectDisplay;
-        if (!objDisp) {
-          var msg = "dont know how to display text";
-          $log.error(msg, actorId, data);
-          throw new Error(msg);
-        }
-        var talker = currentTalker = new Talker(actorId, objDisp.group, objDisp.canvi);
+        var talker = currentTalker = new Talker(actorId);
         var defer = currentDefer = $q.defer();
         var lines = currentLines = data.slice();
 

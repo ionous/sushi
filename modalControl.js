@@ -7,7 +7,7 @@ angular.module('demo')
       // i like this specification of attributes, but wish it didnt bind to scope.
       scope: {
         modal: '<group', // modal control
-        src: '<', // ng-included
+        src: '<?', // ng-included
         name: '@', // unique id for modal window
         overgrey: "<?" // use overgrey?
       },
@@ -36,7 +36,7 @@ angular.module('demo')
                 overgrey = null;
               }
             } else {
-              overgrey = angular.element('<div class="overgrey ga-noselect"></div>');
+              overgrey = angular.element('<div class="overgrey"></div>');
               $element.prepend(overgrey);
               overgrey.on("click", function() {
                 modal.dismiss(); // request to dismiss

@@ -122,17 +122,17 @@
     </div>
   </header>
   <main>
-    <div class="ga-play ga-noselect" ga-map-color element-slot="gameWindow">
+    <div class="ga-play" ga-map-color element-slot="gameWindow">
       <div ng-view="'play.html'"></div>
-      <div ng-include="'buttonBar.html'"></div>
+      <div class="ga-noselect" ng-include="'buttonBar.html'"></div>
       <div element-slot="mouseDisplay"></div>
       <div ng-include="'combineBox.html'"></div>
-      <modal-window name="commentBox" group="modal" src="'commentBox.html'"></modal-window>
+      <modal-window name="commentBox" class="ga-greyignore" group="modal" src="'commentBox.html'"></modal-window>
       <modal-window name="actionBar" group="modal" src="'actionBar.html'" overgrey="false"></modal-window>
-      <modal-window name="talk" group="modal" src="'talkBubble.html'"></modal-window>
-      <modal-window name="invWin" group="modal" src="'invWin.html'"></modal-window>
-      <modal-window name="consoleWindow" group="modal" src="'consoleWindow.html'"></modal-window>
-      <modal-window name="popupBox" group="modal" src="'popupBox.html'"></modal-window>
+      <modal-window name="talk" class="ga-greydismiss" group="modal"></modal-window>
+      <modal-window name="invWin" class="ga-greyignore" group="modal" src="'invWin.html'"></modal-window>
+      <modal-window name="consoleWindow" class="ga-greydismiss" group="modal" src="'consoleWindow.html'"></modal-window>
+      <modal-window name="popupBox" class="ga-greydismiss" group="modal" src="'popupBox.html'"></modal-window>
     </div>
   </main>
   <footer class="state-display">

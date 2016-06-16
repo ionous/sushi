@@ -76,6 +76,7 @@ angular.module('demo')
             var val = (prev ^ mask);
             currentKeys[keyname] = val;
             var key = new KeyEvent(keyname, nowPressed);
+            //$log.info("keyControl", name, keyname, nowPressed);
             $scope.$apply(function() {
               hsmMachine.emit(name, key);
             });

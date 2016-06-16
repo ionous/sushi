@@ -11,14 +11,16 @@
   <hsm-state hsm-init="1 && 'TalkEnabled'">
     <hsm-state>
     </hsm-state>
-    <hsm-state name="TalkEnabled" talk-control="talk" game-listener="speech" hsm-enter="speech.listen('*', 'say')" hsm-exit="speech.silence()">
-      <hsm-state>
-        <hsm-event on="speech" goto="Speaking" run="talk.say($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
-      </hsm-state>
-      <hsm-state name="Speaking" hsm-exit="talk.close('exit')">
-        <hsm-event on="talk-closed" goto="TalkEnabled"></hsm-event>
-        <hsm-event on="talk-dismiss" when="!talk.empty()" run="talk.next()" goto=""></hsm-event>
-        <hsm-event on="talk-dismiss" run="talk.close('finished')"></hsm-event>
+    <hsm-state name="TalkEnabled" game-listener="speech" hsm-enter="speech.listen('*', 'say')" hsm-exit="speech.silence()">
+      <hsm-state talk-control="speaker" hsm-exit="speaker.cleanup('exit')">
+        <hsm-state>
+          <hsm-event on="speech" goto="Speaking" run="speaker.say($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
+        </hsm-state>
+        <hsm-state name="Speaking">
+          <hsm-event on="talk-dismiss" when="!speaker.finished()" goto="" run="speaker.next()"></hsm-event>
+          <hsm-event on="talk-dismiss" goto="TalkEnabled" run="speaker.cleanup('finished')"></hsm-event>
+          <hsm-event on="keys" when="$evt.escapeKey(true) || $evt.actionKey(true)" run="modal.dismiss()" goto=""></hsm-event>
+        </hsm-state>
       </hsm-state>
     </hsm-state>
   </hsm-state>
@@ -56,6 +58,7 @@
               <hsm-state name="PopupDisplayed" hsm-exit="popup.close('exit')">
                 <hsm-event on="popup-box-closed" goto="PopupsEnabled"></hsm-event>
                 <hsm-event on="popup-box-dismiss" run="popup.close($evt.reason)"></hsm-event>
+                <hsm-event on="keys" when="$evt.escapeKey(true) || $evt.actionKey(true)" run="modal.dismiss()" goto=""></hsm-event>
               </hsm-state>
             </hsm-state>
             <!-- room entry prints nothing-->
