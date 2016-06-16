@@ -10,45 +10,47 @@ angular.module('demo')
     // hmmm.... the images have different spacings in them... :(
     // should probably be part of a character/state description.
     var adjust = function(id) {
-      var up = 15; // size of the bubble tail
+      var x = 55; // inset of the bubble tail ( really, its 60 )
+      var y = 15; // size of the bubble tail
       switch (id) {
         case "alice":
         case "player":
-          up = 4; // alice has a lot of whitespace
+          y = 4; // alice has a lot of whitespace
           break;
         case "sam":
-          up = 0;
+          y = 0;
           break;
       };
-      return up;
+      return pt(x, y);
     };
 
     var Talker = function(id) {
       var bubble;
       var removeBubble = function() {
-          if (bubble) {
-            bubble.remove();
-            bubble = null;
-          }
+        if (bubble) {
+          bubble.remove();
+          bubble = null;
         }
-        
+      };
       // request this every time in case the map or actor state changes
       var getCharRect = function() {
         var actor = EntityService.getById(id);
+        //FIX? change actors to use element slots maybe
         var objDisp = actor && actor.objectDisplay;
         var canvi = objDisp && objDisp.canvi;
-        if (!canvi) {
+        var el = canvi && canvi.el[0];
+        if (!el) {
           var msg = "dont know how to display text";
           $log.error(msg, id, data);
           throw new Error(msg);
         }
-        return canvi.el[0].getBoundingClientRect();
+        return el.getBoundingClientRect();
       };
       this.destroy = function() {
         removeBubble();
       };
       this.displayText = function(mdl, text) {
-        var displayEl = mdl.slot.element;
+        var modalEl = mdl.slot.element;
         var charRect = getCharRect();
 
         removeBubble();
@@ -60,19 +62,20 @@ angular.module('demo')
 
         // assign text, and measure:
         bubble.text(text);
-        displayEl.append(bubble);
+        modalEl.append(bubble);
+
+        // modal and text rect are aligned
+        // so textRect.left,.top gives us the corner of our window
         var textRect = bubble[0].getBoundingClientRect();
 
         // our coordinates need to be relative to mdl
-        // ( our map edge cancels out because, while we need to subtract it from chara, we need to add it back in for the bubble )
-        var displayRect = displayEl[0].getBoundingClientRect();
         var charx = charRect.left + (0.5 * charRect.width);
         var chary = charRect.top;
-        
+
         // get current size and position of character
         var shift = adjust(id);
-        var x = charx - textRect.left - displayRect.left;
-        var y = chary - textRect.height - displayRect.top - shift;
+        var x = charx - textRect.left - shift.x;
+        var y = chary - textRect.top - textRect.height - shift.y;
 
         // center bubble and display:
         bubble.css({
