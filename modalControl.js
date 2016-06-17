@@ -49,7 +49,7 @@ angular.module('demo')
   })
 
 .directiveAs('modalControl', ["^hsmMachine"],
-  function(ElementSlotService, $log, $q) {
+  function(ElementSlotService, $log, $q, $timeout) {
     this.init = function(name, hsmMachine) {
       // modal instance object
       var Modal = function(slot, input, result, previousParent) {
@@ -169,8 +169,8 @@ angular.module('demo')
         // opened: function(name) {
         //   return modalInstance && modalInstance.slot.name == name;
         // },
-        topWindow: false,
-        contents: false
+        topWindow: "",
+        contents: null
       };
 
       this.open = function(slotName, displayOrParam, paramOrNull) {
@@ -179,14 +179,18 @@ angular.module('demo')
 
         if (modalInstance) {
           modalInstance.close("opening:" + slotName);
+          scope.topWindow = "";
         }
 
         var modal = showWindow(slotName, displaySlot, params);
         // set the top window -- which this could be done elsewhere....
         modal.resolved.then(function(contents) {
           //$log.warn("modal top window set:", slotName);
-          scope.topWindow = slotName;
-          scope.contents = contents;
+          // we have to wait a digest cycle so that top window gets set to null and the window gets destroyed, otherwise the same window displayed twice will "stick" to the old contents data.
+          $timeout(function() {
+            scope.topWindow = slotName;
+            scope.contents = contents;
+          });
           return contents;
         });
         modal.closed.finally(function() {
