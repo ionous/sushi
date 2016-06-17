@@ -112,32 +112,33 @@ angular.module('demo')
       return this;
     };
     Canvi.prototype.draw = function(tint) {
-      // output image filled with tint color, and the original image
-      // keep the tint color where the original image exists
-      // multiply the original image to the tint 
-      var canvas = this.el[0];
-      var ctx = canvas.getContext("2d");
-      var grid = this.grid;
       var img = this.img;
-      if (!img) {
-        throw new Error("CanvasService: drawing, but not finished loading!");
-      }
-      if (tint) {
-        ctx.save();
-        ctx.fillStyle = tint;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = "destination-in";
+      // now allowing blank canvases for the sake of object regions
+      // ( useful for talkControl to handle all "displayed" objects uniformly )
+      if (img) {
+        // output image filled with tint color, and the original image
+        // keep the tint color where the original image exists
+        // multiply the original image to the tint 
+        var canvas = this.el[0];
+        var ctx = canvas.getContext("2d");
+        var grid = this.grid;
+        if (tint) {
+          ctx.save();
+          ctx.fillStyle = tint;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.globalCompositeOperation = "destination-in";
 
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        ctx.globalCompositeOperation = "screen";
-      }
-      if (!grid) {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      } else {
-        drawGrids(ctx, img, grid);
-      }
-      if (tint) {
-        ctx.restore();
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          ctx.globalCompositeOperation = "screen";
+        }
+        if (!grid) {
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        } else {
+          drawGrids(ctx, img, grid);
+        }
+        if (tint) {
+          ctx.restore();
+        }
       }
     }; // draw.
     var service = {

@@ -4,7 +4,7 @@
  */
 angular.module('demo')
   .factory('DisplayService', function(CanvasService, $log, $q) {
-  	 //
+      //
       var newDisplayGroup = function(parentEl, opt) {
         var el = angular.element('<div class="ga-display"></div>');
         var group = new DisplayGroup(el);
@@ -47,15 +47,18 @@ angular.module('demo')
       // reurns the promise of a loaded canvi.
       DisplayGroup.prototype.newCanvas = function(mapLayer) {
         var promise;
+        var map = mapLayer.getMap();
         var bounds = mapLayer.getBounds();
-        if (bounds) {
+        // make sure the top layer never contributes the the canvas set
+        // otherwise, it pushes all the canvases down -- maybe some css styling issues here.
+        if (bounds && mapLayer !== map.topLayer) {
           var opt = {
             id: "gr-" + mapLayer.getId(),
             //pos: this.pos
           };
           var grid = mapLayer.getGrid();
           if (grid) {
-            var mapName = mapLayer.getMap().name;
+            var mapName = map.name;
             var imageSrc = "/bin/maps/" + mapName + ".png"
             promise = CanvasService.newGrid(this.el, imageSrc, grid, opt);
           } else {
@@ -63,6 +66,8 @@ angular.module('demo')
             if (angular.isString(src) && src != "") {
               var imageSrc = "/bin/" + src;
               promise = CanvasService.newImage(this.el, imageSrc, opt);
+            } else if (mapLayer.getShapes()) {
+              promise = $q.when(CanvasService.newCanvas(this.el, opt));
             }
           }
           //
@@ -75,8 +80,8 @@ angular.module('demo')
         return promise || $q.when(null);
       };
 
-  	var service= {
-  		newDisplayGroup: newDisplayGroup,
-  	};
-  	return service;
-  });
+      var service = {
+        newDisplayGroup: newDisplayGroup,
+      };
+      return service;
+    });

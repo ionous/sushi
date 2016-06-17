@@ -1,5 +1,6 @@
 'use strict';
 
+
 angular.module('demo')
 
 // from:gaCommentCapture
@@ -33,7 +34,7 @@ angular.module('demo')
           comments.push(lines && lines.length ? lines[0] : "");
         },
         addFallback: function(quip, text) {
-          $log.info("playerDialog: fallback", quip, texts);
+          $log.info("playerDialog: fallback", quip, text);
           quips.push(quip);
           comments.push(text);
         },

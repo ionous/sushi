@@ -284,7 +284,7 @@ angular.module('demo')
         var hitShape = ctx.hitGroup.newHitShape(mapLayer);
         var displayGroup = ctx.displayGroup;
         // create the canvas first, to help ensure consistent ordering:
-        // note: canvi can be null if the mapLayer is empty.
+        // note: canvi can be null if the mapLayer is completely empty.
         return displayGroup.newCanvas(mapLayer).then(function(canvi) {
           //$log.info("LayerService: created", layerPath, "canvas");
           var promisedChildren = mapLayer.mapEach(function(subLayer) {
@@ -295,7 +295,6 @@ angular.module('demo')
           });
           // after all children have been created: draw into the canvas.
           return $q.all(promisedChildren).then(function(children) {
-            //$log.info("LayerService: created", layerPath, "children", children.length);
             var tinter;
             if (canvi) {
               if (!ctx.object) {
@@ -304,13 +303,18 @@ angular.module('demo')
                 tinter = WatcherService.showTint(ctx.object, function(color) {
                   canvi.draw(color);
                 });
-                // hack, hack, hack.
-                //$log.info("LayerService: displaying object", ctx.object.id, displayGroup.pos);
-                ctx.object.objectDisplay = {
-                  group: displayGroup,
-                  canvi: canvi
-                };
               }
+            }
+            // hack, hack, hack.
+            // objects want to know their position.
+            // note: one object can be displayed in multiple places simultaneously
+            // so this is definitely not correct
+            // but works for most of the important objects.
+            if (ctx.object) {
+              ctx.object.objectDisplay = {
+                group: displayGroup,
+                canvi: canvi
+              };
             }
             return new Node(ctx, mapLayer.getName(), canvi, tinter, hitShape, children);
           });

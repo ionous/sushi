@@ -34,7 +34,9 @@ angular.module('demo')
           throw new Error("no display for object", this.obj.id);
         }
         var display = this.display = objectDisplay.group;
-        var canvas = this.canvas = objectDisplay.canvi.el[0];
+        var canvi = objectDisplay.canvi;
+        // canvas el can be undefined if the canvas was destroyed.
+        var canvas = this.canvas = canvi && canvi.el && canvi.el[0];
         if (!canvas) {
           throw new Error("no canvas for object", this.obj.id);
         }
@@ -104,7 +106,7 @@ angular.module('demo')
           $log.error(msg, this.obj.id);
           throw new Error(msg);
         }
-        
+
         var frame = 0;
         if (!this.speed) {
           this.time = 0;

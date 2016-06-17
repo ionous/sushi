@@ -1,10 +1,11 @@
 'use strict';
 
+
 angular.module('demo')
 
 .directiveAs('talkControl', ["^modalControl"], function(
   ElementSlotService, EntityService,
-  $log, $q, $rootElement, $timeout) {
+  $log, $q, $rootElement) {
   this.init = function(name, modalControl) {
 
     // hmmm.... the images have different spacings in them... :(
@@ -38,10 +39,10 @@ angular.module('demo')
         //FIX? change actors to use element slots maybe
         var objDisp = actor && actor.objectDisplay;
         var canvi = objDisp && objDisp.canvi;
-        var el = canvi && canvi.el[0];
+        var el = canvi && canvi.el && canvi.el[0];
         if (!el) {
           var msg = "dont know how to display text";
-          $log.error(msg, id, data);
+          $log.error(msg, id, actor);
           throw new Error(msg);
         }
         return el.getBoundingClientRect();
@@ -89,21 +90,34 @@ angular.module('demo')
       };
     }; // Talker.
     var currentTalker, currentModal, currentLines, currentDefer;
+    var nextUnsafe = function() {
+
+      if (!currentTalker) {
+        throw new Error("no ones talking");
+      }
+      if (!currentLines || !currentLines.length) {
+        throw new Error("nothing to say");
+      }
+      var mdl = currentModal = modalControl.open("talk");
+      var text = currentLines.shift();
+      currentTalker.displayText(mdl, text);
+    };
     var scope = {
       finished: function() {
         var empty = !currentLines || !currentLines.length;
         return empty;
       },
       next: function() {
-        if (!currentTalker) {
-          throw new Error("no ones talking");
+        var destroy = false;
+        try {
+          nextUnsafe();
+        } catch (e) {
+          $log.error(e);
+          destroy = true;
         }
-        if (!currentLines || !currentLines.length) {
-          throw new Error("nothing to say");
+        if (destroy) {
+          scope.cleanup("errored out");
         }
-        var mdl = currentModal = modalControl.open("talk");
-        var text = currentLines.shift();
-        currentTalker.displayText(mdl, text);
       },
       cleanup: function(reason) {
         reason = reason || "talkControl cleanup";
@@ -126,14 +140,10 @@ angular.module('demo')
         if (!data || !data.length) {
           return $q.when();
         }
-        var talker = currentTalker = new Talker(actorId);
         var defer = currentDefer = $q.defer();
-        var lines = currentLines = data.slice();
-
-        $timeout(function() {
-          scope.next();
-        });
-
+        currentTalker = new Talker(actorId);
+        currentLines = data.slice();
+        scope.next();
         return defer.promise;
       }, //say
     }; // scope
