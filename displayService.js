@@ -6,6 +6,9 @@ angular.module('demo')
 
 .factory('DisplayService', function(CanvasService, $log, $q) {
   var newDisplayGroup = function(parentEl, opt) {
+    if (!parentEl) {
+      throw new Error("display group needs a place to attach");
+    }
     var el = angular.element('<div class="ga-display"></div>');
     var group = new DisplayGroup(el);
     if (opt) {

@@ -6,7 +6,7 @@ angular.module('demo')
       $log, $q) {
       // an activated layer from a map.
       var Node = function(ctx, name, canvi, tinter, hitShape, children) {
-        this.ctx = ctx;
+        this.ctx = ctx; // owned externally ( by child exapnder or root )
         this.name = name;
         this.canvi = canvi; // from DisplayGroup
         this.tinter = tinter; // from TinterService
@@ -14,7 +14,7 @@ angular.module('demo')
         this.children = children;
       };
       Node.prototype.destroyNode = function() {
-        //$log.info("LayerService: destroying node", this.name, this.hitShape);
+        $log.info("LayerService: destroying node", this.name, this.hitShape);
         if (this.hitShape) {
           this.hitShape.group.remove(this.hitShape);
           this.hitShape = null;
@@ -27,35 +27,37 @@ angular.module('demo')
           this.canvi.destroyCanvas();
           this.canvi = null;
         }
-        if (this.ctx) {
-          this.ctx.destroyContext();
-          this.ctx = null;
-        }
-        this.children = this.children.filter(function(child) {
+        this.children.forEach(function(child) {
           // landing data doest have a child node
           if (child) {
             child.destroyChild();
           }
         });
+        this.children = null;
+        //context is owned by child, its used to recreate the node on child "expanded"
+        this.ctx= null;
       };
       // a child contains a potential Node.      
       var Child = function(ctx, mapLayer) {
+        if (!ctx || !mapLayer) {
+          throw new Error("orly?");
+        }
         this.ctx = ctx;
         this.mapLayer = mapLayer;
         this.promise = false;
         this.watcher = false; // a contents server watchers; it expands and collapses us.
-        this.expanded = false; // when the content serve expands us, it fill out this with a valid Node.
+        this.expanded = null; // when the content serve expands us, it fill out this with a valid Node.
         this.expanding = false;
       };
       Child.prototype.expand = function() {
-        var child = this;
         // hack: state showing watcher code triggers twice...
         // ex. especially automat-hall-door
         if (!this.expanding) {
           this.expanding = true;
-          return child.ctx.addSubLayers(child.mapLayer).then(function(node) {
-            child.expanded = node;
-            return child;
+          var pin = this;
+          return this.ctx.addSubLayers(this.mapLayer).then(function(node) {
+            pin.expanded = node;
+            return pin;
           });
         }
       };
@@ -65,12 +67,20 @@ angular.module('demo')
           this.expanded.destroyNode();
           this.expanded = false;
         }
+        return this;
       };
       Child.prototype.destroyChild = function() {
+        if (!this.ctx) {
+          throw new Error("doubled destroy?");
+        }
         this.collapse();
         if (this.watcher) {
           this.watcher.cancel();
           this.watcher = null;
+        }
+        if (this.ctx) {
+          this.ctx.destroyContext();
+          this.ctx = null;
         }
       };
 
@@ -80,7 +90,7 @@ angular.module('demo')
       // the enclosure ( room, container, or supporter ) objects are acquired from
       // the current game object in question -- noting that not all layers represent game objects
       // how to clean up when this map layer which generated this ctx has been destroyed.
-      // Contexts are owned by Nodes, and are destroyed when their Node is destroyed.
+      // Contexts are owned Child(ren), and are destroyed when the Child is.
       var Context = function(displayGroup, hitGroup, allPads, enclosure, onDestroy) {
         // without a displayGroup, nothing can be added to the scene.
         if (!displayGroup) {
@@ -99,7 +109,12 @@ angular.module('demo')
         }
         this.allPads = allPads;
         this.enclosure = enclosure; // a child.
-        this.destroyContext = onDestroy;
+        var ctx = this;
+        this.destroyed = false;
+        this.destroyContext = function() {
+          ctx.destroyed = true;
+          onDestroy();
+        }
         this.object = null;
         this.dynamicDepth = false;
         this.treeCount = 0;
@@ -107,12 +122,23 @@ angular.module('demo')
       };
       //
       Context.prototype.newContext = function(opt) {
+        var mapLayer = opt.mapLayer;
+        if (this.destroyed) {
+          var msg = "creating child context, but parent has been destroyed";
+          $log.error(msg, opt);
+          throw new Error(msg);
+        }
+        var parentEl = this.displayGroup.el;
+        if (!parentEl) {
+          var msg = "creating child context, but no parent display";
+          $log.error(msg, opt);
+          throw new Error(msg);
+        }
         this.treeCount += 1;
 
-        var mapLayer = opt.mapLayer;
         var abs = mapLayer.getPos() || pt(0, 0);
         var rel = pt_sub(abs, this.ofs);
-        var displayGroup = DisplayService.newDisplayGroup(this.displayGroup.el, {
+        var displayGroup = DisplayService.newDisplayGroup(parentEl, {
           id: "md-" + mapLayer.getId(),
           pos: rel
         });
@@ -132,6 +158,7 @@ angular.module('demo')
             if (displayGroup) {
               displayGroup.destroyDisplay()
             }
+            displayGroup = null;
             opt = null;
           });
         next.object = opt.object || this.object;
@@ -154,12 +181,9 @@ angular.module('demo')
             "z-index": zvalue
           });
         }
-        var child = new Child();
-        child.promise = next.addSubLayers(mapLayer).then(function(node) {
-          //$log.info("LayerService: expanding layer", mapLayer.getName());
-          child.expanded = node;
-          return child;
-        });
+        var child = new Child(next, mapLayer);
+        // experimental
+        child.promise = child.expand();
         return child;
       };
       // create a new child node to represent an object layer
@@ -247,12 +271,9 @@ angular.module('demo')
           mapLayer: mapLayer,
           hitGroup: this.hitGroup.newHitGroup(viewName, subject),
         });
-        var child = new Child();
-        child.promise = next.addSubLayers(mapLayer).then(function(node) {
-          //$log.info("LayerService: expanding view", viewName, node);
-          child.expanded = node;
-          return child;
-        });
+        var child = new Child(next, mapLayer);
+        // experimental
+        child.promise = child.expand();
         return child;
       };
       // create a new potential node; return a promise.
@@ -272,6 +293,7 @@ angular.module('demo')
             // no child returned
             return this.addLandingData(subLayer);
           default:
+            // something that contains onther children with nothing itself.
             return this.newChild(subLayer, cat.layerType == "z");
         }
       };
@@ -303,19 +325,18 @@ angular.module('demo')
                 tinter = WatcherService.showTint(ctx.object, function(color) {
                   canvi.draw(color);
                 });
+                // hack, hack, hack.
+                // objects want to know their position.
+                // note: one object can be displayed in multiple places simultaneously
+                // so this is definitely not correct
+                // but works for most of the important objects.
+                ctx.object.objectDisplay = {
+                  group: displayGroup,
+                  canvi: canvi
+                };
               }
             }
-            // hack, hack, hack.
-            // objects want to know their position.
-            // note: one object can be displayed in multiple places simultaneously
-            // so this is definitely not correct
-            // but works for most of the important objects.
-            if (ctx.object) {
-              ctx.object.objectDisplay = {
-                group: displayGroup,
-                canvi: canvi
-              };
-            }
+
             return new Node(ctx, mapLayer.getName(), canvi, tinter, hitShape, children);
           });
         });
@@ -331,6 +352,10 @@ angular.module('demo')
           var ctx = new Context(displayGroup, hitGroups, allPads, room, function() {
             displayGroup.destroyDisplay();
           });
+
+          // FIX FIX FIX what destroys the context in this case?
+          // FIX FIX FIX -- can we make the parent a child
+          // a child snan Expander if thats necessary.
           return ctx.addSubLayers(map.topLayer).then(function(root) {
             return {
               el: parentEl,
