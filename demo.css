@@ -1,3 +1,4 @@
+
 /*canvas {
   border-color: red;
   border-style: solid;
@@ -78,7 +79,7 @@ main {
   width: 800px;
   height: 672px;
   border-radius: 20px;
-  background-color: tan;
+  background-color: rgb(66, 81, 77);
   top: 50%;
   left: 50%;
   padding: 0px;
