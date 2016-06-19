@@ -1,7 +1,7 @@
 <hsm-state name="Processing" parallel="true">
   <!-- listen for player movement room-to-room -->
   <hsm-state game-listener="roomChange" hsm-enter="roomChange.listen('player', 'x-rel')" hsm-exit="roomChange.silence()">
-    <hsm-event on="roomChange" when="$evt.data.prop=='object-whereabouts'" run="map.changeRoom($evt.data.next).then($evt.resolve())"></hsm-event>
+    <hsm-event on="roomChange" when="$evt.data.prop=='objects-whereabouts'" run="map.changeRoom($evt.data.next.id).then($evt.resolve())"></hsm-event>
   </hsm-state>
   <!--  the default text handler, always active, stores the lines in global memory, primarily for the the sake of the console. FIX: rework to capture into the console directly.-->
   <hsm-state text-control="text" game-listener="printText" hsm-enter="printText.listen('*', ['print', 'say'])" hsm-exit="printText.silence()">
@@ -24,15 +24,13 @@
       </hsm-state>
     </hsm-state>
   </hsm-state>
-  <!--  -->
-  <hsm-state game-listener="offers" hsm-enter="offers.listen('*', 'being-offered')" hsm-exit="offers.silence()">
-    <hsm-event on="offers" run="dialog.addQuip($evt.tgt)"></hsm-event>
-  </hsm-state>
   <!-- handle story text -->
   <hsm-state game-listener="storyText" hsm-enter="storyText.listen('_display_', 'print')" hsm-exit="storyText.silence()">
     <hsm-state game-listener="reportView" hsm-enter="reportView.listen('*', 'reporting-the-view', true)" hsm-exit="reportView.silence()">
       <hsm-state game-listener="comments" hsm-enter="comments.listen('player', 'printing-conversation-choices', true)" hsm-exit="comments.silence()">
-        <hsm-state game-listener="vending" hsm-enter="vending.listen('vending-machine', 'offering-vendibles', true)" hsm-exit="vending.silence()">
+        <hsm-state game-listener="vending" hsm-enter="vending.listen('vending-machine', 
+        'offering-vendibles', true)" hsm-exit="vending.silence()">
+        <hsm-state game-listener="departing" hsm-enter="departing.listen('*', 'departing', true)" hsm-exit="departing.silence()">
           <!--  -->
           <hsm-state name="StoryText" hsm-init="1 && 'PopupsEnabled'">
             <hsm-state name="PopupsDisabled">
@@ -40,15 +38,25 @@
             <!--  -->
             <hsm-event on="comments" goto="CaptureComments"></hsm-event>
             <hsm-event on="vending" goto="CaptureVendibles"></hsm-event>
-            <!-- dialog choices -->
-            <hsm-state name="CaptureComments">
-              <hsm-event on="storyText" run="dialog.addChoice($evt.data)"></hsm-event>
+            <!-- handle player dialog choices -->
+            <hsm-state name="CaptureComments" game-listener="offers" hsm-enter="offers.listen('*', 'being-offered')" hsm-exit="offers.silence()">
               <hsm-event on="comments" when="$evt.end" goto="StoryText"></hsm-event>
+              <hsm-state name="AwaitQuip">
+                <hsm-event on="offers" goto="AwaitComment" run="dialog.addQuip($evt.tgt)"></hsm-event>
+              </hsm-state>
+              <hsm-state name="AwaitComment">
+                <hsm-event on="storyText" goto="AwaitQuip" run="dialog.addChoice($evt.data)"></hsm-event>
+              </hsm-state>
             </hsm-state>
             <!-- vendible choices -->
-            <hsm-state name="CaptureVendibles">
-              <hsm-event on="storyText" run="dialog.addChoice($evt.data)"></hsm-event>
+            <hsm-state name="CaptureVendibles" game-listener="offers" hsm-enter="offers.listen('*', 'being-offered')" hsm-exit="offers.silence()">
               <hsm-event on="vending" when="$evt.end" goto="StoryText" run="dialog.addFallback('0', 'Never mind.')"></hsm-event>
+              <hsm-state name="AwaitVendingQuip">
+                <hsm-event on="offers" goto="AwaitVendingComment" run="dialog.addQuip($evt.tgt)"></hsm-event>
+              </hsm-state>
+              <hsm-state name="AwaitVendingComment">
+                <hsm-event on="storyText" goto="AwaitVendingQuip" run="dialog.addChoice($evt.data)"></hsm-event>
+              </hsm-state>
             </hsm-state>
             <!-- regular story text popups -->
             <hsm-state name="PopupsEnabled" popup-control="popup">
@@ -66,9 +74,15 @@
             <hsm-state name="SilenceRoomEntryText">
               <hsm-event on="reportView" when="$evt.end" goto="StoryText"></hsm-event>
             </hsm-state>
+            <!-- quiet "the actor says goodbye" -->
+            <hsm-event on="departing" goto="SilenceDepartingText"></hsm-event>
+            <hsm-state name="SilenceDepartingText">
+              <hsm-event on="departing" when="$evt.end" goto="StoryText"></hsm-event>
+            </hsm-state>
           </hsm-state>
         </hsm-state>
       </hsm-state>
     </hsm-state>
+  </hsm-state>
   </hsm-state>
 </hsm-state>
