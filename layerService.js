@@ -14,7 +14,7 @@ angular.module('demo')
         this.children = children;
       };
       Node.prototype.destroyNode = function() {
-        $log.info("LayerService: destroying node", this.name, this.hitShape);
+        // $log.info("LayerService: destroying node", this.name, this.hitShape);
         if (this.hitShape) {
           this.hitShape.group.remove(this.hitShape);
           this.hitShape = null;

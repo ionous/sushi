@@ -15,8 +15,9 @@ angular.module('demo')
   var elements = {};
   var service = {
     bind: function(name, element, scope) {
+      $log.debug("ElementSlotService, binding", name);
       if (elements[name]) {
-        var msg = "Element slot already bound";
+        var msg = "ElementSlotService, slot already bound";
         $log.error(msg, name);
         throw new Error(msg);
       }
@@ -33,7 +34,7 @@ angular.module('demo')
     get: function(name) {
       var el = elements[name];
       if (!el) {
-        var msg = "Element slot not bound";
+        var msg = "ElementSlotService, slot not bound";
         $log.error(msg, name);
         throw new Error(msg);
       }

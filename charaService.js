@@ -32,14 +32,18 @@ angular.module('demo')
       // that the object has the display is also questionable re: states.
       var objectDisplay = this.obj.objectDisplay;
       if (!objectDisplay) {
-        throw new Error("no display for object", this.obj.id);
+        var msg = "no display for object";
+        $log.error(msg, this.obj.id);
+        throw new Error(msg);
       }
       var display = this.display = objectDisplay.group;
       var canvi = objectDisplay.canvi;
       // canvas el can be undefined if the canvas was destroyed.
       var canvas = this.canvas = canvi && canvi.el && canvi.el[0];
       if (!canvas) {
-        throw new Error("no canvas for object", this.obj.id);
+        var msg = "no canvas for object";
+        $log.error(msg, this.obj.id);
+        throw new Error(msg);
       }
       this.upperLeft = display.pos;
       //
@@ -103,9 +107,12 @@ angular.module('demo')
     Chara.prototype.draw = function(dt, force) {
       var canvas = this.canvas;
       if (!canvas) {
-        var msg = "linkup not called";
-        $log.error(msg, this.obj.id);
-        throw new Error(msg);
+        if (!this.warned) {
+          this.warned = true;
+          var msg = "linkup not called";
+          $log.error(msg, this.obj.id);
+        }
+        return;
       }
 
       var frame = 0;
