@@ -4,7 +4,10 @@
     <hsm-state name="StaticTargeting">
       <hsm-event on="update-game" run="mouseTarget.update(mouse.pos())"></hsm-event>
       <hsm-event on="mouse-target-changed" run="mouse.show( !$evt.target ? 'pointer' : 'bullseye' )"></hsm-event>
+      <!-- 
+      FIX: doesnt work well for zoomed in views, the player changes size.
       <hsm-event on="hover-press" run="player.facePos($evt.pos)"></hsm-event>
+       -->
       <hsm-event on="hover-press" run="actionBar.dismiss('press')"></hsm-event>
       <hsm-event on="hover-select" when="mouseTarget()" run="actionBar.open(mouseTarget(), combiner.item())"></hsm-event>
       <hsm-event on="action-bar-opened" goto="StaticsActions"></hsm-event>

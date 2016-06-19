@@ -7,7 +7,7 @@
             <ng-include src="'console.html'"></ng-include>
             <ng-include src="'inventory.html'"></ng-include>
             <!-- we run one of physics or not-physics -->
-            <hsm-state name="PlayOne" hsm-init="map.get('physics') ? 'Physics' : 'Statics'">
+            <hsm-state name="PlayOne" hsm-init="1 && map.get('physics') ? 'Physics' : 'Statics'">
               <ng-include src="'statics.html'"></ng-include>
               <ng-include src="'physics.html'"></ng-include>
             </hsm-state>
