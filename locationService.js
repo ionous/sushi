@@ -6,7 +6,7 @@
  */
 angular.module('demo')
   .factory('LocationService',
-    function($location, $log, $q) {
+    function($location, $log, $q, $rootScope) {
       var loading = null;
       var Location = function(room, view, item) {
         if (room && (view == room)) {
@@ -40,6 +40,22 @@ angular.module('demo')
           $log.info("LocationService: no change");
           return $q.when(loc);
         } else {
+          // FIX, FIX: we need access to the location before the change.
+          // this still needs some work under for state machine control:
+          var tunnels = next.room == "tunnels";
+          $rootScope.hideViewButton = tunnels;
+
+          if (tunnels && !next.view) {
+            var tunnelBounce = $rootScope.tunnelBounce;
+            if (loc.room == "automat") {
+              tunnelBounce = false;
+            } else {
+              tunnelBounce = !tunnelBounce;
+            }
+            $rootScope.tunnelBounce = tunnelBounce;
+            next.view = tunnelBounce ? "tunnels-2" : "tunnels-1";
+          }
+
           // location object.
           $log.info("LocationService: changing", loc.toString(), "to", next.toString());
 
@@ -50,7 +66,7 @@ angular.module('demo')
           var path = p.join("/");
           // change it.
           loc = next;
-          $log.debug(path);
+          $log.debug("LocationService: path", path);
           $location.path(path).search('item', next.item);
           //
           return loading.promise;
@@ -71,13 +87,22 @@ angular.module('demo')
           return loc.item;
         },
         nextRoom: function(room) {
+          if (!room || !angular.isString(room)) {
+            throw new Error("expected string");
+          }
           return new Location(room);
         },
         nextView: function(view) {
+          if (!view || !angular.isString(view)) {
+            throw new Error("expected string");
+          }
           return new Location(loc.room, view);
         },
         nextItem: function(item) {
-          new Location(loc.room, loc.view, item)
+          if (!item || !angular.isString(item)) {
+            throw new Error("expected string");
+          }
+          return new Location(loc.room, loc.view, item)
         },
         currentLocation: function() {
           return loc;
