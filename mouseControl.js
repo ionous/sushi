@@ -84,25 +84,15 @@ angular.module('demo')
           if (angular.isString(show)) {
             var next = aliases[show] || show;
             if (cursor.setCursor(next)) {
-              cursor.setAngle(0);
+              cursor.pointsTo(0);
             }
           }
         };
         this.pos = function() {
-          return pt(cursor.pos.x, cursor.pos.y);
+          return cursor.cursorPos();
         };
         this.setAngle = function(pos) {
-          var a = 0;
-          if (pos) {
-            var diff = pt_sub(cursor.pos, pos);
-            var dist = pt_dot(diff, diff);
-            if (dist > 1e-3) {
-              var r = pt_scale(diff, 1.0 / Math.sqrt(dist));
-              a = Math.atan2(r.y, r.x);
-              //$log.debug("angle", a);
-            }
-          }
-          cursor.setAngle(a);
+          cursor.pointsTo(pos);
         };
         this.inBounds = function() {
           return cursor.present;
