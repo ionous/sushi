@@ -1,14 +1,10 @@
 <!-- mouse input tweaks the cursor, and raises events which effect player control. -->
 <hsm-state name="Hover" hover-control="hover" hsm-init="mouse.inBounds() ? 'InBounds' : 'OutOfBounds'">
-  <hsm-event on="mouse-hidden" goto="MouseHidden"></hsm-event>
-  <hsm-state name="MouseHidden">
-    <hsm-event on="mouse-shown" goto="Hover"></hsm-event>
-  </hsm-state>
-  <hsm-state name="OutOfBounds" hsm-enter="mouse.show(false)">
+  <hsm-state name="OutOfBounds" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
     <hsm-event on="mouse-enter" goto="InBounds"></hsm-event>
-    <hsm-event on="mouse-move" goto="InBounds"></hsm-event>
+    <!-- <hsm-event on="mouse-move" goto="InBounds"></hsm-event> -->
   </hsm-state>
-  <hsm-state name="InBounds" hsm-enter="mouse.show()">
+  <hsm-state name="InBounds" hsm-init="mouse.hidden() && 'MouseHidden'">
     <hsm-event on="mouse-leave" goto="OutOfBounds"> </hsm-event>
     <!-- now wait for mouse down -->
     <hsm-state name="MouseHighlight">
@@ -25,6 +21,11 @@
     <!-- FIX? raise a direct end? -->
     <hsm-state name="MouseDirecting">
       <hsm-event on="mouse-up" goto="MouseHighlight"></hsm-event>
+    </hsm-state>
+    <!--  -->
+    <hsm-event on="mouse-hidden" goto="MouseHidden"></hsm-event>
+    <hsm-state name="MouseHidden">
+      <hsm-event on="mouse-shown" goto="MouseHighlight"></hsm-event>
     </hsm-state>
   </hsm-state>
 </hsm-state>

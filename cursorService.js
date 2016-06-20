@@ -80,7 +80,6 @@ angular.module('demo')
         }
 
         this.shows = true;
-        this.present = true;
         this.nextShape = cursors.pointer;
         this.size = 0;
         this.enabled = true;
@@ -108,7 +107,6 @@ angular.module('demo')
       };
       Cursor.prototype.destroyCursor = function() {
         UpdateService.stop(this.updater);
-        this.off();
         this.el.remove();
         this.el = null;
         this.inner = null;
@@ -122,6 +120,10 @@ angular.module('demo')
         if (this.enabled != enable) {
           this.enabled = enable;
         }
+      };
+      Cursor.prototype.inBounds = function() {
+        var fr = this.focusEdge.getBoundingClientRect();
+        return (clientX >= fr.left && clientX <= fr.right && clientY >= fr.top && clientY <= fr.bottom);
       };
       Cursor.prototype.show = function(visible) {
         var shows = !!visible;
@@ -140,7 +142,7 @@ angular.module('demo')
       Cursor.prototype.draw = function() {
         var last = this.state;
 
-        var show = !!(this.shows && this.enabled && this.present);
+        var show = !!(this.shows && this.enabled);
         var update, css = {};
         if (show != last.show) {
           css["visibility"] = show ? "" : "hidden";

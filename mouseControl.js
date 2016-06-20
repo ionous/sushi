@@ -95,7 +95,7 @@ angular.module('demo')
           cursor.pointsTo(pos);
         };
         this.inBounds = function() {
-          return cursor.present;
+          return cursor.inBounds();
         };
       }; // Mouse
       var mouse = new Mouse();
