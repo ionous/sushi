@@ -142,7 +142,7 @@ angular.module('demo')
       Cursor.prototype.draw = function() {
         var last = this.state;
 
-        var show = !!(this.shows && this.enabled);
+        var show = !!(this.shows && this.enabled && this.shape);
         var update, css = {};
         if (show != last.show) {
           css["visibility"] = show ? "" : "hidden";
