@@ -5,7 +5,7 @@ angular.module('demo')
 
 .directiveAs('talkControl', ["^modalControl"], function(
   ElementSlotService, EntityService,
-  $log, $q, $rootElement) {
+  $log, $q, $rootElement, $timeout) {
   this.init = function(name, modalControl) {
 
     // hmmm.... the images have different spacings in them... :(
@@ -53,6 +53,7 @@ angular.module('demo')
       this.displayText = function(mdl, text) {
         var modalEl = mdl.slot.element;
         var charRect = getCharRect();
+        //$log.info("displayText", text);
 
         removeBubble();
         // prepare to center bubble over chara
@@ -91,7 +92,6 @@ angular.module('demo')
     }; // Talker.
     var currentTalker, currentModal, currentLines, currentDefer;
     var nextUnsafe = function() {
-
       if (!currentTalker) {
         throw new Error("no ones talking");
       }
@@ -143,7 +143,10 @@ angular.module('demo')
         var defer = currentDefer = $q.defer();
         currentTalker = new Talker(actorId);
         currentLines = data.slice();
-        scope.next();
+        // needed to get the first line on map transitions
+        $timeout(function() {
+          scope.next();
+        });
         return defer.promise;
       }, //say
     }; // scope
