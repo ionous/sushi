@@ -121,7 +121,7 @@ angular.module('demo')
       },
       cleanup: function(reason) {
         reason = reason || "talkControl cleanup";
-        $log.info("talkControl", name, "cleanup", reason);
+        //$log.info("talkControl", name, "cleanup", reason);
         if (currentTalker) {
           currentTalker.destroy();
           currentTalker = null;

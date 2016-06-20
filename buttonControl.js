@@ -10,7 +10,7 @@ angular.module('demo')
     this.init = function(name, hsmMachine) {
       var button = ElementSlotService.get(name);
       button.scope.click = function() {
-        $log.debug("buttonControl", name, "clicked");
+        //$log.debug("buttonControl", name, "clicked");
         hsmMachine.emit(name, "clicked", {});
       };
       var scope = {
@@ -24,7 +24,7 @@ angular.module('demo')
         },
         addClass: function(cls, yes) {
           var okay = angular.isUndefined(yes) || yes;
-          $log.debug("buttonControl", name, "addClass", cls, yes);
+          //$log.debug("buttonControl", name, "addClass", cls, yes);
           if (okay) {
             button.element.addClass(cls);
           } else {

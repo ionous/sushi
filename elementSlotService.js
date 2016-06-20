@@ -15,7 +15,7 @@ angular.module('demo')
   var elements = {};
   var service = {
     bind: function(name, element, scope) {
-      $log.debug("ElementSlotService, binding", name);
+      //$log.debug("ElementSlotService, binding", name);
       if (elements[name]) {
         var msg = "ElementSlotService, slot already bound";
         $log.error(msg, name);
@@ -27,7 +27,7 @@ angular.module('demo')
         scope: scope,
       };
       element.on("$destroy", function() {
-        $log.info("ElementSlotService", "destroying", name);
+        //$log.debug("ElementSlotService", "destroying", name);
         delete elements[name];
       });
     },
