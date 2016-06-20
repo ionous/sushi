@@ -102,7 +102,7 @@ angular.module('demo')
           throw new Error("LayerContext: hitgroup");
         }
         this.hitGroup = hitGroup;
-        // without an enclosure, no objects can be displayed
+        // objects needs an enclosure to be displayed
         if (!enclosure || !enclosure.id) {
           $log.error("missing enclosure", enclosure);
           throw new Error("LayerContext: missing enclosure");
@@ -343,13 +343,13 @@ angular.module('demo')
       };
 
       var service = {
-        createLayers: function(parentEl, map, room, allPads) {
+        createLayers: function(parentEl, map, enclosure, allPads) {
           // note: the room is getting a display group as well... unfortunately.
           var hitGroups = HitService.newHitGroup(map.name);
           var displayGroup = DisplayService.newDisplayGroup(parentEl, {
             id: "md-root"
           });
-          var ctx = new Context(displayGroup, hitGroups, allPads, room, function() {
+          var ctx = new Context(displayGroup, hitGroups, allPads, enclosure, function() {
             displayGroup.destroyDisplay();
           });
 

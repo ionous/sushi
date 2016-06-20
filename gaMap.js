@@ -8,6 +8,8 @@ angular.module('demo')
 .directiveAs("gaMap",
   function($element, $log, $rootScope, $scope) {
     this.init = function(name, hsmMachine) {
+      // FIX: it pulls these from displayController --
+      // something else would be nice.
       var mapData = {
         mapName: $scope.item || $scope.view || $scope.room,
         room: $scope.room,

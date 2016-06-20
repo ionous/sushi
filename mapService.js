@@ -132,7 +132,7 @@ angular.module('demo')
           switch (cat) {
             case "@":
               var objectName = name.slice(1);
-              // FIX: the layer data is named "alice", the object "player"
+              // FIX, FIX, FIX: the layer data is named "alice", the object "player"
               if (objectName == 'alice') {
                 objectName = 'player';
               }

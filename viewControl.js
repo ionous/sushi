@@ -33,7 +33,7 @@ angular.module('demo')
             currentScope = slot.scope;
 
             var loc = map.get("location");
-            var viewing = loc.view;
+            var viewing = loc.view || loc.item;
 
             if (viewing) {
               $log.info("connecting", map, slotName, message);

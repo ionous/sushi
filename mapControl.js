@@ -15,11 +15,25 @@ angular.module('demo')
         var roomId = next.room;
         //
         return ObjectService.getById(roomId).then(function(room) {
-          $log.debug("MapControl: loading map for", roomId);
+
+          var enclosure;
+          if (!next.item) {
+            enclosure = room;
+          } else {
+            // FIX, FIX, FIX: fake an enclosure so that we can see the player and the zoomed item
+            var contents = {
+              player:true,
+            };
+            contents[next.item] = true;
+            enclosure = {
+              id: "_display_",
+              contents: contents,
+            };            
+          }
 
           // tree contains: el, bounds, nodes
           var allPads = [];
-          return LayerService.createLayers(mapEl, map, room, allPads).then(function(tree) {
+          return LayerService.createLayers(mapEl, map, enclosure, allPads).then(function(tree) {
             var collide = map.findLayer("$collide") || false;
             return {
               location: next,
@@ -59,8 +73,11 @@ angular.module('demo')
 
     this.changeLocation = function(next) {
       var ctrl = this;
-      if (next.changes(LocationService.currentLocation())) {
-        $log.info("loading", next.toString());
+      var where = LocationService.currentLocation();
+      if (!next.changes(where)) {
+        return $q.when(where);
+      } else {
+        $log.info("mapControl, loading", next.toString());
         hsmMachine.emit(ctrl.name, "loading", next);
         ctrl.destroyMap();
         // after the url changes, angular changes the ng-view, and recreates the map element.
@@ -91,8 +108,8 @@ angular.module('demo')
         });
 
         // the promise is resolved by finished loading
-        // FIX: can remove that entirely if we can move all location changes here.
-        LocationService.changeLocation(next).then(function(now) {
+        // FIX: remove?
+        return LocationService.changeLocation(next).then(function(now) {
           $log.warn(ctrl.name, "loaded!");
           hsmMachine.emit(ctrl.name, "loaded", now);
         });
@@ -119,18 +136,21 @@ angular.module('demo')
         loaded: function() {
           return !!ctrl.map;
         },
+        which: function() {
+          return LocationService.currentLocation();
+        },
         // return a promise
         changeRoom: function(room) {
           $log.info("mapControl", name, "changeRoom", room);
-          ctrl.changeLocation(LocationService.nextRoom(room));
+          return ctrl.changeLocation(LocationService.nextRoom(room));
         },
         changeView: function(view) {
           $log.info("mapControl", name, "changeView", view);
-          ctrl.changeLocation(LocationService.nextView(view));
+          return ctrl.changeLocation(LocationService.nextView(view));
         },
         changeItem: function(item) {
           $log.info("mapControl", name, "changeItem", item);
-          ctrl.changeLocation(LocationService.nextItem(item));
+          return ctrl.changeLocation(LocationService.nextItem(item));
         },
       };
     };

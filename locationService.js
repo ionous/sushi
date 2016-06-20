@@ -6,7 +6,7 @@
  */
 angular.module('demo')
   .factory('LocationService',
-    function($location, $log, $q, $rootScope) {
+    function(PlayerService, $location, $log, $q, $rootScope) {
       var loading = null;
       var Location = function(room, view, item) {
         if (room && (view == room)) {
@@ -40,8 +40,8 @@ angular.module('demo')
           $log.info("LocationService: no change");
           return $q.when(loc);
         } else {
-          // FIX, FIX: we need access to the location before the change.
-          // this still needs some work under for state machine control:
+          // FIX, FIX, FIX: needs work for state machine control
+          // when we are entering tunnels, toggle the view.
           var tunnels = next.room == "tunnels";
           $rootScope.hideViewButton = tunnels;
 
@@ -54,6 +54,18 @@ angular.module('demo')
             }
             $rootScope.tunnelBounce = tunnelBounce;
             next.view = tunnelBounce ? "tunnels-2" : "tunnels-1";
+          }
+
+          // FIX, FIX, FIX: needs work for state machine control
+          var player = PlayerService.getPlayer();
+          var lastRoom = loc.room;
+          if (next.room == "other-hallway") {
+            // add a fake state to get alice to appear in a good position.
+            if (lastRoom == "science-lab") {
+              player.changeState("fromLab", "fromAutomat");
+            } else {
+              player.changeState("fromAutomat", "fromLab");
+            }
           }
 
           // location object.

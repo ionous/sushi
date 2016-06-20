@@ -12,6 +12,9 @@ angular.module('demo')
         },
         post: function(where, what) {
           if (angular.isUndefined(where)) {
+            throw new Error("empty destination");
+          }
+          if (angular.isUndefined(what)) {
             throw new Error("empty post");
           }
 

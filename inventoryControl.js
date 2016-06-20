@@ -37,11 +37,13 @@ angular.module('demo')
                   });
                 } else {
                   var post = act.runIt(item.id, combining && combining.id);
-                  hsmMachine.emit(name, "activate", {
-                    item: item,
-                    combining: combining,
-                    action: post,
-                  });
+                  if (post) {
+                    hsmMachine.emit(name, "activate", {
+                      item: item,
+                      combining: combining,
+                      action: post,
+                    });
+                  }
                 }
               },
             });

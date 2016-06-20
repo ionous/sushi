@@ -25,9 +25,9 @@ angular.module('demo')
 
 // still cant decide: when is it better to provide an api to init
 // and when is it better to init implicitly, ex. through promises
-.directiveAs("actionService",
-  function(ActionService, $log, $rootScope) {
-    this.init = function(name) {
+.directiveAs("actionService", ["^gameControl", "^mapControl"],
+  function(ActionService, LocationService, $log) {
+    this.init = function(name, gameControl, mapControl) {
 
       var promisedActions;
 
@@ -46,22 +46,33 @@ angular.module('demo')
 
       ActionInfo.prototype.runIt = function(propId, ctxId) {
         var actId = this.id;
+        // FIX, FIX, FIX: needs work for state machine control
+        // when we search the coat, zoom in on it.
+        // this doesnt even check whether the player has the coat; 
+        // the interaction here with the server needs more thought.
+        var zoomables = ["lab-coat"];
+        if ((actId == "search-it") && (zoomables.indexOf(propId) >= 0)) {
+          var changedLoc = mapControl.changeLocation(LocationService.nextItem(propId));
+          changedLoc.then(function() {
+            var gotAction = ActionService.getAction("examine-it");
+            var fini = gotAction.then(function(act) {
+              $log.info("StoryController:found examine-it", act);
+              if (act) {
+                var post = act.runIt(propId);
+                return gameControl.post(post);
+              }
+            });
+            return fini;
+          });
+          return;
+        }
+
         var post = {
           'act': actId,
           'tgt': propId || null,
           'ctx': ctxId || null,
         };
-        // emit this locally first, so we can munge it.
-        // FIX? if the overrides could be brought into the machine
-        // ( delegate handlers? ) then we could use a machine event.
-        var evt = $rootScope.$broadcast("client action", {
-          'act': this,
-          'tgt': propId,
-          'ctx': ctxId,
-        });
-        if (!evt.defaultPrevented) {
-          return post;
-        }
+        return post;
       };
 
       var scope = {
