@@ -6,12 +6,18 @@
 angular.module('demo')
   .factory('CollisionService',
     function($log) {
+
       var Scene = function(canvasSize) {
         var vec2 = p2.vec2;
         var world = this.world = new p2.World({
           gravity: [0, 0]
         });
         world.applyGravity = false;
+        var fixedMaterial = this.fixedMaterial = new p2.Material();
+        var dynamicMaterial = this.dynamicMaterial = new p2.Material();
+        world.addContactMaterial(new p2.ContactMaterial(fixedMaterial, dynamicMaterial, {
+          restitution: 0.0, // This means no bounce!
+        }));
 
         var pixelsPerMeter = this.pixelsPerMeter = pt(32, -32);
         var metersPerPixel = this.metersPerPixel = pt(1.0 / 32.0, -1.0 / 32);
@@ -50,10 +56,12 @@ angular.module('demo')
           width: sz.x * this.metersPerPixel.x,
           height: -sz.y * this.metersPerPixel.y,
         });
+        boxShape.material = this.fixedMaterial;
         var boxBody = new p2.Body({
           mass: 0,
           position: [worldMid.x, worldMid.y]
         });
+
         boxBody.addShape(boxShape);
         this.world.addBody(boxBody);
       };
@@ -68,16 +76,18 @@ angular.module('demo')
         var r = this.metersPerPixel.x * radius;
         var w = this.canvasToWorld(feet);
         var circleBody = new p2.Body({
-          mass: 5,
+          mass: 5, // automatically sets type: Body.DYNAMIC
           position: [w.x, w.y + r]
         });
         var circleShape = new p2.Circle({
           radius: r
         });
+        circleShape.material = this.dynamicMaterial;
         circleBody.addShape(circleShape);
         this.world.addBody(circleBody);
         return new Prop(this, circleBody, r);
       };
+      // var boo;
       Scene.prototype.step = function(dt) {
         //1/60= 0.016; 1/20=0.05
         if (dt > 0.05) {
@@ -85,11 +95,17 @@ angular.module('demo')
         }
         this.world.applyGravity = false;
         this.world.step(dt);
+        // if (boo) {
+        //   var feet = boo.getFeet();
+        //   $log.debug("POS", "boo",  feet.x, feet.y, boo.body.velocity[0], boo.body.velocity[1]);
+        // }
       };
+      // --------------
       var Prop = function(scene, body, radius) {
         this.scene = scene;
         this.body = body;
         this.radius = radius;
+        this.stopped = true;
       };
       Prop.prototype.remove = function() {
         this.body.world.removeBody(this.body);
@@ -105,12 +121,22 @@ angular.module('demo')
         var points = this.body.position;
         return this.scene.worldToCanvas([points[0], points[1] - this.radius]);
       };
-      Prop.prototype.resetFeet = function(pos) {
-        var wp = this.scene.canvasToWorld(pos);
-        this.body.position = [wp.x, wp.y + this.radius];
-      };
       Prop.prototype.setVel = function(vel) {
-        if (!vel) {
+        var stop = !vel;
+        if (stop != this.stopped) {
+          // without this, if we stop when we are pressed against a wall,
+          // we get small restitution? forces which push our body away from the wall.
+          // later, when we startup a new mover, we jump from the displayed position to the resolved spot.
+          if (stop) {
+            this.body.sleep();
+            // boo= this;
+          } else {
+            this.body.wakeUp();
+            // boo= false;
+          }
+          this.stopped = stop;
+        }
+        if (stop) {
           this.body.velocity = [0, 0];
         } else {
           this.body.velocity = [vel.x, -vel.y];

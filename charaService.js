@@ -49,7 +49,9 @@ angular.module('demo')
       //
       var w = this.canvas.width;
       var h = this.canvas.height;
+      // feet: distance from corner to base
       this.feet = pt(0.5 * w, h);
+      // center: distance from corner to mid-point
       this.center = pt(0.5 * w, 0.5 * h);
       return this;
     };
