@@ -139,7 +139,7 @@ angular.module('demo')
           if (!mover) {
             throw new Error("not started");
           }
-          $log.info("moveControl", name, "returning", target);
+          //$log.info("moveControl", name, "returning", target && target.path);
           return target;
         },
         setTarget: function(subject) {

@@ -66,7 +66,7 @@ angular.module('demo')
               cursor.show(!nowHidden);
             }
             var emit = nowHidden ? "hidden" : "shown";
-            $log.debug("mouseControl", name, emit);
+            // $log.debug("mouseControl", name, emit);
             hsmMachine.emit(name, emit, {
               mouse: this.mouse
             });
