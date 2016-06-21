@@ -59,7 +59,7 @@ angular.module('demo')
           $log.info("playerDialog: show choices", comments.length);
           var localComments = comments.slice();
           var localsQuips = quips.slice();
-          modal = modalControl.open(display, "gameWindow", {
+          modal = modalControl.open(display, {
             comments: localComments,
             select: function(which) {
               var comment = localComments[which];

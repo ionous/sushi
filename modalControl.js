@@ -1,7 +1,17 @@
 'use strict';
 
 angular.module('demo')
-  .directive('modalWindow', function() {
+
+// passes the callers content into the modal window's scope.
+.directiveAs('modalContent',
+  function($scope) {
+    this.init = function() {
+      return $scope.modal.contents;
+    };
+  })
+
+.directive('modalWindow',
+  function() {
     return {
       restrict: 'E',
       // i like this specification of attributes, but wish it didnt bind to scope.
@@ -52,7 +62,7 @@ angular.module('demo')
   function(ElementSlotService, $log, $q, $timeout) {
     this.init = function(name, hsmMachine) {
       // modal instance object
-      var Modal = function(slot, input, result, previousParent) {
+      var Modal = function(slot, input, result) {
         var modal = this;
         var closed = false;
         // can only be closed once.
@@ -73,11 +83,6 @@ angular.module('demo')
             //$log.info("modalControl: closed", name, slot.name, reason);
             input.reject(reason);
             result.resolve(reason);
-            // patch: when the map gets removed, windows attached to the map get destroyed
-            // in order to be able to re-open them later, we have to keep them alive.
-            if (previousParent) {
-              previousParent.append(slot.element);
-            }
           }
         };
         this.slot = slot;
@@ -99,21 +104,13 @@ angular.module('demo')
         };
       }; // newModal
 
-      var showWindow = function(slotName, displaySlot, params) {
+      var showWindow = function(slotName, params) {
         // note: with <modal-window> wont actually show till topWindow is ready.
         var slot = ElementSlotService.get(slotName);
-        var previousParent;
-        if (displaySlot) {
-          var display = ElementSlotService.get(displaySlot);
-          if (display) {
-            previousParent = slot.element.parent();
-            display.element.append(slot.element);
-          }
-        }
         //
         var input = $q.defer(); // params resolved after open; rejected if closed early.
         var result = $q.defer(); // resolved when closed.
-        var modal = modalInstance = new Modal(slot, input, result, previousParent);
+        var modal = modalInstance = new Modal(slot, input, result);
 
         // specific event:
         var which = slotName;
@@ -151,9 +148,7 @@ angular.module('demo')
 
       var scope = {
         showing: function() {
-          var ret = modalInstance && modalInstance.showing();
-          //$log.info("showing", ret);
-          return ret;
+          return modalInstance && modalInstance.showing() ? modalInstance : null;
         },
         // dismiss raises an event, requesting the close of the window
         // good to use in window controllers
@@ -173,16 +168,14 @@ angular.module('demo')
         contents: null
       };
 
-      this.open = function(slotName, displayOrParam, paramOrNull) {
-        var params = paramOrNull ? paramOrNull : displayOrParam;
-        var displaySlot = paramOrNull ? displayOrParam : null;
+      this.open = function(slotName, params) {
 
         if (modalInstance) {
           modalInstance.close("opening:" + slotName);
           scope.topWindow = "";
         }
 
-        var modal = showWindow(slotName, displaySlot, params);
+        var modal = showWindow(slotName, params);
         // set the top window -- which this could be done elsewhere....
         modal.resolved.then(function(contents) {
           //$log.warn("modal top window set:", slotName);

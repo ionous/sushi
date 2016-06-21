@@ -3,8 +3,8 @@
 angular.module('demo')
 
 .directiveAs("actionBarControl", ["^^hsmMachine", "^^modalControl", "^^mouseControl"],
-  function(ActionListService, IconService,
-    $log, $q, $uibModal) {
+  function(ActionListService, ElementSlotService, IconService,
+    $element, $log, $q) {
     this.init = function(name, hsmMachine, modalControl, mouseControl) {
       var actionBarModal, displaySlot, currentTarget;
       this.bindTo = function(slotName) {
@@ -28,6 +28,7 @@ angular.module('demo')
         //
         $log.info("showing action bar", target.toString());
         var barpos = target.pos;
+
         var obj = target.object;
         var view = target.view;
         var pendingActions;
@@ -38,22 +39,57 @@ angular.module('demo')
             pendingActions = ActionListService.getMultiActions(obj, combining);
           }
         } // obj
+        var displayEl = ElementSlotService.get(displaySlot).element;
+
         var pendingConfig = $q.when(pendingActions).then(function(actions) {
           var zoom = view && IconService.getIcon("$zoom");
-          if (!actions && !zoom) {
+          if ((!actions || !actions.length) && !zoom) {
             throw new Error("no actions found");
+          }
+          var radius = 42;
+          var size = 42;
+          var length = function() {
+            var l = (actions || []).length;
+            if (zoom) {
+              l += 1;
+            }
+            return l;
           }
           return {
             actions: actions,
             zoom: zoom,
-            barpos: barpos,
-            style: (barpos) && {
-              left: "" + (barpos.x) + "px",
-              top: "" + (barpos.y) + "px",
-            },
-            view: view,
             mouseControl: mouseControl,
-            objectId: obj && obj.id,
+            getStyle: function(idx) {
+              if (actionBarModal) {
+                var left, top;
+                // return left and right positioning based on index
+                if (angular.isUndefined(idx)) {
+                  var modalEl = actionBarModal.slot.element;
+                  var modalRect = modalEl[0].getBoundingClientRect();
+                  var displayRect = displayEl[0].getBoundingClientRect();
+
+                  // modal relative:
+                  left = barpos.x + displayRect.left - modalRect.left;
+                  top = barpos.y + displayRect.top - modalRect.top;
+                } else {
+                  var len = length();
+                  if (idx < 0) {
+                    idx = len - idx + 1;
+                  }
+                  var angle = 2 * Math.PI * (idx / len);
+                  var x = radius * Math.sin(angle);
+                  var y = -radius * Math.cos(angle);
+
+                  left = 42 - 3 + Math.floor(x - (0.5 * size));
+                  top = 42 - 3 + Math.floor(y - (0.5 * size));
+                }
+                // style
+                return {
+                  "left": left + "px",
+                  "top": top + "px"
+                };
+              }
+            },
             runAction: function(act) {
               $log.info("actionBarControl", name, "runAction", act);
               var objId = obj && obj.id;
@@ -73,7 +109,7 @@ angular.module('demo')
           }; // return config
         });
         //
-        actionBarModal = modalControl.open(name, displaySlot, pendingConfig);
+        actionBarModal = modalControl.open(name, pendingConfig);
       }; // open
       return this;
     }; //init
