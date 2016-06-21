@@ -26,7 +26,7 @@ angular.module('demo')
 // still cant decide: when is it better to provide an api to init
 // and when is it better to init implicitly, ex. through promises
 .directiveAs("actionService", ["^gameControl", "^mapControl"],
-  function(ActionService, LocationService, $log) {
+  function(ActionService, $log) {
     this.init = function(name, gameControl, mapControl) {
 
       var promisedActions;
@@ -52,7 +52,7 @@ angular.module('demo')
         // the interaction here with the server needs more thought.
         var zoomables = ["lab-coat"];
         if ((actId == "search-it") && (zoomables.indexOf(propId) >= 0)) {
-          var changedLoc = mapControl.changeLocation(LocationService.nextItem(propId));
+          var changedLoc = mapControl.changeMap(mapControl.which().nextItem(propId));
           changedLoc.then(function() {
             var gotAction = ActionService.getAction("examine-it");
             var fini = gotAction.then(function(act) {

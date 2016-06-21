@@ -5,25 +5,6 @@
 angular.module('demo')
 
 .factory('DisplayService', function(CanvasService, $log, $q) {
-  var newDisplayGroup = function(parentEl, opt) {
-    if (!parentEl) {
-      throw new Error("display group needs a place to attach");
-    }
-    var el = angular.element('<div class="ga-display"></div>');
-    var group = new DisplayGroup(el);
-    if (opt) {
-      var id = opt.id;
-      if (id) {
-        group.el.attr("id", id);
-      }
-      var pos = opt.pos;
-      if (pos) {
-        group.setPos(pos);
-      }
-    }
-    parentEl.append(el);
-    return group;
-  };
   // contains either ".ga-canvas" canvases or ".ga-display" divs.
   // FIX: canvi are getting created too late to intermix as siblings, every layer needs a display group right now; leaf nodes shouldnt need this.
   var DisplayGroup = function(el) {
@@ -84,7 +65,25 @@ angular.module('demo')
   };
 
   var service = {
-    newDisplayGroup: newDisplayGroup,
+    newDisplayGroup: function(parentEl, opt) {
+      if (!parentEl) {
+        throw new Error("display group needs a place to attach");
+      }
+      var el = angular.element('<div class="ga-display"></div>');
+      var group = new DisplayGroup(el);
+      if (opt) {
+        var id = opt.id;
+        if (id) {
+          group.el.attr("id", id);
+        }
+        var pos = opt.pos;
+        if (pos) {
+          group.setPos(pos);
+        }
+      }
+      parentEl.append(el);
+      return group;
+    },
   };
   return service;
 });

@@ -1,11 +1,12 @@
 'use strict';
 
 /**
+ * Character Animation Service
  */
 angular.module('demo')
 
 .factory('CharaService',
-  function(EntityService, $log, $q) {
+  function($log, $q) {
     var dir = {
       up: 0,
       left: 1,
@@ -16,8 +17,8 @@ angular.module('demo')
       270, 180, 90, 0,
     ];
     var speeds = [0, 8, 12];
-    var Chara = function(obj, img, tilesize) {
-      this.obj = obj;
+    var Chara = function(id, img, tilesize) {
+      this.id = id;
       this.img = img;
       this.nextface = dir.right;
       this.facing = -1;
@@ -26,76 +27,53 @@ angular.module('demo')
       this.frame = -1;
       this.tilesize = tilesize;
       this.framesWide = Math.floor(img.width / tilesize);
-    };
-    Chara.prototype.linkup = function() {
-      // FIX; this is very backwards, we should be able to create the character and later asign it to the map.
-      // that the object has the display is also questionable re: states.
-      var objectDisplay = this.obj.objectDisplay;
-      if (!objectDisplay) {
-        var msg = "no display for object";
-        $log.error(msg, this.obj.id);
-        throw new Error(msg);
-      }
-      var display = this.display = objectDisplay.group;
-      var canvi = objectDisplay.canvi;
-      // canvas el can be undefined if the canvas was destroyed.
-      var canvas = this.canvas = canvi && canvi.el && canvi.el[0];
-      if (!canvas) {
-        var msg = "no canvas for object";
-        $log.error(msg, this.obj.id);
-        throw new Error(msg);
-      }
-      this.upperLeft = display.pos;
       //
-      var w = this.canvas.width;
-      var h = this.canvas.height;
-      // feet: distance from corner to base
-      this.feet = pt(0.5 * w, h);
-      // center: distance from corner to mid-point
-      this.center = pt(0.5 * w, 0.5 * h);
-      return this;
+      this.group = null;
+      this.canvas = null;
+      this.feetOfs = this.centerOfs = pt(0, 0);
+    };
+    Chara.prototype.linkup = function(group, canvas) {
+      // record current display info:
+      this.group = group;
+      this.canvas = canvas;
+      // calc current display offsets
+      var w = canvas.width;
+      var h = canvas.height;
+      this.feetOfs = pt(0.5 * w, h);
+      this.centerOfs = pt(0.5 * w, 0.5 * h);
     };
     Chara.prototype.setCorner = function(pos) {
-      var index = Math.floor(pos.y + this.feet.y);
-      return this.display.setPos(pos, index);
+      var zindex = Math.floor(pos.y + this.feetOfs.y);
+      this.group.setPos(pos, zindex);
     };
-    Chara.prototype.getCorner = function() {
-      return this.display.pos;
-    };
-    Chara.prototype.getFeet = function() {
-      var p = this.getCorner();
-      return pt_add(p, this.feet);
-    };
-    Chara.prototype.getCenter = function() {
-      var p = this.getCorner();
-      return pt_add(p, this.center);
-    };
-    Chara.prototype.getAngle = function() {
-      return angles[this.nextface];
-    };
-    Chara.prototype.setAngle = function(angle) {
+    Chara.prototype.setAngle = function(angle, force) {
+      var face = this.nextface;
       var rnd = Math.floor(angle / 90) * 90;
       var i = angles.indexOf(rnd);
-      //$log.info("Chara: set angle:", angle, ", rounding to:", rnd, "at:", i);
       if (i != -1) {
-        this.nextface = i;
+        face = this.nextface = i;
       }
+      if (force) {
+        this.facing = -1;
+      }
+      return face;
     };
     // positive is down, right
     Chara.prototype.setFacing = function(x, y) {
+      var face;
       if (y < -0.6) {
-        this.nextface = dir.up;
+        face = dir.up;
       } else if (y >= 0.6) {
-        this.nextface = dir.down;
+        face = dir.down;
       } else if (x < 0) {
-        this.nextface = dir.left;
+        face = dir.left;
       } else if (x >= 0) {
-        this.nextface = dir.right;
+        face = dir.right;
       }
-      //$log.info(x,y ,this.nextface, this.facing);
+      this.nextface = face;
+      return angles[face];
     };
-    Chara.prototype.face = function(pos) {
-      var src = this.getCenter();
+    Chara.prototype.face = function(src, pos) {
       var diff = pt_sub(pos, src);
       var mag = pt_dot(diff, diff);
       if (mag > 1e-3) {
@@ -136,17 +114,19 @@ angular.module('demo')
         ctx.drawImage(this.img, srcx, srcy, imageSize, imageSize, 0, 0, imageSize, imageSize);
       }
     };
+    //
     var service = {
+      // the chara is a resusable sprite source
+      // we blit it into the map element as needed
       newChara: function(id, imageSrc, size) {
         if (!imageSrc) {
           throw new Error("image not defined");
         }
-        //$log.info("CharaService: loadImage", imageSrc);
-        var obj = EntityService.getById(id);
         var defer = $q.defer();
         var img = new Image();
         img.onload = function() {
-          defer.resolve(new Chara(obj, img, size || 64));
+          var res = new Chara(id, img, size || 64);
+          defer.resolve(res);
         };
         img.src = imageSrc;
         return defer.promise;

@@ -4,9 +4,8 @@ angular.module('demo')
 
 // -loaded, -loading, changeRoom
 .directiveAs("mapControl", ["^^hsmMachine"],
-  function(ElementSlotService, LayerService, LocationService, MapService, ObjectService, UpdateService,
+  function(ElementSlotService, LayerService, LocationService, MapService, ObjectService, ObjectDisplayService, UpdateService,
     $log, $element, $q, $rootScope) {
-    var hsmMachine;
     // returns a promise:
     var loadMap = function(mapEl, next) {
       var mapName = next.mapName();
@@ -22,13 +21,13 @@ angular.module('demo')
           } else {
             // FIX, FIX, FIX: fake an enclosure so that we can see the player and the zoomed item
             var contents = {
-              player:true,
+              player: true,
             };
             contents[next.item] = true;
             enclosure = {
               id: "_display_",
               contents: contents,
-            };            
+            };
           }
 
           // tree contains: el, bounds, nodes
@@ -50,82 +49,90 @@ angular.module('demo')
         }); // object service
       }); // get map
     };
-    this.map = null;
-    this.defer = null;
-    this.where = null;
-    this.$onDestroy = function() {
-      this.destroyMap();
-    };
-    this.destroyMap = function() {
-      if (this.defer) {
-        this.defer.reject("destroyed");
-        this.defer = null;
+    var loading = null;
+    var currentMap = null;
+
+    var destroyMap = function() {
+      if (loading) {
+        loading.reject("destroyed");
+        loading = null;
       }
-      if (this.map) {
-        var tree = this.map.tree;
+      if (currentMap) {
+        var tree = currentMap.tree;
         if (tree) {
           tree.nodes.destroyNode();
           tree.el.remove();
         }
-        this.map = null;
+        currentMap = null;
       }
+      ObjectDisplayService.clear();
     };
-
-    this.changeLocation = function(next) {
+    this.$onDestroy = function() {
+      destroyMap();
+    };
+    this.init = function(name, hsmMachine) {
       var ctrl = this;
-      var where = LocationService.currentLocation();
-      if (!next.changes(where)) {
-        return $q.when(where);
-      } else {
-        $log.info("mapControl, loading", next.toString());
-        hsmMachine.emit(ctrl.name, "loading", next);
-        ctrl.destroyMap();
-        // after the url changes, angular changes the ng-view, and recreates the map element.
-        var defer = ctrl.defer = $q.defer();
-        var off = $rootScope.$on("ga-map-created", function(evt, mapSlot) {
-          off();
-          var slot = ElementSlotService.get(mapSlot);
-          loadMap(slot.element, next).then(function(map) {
-            defer.resolve({
-              map: map,
-              where: next,
-              scope: slot.scope
+      //
+      this.changeMap = function(next) {
+        var where = LocationService();
+        if (!next.changes(where)) {
+          return $q.when(where);
+        } else if (loading) {
+          throw new Error("already loading");
+        } else {
+          //
+          destroyMap();
+          // after the url changes, angular changes the ng-view, and recreates the map element.
+          var defer = loading = $q.defer();
+          //
+          $log.info("mapControl", name, "loading", next.toString());
+          hsmMachine.emit(name, "loading", next);
+          // we eventually get a ga-map-created event.
+          var off = $rootScope.$on("ga-map-created", function(evt, mapSlot) {
+            $log.info("mapControl", name, "got slot", mapSlot);
+            off();
+            // get the slot from the newly loaded dom
+            var slot = ElementSlotService.get(mapSlot);
+            // load the map into that slot
+            loadMap(slot.element, next).then(function(loadedMap) {
+              $log.info("mapControl", name, "got map", next.toString());
+              var map = currentMap = loadedMap;
+              // size the view
+              slot.scope.style = {
+                'width': map.bounds.x + 'px',
+                'height': map.bounds.y + 'px',
+              };
+              slot.scope.loaded = true;
+              defer.resolve({
+                map: map,
+                where: next,
+                scope: slot.scope
+              });
             });
           });
-        });
-        // if canceled, none of the data gets applied to ctrl,scope.
-        defer.promise.then(function(res) {
-          ctrl.where = res.where;
-          ctrl.map = res.map;
-          ctrl.defer = null;
-          // size the view
-          res.scope.style = {
-            'width': res.map.bounds.x + 'px',
-            'height': res.map.bounds.y + 'px',
-          };
-          res.scope.loaded = true;
-          LocationService.finishedLoading(res.where);
-        });
+          LocationService(next);
+          return defer.promise.then(function(res) {
+            loading = null;
+            $log.info("mapControl", name, "loaded!");
+            hsmMachine.emit(name, "loaded", res);
+            return res;
+          }, function(reason) {
+            $log.error("mapControl", name, "map failed to load", reason);
+          });
+        }
+      };
 
-        // the promise is resolved by finished loading
-        // FIX: remove?
-        return LocationService.changeLocation(next).then(function(now) {
-          $log.warn(ctrl.name, "loaded!");
-          hsmMachine.emit(ctrl.name, "loaded", now);
-        });
-      }
-    };
-    this.init = function(name, _hsmMachine) {
-      hsmMachine = _hsmMachine;
-      var ctrl = this;
-      ctrl.name = name;
+      this.which = function() {
+        return LocationService();
+      };
+
       return {
         name: function() {
           return name;
         },
         // suspicious of exposing resources object directly to scope watchers
         get: function(key) {
-          var ret = ctrl.map[key];
+          var ret = currentMap[key];
           if (angular.isUndefined(ret)) {
             var msg = "resource not found";
             $log.error(msg, key);
@@ -134,23 +141,23 @@ angular.module('demo')
           return ret;
         },
         loaded: function() {
-          return !!ctrl.map;
+          return !!currentMap;
         },
         which: function() {
-          return LocationService.currentLocation();
+          return ctrl.which();
         },
         // return a promise
         changeRoom: function(room) {
           $log.info("mapControl", name, "changeRoom", room);
-          return ctrl.changeLocation(LocationService.nextRoom(room));
+          return ctrl.changeMap(LocationService().nextRoom(room));
         },
         changeView: function(view) {
           $log.info("mapControl", name, "changeView", view);
-          return ctrl.changeLocation(LocationService.nextView(view));
+          return ctrl.changeMap(LocationService().nextView(view));
         },
         changeItem: function(item) {
           $log.info("mapControl", name, "changeItem", item);
-          return ctrl.changeLocation(LocationService.nextItem(item));
+          return ctrl.changeMap(LocationService().nextItem(item));
         },
       };
     };

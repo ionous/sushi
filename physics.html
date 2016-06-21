@@ -1,57 +1,62 @@
 <hsm-state name="Physics" physics-control="physics" hsm-enter="physics.create(map.get('physics'))" hsm-exit="physics.destroy()">
-  <hsm-state avatar-control="avatar" hsm-enter="avatar.create(player.linkup(), physics, 12)" hsm-exit="avatar.destroy()" hsm-init="turn.paused() && 'PhysicsPause'" hsm-exit="pads.destroy()">
-    <hsm-state name="PhysicsPlay" mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(map, avatar)" hsm-exit="mouseTarget.release()" hsm-init="modal.showing() && 'PhysicsModal'">
-      <hsm-state name="PhysicsUpdating">
-        <hsm-event on="player-interact" when="!avatar.touches($evt.target)" goto="Planning"></hsm-event>
-        <hsm-event on="player-interact" run="actionBar.open($evt.target, combiner.item())"></hsm-event>
-        <hsm-event on="keys" when="$evt.moveKey(true)" goto="KeyWalking"></hsm-event>
-        <!-- disabled the keyboard action key. need a real location for every target to center the menu. <hsm-event on="keys" when="$evt.keydown && $evt.actionKey()" run="player.interact( pads.closestLanding(chara.getFeet()))"></hsm-event> -->
-        <hsm-event on="update-game" run="mouseTarget.update(mouse.pos())"></hsm-event>
-        <hsm-event on="update-game" run="physics.step($evt.dt)"></hsm-event>
-        <!--  -->
-        <ng-include src="'directing.html'"></ng-include>
-        <!-- ^~Directing -->
-        <hsm-state name="MouseHovering" hsm-enter="mouse.show('pointer')">
+  <hsm-state avatar-control="avatar" hsm-exit="avatar.destroy('exit')" hsm-init="turn.paused() && 'PhysicsPause'" hsm-exit="pads.destroy()">
+    <hsm-state name="PhysicsPlay" hsm-enter="avatar.ensure(player, physics, 12)">
+      <hsm-state mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(map, avatar)" hsm-exit="mouseTarget.release()" hsm-init="modal.showing() && 'PhysicsModal'">
+        <hsm-state name="PhysicsUpdating">
+          <hsm-event on="player-interact" when="!avatar.touches($evt.target)" goto="Planning"></hsm-event>
+          <hsm-event on="player-interact" run="actionBar.open($evt.target, combiner.item())"></hsm-event>
+          <hsm-event on="keys" when="$evt.moveKey(true)" goto="KeyWalking"></hsm-event>
+          <!-- disabled the keyboard action key. need a real location for every target to center the menu. -->
+          <hsm-event on="update-game" run="mouseTarget.update(mouse.pos())"></hsm-event>
+          <hsm-event on="update-game" run="physics.step($evt.dt)"></hsm-event>
           <!--  -->
-          <hsm-event on="mouse-target-changed" run="mouse.show( !$evt.target ? 'pointer' : (!$evt.touches ? 'disk' : 'bullseye'))"></hsm-event>
-          <!--  -->
-          <hsm-event on="hover-press" when="mouseTarget()" run="avatar.lookAt(mouseTarget())"></hsm-event>
-          <!-- FIX: might "beep" when not on pads -->
-          <hsm-event on="hover-select" when="!avatar.touches(mouseTarget())" goto="Pathing"></hsm-event>
-          <hsm-event on="hover-select" run="player.interact(mouseTarget())"></hsm-event>
-          <hsm-event on="hover-direct" goto="Directing"></hsm-event>
-          <!--  -->
-          <hsm-state name="Planning">
-            <hsm-event on="keys" when="$evt.moveKey(true)" goto="KeyWalking"> </hsm-event>
-          </hsm-state>
-          <!-- ^~Planning -->
-          <ng-include src="'keyWalking.html'"></ng-include>
-          <!-- ^~KeyWalking -->
-          <ng-include src="'pathing.html'"></ng-include>
-          <!-- ^~Pathing -->
-          <hsm-event on="action-bar-opened" goto="PhysicsActions"></hsm-event>
-          <hsm-state name="PhysicsActions" hsm-enter="mouseTarget.ghost(actionBar.target())" hsm-exit="mouseTarget.ghost(false)">
-            <hsm-state hsm-exit="actionBar.dismiss('physics')">
-              <hsm-event on="modal-opened" goto=""></hsm-event>
-              <hsm-event on="action-bar-closed" goto="Planning"></hsm-event>
+          <ng-include src="'directing.html'"></ng-include>
+          <!-- ^~Directing -->
+          <hsm-state name="MouseHovering" hsm-enter="mouse.show('pointer')">
+            <!--  -->
+            <hsm-event on="mouse-target-changed" run="mouse.show( !$evt.target ? 'pointer' : (!$evt.touches ? 'disk' : 'bullseye'))"></hsm-event>
+            <!--  -->
+            <hsm-event on="hover-press" when="mouseTarget()" run="avatar.lookAt(mouseTarget())"></hsm-event>
+            <!-- FIX: might "beep" when not on pads -->
+            <hsm-event on="hover-select" when="!avatar.touches(mouseTarget())" goto="Pathing"></hsm-event>
+            <hsm-event on="hover-select" run="player.interact(mouseTarget())"></hsm-event>
+            <hsm-event on="hover-direct" goto="Directing"></hsm-event>
+            <!--  -->
+            <hsm-state name="Planning">
+              <hsm-event on="keys" when="$evt.moveKey(true)" goto="KeyWalking"> </hsm-event>
             </hsm-state>
+            <!-- ^~Planning -->
+            <ng-include src="'keyWalking.html'"></ng-include>
+            <!-- ^~KeyWalking -->
+            <ng-include src="'pathing.html'"></ng-include>
+            <!-- ^~Pathing -->
+            <hsm-event on="action-bar-opened" goto="PhysicsActions"></hsm-event>
+            <hsm-state name="PhysicsActions" hsm-enter="mouseTarget.ghost(actionBar.target())" hsm-exit="mouseTarget.ghost(false)">
+              <hsm-state hsm-exit="actionBar.dismiss('physics')">
+                <hsm-event on="modal-opened" goto=""></hsm-event>
+                <hsm-event on="action-bar-closed" goto="Planning"></hsm-event>
+              </hsm-state>
+            </hsm-state>
+            <!-- ^~PhysicsActions -->
           </hsm-state>
-          <!-- ^~PhysicsActions -->
+          <!-- ^~MouseHovering -->
         </hsm-state>
-        <!-- ^~MouseHovering -->
+        <!-- ^~PhysicsUpdating -->
+        <hsm-event on="modal-opened" goto="PhysicsModal"></hsm-event>
+        <hsm-state name="PhysicsModal">
+          <hsm-event on="modal-closed" goto="PhysicsPlay"></hsm-event>
+        </hsm-state>
+        <!-- ^~PhysicsModal -->
       </hsm-state>
-      <!-- ^~PhysicsUpdating -->
-      <hsm-event on="modal-opened" goto="PhysicsModal"></hsm-event>
-      <hsm-state name="PhysicsModal">
-        <hsm-event on="modal-closed" goto="PhysicsPlay"></hsm-event>
-      </hsm-state>
-      <!-- ^~PhysicsModal -->
     </hsm-state>
     <!-- ^~PhysicsPlay -->
     <hsm-event on="turn-paused" goto="PhysicsPause"></hsm-event>
-    <hsm-state name="PhysicsPause">
+    <hsm-state name="PhysicsPause" game-listener="playerState" hsm-enter="playerState.listen('player', 'x-set')" hsm-exit="playerState.silence()">
+    <hsm-event on="player-state-changed" run="log.warn('player state change', $evt.data.prop, $evt.data.prev, $evt.data.next)"></hsm-event>
+      <hsm-event on="player-state-changed" run="avatar.destroy('state change')" goto=""></hsm-event>
       <hsm-event on="turn-playing" goto="PhysicsPlay"></hsm-event>
     </hsm-state>
     <!-- ^~PhysicsPause -->
   </hsm-state>
+  <!-- ^~physics avatar -->
 </hsm-state>

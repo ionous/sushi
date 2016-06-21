@@ -89,6 +89,51 @@ angular.module('demo')
           return dataRect(b);
         });
       };
+      LayerData.prototype.getCategory = function() {
+        // extend it depending on the layer type.
+        var name = this.getName();
+        var cat = name.charAt(0);
+        switch (cat) {
+          case "@":
+            var objectName = name.slice(1);
+            // FIX, FIX, FIX: the layer data is named "alice", the object "player"
+            if (objectName == 'alice') {
+              objectName = 'player';
+            }
+            return {
+              layerType: "objectLayer",
+              objectName: objectName,
+            };
+          case "#":
+            var state = name.slice(1);
+            return {
+              layerType: "stateLayer",
+              stateName: state,
+            };
+          case "$":
+            var dash = name.indexOf("-");
+            var kind = name.slice(1, dash != -1 ? dash : undefined);
+            var shortName = name.slice(dash != -1 ? dash + 1 : 1);
+            return {
+              //ex. chara or enclosure.
+              layerType: kind,
+              shortName: shortName
+            };
+          default:
+            if (name.indexOf("!") != (name.length - 1)) {
+              return {
+                layerType: "none",
+              };
+            } else {
+              var viewName = name.slice(0, name.length - 1);
+              return {
+                layerType: "viewLayer",
+                viewName: viewName,
+              };
+            }
+        } // switch
+        throw new Error("MapService: unknown category");
+      };
 
       var MapData = function(name, data, bkcolor) {
         this.name = name;
@@ -125,51 +170,6 @@ angular.module('demo')
       };
 
       var mapService = {
-        getCategory: function(mapLayer) {
-          // extend it depending on the layer type.
-          var name = mapLayer.getName();
-          var cat = name.charAt(0);
-          switch (cat) {
-            case "@":
-              var objectName = name.slice(1);
-              // FIX, FIX, FIX: the layer data is named "alice", the object "player"
-              if (objectName == 'alice') {
-                objectName = 'player';
-              }
-              return {
-                layerType: "objectLayer",
-                objectName: objectName,
-              };
-            case "#":
-              var state = name.slice(1);
-              return {
-                layerType: "stateLayer",
-                stateName: state,
-              };
-            case "$":
-              var dash = name.indexOf("-");
-              var kind = name.slice(1, dash != -1 ? dash : undefined);
-              var shortName = name.slice(dash != -1 ? dash + 1 : 1);
-              return {
-                //ex. chara or enclosure.
-                layerType: kind,
-                shortName: shortName
-              };
-            default:
-              if (name.indexOf("!") != (name.length - 1)) {
-                return {
-                  layerType: "none",
-                };
-              } else {
-                var viewName = name.slice(0, name.length - 1);
-                return {
-                  layerType: "viewLayer",
-                  viewName: viewName,
-                };
-              }
-          } // switch
-          throw new Error("MapServie: unknown category");
-        },
         // FIX: can this be replaced with an angular resource?
         getMap: function(mapName) {
           var url = "/bin/maps/" + mapName + ".map";

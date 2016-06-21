@@ -1,30 +1,27 @@
-
 'use strict';
 
 angular.module('demo')
 
 .directiveAs("playerControl", ["^^hsmMachine"],
-  function(CharaService, PlayerService, $q, $log) {
-    var player, pending;
-    var obj = PlayerService.getPlayer();
+  function(CharaService, ObjectDisplayService, PlayerService,
+    $q, $log) {
+    //
+    var currChara, pending;
+    var playerObj = PlayerService.getPlayer();
+    var memory = {};
+    //
     this.init = function(name, hsmMachine) {
-      var destroy = function() {
-        var okay = player || pending;
-        if (okay) {
-          hsmMachine.emit(name, "destroyed", {
-            player: player
-          });
+      var player = {
+        id: function() {
+          return playerObj.id;
+        },
+        destroy: function() {
           if (pending) {
             pending.reject("destroyed");
+            pending = null;
           }
-          if (player) {
-            player = null;
-          }
-        }
-      };
-
-      return {
-        destroy: destroy,
+          currChara = null;
+        },
         // raises -located
         locate: function() {
           PlayerService.fetchWhere().then(function(where) {
@@ -33,15 +30,17 @@ angular.module('demo')
             });
           });
         },
-        linkup: function() {
-          if (!player) {
-            throw new Error("player doesnt exist");
+        linkup: function(display) {
+          if (!currChara) {
+            throw new Error("currChara doesnt exist");
           }
-          // FIX: this is a hack to get the player image to attach to the current map -- better? would during draw or something? needs some  thought. maybe a characters list in the map? then we could map.update() and the characters would too.
-          return player.linkup();
+          display = display || ObjectDisplayService.getDisplay(playerObj.id);
+          currChara.linkup(display.group, display.canvas)
+          return currChara;
         },
         update: function(dt) {
-          player.draw(dt);
+          // maybe a characters list in the map? then we could map.update() and the characters would too.
+          currChara.draw(dt);
         },
         // target is of type "Subject"
         interact: function(target) {
@@ -63,26 +62,26 @@ angular.module('demo')
           hsmMachine.emit(name, "direct", {})
         },
         // target is of type "Subject"
-        facePos: function(pos) {
-          player.face(pos);
-        },
+        // facePos: function(pos) {
+        //   currChara.face(src, pos);
+        // },
         // raises -creating, -created
         create: function(imagePath, size) {
-          destroy();
+          player.destroy();
           // uses a separate defered to reject on destroy.
-          var pending = $q.defer();
+          pending = $q.defer();
           // XXX - hsmMachine.emit(name, "creating", {});
-          CharaService.newChara(obj.id, imagePath, size).then(function(player) {
-            pending.resolve(player);
-          });
-          pending.promise.then(function(p) {
+          CharaService.newChara(playerObj.id, imagePath, size).then(pending.resolve, pending.reject);
+          pending.promise.then(function(chara) {
             pending = null;
-            player = p;
+            //$log.info(name, "created!");
+            currChara = chara;
             hsmMachine.emit(name, "created", {
-              player: p
+              player: chara
             });
           });
         }, // create
       }; // return
+      return player;
     }; //init
   })

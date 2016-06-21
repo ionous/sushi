@@ -10,12 +10,10 @@ angular
     function($routeProvider) {
       $routeProvider
         .when('/r/:roomId', {
-          templateUrl: "play.html",
-          controller: "DisplayController",
+          templateUrl: "play.html"
         })
         .when('/r/:roomId/v/:viewId', {
-          templateUrl: "play.html",
-          controller: "DisplayController",
+          templateUrl: "play.html"
         });
       //ex. http://localhost:8080/demo/#/rooms/automat
       // .when('/rooms/', {

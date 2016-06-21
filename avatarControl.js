@@ -3,88 +3,129 @@
 angular.module('demo')
 
 .directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl"],
-  function($log) {
+  function(LocationService, ObjectDisplayService, $log) {
     this.init = function(name, hsmMachine, keyControl) {
-      var chara, prop, pads;
-
-      var arrestMovement = function() {
-        if (prop) {
-          prop.setVel(false);
-        }
-        if (chara) {
-          chara.setSpeed(false);
-        }
-      };
+      var currPlayer, currChara, currProp, currSkin, currLoc;
+      //
+      var defaultAngle = 0;
+      var currPos = pt(0, 0);
+      var currAngle = defaultAngle;
 
       var reduce = function(val) {
         return val ? 1.0 : 0.0;
       };
-
+      var memory = {};
+      var Memory = function(skin, pos, angle) {
+        this.skin = skin;
+        this.pos = pt_floor(pos);
+        this.angle = angle;
+      };
+      Memory.prototype.toString = function() {
+        return "skin:" + [this.skin || "''", this.pos.x, this.pos.y, this.angle].join(",");
+      };
       var avatar = {
-        // sometime between link and 
-        create: function(_chara, physics, size) {
-          chara = _chara;
-          prop = physics.addProp(chara.getFeet(), size || 12);
-          if (!prop) {
-            throw new Error("prop not created");
+        create: function(player, physics, size) {
+          if (currPlayer) {
+            throw new Error("avatar already created");
           }
-          // FIX: ghost .object
+          return avatar.ensure(player, physics, size);
+        },
+        // NOTE: we dont change state during play -- only on processing.
+        // and we never wind up in a non-physical state in a a physical map.
+        // i guess the thing is -- i dont want to destroy the physics prop simply because we are processing -- 
+        ensure: function(player, physics, size) {
+          if (!currPlayer) {
+            $log.info("avatarControl", name, "create");
+            var display = ObjectDisplayService.getDisplay(player.id());
+            currPlayer = player;
+            currChara = player.linkup(display);
+            currSkin = display.skin;
+            $log.info("avatarControl", name, "skin", typeof(currSkin), currSkin);
+            currPos = display.group.pos;
+            currAngle = defaultAngle;
+
+            var loc = currLoc = LocationService().toString();
+            var mem = memory[loc];
+            if (!mem) {
+              $log.info("avatarControl", name, "no memory for", loc);
+            } else if (currSkin != mem.skin) {
+              $log.info("avatarControl", name, "mismatched skin for", loc, "was", mem.skin, "now", currSkin);
+            } else {
+              var prevLoc= LocationService.prev();
+              $log.info("avatarControl", name, "restoring", mem.toString(), "from", prevLoc);
+              currPos = mem.pos;
+              currAngle = mem.angle;
+              // spin ourselves around on return
+              // (unless we zoomed in on an item)
+              if (!prevLoc || !prevLoc.item) {
+                currAngle += 180;
+                if (currAngle >= 360) {
+                  currAngle -= 360;
+                }
+              }
+              currChara.setAngle(currAngle, true);
+              currChara.setCorner(currPos);
+            }
+
+            var feet = pt_add(currPos, currChara.feetOfs);
+            currProp = physics.addProp(feet, size || 12);
+            if (!currProp) {
+              throw new Error("prop not created");
+            }
+          }
+        },
+        destroy: function(reason) {
+          $log.info("avatarControl", name, "destroy", reason || '?');
+          if (currLoc) {
+            var mem = memory[currLoc] = new Memory(currSkin, currPos, currAngle)
+            $log.info("avatarControl", name, "memorized", currLoc, mem.toString());
+            currLoc = null;
+          };
+          if (currChara) {
+            currChara.setSpeed(false);
+            currChara = null;
+          }
+          if (currProp) {
+            currProp.remove();
+            currProp = null;
+          }
+          currPlayer = null;
         },
         // returns true if the avatar is standing on the landing pads of the target.
         touches: function(target) {
-          var src = this.getFeet();
-          var touches = target && target.pads && target.pads.getPadAt(src);
+          var touches = false;
+          if (target && target.pads) {
+            var feet = avatar.getFeet();
+            touches = target.pads.getPadAt(feet);
+          }
           return touches;
         },
-        destroy: function() {
-          arrestMovement();
-          chara = false;
-          if (prop) {
-            prop.remove();
-            prop = false;
-          }
-        },
         getCenter: function() {
-          var next = prop.getFeet();
-          var corner = pt_sub(next, chara.feet);
-          return pt_add(corner, chara.center);
+          return pt_add(currPos, currChara.centerOfs);
         },
         getFeet: function() {
-          return prop.getFeet();
+          return pt_add(currPos, currChara.feetOfs);
         },
-        // ? move to pads control, which takes a chara or pos
-        // returns the closest subject the avatar is standing on.
-        // in order to open the action bar -- interact
-        // pads.attach(map.get('pads'))
-        // this.getBestPad = function(avatar) {
-        //   var close;
-        //   var src = avatar.getFeet();
-        //   landingPads.forEach(function(pads) {
-        //     var pad = pads.getClosestPad(src);
-        //     if (!close || (pad.dist < close.dist)) {
-        //       close = pad;
-        //     }
-        //   });
-        //   // pad subject comes from add+andingData: object || view
-        //   return close && close.subject;
-        // }
-        // 
         lookAt: function(target) {
-          var set;
-          var src = this.getFeet();
+          var src = avatar.getFeet();
           var pad = target && target.pads && target.pads.getClosestPad(src);
           if (pad) {
             var angle = pad.getAngle();
             if (angle) {
-              var ca = chara.getAngle();
-              if (Math.abs(angle - ca) > 45) {
-                chara.setAngle(angle);
-                set = angle;
-              }
+              currChara.setAngle(angle);
+              currAngle = angle;
+              $log.info("avatarControl", name, "new angle", currAngle);
             }
           }
         },
-        stop: arrestMovement,
+        stop: function() {
+          if (currProp) {
+            currProp.setVel(false);
+          }
+          if (currChara) {
+            currChara.setSpeed(false);
+          }
+        },
         // move in the normalized direction
         slide: function(dt, buttons) {
           var b = buttons;
@@ -92,30 +133,32 @@ angular.module('demo')
           var len = pt_dot(diff, diff);
           var slideDir = (len >= 1e-3) && pt_scale(diff, 1.0 / Math.sqrt(len));
           if (!slideDir) {
-            arrestMovement();
+            avatar.stop();
           } else {
             avatar.update(dt, slideDir);
           }
         },
         update: function(dt, dir) {
           if (!dir || !dt) {
-            arrestMovement();
-          } else {
+            avatar.stop();
+          } else if (currProp) {
             var walking = keyControl.buttons('shift');
-
             // animation facing.
             var face = dir;
-            chara.setFacing(face.x, face.y);
+            var newAngle = currChara.setFacing(face.x, face.y);
+            if (newAngle != currAngle) {
+              currAngle = newAngle;
+              $log.info("avatarControl", name, "new angle", currAngle);
+            }
             // animation speed.
-            chara.setSpeed(walking ? 1 : 2);
+            currChara.setSpeed(walking ? 1 : 2);
             // physics speed.
-
             var vel = pt_scale(dir, walking ? 1 : 3);
-            prop.setVel(vel);
+            currProp.setVel(vel);
             // position based on last physics.
-            var feet = prop.getFeet();
-            var corner = pt_sub(feet, chara.feet);
-            chara.setCorner(corner);
+            var feet = currProp.getFeet();
+            var pos = currPos = pt_sub(feet, currChara.feetOfs);
+            currChara.setCorner(pos);
           }
         },
       };

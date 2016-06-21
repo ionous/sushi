@@ -16,12 +16,13 @@
               <ng-include src="'processing.html'"></ng-include>
             </hsm-state>
             <!-- loading and playing the game -->
-            <hsm-state hsm-init="!map.loaded() ? 'PlaySpaceLoading' : 'Playing'">
+            <hsm-state hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
+              <ng-include src="'playing.html'"></ng-include>
+              <!--  -->
+              <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
               <hsm-state name="PlaySpaceLoading">
                 <hsm-event on="map-loaded" goto="Playing"></hsm-event>
               </hsm-state>
-              <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
-              <ng-include src="'playing.html'"></ng-include>
             </hsm-state>
           </hsm-state>
         </hsm-state>

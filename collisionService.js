@@ -106,6 +106,7 @@ angular.module('demo')
         this.body = body;
         this.radius = radius;
         this.stopped = true;
+        this.body.sleep();
       };
       Prop.prototype.remove = function() {
         this.body.world.removeBody(this.body);

@@ -2,7 +2,7 @@
 
 angular.module('demo')
   .factory('LayerService',
-    function(DisplayService, HitService, LandingService, MapService, WatcherService,
+    function(DisplayService, HitService, LandingService, ObjectDisplayService, WatcherService,
       $log, $q) {
       // an activated layer from a map.
       var Node = function(ctx, name, canvi, tinter, hitShape, children) {
@@ -35,7 +35,7 @@ angular.module('demo')
         });
         this.children = null;
         //context is owned by child, its used to recreate the node on child "expanded"
-        this.ctx= null;
+        this.ctx = null;
       };
       // a child contains a potential Node.      
       var Child = function(ctx, mapLayer) {
@@ -91,7 +91,7 @@ angular.module('demo')
       // the current game object in question -- noting that not all layers represent game objects
       // how to clean up when this map layer which generated this ctx has been destroyed.
       // Contexts are owned Child(ren), and are destroyed when the Child is.
-      var Context = function(displayGroup, hitGroup, allPads, enclosure, onDestroy) {
+      var Context = function(displayGroup, hitGroup, allPads, stateName, enclosure, onDestroy) {
         // without a displayGroup, nothing can be added to the scene.
         if (!displayGroup) {
           throw new Error("LayerContext: missing display group");
@@ -108,6 +108,7 @@ angular.module('demo')
           throw new Error("LayerContext: missing enclosure");
         }
         this.allPads = allPads;
+        this.stateName = stateName;
         this.enclosure = enclosure; // a child.
         var ctx = this;
         this.destroyed = false;
@@ -150,6 +151,7 @@ angular.module('demo')
           // it seems oddly inconsistent.
           opt.hitGroup || this.hitGroup, // HitGroup
           this.allPads,
+          opt.stateName || this.stateName,
           opt.enclosure || this.enclosure, // an entity
           function() { // on destroy function
             if (opt.hitGroup) {
@@ -161,7 +163,7 @@ angular.module('demo')
             displayGroup = null;
             opt = null;
           });
-        next.object = opt.object || this.object;
+        next.object = this.object;
         next.ofs = abs;
         next.dynamicDepth = opt.dynamicDepth || this.dynamicDepth;
         return next;
@@ -202,6 +204,7 @@ angular.module('demo')
             } else {
               // yuck, we dont have the object till after its shown.
               next.object = object;
+              next.stateName = "";
               next.hitGroup.subject = new Subject(object, null, mapLayer.path);
               return child.expand();
             }
@@ -214,6 +217,7 @@ angular.module('demo')
         var pos = mapLayer.getPos();
         var next = this.newContext({
           mapLayer: mapLayer,
+          stateName: stateName,
         });
         var child = new Child(next, mapLayer);
         child.watcher = WatcherService.showState(next.object, stateName,
@@ -278,7 +282,7 @@ angular.module('demo')
       };
       // create a new potential node; return a promise.
       Context.prototype.createChild = function(subLayer) {
-        var cat = MapService.getCategory(subLayer);
+        var cat = subLayer.getCategory();
         // $log.debug("LayerService: createChild", subLayer.path);
         switch (cat.layerType) {
           case "objectLayer":
@@ -304,6 +308,8 @@ angular.module('demo')
         var layerPath = mapLayer.path;
         // $log.info("LayerService: creating", layerPath, "canvas");
         var hitShape = ctx.hitGroup.newHitShape(mapLayer);
+        var object = ctx.object;
+        var stateName = ctx.stateName;
         var displayGroup = ctx.displayGroup;
         // create the canvas first, to help ensure consistent ordering:
         // note: canvi can be null if the mapLayer is completely empty.
@@ -315,14 +321,14 @@ angular.module('demo')
               return child;
             }) : null;
           });
-          // after all children have been created: draw into the canvas.
+          // after all children have been created: draw into our own canvas.
           return $q.all(promisedChildren).then(function(children) {
             var tinter;
             if (canvi) {
-              if (!ctx.object) {
+              if (!object) {
                 canvi.draw();
               } else {
-                tinter = WatcherService.showTint(ctx.object, function(color) {
+                tinter = WatcherService.showTint(object, function(color) {
                   canvi.draw(color);
                 });
                 // hack, hack, hack.
@@ -330,13 +336,9 @@ angular.module('demo')
                 // note: one object can be displayed in multiple places simultaneously
                 // so this is definitely not correct
                 // but works for most of the important objects.
-                ctx.object.objectDisplay = {
-                  group: displayGroup,
-                  canvi: canvi
-                };
+                ObjectDisplayService.newDisplay(object.id, stateName, displayGroup, canvi);
               }
             }
-
             return new Node(ctx, mapLayer.getName(), canvi, tinter, hitShape, children);
           });
         });
@@ -349,7 +351,7 @@ angular.module('demo')
           var displayGroup = DisplayService.newDisplayGroup(parentEl, {
             id: "md-root"
           });
-          var ctx = new Context(displayGroup, hitGroups, allPads, enclosure, function() {
+          var ctx = new Context(displayGroup, hitGroups, allPads, null, enclosure, function() {
             displayGroup.destroyDisplay();
           });
 

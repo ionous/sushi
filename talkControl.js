@@ -4,8 +4,8 @@
 angular.module('demo')
 
 .directiveAs('talkControl', ["^modalControl"], function(
-  ElementSlotService, EntityService,
-  $log, $q, $rootElement, $timeout) {
+  ElementSlotService, ObjectDisplayService,
+  $log, $q, $timeout) {
   this.init = function(name, modalControl) {
 
     // hmmm.... the images have different spacings in them... :(
@@ -35,17 +35,13 @@ angular.module('demo')
       };
       // request this every time in case the map or actor state changes
       var getCharRect = function() {
-        var actor = EntityService.getById(id);
-        //FIX? change actors to use element slots maybe
-        var objDisp = actor && actor.objectDisplay;
-        var canvi = objDisp && objDisp.canvi;
-        var el = canvi && canvi.el && canvi.el[0];
-        if (!el) {
+        var display = ObjectDisplayService.getDisplay(id);
+        if (!display.canvas) {
           var msg = "dont know how to display text";
           $log.error(msg, id, actor);
           throw new Error(msg);
         }
-        return el.getBoundingClientRect();
+        return display.canvas.getBoundingClientRect();
       };
       this.destroy = function() {
         removeBubble();

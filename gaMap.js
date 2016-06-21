@@ -8,21 +8,15 @@ angular.module('demo')
 .directiveAs("gaMap",
   function($element, $log, $rootScope, $scope) {
     this.init = function(name, hsmMachine) {
-      // FIX: it pulls these from displayController --
-      // something else would be nice.
       var mapData = {
-        mapName: $scope.item || $scope.view || $scope.room,
-        room: $scope.room,
-        item: $scope.item,
-        view: $scope.view,
         loaded: false,
-        style: {},
+        style: {}
       };
       $log.info("gaMap: creating", name);
-      $rootScope.$broadcast("ga-map-created", name, $element, mapData);
+      $rootScope.$broadcast("ga-map-created", name);
       $element.on("$destroy", function() {
         $log.info("gaMap: destroying", name);
-        $rootScope.$broadcast("ga-map-destroyed", name, $element, mapData);
+        $rootScope.$broadcast("ga-map-destroyed", name);
       });
       // export map data to scope:
       return mapData;
