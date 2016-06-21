@@ -134,8 +134,9 @@
       <modal-window name="popupBox" class="ga-greydismiss" group="modal" src="'popupBox.html'"></modal-window>
     </div>
   </main>
-  <footer class="state-display">
-    <ng-include src="'game.html'"></ng-include>
+  <footer class="state-display" ng-init="showStates=true">
+    <a href="" ng-click="showStates=!showStates"> states [{{showStates ? 'x' : 'o'}}]</a>
+     <ng-include src="'game.html'" ng-show="showStates"></ng-include>
   </footer>
 </body>
 
