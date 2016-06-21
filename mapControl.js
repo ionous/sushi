@@ -84,6 +84,10 @@ angular.module('demo')
           destroyMap();
           // after the url changes, angular changes the ng-view, and recreates the map element.
           var defer = loading = $q.defer();
+          
+          // location service can condition next
+          next = LocationService(next);
+
           //
           $log.info("mapControl", name, "loading", next.toString());
           hsmMachine.emit(name, "loading", next);
@@ -110,7 +114,6 @@ angular.module('demo')
               });
             });
           });
-          LocationService(next);
           return defer.promise.then(function(res) {
             loading = null;
             $log.info("mapControl", name, "loaded!");

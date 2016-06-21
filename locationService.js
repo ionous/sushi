@@ -80,12 +80,13 @@ angular.module('demo')
           var path = p.join("/");
           $log.debug("LocationService: path", path, next.item);
           $location.path(path).search('item', next.item);
+          return next;
         }
       };
 
       var locationService = function(next) {
         if (!angular.isUndefined(next)) {
-          changeLocation(next);
+          return changeLocation(next);
         }
         return currLoc;
       };
