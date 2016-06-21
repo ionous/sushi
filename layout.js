@@ -38,26 +38,36 @@ angular.module('demo', ['ui.bootstrap', 'ngAnimate'])
 angular.module('demo')
 
 .directiveAs("statusBarControl", function($scope, $timeout) {
-    this.init= function() {
-      var scope= {
-        left: null,
-        right: null,
-      };
-      $timeout(function() {
-        scope.left= "The room";
-        scope.right= "The Long Title To This Game";
-      }, 1000);
-      return scope;
+  this.init = function() {
+    var scope = {
+      left: null,
+      right: null,
     };
-  })
+    $timeout(function() {
+      scope.left = "The room";
+      scope.right = "The Long Title To This Game";
+    }, 1000);
+    return scope;
+  };
+})
 
-.directiveAs("gaMap", function($scope) {
+.directiveAs("gaMap", function($scope, $element) {
   this.init = function() {
     var name = "testbg";
     var scope = {
       background: "/bin/images/" + name + ".png",
     };
     return scope;
+  };
+})
+
+.directive('gaMapColor', function($log) {
+  return {
+    link: function(scope, el) {
+      var color = "black";
+      el.css("background-color", color);
+
+    }
   };
 })
 
@@ -127,10 +137,10 @@ angular.module('demo')
     $scope.choices = [
       "Say something.",
       "Anything.",
-      "Would you.",
+      "Risus elit nulla sit augue nulla mollis erat sed. Augue nunc ipsum nec in bodge elit nulla sit.",
     ];
     var scope = {
-      visible: false,
+      visible: true,
       select: function(i) {
         scope.visible = false;
       },

@@ -34,21 +34,21 @@
     </div>
   </header>
   <main>
-    <div class="ga-play ga-noselect">
+    <div class="ga-play ga-noselect" ga-map-color>
       <div class="overgrey ga-noselect"></div>
       <div>
         <div ga-map="gameMap" ng-style="gameMap.style" class="ga-show ga-map">
           <img ng-src="{{gameMap.background}}">
         </div>
       </div>
-      <div ng-include="'invWin.html'"></div>
-      <div ng-include="'consoleWindow.html'"></div>
+      <!-- <div ng-include="'invWin.html'"></div> -->
+      <!-- <div ng-include="'consoleWindow.html'"></div> -->
       <div button-bar-control="buttonBar" ng-include="'buttonBar.html'"></div>
       <!-- comment box -->
       <div ng-include="'commentBox.html'"></div>
       <!-- combine panel -->
-      <div combine-box-control="combineBox" ng-include="'combineBox.html'"></div>
-      <div ng-include="'popupBox.html'"></div>
+      <!-- <div combine-box-control="combineBox" ng-include="'combineBox.html'"></div> -->
+      <!-- <div ng-include="'popupBox.html'"></div> -->
     </div>
   </main>
 </body>
