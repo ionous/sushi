@@ -8,12 +8,19 @@ angular.module('demo')
 .directiveAs("buttonControl", ["^hsmMachine"],
   function(ElementSlotService, $log) {
     this.init = function(name, hsmMachine) {
-      var button = ElementSlotService.get(name);
-      button.scope.click = function() {
-        //$log.debug("buttonControl", name, "clicked");
-        hsmMachine.emit(name, "clicked", {});
-      };
+      var button;
       var scope = {
+        bindTo: function(slotName) {
+          button = ElementSlotService.get(slotName || name);
+          button.scope.click = function() {
+            //$log.debug("buttonControl", name, "clicked");
+            hsmMachine.emit(name, "clicked", {});
+          }
+        },
+        release: function() {
+          button.scope.click = null;
+          button = null;
+        },
         enable: function(yes) {
           var enable = angular.isUndefined(yes) || yes;
           scope.addClass('disabled', !enable);

@@ -1,5 +1,5 @@
 <hsm-state name="Inventory" player-item-control="items" hsm-enter="items.collect()" hsm-exit="items.destroy()">
-  <hsm-state button-control="invButton" inventory-control="invWin" parallel="true">
+  <hsm-state button-control="invButton" inventory-control="invWin" parallel="true" hsm-enter="invButton.bindTo()" hsm-exit="invButton.release()">
     <!-- pulses in parallel, because ( among other issues ) stream end will kill the pulse -->
     <hsm-state>
       <hsm-state name="InvNotPulsing">
@@ -30,7 +30,7 @@
           <!-- combining -->
           <!-- we open the panel here, lazily close it elsewhere to keep it displayed when the inventory is open. and b/c we switch from inventory to field and back, we keep the current item stored in combiner.
           that's also used as a sort of hack for the action bar, well out in playing.html -->
-          <hsm-state name="PlayCombining" hsm-enter="panel.open(combiner.item())">
+          <hsm-state name="PlayCombining" hsm-enter="panel.open('combineBox', combiner.item())">
             <hsm-state hsm-enter="mouse.alias('bullseye','combine')" hsm-exit="mouse.alias('bullseye')">
               <hsm-state combine-check-control="invCombine" hsm-enter="invCombine.start(combiner.item(), items)" hsm-exit="invCombine.stop()">
                 <hsm-state name="CombineChecking" hsm-enter="invButton.enable(false)">
@@ -49,7 +49,7 @@
         <!-- ^~field -->
         <!-- inventory open: -->
         <hsm-state name="ItemWindow" hsm-exit="invWin.close('exit')">
-         <hsm-event on="keys" when="$evt.escapeKey()" run="invWin.close('escape')"></hsm-event>
+          <hsm-event on="keys" when="$evt.escapeKey()" run="invWin.close('escape')"></hsm-event>
           <hsm-event on="inv-win-dismiss" run="invWin.close($evt.reason)"></hsm-event>
           <!-- action includes combine information if any, will likely be booted to pause/streaming -->
           <hsm-event on="inv-win-activate" goto="PlayNormal" run="game.post($evt.action)"></hsm-event>

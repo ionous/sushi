@@ -5,7 +5,7 @@ angular.module('demo')
 // -loaded, -loading, changeRoom
 .directiveAs("mapControl", ["^^hsmMachine"],
   function(ElementSlotService, LayerService, LocationService, MapService, ObjectService, ObjectDisplayService, UpdateService,
-    $log, $element, $q, $rootScope) {
+    $log, $q) {
     // returns a promise:
     var loadMap = function(mapEl, next) {
       var mapName = next.mapName();
@@ -14,7 +14,6 @@ angular.module('demo')
         var roomId = next.room;
         //
         return ObjectService.getById(roomId).then(function(room) {
-
           var enclosure;
           if (!next.item) {
             enclosure = room;
@@ -49,8 +48,7 @@ angular.module('demo')
         }); // object service
       }); // get map
     };
-    var loading = null;
-    var currentMap = null;
+    var mapSlotName, loading, currentMap;
 
     var destroyMap = function() {
       if (loading) {
@@ -61,73 +59,66 @@ angular.module('demo')
         var tree = currentMap.tree;
         if (tree) {
           tree.nodes.destroyNode();
-          tree.el.remove();
+          // this el is mapSlot, gameMap
+          tree.el.empty();
         }
         currentMap = null;
       }
       ObjectDisplayService.clear();
     };
-    this.$onDestroy = function() {
-      destroyMap();
-    };
+    var changeMap = function(name, hsmMachine, next) {
+      var ret; // promise
+      if (loading) {
+        throw new Error("already loading");
+      }
+      var where = LocationService();
+      if (!next.changes(where)) {
+        ret = $q.when(where);
+      } else {
+        destroyMap();
+
+        // use a defer so we can cancel if need be
+        // note, the cancel doesnt really work -- wed need to check for cancel at each stage... somehow
+        var defer = loading = $q.defer();
+
+        // location service can condition next
+        next = LocationService(next);
+        $log.info("mapControl", name, "loading", next.toString());
+        hsmMachine.emit(name, "loading", next);
+
+        // load!
+        var slot = ElementSlotService.get(mapSlotName);
+        loadMap(slot.element, next).then(function(loadedMap) {
+          $log.info("mapControl", name, "got map", next.toString());
+          defer.resolve({
+            map: loadedMap,
+            where: next,
+            scope: slot.scope
+          });
+        });
+
+        // loaded! (and not cancelled int he mean time)
+        ret = defer.promise.then(function(loaded) {
+          var map = currentMap = loaded.map;
+          loading = null;
+          // size the view
+          slot.scope.style = {
+            'width': map.bounds.x + 'px',
+            'height': map.bounds.y + 'px',
+          };
+          slot.scope.loaded = true;
+          //
+          $log.info("mapControl", name, "loaded!");
+          hsmMachine.emit(name, "loaded", loaded);
+          return loaded;
+        }, function(reason) {
+          $log.error("mapControl", name, "map failed to load", reason);
+        }); // return
+      }
+      return ret;
+    }; // changeMap
     this.init = function(name, hsmMachine) {
       var ctrl = this;
-      //
-      this.changeMap = function(next) {
-        var where = LocationService();
-        if (!next.changes(where)) {
-          return $q.when(where);
-        } else if (loading) {
-          throw new Error("already loading");
-        } else {
-          //
-          destroyMap();
-          // after the url changes, angular changes the ng-view, and recreates the map element.
-          var defer = loading = $q.defer();
-          
-          // location service can condition next
-          next = LocationService(next);
-
-          //
-          $log.info("mapControl", name, "loading", next.toString());
-          hsmMachine.emit(name, "loading", next);
-          // we eventually get a ga-map-created event.
-          var off = $rootScope.$on("ga-map-created", function(evt, mapSlot) {
-            $log.info("mapControl", name, "got slot", mapSlot);
-            off();
-            // get the slot from the newly loaded dom
-            var slot = ElementSlotService.get(mapSlot);
-            // load the map into that slot
-            loadMap(slot.element, next).then(function(loadedMap) {
-              $log.info("mapControl", name, "got map", next.toString());
-              var map = currentMap = loadedMap;
-              // size the view
-              slot.scope.style = {
-                'width': map.bounds.x + 'px',
-                'height': map.bounds.y + 'px',
-              };
-              slot.scope.loaded = true;
-              defer.resolve({
-                map: map,
-                where: next,
-                scope: slot.scope
-              });
-            });
-          });
-          return defer.promise.then(function(res) {
-            loading = null;
-            $log.info("mapControl", name, "loaded!");
-            hsmMachine.emit(name, "loaded", res);
-            return res;
-          }, function(reason) {
-            $log.error("mapControl", name, "map failed to load", reason);
-          });
-        }
-      };
-
-      this.which = function() {
-        return LocationService();
-      };
 
       return {
         name: function() {
@@ -143,6 +134,12 @@ angular.module('demo')
           };
           return ret;
         },
+        bindTo: function(slotName) {
+          mapSlotName = slotName;
+        },
+        destroy: function() {
+          mapSlotName = "";
+        },
         loaded: function() {
           return !!currentMap;
         },
@@ -151,16 +148,16 @@ angular.module('demo')
         },
         // return a promise
         changeRoom: function(room) {
-          $log.info("mapControl", name, "changeRoom", room);
-          return ctrl.changeMap(LocationService().nextRoom(room));
+          //$log.info("mapControl", name, "changeRoom", room);
+          return changeMap(name, hsmMachine, LocationService().nextRoom(room));
         },
         changeView: function(view) {
-          $log.info("mapControl", name, "changeView", view);
-          return ctrl.changeMap(LocationService().nextView(view));
+          //$log.info("mapControl", name, "changeView", view);
+          return changeMap(name, hsmMachine, LocationService().nextView(view));
         },
         changeItem: function(item) {
-          $log.info("mapControl", name, "changeItem", item);
-          return ctrl.changeMap(LocationService().nextItem(item));
+          //$log.info("mapControl", name, "changeItem", item);
+          return changeMap(name, hsmMachine, LocationService().nextItem(item));
         },
       };
     };

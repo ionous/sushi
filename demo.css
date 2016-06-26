@@ -66,6 +66,19 @@ div.overgrey {
 
 
 /* ----------------------------------------------
+   menu display
+*/
+
+#ga-menus a.ga-link {
+  text-transform: uppercase;
+}
+
+.ga-menu a.disabled {
+  color: grey;
+}
+
+
+/* ----------------------------------------------
   main display
 */
 
@@ -133,7 +146,7 @@ header {
   position: absolute;
   left: 0px;
   overflow: scroll;
-  top: 100px;
+  top: 0px;
   max-height: 600px;
   margin: 0 auto;
   border: thin solid black;
@@ -372,7 +385,7 @@ div.ga-picker {
 .ga-comment-box li:hover {
   color: white;
   cursor: pointer;
-  background-color: rgba(0,0,0,0.75);
+  background-color: rgba(0, 0, 0, 0.75);
 }
 
 .ga-comment-box img {
@@ -485,17 +498,6 @@ div.ga-notify p {
 /* ----------------------------------------------
   animations 
 */
-
-.ga-show {
-  -webkit-transition: all linear 0.5s;
-  transition: all linear 0.5s;
-}
-
-.ga-show.ng-hide {
-  opacity: 0;
-  -webkit-transition: all linear 0.0s;
-  transition: all linear 0.0s;
-}
 
 .ga-pulse {
   box-shadow: 0 0 0 0 rgba(51, 122, 183, 0.7);

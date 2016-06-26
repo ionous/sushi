@@ -2,6 +2,7 @@
 
 angular.module('demo')
 
+// expose an element to the slot service
 .directiveAs("elementSlot",
   function(ElementSlotService, $element, $attrs) {
     var scope = {};
@@ -11,6 +12,10 @@ angular.module('demo')
     };
   })
 
+// rationale: while various angular directives provide the ability to 
+// dynamically inject templates into the dom ( ng-include, ng-view, uib-modal, ... )
+// angular doesnt seem to provide the ability via its public api.
+// at any rate, we need a simple way to encapsulate chunks of dom and their scope.
 .factory('ElementSlotService', function($log) {
   var elements = {};
   var service = {
@@ -27,10 +32,13 @@ angular.module('demo')
         scope: scope,
       };
       element.on("$destroy", function() {
-        //$log.debug("ElementSlotService", "destroying", name);
+        $log.warn("ElementSlotService", "destroying", name);
         delete elements[name];
       });
     },
+    // hrm, maybe this should be the other way:
+    // rather than returning scope, allow us to assign it
+    // ( dynamically re-apply $scope[slot]= data )
     get: function(name) {
       var el = elements[name];
       if (!el) {

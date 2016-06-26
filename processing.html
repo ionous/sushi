@@ -30,6 +30,10 @@
     <hsm-event on="samOpenedDoor" run="log.info('samOpenedDoor', map.currentLocation.toString())"></hsm-event>
     <hsm-event on="samOpenedDoor" when="map.which().room=='automat'" run="map.changeRoom('automat').then($evt.resolve())"></hsm-event>
   </hsm-state>
+  <!-- handle status text -->
+  <hsm-state game-listener="statusText" hsm-enter="statusText.listen(status.id, 'x-txt')" hsm-exit="statusText.silence()">
+    <hsm-event on="statusText" run="status.setStatus($evt)"></hsm-event>
+  </hsm-state>
   <!-- handle story text -->
   <hsm-state game-listener="storyText" hsm-enter="storyText.listen('_display_', 'print')" hsm-exit="storyText.silence()">
     <hsm-state game-listener="reportView" hsm-enter="reportView.listen('*', 'reporting-the-view', true)" hsm-exit="reportView.silence()">

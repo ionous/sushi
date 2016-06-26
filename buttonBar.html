@@ -1,10 +1,10 @@
 <!-- FIX: this should have a controller, and the state that enabled the bar should provide the hooks to emit events -->
-<div class="ga-buttonbar ga-left ga-show" ng-show="!hideViewButton && clickReturn.msg" element-slot="clickReturn">
+<div class="ga-buttonbar ga-left" ng-show="!hideViewButton && clickReturn.msg" element-slot="clickReturn">
   <a class="btn btn-primary btn-lg" uib-tooltip="{{clickReturn.msg}}" tooltip-placement="right" tooltip-class="ga-xtip">
     <i class="fa fa-undo"></i>
   </a>
 </div>
-<div class="ga-buttonbar ga-right ga-show">
+<div class="ga-buttonbar ga-right">
   <a class="btn btn-primary btn-lg" ng-click="machine.emit('demo-console')" uib-tooltip="Console" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
     <i class="fa fa-terminal"></i>
   </a>

@@ -52,7 +52,7 @@ angular.module('demo')
         // the interaction here with the server needs more thought.
         var zoomables = ["lab-coat"];
         if ((actId == "search-it") && (zoomables.indexOf(propId) >= 0)) {
-          var changedLoc = mapControl.changeMap(mapControl.which().nextItem(propId));
+          var changedLoc = mapControl.changeItem(propId);
           changedLoc.then(function() {
             var gotAction = ActionService.getAction("examine-it");
             var fini = gotAction.then(function(act) {

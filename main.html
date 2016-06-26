@@ -1,0 +1,19 @@
+<hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()">
+  <hsm-state name="Menus" hsm-init="path.case()">
+    <hsm-event on="path-change" run="log.info('location changed', path.case())" goto="Menus"></hsm-event>
+    <hsm-state name="MainMenu" main-menu-control="main" hsm-enter="main.open('mainWin', '/')" hsm-exit="main.close()">
+     <hsm-event on="main-start" goto="Game"></hsm-event>
+      <!--
+      <hsm-event on="main-menu-resume"></hsm-event> -->
+    </hsm-state>
+    <hsm-state name="About" about-control="about" hsm-enter="about.open('aboutWin', '/about')" hsm-exit="about.close()">
+    </hsm-state>
+    <hsm-state name="AboutCredits" credits-control="credits" hsm-enter="credits.open('creditsWin', '/about/credits')" hsm-exit="credits.close()">
+      <hsm-event on="about-main" goto="Menu"></hsm-event>
+    </hsm-state>
+    <hsm-state name="Saved" load-game-control="loadGame" hsm-enter="loadGame.open('loadGameWin', '/saved')" hsm-exit="loadGame.close()">
+      <hsm-event on="about-main" goto="Menu"></hsm-event>
+    </hsm-state>
+  </hsm-state>
+  <ng-include src="'game.html'"></ng-include>
+</hsm-state>

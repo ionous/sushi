@@ -10,6 +10,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Alice and the Galactic Traveller</title>
+  <base href="/demo/">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/script/bootstrap/dist/css/bootstrap.min.css">
@@ -19,7 +20,6 @@
   <script src="/script/requirejs/require.js"></script>
   <script src="/script/angular/angular.js"></script>
   <script src="/script/angular-animate/angular-animate.min.js"></script>
-  <script src="/script/angular-route/angular-route.min.js"></script>
   <script src="/script/angular-bootstrap/ui-bootstrap-tpls.js"></script>
   <link rel="stylesheet" href="demo.css">
   <link rel="stylesheet" href="mosaic/mosaic.css">
@@ -73,13 +73,14 @@
   <script src="combinerControl.js"></script>
   <script src="combineCheckControl.js"></script>
   <script src="combinePanelControl.js"></script>
-  <script src="gaMap.js"></script>
+  <script src="commentBoxControl.js"></script>
   <script src="gameControl.js"></script>
   <script src="gameListener.js"></script>
   <script src="hoverControl.js"></script>
   <script src="inventoryControl.js"></script>
   <script src="itemsControl.js"></script>
   <script src="keyControl.js"></script>
+  <script src="locationControl.js"></script>
   <script src="mapControl.js"></script>
   <script src="modalControl.js"></script>
   <script src="mouseControl.js"></script>
@@ -93,19 +94,22 @@
   <script src="processControl.js"></script>
   <script src="physicsControl.js"></script>
   <script src="settingsControl.js"></script>
+  <script src="statusControl.js"></script>
   <script src="talkControl.js"></script>
   <script src="textControl.js"></script>
   <script src="timeoutControl.js"></script>
   <script src="updateControl.js"></script>
   <script src="viewControl.js"></script>
+  <!-- menus -->
+  <script src="aboutControl.js"></script>
+  <script src="creditsControl.js"></script>
+  <script src="loadGameControl.js"></script>
+  <script src="mainMenuControl.js"></script>
   <!-- components  -->
   <!-- controllers  -->
-  <script src="commentBoxControl.js"></script>
   <script src="inputController.js"></script>
   <script src="itemSlideController.js"></script>
-  <!-- <script src="mapZoomController.js"></script>
-   -->
-  <script src="statusController.js"></script>
+  <!-- <script src="mapZoomController.js"></script>-->
   <!--  -->
   <script src="mosaic/map.js"></script>
   <script src="mosaic/mosaic.js"></script>
@@ -113,30 +117,25 @@
   <script src="mosaic/sprite.js"></script>
 </head>
 
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)">
-  <header ng-controller="StatusController">
-    <div class="ga-status">
-      <span class="ga-noselect whereabouts">{{status.left}}</span>
-      <span class="ga-noselect story-title">{{status.right}}</span>
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" location-control="path" hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)">
+  <header>
+    <div class="ga-status" element-slot="statusBar" ng-show="statusBar.visible">
+      <span class="ga-noselect whereabouts">{{statusBar.left}}</span>
+      <span class="ga-noselect story-title">{{statusBar.right}}</span>
     </div>
   </header>
   <main>
-    <div class="ga-play" ga-map-color element-slot="gameWindow">
-      <div ng-view="'play.html'"></div>
-      <div class="ga-noselect" ng-include="'buttonBar.html'"></div>
-      <div element-slot="mouseDisplay"></div>
-      <div ng-include="'combineBox.html'"></div>
-      <modal-window name="commentBox" class="ga-greyignore" group="modal" src="'commentBox.html'"></modal-window>
-      <modal-window name="actionBar" group="modal" src="'actionBar.html'" overgrey="false"></modal-window>
-      <modal-window name="talk" class="ga-greydismiss" group="modal"></modal-window>
-      <modal-window name="invWin" class="ga-greyignore" group="modal" src="'invWin.html'"></modal-window>
-      <modal-window name="consoleWindow" class="ga-greydismiss" group="modal" src="'consoleWindow.html'"></modal-window>
-      <modal-window name="popupBox" class="ga-greydismiss" group="modal" src="'popupBox.html'"></modal-window>
+    <div element-slot="gameWindow" ng-include="'gameWindow.html'"></div>
+    <div id="ga-menus">
+      <div element-slot="mainWin" ng-include="'mainWin.html'"></div>
+      <div element-slot="aboutWin" ng-include="'aboutWin.html'"></div>
+      <div element-slot="creditsWin" ng-include="'creditsWin.html'"></div>
+      <div element-slot="loadGameWin" ng-include="'loadGameWin.html'"></div>
     </div>
   </main>
-  <footer class="state-display" ng-init="showStates=true">
-    <a href="" ng-click="showStates=!showStates"> states [{{showStates ? 'x' : 'o'}}]</a>
-     <ng-include src="'game.html'" ng-show="showStates"></ng-include>
+  <footer class="state-display" ng-init="showStates=false">
+    <a href="" ng-click="showStates=!showStates">states [{{showStates ? 'x' : 'o'}}]</a>
+    <ng-include src="'main.html'" ng-show="showStates"></ng-include>
   </footer>
 </body>
 

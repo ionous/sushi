@@ -4,18 +4,17 @@ angular.module('demo')
 
 // -created
 .directiveAs("gameControl", ["^^hsmMachine"],
-  function(GameService, PostalService,
-    $location, $log, $q, $scope, $timeout) {
+  function(ElementSlotService, GameService, PostalService,
+    $log) {
     this.init = function(name, hsmMachine) {
-      delete this.init;
-      var currentGame, processControl, lastFrame;
-      var starting= false;
+      var currentGame, processControl, gameWindow, lastFrame;
+      var starting = false;
       this.start = function() {
         $log.warn(name, "starting!");
         if (starting) {
           throw new Error("starting");
         }
-        starting= true;
+        starting = true;
         hsmMachine.emit(name, "starting", {});
         this.post({
           'in': 'start'
@@ -43,33 +42,22 @@ angular.module('demo')
           processControl.queue(lastFrame, []);
         });
       };
-      this.newGame = function(_processControl) {
+      this.newGame = function(windowName, _processControl) {
+        gameWindow = ElementSlotService.get(windowName);
+        gameWindow.scope.visible = true;
         processControl = _processControl;
-        // force us somewhere, anywhere: so that ng-view will trigger on the first map path change; ng-view in an ng-if does *not* work, or it could be an alternative.
-        var ohsomuchtrouble = "/new";
-        var defer = $q.defer();
-        if ($location.path() == ohsomuchtrouble) {
-          defer.resolve();
-        } else {
-          var off1 = $scope.$on("$locationChangeSuccess", defer.resolve);
-          defer.promise.then(off1);
-          $location.path(ohsomuchtrouble);
-        };
-
-        defer.promise.then(function() {
-          PostalService.post("new", {}).then(function(res) {
-            if (res.events) {
-              lastFrame = res.frame;
-              processControl.queue(res.frame, res.events);
-            }
-            return res.game;
-          }).then(function(game) {
-            currentGame = GameService.hack(game);
-            hsmMachine.emit(name, "created", {
-              game: game,
-              gameId: game.id,
-            });
-          })
+        PostalService.post("new", {}).then(function(res) {
+          if (res.events) {
+            lastFrame = res.frame;
+            processControl.queue(res.frame, res.events);
+          }
+          return res.game;
+        }).then(function(game) {
+          currentGame = GameService.hack(game);
+          hsmMachine.emit(name, "created", {
+            game: game,
+            gameId: game.id,
+          });
         });
       };
       this.request = function(type, id) {
@@ -82,8 +70,14 @@ angular.module('demo')
         }
         return currentGame.request(type, id);
       };
-      this.quit = function() {
-        throw new Error("well that was unexpected");
+      this.destroy = function() {
+        if (gameWindow) {
+          gameWindow.scope.visible = false;
+          gameWindow = null;
+        }
+        if (processControl) {
+          processControl = null;
+        }
       };
       return this;
     }; //init
