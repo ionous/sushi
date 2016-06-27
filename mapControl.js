@@ -2,10 +2,10 @@
 
 angular.module('demo')
 
-// -loaded, -loading, changeRoom
+// -loaded, -loading
 .directiveAs("mapControl", ["^^hsmMachine"],
   function(ElementSlotService, LayerService, LocationService, MapService, ObjectService, ObjectDisplayService, UpdateService,
-    $log, $q) {
+    $log, $q, $rootScope) {
     // returns a promise:
     var loadMap = function(mapEl, next) {
       var mapName = next.mapName();
@@ -34,7 +34,7 @@ angular.module('demo')
           return LayerService.createLayers(mapEl, map, enclosure, allPads).then(function(tree) {
             var collide = map.findLayer("$collide") || false;
             return {
-              location: next,
+              //location: next, everyone is using LocationService instead
               tree: tree,
               bounds: tree.bounds,
               hitGroups: tree.nodes.ctx.hitGroup,
@@ -76,6 +76,10 @@ angular.module('demo')
         ret = $q.when(where);
       } else {
         destroyMap();
+        // FIX, FIX, FIX: needs work for state machine control
+        // when we are entering tunnels, toggle the view.
+        var show = next.item || (next.view && (next.room != "tunnels"));
+        $rootScope.hideViewButton = !show;
 
         // use a defer so we can cancel if need be
         // note, the cancel doesnt really work -- wed need to check for cancel at each stage... somehow
@@ -119,8 +123,11 @@ angular.module('demo')
     }; // changeMap
     this.init = function(name, hsmMachine) {
       var ctrl = this;
+      this.changeMap = function(next) {
+        return changeMap(name, hsmMachine, next);
+      };
 
-      return {
+      var scope = {
         name: function() {
           return name;
         },
@@ -147,9 +154,26 @@ angular.module('demo')
           return ctrl.which();
         },
         // return a promise
+        changeMap: function(next) {
+          return changeMap(name, hsmMachine, next);
+        },
         changeRoom: function(room) {
+          var currLoc = LocationService();
           //$log.info("mapControl", name, "changeRoom", room);
-          return changeMap(name, hsmMachine, LocationService().nextRoom(room));
+          var next = currLoc.nextRoom(room);
+
+          var tunnels = next.room == "tunnels";
+          if (tunnels && !next.view) {
+            var tunnelBounce = $rootScope.tunnelBounce;
+            if (currLoc.room == "automat") {
+              tunnelBounce = false;
+            } else {
+              tunnelBounce = !tunnelBounce;
+            }
+            $rootScope.tunnelBounce = tunnelBounce;
+            next = next.nextView(tunnelBounce ? "tunnels-2" : "tunnels-1");
+          }
+          return scope.changeMap(next);
         },
         changeView: function(view) {
           //$log.info("mapControl", name, "changeView", view);
@@ -160,5 +184,6 @@ angular.module('demo')
           return changeMap(name, hsmMachine, LocationService().nextItem(item));
         },
       };
+      return scope;
     };
   })

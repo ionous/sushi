@@ -7,7 +7,7 @@ angular.module('demo')
   function(ElementSlotService, GameService, PostalService,
     $log) {
     this.init = function(name, hsmMachine) {
-      var currentGame, processControl, gameWindow, lastFrame;
+      var windowName, processControl, gameWindow, currentGame, lastFrame;
       var starting = false;
       this.start = function() {
         $log.warn(name, "starting!");
@@ -45,11 +45,15 @@ angular.module('demo')
       this.getId = function() {
         return currentGame && currentGame.id;
       };
-      this.newGame = function(windowName, _processControl) {
+      this.bindTo = function(windowName_, processControl_) {
+        windowName = windowName_;
+        processControl = processControl_;
+      }
+
+      var start = function(endpoint, payload, result) {
         gameWindow = ElementSlotService.get(windowName);
         gameWindow.scope.visible = true;
-        processControl = _processControl;
-        PostalService.post("new", {}).then(function(res) {
+        return PostalService.post(endpoint, payload).then(function(res) {
           if (res.events) {
             lastFrame = res.frame;
             processControl.queue(res.frame, res.events);
@@ -57,11 +61,27 @@ angular.module('demo')
           return res.game;
         }).then(function(game) {
           currentGame = GameService.hack(game);
-          hsmMachine.emit(name, "created", {
+          hsmMachine.emit(name, result, {
             game: game,
             gameId: game.id,
           });
         });
+      };
+      this.loadGame = function(saveGameData) {
+        //return start(data.id, {'in': 'look'}, "loaded");
+        gameWindow = ElementSlotService.get(windowName);
+        gameWindow.scope.visible = true;
+        var r = saveGameData.restore();
+        //
+        currentGame = GameService.hack(r.game);
+        hsmMachine.emit(name, "loaded", {
+          game: r.game,
+          gameId: r.game.id,
+          where: r.loc
+        });
+      };
+      this.newGame = function() {
+        return start("new", {}, "created");
       };
       this.request = function(type, id) {
         if (!currentGame) {

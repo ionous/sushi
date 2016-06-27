@@ -2,19 +2,19 @@
 
 angular.module('demo')
 
-.directiveAs("viewControl", ["^^hsmMachine"],
-    function(ElementSlotService, $log, $scope) {
-      this.init = function(name, hsmMachine) {
-        var currentEl, currentScope, currentMap, lastRoom;
+.directiveAs("viewControl", ["^^mapControl"],
+    function(ElementSlotService, LocationService, $log, $scope) {
+      this.init = function(name, mapControl) {
+        var currentEl, currentScope, prevLoc;
         var returnToRoom = function() {
-          if (currentMap) {
-            $scope.$apply(function() {
-              currentMap.changeRoom(lastRoom);
-            });
-          }
-          disconnect();
+          var next = prevLoc.item ? prevLoc.nextItem() : prevLoc.nextView();
+          $log.info("return to room", next);
+          $scope.$apply(function() {
+            mapControl.changeMap(next);
+          });
+          release();
         };
-        var disconnect = function() {
+        var release = function() {
           if (currentEl) {
             currentEl.off("click", returnToRoom);
             currentEl = null;
@@ -22,25 +22,21 @@ angular.module('demo')
           if (currentScope) {
             currentScope.msg = false;
           }
-          currentMap = null;
         };
         return {
-          disconnect: disconnect,
-          connect: function(map, slotName, message) {
-            disconnect();
+          release: release,
+          bindTo: function(slotName) {
+            release();
             var slot = ElementSlotService.get(slotName);
-            currentEl = slot.element;
-            currentScope = slot.scope;
 
-            var loc = map.get("location");
+            var loc = prevLoc = LocationService();
             var viewing = loc.view || loc.item;
 
             if (viewing) {
-              $log.info("connecting", map, slotName, message);
-              currentMap = map;
-              lastRoom = loc.room;
+              currentEl = slot.element;
+              currentScope = slot.scope;
               currentEl.on("click", returnToRoom);
-              currentScope.msg = message;
+              currentScope.msg = loc.item ? "Return..." : "Return to room...";
             }
           },
         }; //return: export to scope

@@ -1,57 +1,6 @@
 'use strict';
 
 angular.module('demo')
-  .factory("PositionService", function($log) {
-    var defaultAngle = 0;
-    var currAngle = defaultAngle;
-    var currPos = pt(0, 0);
-
-    var memory = {};
-    var Memory = function(skin, pos, angle) {
-      this.skin = skin;
-      this.pos = pt_floor(pos);
-      this.angle = angle;
-    };
-    Memory.prototype.toString = function() {
-      return "skin:" + [this.skin || "''", this.pos.x, this.pos.y, this.angle].join(",");
-    };
-
-    return {
-      defaultAngle: defaultAngle,
-      saveLoad: function(data) {
-        if (angular.isUndefined(data)) {
-          return {
-            pos: pt_floor(currPos),
-            angle: Math.floor(currAngle),
-            memory: memory,
-          };
-        } else {
-          currPos = data.pos;
-          currAngle = data.angle;
-          memory = data.memory.map(function(el) {
-            return new Memory(el.skin, pos(el.pos.x, el.pos.y), el.angle);
-          });
-        }
-      },
-      memorize: function(loc, skin) {
-        var mem = memory[loc] = new Memory(skin, currPos, currAngle);
-        $log.info("PositionService, memorized", loc, mem);
-        return mem;
-      },
-      fetch: function(loc) {
-        var mem = memory[loc];
-        $log.info("PositionService, fetching", loc, mem);
-        return mem;
-      },
-      update: function(newPos, newAngle) {
-        currPos = newPos;
-        if (newAngle != currAngle) {
-          currAngle = newAngle;
-          $log.info("PositionService, set angle", currAngle);
-        }
-      },
-    }; // return
-  })
 
 .directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl"],
   function(LocationService, ObjectDisplayService, PositionService, $log) {
@@ -86,6 +35,7 @@ angular.module('demo')
             currPos = display.group.pos;
             currAngle = defaultAngle;
 
+            // via map.get("location") instead?
             var loc = currLoc = LocationService().toString();
             var mem = PositionService.fetch(loc);
             if (!mem) {

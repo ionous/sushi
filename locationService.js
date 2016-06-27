@@ -6,7 +6,7 @@
  */
 angular.module('demo')
   .factory('LocationService',
-    function(PlayerService, $location, $log, $rootScope) {
+    function(PlayerService, $location, $log) {
       var Location = function(room, view, item) {
         if (room && (view == room)) {
           var msg = "LocationService: invalid location";
@@ -42,21 +42,6 @@ angular.module('demo')
       // returns a promise, resolved when the location has changed.
       var changeLocation = function(next) {
         if (next.changes(currLoc)) {
-          // FIX, FIX, FIX: needs work for state machine control
-          // when we are entering tunnels, toggle the view.
-          var tunnels = next.room == "tunnels";
-          $rootScope.hideViewButton = tunnels;
-
-          if (tunnels && !next.view) {
-            var tunnelBounce = $rootScope.tunnelBounce;
-            if (currLoc.room == "automat") {
-              tunnelBounce = false;
-            } else {
-              tunnelBounce = !tunnelBounce;
-            }
-            $rootScope.tunnelBounce = tunnelBounce;
-            next = next.nextView(tunnelBounce ? "tunnels-2" : "tunnels-1");
-          }
 
           // FIX, FIX, FIX: needs work for state machine control
           var player = PlayerService.getPlayer();
@@ -69,7 +54,6 @@ angular.module('demo')
               player.changeState("fromAutomat", "fromLab");
             }
           }
-
           // location object.
           $log.info("LocationService: changing", currLoc.toString(), "to", next.toString());
 
@@ -88,10 +72,13 @@ angular.module('demo')
         if (!angular.isUndefined(next)) {
           return changeLocation(next);
         }
-        return currLoc;
+        return new Location(currLoc.room, currLoc.view, currLoc.item);
       };
       locationService.prev = function() {
         return prevLoc;
+      };
+      locationService.newLocation = function(r, v, i) {
+        return new Location(r, v, i);
       };
       return locationService;
     }

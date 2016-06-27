@@ -11,7 +11,7 @@ angular.module('demo')
           try {
             val = $injector.get(key);
           } catch (e) {};
-          $log.info("constantControl", name, "got", key, "=", val);
+          //$log.info("constantControl", name, "got", key, "=", val);
           return val;
         };
     };

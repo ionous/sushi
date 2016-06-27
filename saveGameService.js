@@ -3,23 +3,52 @@
 angular.module('demo')
 
 .factory("SaveGameService",
-  function(EventStreamService, LocationService, PositionService, SaveVersion, $log, $rootScope) {
+  function(EventStreamService, LocationService, PositionService, SaveVersion,
+    $log, $rootScope) {
+    var SaveGameData = function(data) {
+      this.data = data;
+    };
+    // bound up with gameControl.loadGame
+    SaveGameData.prototype.restore = function() {
+      $log.info("SaveGameService", "restoring", this.data);
+      var loc = this.data.location;
+      PositionService.saveLoad(this.data.position);
+      //
+      var app = this.data.appData;
+      $rootScope.tunnelBounce = app.tunnelBounce;
+      //
+      return {
+        game: {
+          id: this.data.id,
+          type: "game",
+        },
+        loc: LocationService.newLocation(loc.room, loc.view, loc.item),
+      };
+    };
+
+    // retreive save game data from local storage
+    var getByKey = function(key) {
+      var item = localStorage.getItem(key);
+      var data = angular.fromJson(item);
+      return (data.version == SaveVersion) && new SaveGameData(data);
+    };
+    //
     var service = {
       save: function(id) {
         var dateTime = new Date().toLocaleString();
         // no need until we enable server save.
         var slot = 0; //localStorage.length;
-
         var saveGame = {
           id: id,
           slot: slot,
           dateTime: dateTime,
           version: SaveVersion,
           frame: EventStreamService.currentFrame(),
+          // via map.get("location") instead?
           location: LocationService(),
           position: PositionService.saveLoad(),
           appData: {
-            tunnelBounce: $rootScope.tunnelBounce,
+            tunnelBounce: $rootScope.tunnelBounce
             // FIX: most recently viewed item
           },
           // [screenshot]
@@ -28,8 +57,14 @@ angular.module('demo')
         //save via localStorage: .length, .key to enumerate, .getItem(key), .setItem(key)
         var json = angular.toJson(saveGame);
 
-        $log.info("SAVING!", json);
-        localStorage.setItem("saveGame" + slot, json);
+        $log.info("SaveGameService: saving", json);
+        var key = "saveGame" + slot;
+        localStorage.setItem(key, json);
+        localStorage.setItem("mostRecent", key);
+      },
+      mostRecent: function() {
+        var key = localStorage.getItem("mostRecent");
+        return key && getByKey(key);
       },
       enumerate: function(cb) {
         var count = 0;
@@ -38,17 +73,15 @@ angular.module('demo')
           try {
             var key = localStorage.key(i);
             if (key.indexOf("saveGame") == 0) {
-              var item = localStorage.getItem(key);
-              var data = angular.fromJson(item);
-              if (data.version == SaveVersion) {
-                if (!cb(data)) {
-                	break;
-                }
-                count += 1;
+              var data = getByKey(key);
+              if (!cb(data)) {
+                break;
               }
+              count += 1;
+
             }
           } catch (x) {
-            $log.error("error parsing local storage", x);
+            $log.error("SaveGameService: error parsing local storage", x);
           }
         }
         return count;

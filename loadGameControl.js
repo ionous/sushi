@@ -3,8 +3,8 @@
 angular.module('demo')
 
 .directiveAs("loadGameControl", ["^^hsmMachine"],
-  function(ElementSlotService, $location, $log) {
-    var win;
+  function(ElementSlotService, SaveGameService, $location, $log) {
+    var win, games;
     this.init = function(name, hsmMachine) {
       var menu = {
         close: function() {
@@ -14,9 +14,23 @@ angular.module('demo')
           }
         },
         open: function(windowSlot, path) {
-          $location.path(path);
+          $location.path(path).search("");
           win = ElementSlotService.get(windowSlot);
           win.scope.visible = true;
+          var games = [];
+          SaveGameService.enumerate(function(data) {
+            games.push(data);
+          });
+          //
+          win.scope.games = games;
+          //
+          win.scope.loadGame = function(index) {
+            var game = games[index];
+            $log.warn("loadGameControl", name, "resume", index);
+            hsmMachine.emit(name, "resume", {
+              gameData: game,
+            });
+          };
         }
       };
       return menu;

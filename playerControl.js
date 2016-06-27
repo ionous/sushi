@@ -3,7 +3,7 @@
 angular.module('demo')
 
 .directiveAs("playerControl", ["^^hsmMachine"],
-  function(CharaService, ObjectDisplayService, PlayerService,
+  function(CharaService, LocationService, PlayerService,
     $q, $log) {
     //
     var currChara, displaying, pending;
@@ -23,10 +23,15 @@ angular.module('demo')
           currChara = null;
         },
         // raises -located
-        locate: function() {
+        locate: function(prevLoc) {
+          $log.info("locating with previous", prevLoc);
           PlayerService.fetchWhere().then(function(where) {
+            var loc = prevLoc;
+            if (!prevLoc || (where.id != prevLoc.room)) {
+              loc = LocationService.newLocation(where.id);
+            }
             hsmMachine.emit(name, "located", {
-              where: where.id,
+              where: loc
             });
           });
         },
@@ -74,7 +79,7 @@ angular.module('demo')
         //   currChara.face(src, pos);
         // },
         // raises -creating, -created
-        create: function(imagePath, size) {
+        create: function(where, imagePath, size) {
           player.destroy();
           // uses a separate defered to reject on destroy.
           pending = $q.defer();
@@ -85,7 +90,13 @@ angular.module('demo')
             //$log.info(name, "created!");
             currChara = chara;
             hsmMachine.emit(name, "created", {
-              player: chara
+              player: chara,
+              // theres no where to store the load game event location during the player creation cycle:
+              // load->create->locate
+              // so we pass it into create, and pass it out in created
+              // the cycle might be better as: load->load->create, 
+              // or even: allow load and create to happen simultaneously: sync on both somehow.
+              where: where
             });
           });
         }, // create

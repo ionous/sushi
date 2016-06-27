@@ -14,7 +14,7 @@ angular.module('demo')
           }
         },
         open: function(windowSlot, path) {
-          $location.path(path);
+          $location.path(path).search("");
           win = ElementSlotService.get(windowSlot);
           win.scope.visible = true;
         }

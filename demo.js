@@ -7,8 +7,9 @@
 angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'mosaic', 'hsm'])
   .constant("HSM_HTML", true)
   .constant("HsmExpanded", true)
-  .constant("SaveVersion", "1.0")
-  .constant("AutoStart", "Game")
+  .constant("GameVersion", "0")
+  .constant("SaveVersion", "1")
+  // .constant("AutoStart", "Game")
   // .constant("Talk", "TalkEnabled")
   // .constant("Popups", "PopupsEnabled")
   ;

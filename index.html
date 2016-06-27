@@ -55,7 +55,9 @@
   <script src="objectDisplayService.js"></script>
   <script src="objectService.js"></script>
   <script src="playerService.js"></script>
+  <script src="positionService.js"></script>
   <script src="postalService.js"></script>
+  <script src="mapService.js"></script>
   <script src="saveGameService.js"></script>
   <script src="textService.js"></script>
   <script src="watcherService.js"></script>
@@ -119,7 +121,7 @@
   <script src="mosaic/sprite.js"></script>
 </head>
 
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" location-control="path" hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)">
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" location-control="path" constant-control="constant" hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)">
   <header>
     <div class="ga-status" element-slot="statusBar" ng-show="statusBar.visible">
       <span class="ga-noselect whereabouts">{{statusBar.left}}</span>

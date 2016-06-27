@@ -1,13 +1,14 @@
 <!-- flow chart, default starts waiting for game-created, leaves via GameState -->
 <hsm-state name="Startup">
   <hsm-state name="GamePending">
-    <hsm-event on="game-created" run="player.create('/bin/images/princess.png', 64)" goto="CreatingPlayer"></hsm-event>
+    <hsm-event on="game-created" goto="CreatingPlayer"></hsm-event>
+    <hsm-event on="game-loaded" goto="CreatingPlayer"></hsm-event>
   </hsm-state>
-  <hsm-state name="CreatingPlayer">
-    <hsm-event on="player-created" run="player.locate()" goto="LocatingPlayer">
+  <hsm-state name="CreatingPlayer" hsm-enter="player.create($evt.where, '/bin/images/princess.png', 64)">
+    <hsm-event on="player-created" run="player.locate($evt.where)" goto="LocatingPlayer"></hsm-event>
   </hsm-state>
   <hsm-state name="LocatingPlayer">
-    <hsm-event on="player-located" run="map.changeRoom($evt.where)" goto="LoadingFirstMap"></hsm-event>
+    <hsm-event on="player-located" run="map.changeMap($evt.where)" goto="LoadingFirstMap"></hsm-event>
   </hsm-state>
   <hsm-state name="LoadingFirstMap">
     <hsm-event on="map-loaded" run="game.start()" goto="GameStarting"></hsm-event>

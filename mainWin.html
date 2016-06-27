@@ -1,18 +1,19 @@
 <div ng-if="mainWin.visible">
-  <h2>Alice and the Galactic Traveller.</h2>
-  <h4>Web Mockup version 1.0.</h4>
+  <h2>Alice and the Galactic Traveller</h2>
+  <h4>web version 0.{{constant('GameVersion')}}.{{constant('SaveVersion')}}</h4>
   <div class="ga-options">
     <ul class="list-unstyled">
-      <li ng-if="mainWin.starting">
-        <ga-link ga-dst="/start" ng-click="mainWin.start()">Begin</ga-link>
+      <li ng-if="!mainWin.loadGames">
+        <ga-link ga-dst="/start" ng-click="mainWin.start()">Begin Game</ga-link>
       </li>
-      <li ng-if="!mainWin.starting">
-        <ga-link ga-dst="/resume" ng-click="mainWin.resume()">Continue</ga-link>
+      <li ng-if="mainWin.loadGames">
+        <ga-link ga-dst="/resume" ng-click="mainWin.resume()">Continue Playing</ga-link>
       </li>
-        <ga-link ga-dst="/saved" ga-disabled="!mainWin.loadGames">Load</ga-link>
+      <li>
+        <ga-link ga-dst="/saved" ga-disabled="!mainWin.loadGames">Load Game</ga-link>
       </li>
-      <li ng-if="!mainWin.starting">
-        <ga-link ga-dst="/start" ng-click="mainWin.start()">Start New Game</ga-link>
+      <li ng-if="mainWin.loadGames">
+        <ga-link ga-dst="/start" ng-click="mainWin.start()">New Game</ga-link>
       </li>
       <!-- <li>(options)</li> -->
       <li>

@@ -16,6 +16,7 @@ angular.module('demo')
         getPlayer: function() {
           return player;
         },
+        // returns the id/type of the player's container
         fetchWhere: function() {
           return ObjectService.getObjects(player, "objects-whereabouts").then(function(objects) {
             return objects[0];
