@@ -91,14 +91,7 @@ angular.module('demo')
               }
             },
             runAction: function(act) {
-              $log.info("actionBarControl", name, "runAction", act);
-              var objId = obj && obj.id;
-              var post = act.runIt(objId, combining && combining.id);
-              if (post) {
-                hsmMachine.emit(name, "action", {
-                  action: post
-                });
-              }
+              act.emitAction(obj, combining);
             }, // runAction
             zoomView: function(act) {
               $log.info("actionBarControl", name, "zoomView", view);

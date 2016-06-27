@@ -3,81 +3,85 @@
     <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
       <hsm-state key-control="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
         <hsm-state action-bar-control="actionBar" hsm-enter="actionBar.bindTo('gameMap')">
-          <hsm-state button-control="settingsButton" hsm-enter="settingsButton.bindTo('')" hsm-exit="settingsButton.release()">
-          <hsm-state name="PlayingParallel" parallel="true" combiner-control="combiner" play-control="turn">
-            <ng-include src="'console.html'"></ng-include>
-            <ng-include src="'inventory.html'"></ng-include>
-            <!-- we run one of physics or not-physics -->
-            <hsm-state name="PlayOne" hsm-init="1 && map.get('physics') ? 'Physics' : 'Statics'">
-              <ng-include src="'statics.html'"></ng-include>
-              <ng-include src="'physics.html'"></ng-include>
-            </hsm-state>
-            <!-- we always hover -->
-            <hsm-state name="Hovering" hsm-init="turn.paused() && 'HoverPause'">
-              <hsm-state>
-                <ng-include src="'hover.html'"></ng-include>
+          <hsm-state button-control="settingsButton" hsm-enter="settingsButton.bindTo(true)" hsm-exit="settingsButton.bindTo(false)">
+            <hsm-state name="PlayingParallel" parallel="true" combiner-control="combiner" play-control="turn">
+              <ng-include src="'console.html'"></ng-include>
+              <ng-include src="'inventory.html'"></ng-include>
+              <!-- we run one of physics or not-physics -->
+              <hsm-state name="PlayOne" hsm-init="1 && map.get('physics') ? 'Physics' : 'Statics'">
+                <ng-include src="'statics.html'"></ng-include>
+                <ng-include src="'physics.html'"></ng-include>
               </hsm-state>
-              <!--  -->
-              <hsm-event on="turn-paused" goto="HoverPause"></hsm-event>
-              <!-- TESTEING: -->
-              <hsm-state name="HoverPause" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
-                <hsm-event on="turn-playing" goto="Hovering"></hsm-event>
+              <!-- we always hover -->
+              <hsm-state name="Hovering" hsm-init="turn.paused() && 'HoverPause'">
+                <hsm-state>
+                  <ng-include src="'hover.html'"></ng-include>
+                </hsm-state>
+                <!--  -->
+                <hsm-event on="turn-paused" goto="HoverPause"></hsm-event>
+                <!-- TESTEING: -->
+                <hsm-state name="HoverPause" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
+                  <hsm-event on="turn-playing" goto="Hovering"></hsm-event>
+                </hsm-state>
               </hsm-state>
-            </hsm-state>
-            <!-- shared in both physics and non-physics -->
-            <hsm-state name="SharedGame" hsm-init="stream.processing() && 'SharedProcessing'">
-              <hsm-state name="SharedTurn" hsm-enter="turn.start()" hsm-exit="turn.end()" hsm-init="modal.showing() && 'SharedModal'">
-                <hsm-state name="SharedPlay" hsm-enter="settingsButton.enable()" hsm-exit="settingsButton.enable(false)">
-                  <!-- keep updating the player (drawing) so that facing changes as we open the menu work; basically there's a one frame timing issue b/t requesting facing, and drawing the change -->
-                  <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
-                  <hsm-state></hsm-state>
+              <!-- shared in both physics and non-physics -->
+              <hsm-state name="SharedGame" hsm-init="stream.processing() && 'SharedProcessing'" custom-actions-control="customActions">
+                <hsm-state name="SharedTurn" hsm-enter="turn.start()" hsm-exit="turn.end()" hsm-init="modal.showing() && 'SharedModal'">
+                  <!-- multiple sources for this, action bar, inventory window;
+                  we usually get pulled out to process the results -->
+                  <hsm-event on="actions-run" when="customActions.handles($evt)" run="customActions.run($evt)" goto="SharedPlay"></hsm-event>
+                  <hsm-event on="actions-run" run="game.post($evt.post())" goto="SharedPlay"></hsm-event>
                   <!--  -->
-                  <hsm-event on="action-bar-opened" goto="SharedActions"></hsm-event>
-                  <hsm-state name="SharedActions" hsm-exit="actionBar.close('exit')">
-                    <hsm-event on="modal-opened" goto=""></hsm-event>
-                    <hsm-event on="action-bar-closed" goto="SharedPlay"></hsm-event>
-                    <!-- fix: how to handle errors?  -->
-                    <hsm-event on="action-bar-action" goto="SharedPlay" run="game.post($evt.action)"></hsm-event>
-                    <hsm-event on="action-bar-zoom" goto="SharedPlay" run="map.changeView($evt.view)"></hsm-event>
+                  <hsm-state name="SharedPlay" hsm-enter="settingsButton.enable()" hsm-exit="settingsButton.enable(false)">
+                    <!-- keep updating the player (drawing) so that facing changes as we open the menu work; basically there's a one frame timing issue b/t requesting facing, and drawing the change -->
+                    <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
+                    <hsm-state></hsm-state>
                     <!--  -->
-                    <hsm-event on="action-bar-dismiss" run="actionBar.close($evt.reason)"></hsm-event>
-                    <hsm-event on="keys" when="$evt.escapeKey()" run="actionBar.close('escape')"></hsm-event>
-                    <hsm-event on="keys" goto=""></hsm-event>
+                    <hsm-event on="action-bar-opened" goto="SharedActions"></hsm-event>
+                    <hsm-state name="SharedActions" hsm-exit="actionBar.close('exit')">
+                      <hsm-event on="modal-opened" goto=""></hsm-event>
+                      <hsm-event on="action-bar-closed" goto="SharedPlay"></hsm-event>
+                      <!-- fix: how to handle errors?  -->
+                      <hsm-event on="action-bar-zoom" goto="SharedPlay" run="map.changeView($evt.view)"></hsm-event>
+                      <!--  -->
+                      <hsm-event on="action-bar-dismiss" run="actionBar.close($evt.reason)"></hsm-event>
+                      <hsm-event on="keys" when="$evt.escapeKey()" run="actionBar.close('escape')"></hsm-event>
+                      <hsm-event on="keys" goto=""></hsm-event>
+                    </hsm-state>
+                    <!-- ^~SharedActions -->
                   </hsm-state>
-                  <!-- ^~SharedActions -->
-                </hsm-state>
-                <!-- ^~SharedPlay -->
-                <hsm-event on="settings-button-clicked" goto="SharedSettings"></hsm-event>
-                <hsm-state name="SharedSettings" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
-                  <hsm-state settings-control="settings" hsm-enter="settings.open()" hsm-exit="settings.close('exited')">
-                    <hsm-event on="modal-opened" goto=""></hsm-event>
-                    <hsm-event on="modal-closed" goto="SharedPlay"></hsm-event>
-                    <hsm-event on="settings-dismiss" run="settings.close($evt.reason)"></hsm-event>
-                    <hsm-event on="keys" when="$evt.escapeKey()" run="settings.close('escape')"></hsm-event>
+                  <!-- ^~SharedPlay -->
+                  <hsm-event on="settings-button-clicked" goto="SharedSettings"></hsm-event>
+                  <hsm-state name="SharedSettings" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
+                    <hsm-state settings-control="settings" hsm-enter="settings.open()" hsm-exit="settings.close('exited')">
+                      <hsm-event on="modal-opened" goto=""></hsm-event>
+                      <hsm-event on="modal-closed" goto="SharedPlay"></hsm-event>
+                      <hsm-event on="settings-dismiss" run="settings.close($evt.reason)"></hsm-event>
+                      <hsm-event on="keys" when="$evt.escapeKey()" run="settings.close('escape')"></hsm-event>
+                    </hsm-state>
+                  </hsm-state>
+                  <hsm-event on="modal-opened" goto="SharedModal"></hsm-event>
+                  <hsm-state name="SharedModal" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
+                    <hsm-event on="modal-closed" run="log.info('shared modal closed', $evt.source, $evt.reason)" goto="SharedPlay"></hsm-event>
                   </hsm-state>
                 </hsm-state>
-                <hsm-event on="modal-opened" goto="SharedModal"></hsm-event>
-                <hsm-state name="SharedModal" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
-                  <hsm-event on="modal-closed" run="log.info('shared modal closed', $evt.source, $evt.reason)" goto="SharedPlay"></hsm-event>
+                <!-- ^~SharedTurn -->
+                <hsm-state name="SharedDialog" hsm-enter="dialog.open()" hsm-exit="dialog.close()">
+                  <hsm-state hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
+                    <hsm-event on="dialog-quip" run="game.post($evt.post)" goto="SharedGame"></hsm-event>
+                  </hsm-state>
                 </hsm-state>
-              </hsm-state>
-              <!-- ^~SharedTurn -->
-              <hsm-state name="SharedDialog" hsm-enter="dialog.open()" hsm-exit="dialog.close()">
-                <hsm-state hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
-                  <hsm-event on="dialog-quip" run="game.post($evt.post)" goto="SharedGame"></hsm-event>
+                <!-- ^~SharedDialog -->
+                <hsm-event on="stream-processing" goto="SharedProcessing"></hsm-event>
+                <hsm-state name="SharedProcessing" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
+                  <hsm-event on="stream-empty" when="!dialog.empty()" goto="SharedDialog"></hsm-event>
+                  <hsm-event on="stream-empty" goto="SharedTurn"></hsm-event>
                 </hsm-state>
+                <!-- ^~SharedProcessing -->
               </hsm-state>
-              <!-- ^~SharedDialog -->
-              <hsm-event on="stream-processing" goto="SharedProcessing"></hsm-event>
-              <hsm-state name="SharedProcessing" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
-                <hsm-event on="stream-empty" when="!dialog.empty()" goto="SharedDialog"></hsm-event>
-                <hsm-event on="stream-empty" goto="SharedTurn"></hsm-event>
-              </hsm-state>
-              <!-- ^~SharedProcessing -->
+              <!-- ^~ play, dialog, or processing -->
             </hsm-state>
-            <!-- ^~ play, dialog, or processing -->
-          </hsm-state>
-          <!-- ^~PlayingParallel -->
+            <!-- ^~PlayingParallel -->
           </hsm-state>
         </hsm-state>
       </hsm-state>

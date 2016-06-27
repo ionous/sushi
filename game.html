@@ -1,16 +1,16 @@
-<!-- in general, probably best not to use enter to make state rich changes:
-  however, we need to execute a staged-bootstrap, and we can do that via 'gotos' -->
+<!--  -->
 <hsm-state name="Game" hsm-exit="game.destroy()">
   <hsm-state status-control="status" hsm-enter="status.bindTo('statusBar')" hsm-exit="status.destroy()">
     <hsm-state map-control="map" hsm-enter="map.bindTo('gameMap')" hsm-exit="map.destroy()">
       <hsm-state player-control="player" hsm-exit="player.destroy()" hsm-init="'Startup'">
         <ng-include src="'startup.html'"></ng-include>
-        <!--  -->
-        <hsm-state action-service="actions" hsm-enter="actions.bind(game, map)" hsm-exit="actions.bind(false)">
+        <!-- access to the initialzed game gives us access to the available player actions -->
+        <hsm-state action-service="actions" hsm-enter="actions.fetch(game)" hsm-exit="actions.fetch(false)">
+          <!-- dialog choices are created by processing, presented by playing -->
           <hsm-state player-dialog-control="dialog" hsm-enter="dialog.bindTo('commentBox')" hsm-exit="dialog.destroy()">
             <!-- startup goes here when done: -->
             <hsm-state name="GameStarted" parallel="true">
-              <!-- raises -processing and -empty depending on state of process queue -->
+              <!-- raises -processing and -empty -->
               <hsm-state hsm-enter="stream.process()" hsm-exit="stream.process(false)">
                 <hsm-event on="game-posting" run="stream.processing(true)"></hsm-event>
                 <ng-include src="'processing.html'"></ng-include>
@@ -30,4 +30,5 @@
       </hsm-state>
     </hsm-state>
   </hsm-state>
+</hsm-state>
 </hsm-state>

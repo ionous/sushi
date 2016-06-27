@@ -9,8 +9,8 @@ angular.module('demo')
           id: act.id,
           name: act.name.split(' ', 1)[0],
           iconClass: IconService.getIconClass(act.id),
-          runIt: function(p, c) {
-            return act.runIt(p, c);
+          emitAction: function(p, c) {
+            return act.emitAction(p, c);
           }
         }
       };

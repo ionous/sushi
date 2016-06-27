@@ -1,5 +1,5 @@
 <hsm-state name="Inventory" player-item-control="items" hsm-enter="items.collect()" hsm-exit="items.destroy()">
-  <hsm-state button-control="invButton" inventory-control="invWin" parallel="true" hsm-enter="invButton.bindTo()" hsm-exit="invButton.release()">
+  <hsm-state button-control="invButton" inventory-control="invWin" parallel="true" hsm-enter="invButton.bindTo(true)" hsm-exit="invButton.bindTo(false)">
     <!-- pulses in parallel, because ( among other issues ) stream end will kill the pulse -->
     <hsm-state>
       <hsm-state name="InvNotPulsing">
@@ -52,7 +52,7 @@
           <hsm-event on="keys" when="$evt.escapeKey()" run="invWin.close('escape')"></hsm-event>
           <hsm-event on="inv-win-dismiss" run="invWin.close($evt.reason)"></hsm-event>
           <!-- action includes combine information if any, will likely be booted to pause/streaming -->
-          <hsm-event on="inv-win-activate" goto="PlayNormal" run="game.post($evt.action)"></hsm-event>
+          <hsm-event on="actions-run" goto="PlayNormal"></hsm-event>
           <!-- combining; can finish combine -->
           <hsm-state name="WindowCombining">
             <hsm-event on="modal-opened" goto=""></hsm-event>

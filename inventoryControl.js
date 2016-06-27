@@ -36,14 +36,7 @@ angular.module('demo')
                     item: item,
                   });
                 } else {
-                  var post = act.runIt(item.id, combining && combining.id);
-                  if (post) {
-                    hsmMachine.emit(name, "activate", {
-                      item: item,
-                      combining: combining,
-                      action: post,
-                    });
-                  }
+                  act.emitAction(item, combining);
                 }
               },
             });

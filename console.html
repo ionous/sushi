@@ -1,4 +1,4 @@
-<hsm-state name="Console" button-control="consoleButton" hsm-enter="consoleButton.bindTo()" hsm-exit="consoleButton.release()">
+<hsm-state name="Console" button-control="consoleButton" hsm-enter="consoleButton.bindTo(true)" hsm-exit="consoleButton.bindTo(false)">
   <hsm-state name="ConsoleClosed" hsm-enter="consoleButton.enable()" hsm-exit="consoleButton.enable(false)">
     <hsm-event on="console-button-clicked" goto="ConsoleOpen"></hsm-event>
   </hsm-state>

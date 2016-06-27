@@ -123,9 +123,6 @@ angular.module('demo')
     }; // changeMap
     this.init = function(name, hsmMachine) {
       var ctrl = this;
-      this.changeMap = function(next) {
-        return changeMap(name, hsmMachine, next);
-      };
 
       var scope = {
         name: function() {
@@ -184,6 +181,11 @@ angular.module('demo')
           return changeMap(name, hsmMachine, LocationService().nextItem(item));
         },
       };
+
+      this.changeMap = scope.changeMap;
+      this.changeView = scope.changeView;
+      this.changeItem = scope.changeItem;
+      this.changeRoom = scope.changeRoom;
       return scope;
     };
   })

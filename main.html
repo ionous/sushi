@@ -16,5 +16,13 @@
       </hsm-state>
     </hsm-state>
     <ng-include src="'game.html'"></ng-include>
+    <!-- auto start helpers: -->
+    <hsm-state name="Resume" resume-control="mostRecent" hsm-enter="mostRecent.load()">
+      <hsm-event on="most-recent-loaded" when="$evt.gameData" run="game.loadGame($evt.gameData)" goto="Game"></hsm-event>
+      <hsm-event on="most-recent-loaded" run="game.newGame()" goto="Game"></hsm-event>
+    </hsm-state>
+    <hsm-state name="Begin" resume-control="ignore" hsm-enter="ignore.load()">
+      <hsm-event on="ignore-loaded" run="game.newGame()" goto="Game"></hsm-event>
+    </hsm-state>
   </hsm-state>
 </hsm-state>

@@ -25,10 +25,10 @@ angular.module('demo')
 
 // still cant decide: when is it better to provide an api to init
 // and when is it better to init implicitly, ex. through promises
-.directiveAs("actionService", ["^gameControl"],
+.directiveAs("actionService", ["^hsmMachine"],
   function(ActionService, $log, $q) {
-    this.init = function(name, gameControl) {
-      var currentGame, currentMap, pendingActions;
+    this.init = function(name, hsmMachine) {
+      var currentGame, pendingActions;
 
       var ActionInfo = function(act, round) {
         var name = act.attr['act'];
@@ -43,54 +43,39 @@ angular.module('demo')
         this.round = round;
       };
 
-      ActionInfo.prototype.runIt = function(propId, ctxId) {
-        var actId = this.id;
-        // FIX, FIX, FIX: needs work for state machine control
-        // when we search the coat, zoom in on it.
-        // this doesnt even check whether the player has the coat; 
-        // the interaction here with the server needs more thought.
-        var zoomables = ["lab-coat"];
-        if ((actId == "search-it") && (zoomables.indexOf(propId) >= 0)) {
-          var changedLoc = currentMap && currentMap.changeItem(propId);
-          changedLoc.then(function() {
-            var gotAction = ActionService.getAction("examine-it");
-            var fini = gotAction.then(function(act) {
-              $log.info("StoryController:found examine-it", act);
-              if (act) {
-                var post = act.runIt(propId);
-                return gameControl.post(post);
-              }
-            });
-            return fini;
-          });
-          return;
-        }
-
-        var post = {
-          'act': actId,
-          'tgt': propId || null,
-          'ctx': ctxId || null,
+      var ActionEvent = function(act, pobj, cobj) {
+        this.act = act;
+        this.pobj = pobj;
+        this.cobj = cobj;
+      };
+      ActionEvent.prototype.post = function() {
+        var act = this.act;
+        var pobj = this.pobj;
+        var cobj = this.cobj;
+        return {
+          'act': act.id,
+          'tgt': pobj ? pobj.id : null,
+          'ctx': cobj ? cobj.id : null,
         };
-        return post;
+      };
+      ActionInfo.prototype.emitAction = function(pobj, cobj) {
+        hsmMachine.emit(name, "run", new ActionEvent(this, pobj, cobj));
       };
 
       var scope = {
-        bind: function(game, map) {
-          if (angular.isUndefined(game)) {
+        fetch: function(game) {
+          if (!game) {
             currentGame = null;
-            currentMap = null;
             if (pendingActions) {
               pendingActions.reject();
               pendingActions = null;
             }
-
           } else {
             if (pendingActions) {
               throw new Error("already bound");
             }
 
             currentGame = game;
-            currentMap = map;
             ActionService.bind(scope);
 
             pendingActions = $q.defer();
@@ -119,10 +104,6 @@ angular.module('demo')
                 return repeat();
               });
           }
-        },
-        release: function() {
-          throw new Error("cant release till ActionService factory has been removed");
-          scope.bind(false);
         },
         getActions: function() {
           var ret;

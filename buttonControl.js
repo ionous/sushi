@@ -11,15 +11,17 @@ angular.module('demo')
       var button;
       var scope = {
         bindTo: function(slotName) {
-          button = ElementSlotService.get(slotName || name);
-          button.scope.click = function() {
-            //$log.debug("buttonControl", name, "clicked");
-            hsmMachine.emit(name, "clicked", {});
+          if (slotName === false) {
+            button.scope.click = null;
+            button = null;
+          } else {
+            slotName = angular.isString(slotName) ? slotName : name;
+            button = ElementSlotService.get(slotName);
+            button.scope.click = function() {
+              //$log.debug("buttonControl", name, "clicked");
+              hsmMachine.emit(name, "clicked", {});
+            };
           }
-        },
-        release: function() {
-          button.scope.click = null;
-          button = null;
         },
         enable: function(yes) {
           var enable = angular.isUndefined(yes) || yes;
