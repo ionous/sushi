@@ -25,11 +25,10 @@ angular.module('demo')
 
 // still cant decide: when is it better to provide an api to init
 // and when is it better to init implicitly, ex. through promises
-.directiveAs("actionService", ["^gameControl", "^mapControl"],
-  function(ActionService, $log) {
-    this.init = function(name, gameControl, mapControl) {
-
-      var promisedActions;
+.directiveAs("actionService", ["^gameControl"],
+  function(ActionService, $log, $q) {
+    this.init = function(name, gameControl) {
+      var currentGame, currentMap, pendingActions;
 
       var ActionInfo = function(act, round) {
         var name = act.attr['act'];
@@ -52,7 +51,7 @@ angular.module('demo')
         // the interaction here with the server needs more thought.
         var zoomables = ["lab-coat"];
         if ((actId == "search-it") && (zoomables.indexOf(propId) >= 0)) {
-          var changedLoc = mapControl.changeItem(propId);
+          var changedLoc = currentMap && currentMap.changeItem(propId);
           changedLoc.then(function() {
             var gotAction = ActionService.getAction("examine-it");
             var fini = gotAction.then(function(act) {
@@ -76,43 +75,67 @@ angular.module('demo')
       };
 
       var scope = {
-        bind: function(game) {
-          if (promisedActions) {
-            throw new Error("already bound");
+        bind: function(game, map) {
+          if (angular.isUndefined(game)) {
+            currentGame = null;
+            currentMap = null;
+            if (pendingActions) {
+              pendingActions.reject();
+              pendingActions = null;
+            }
+
+          } else {
+            if (pendingActions) {
+              throw new Error("already bound");
+            }
+
+            currentGame = game;
+            currentMap = map;
+            ActionService.bind(scope);
+
+            pendingActions = $q.defer();
+            game.request('action').then(
+              function(doc) {
+                var ret = []; // chain promises to request a series of actions.
+                var actions = doc.data;
+                //$log.warn("ActionService: repeating", actions.length);
+                var repeat = function() {
+                  // done?
+                  if (ret.length == actions.length) {
+                    pendingActions.resolve(ret);
+                    return;
+                  }
+                  // nope: keep going.
+                  var actRef = actions[ret.length];
+                  if (game !== currentGame) {
+                    throw new Error("game changed");
+                  }
+                  return game.request(actRef).then(function(doc) {
+                    var act = new ActionInfo(doc.data);
+                    ret.push(act);
+                    return repeat();
+                  });
+                };
+                return repeat();
+              });
           }
-          ActionService.bind(scope);
-          //
-          promisedActions = game.request('action').then(
-            function(doc) {
-              var ret = []; // chain promises to request a series of actions.
-              var actions = doc.data;
-              //$log.warn("ActionService: repeating", actions.length);
-              var repeat = function() {
-                // done?
-                if (ret.length == actions.length) {
-                  return ret;
-                }
-                // nope: keep going.
-                var actRef = actions[ret.length];
-                return game.request(actRef).then(function(doc) {
-                  var act = new ActionInfo(doc.data);
-                  ret.push(act);
-                  return repeat();
-                });
-              };
-              return repeat();
-            });
         },
         release: function() {
           throw new Error("cant release till ActionService factory has been removed");
-          // really would need a reject for early exit anyway
-          promisedActions = null;
+          scope.bind(false);
         },
         getActions: function() {
-          return promisedActions;
+          var ret;
+          if (pendingActions) {
+            ret = pendingActions.promise;
+          } else {
+            var empty = [];
+            ret = $q.when(empty);
+          }
+          return ret;
         },
         getAction: function(id) {
-          return promisedActions.then(function(acts) {
+          return scope.getActions().then(function(acts) {
             for (var i = 0; i < acts.length; i++) {
               var act = acts[i];
               if (act.id == id) {

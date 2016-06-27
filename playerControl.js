@@ -6,7 +6,7 @@ angular.module('demo')
   function(CharaService, ObjectDisplayService, PlayerService,
     $q, $log) {
     //
-    var currChara, pending;
+    var currChara, displaying, pending;
     var playerObj = PlayerService.getPlayer();
     var memory = {};
     //
@@ -34,13 +34,21 @@ angular.module('demo')
           if (!currChara) {
             throw new Error("currChara doesnt exist");
           }
-          display = display || ObjectDisplayService.getDisplay(playerObj.id);
-          currChara.linkup(display.group, display.canvas)
+          //display = display || ObjectDisplayService.getDisplay(playerObj.id);
+          if (display) {
+            currChara.linkup(display.group, display.canvas);
+          }
+          // patch the static views which are rotating the player ... 
+          // ex. the lab-coat.
+          // when does static view need a chara? 
+          displaying = !!display;
           return currChara;
         },
         update: function(dt) {
           // maybe a characters list in the map? then we could map.update() and the characters would too.
-          currChara.draw(dt);
+          if (displaying) {
+            currChara.draw(dt);
+          }
         },
         // target is of type "Subject"
         interact: function(target) {

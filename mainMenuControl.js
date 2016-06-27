@@ -4,7 +4,7 @@ angular.module('demo')
 
 
 .directiveAs("mainMenuControl", ["^^hsmMachine"],
-  function(ElementSlotService, $location, $log) {
+  function(ElementSlotService, SaveGameService, $location, $log) {
     var win;
     this.init = function(name, hsmMachine) {
       var menu = {
@@ -20,7 +20,14 @@ angular.module('demo')
           win = ElementSlotService.get(windowSlot);
           win.scope.visible = true;
           win.scope.starting = true;
-          win.scope.loadGames = true;
+          var haveGames = false;
+          SaveGameService.enumerate(function(el) {
+            $log.info("have game", el);
+            haveGames= true;
+            return false;
+          });
+
+          win.scope.loadGames = haveGames;
           win.scope.start = function() {
             hsmMachine.emit(name, "start", {});
           };

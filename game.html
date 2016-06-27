@@ -6,7 +6,7 @@
       <hsm-state player-control="player" hsm-exit="player.destroy()" hsm-init="'Startup'">
         <ng-include src="'startup.html'"></ng-include>
         <!--  -->
-        <hsm-state action-service="actions" hsm-enter="actions.bind(game)" hsm-exit="actions.bind(false)">
+        <hsm-state action-service="actions" hsm-enter="actions.bind(game, map)" hsm-exit="actions.bind(false)">
           <hsm-state player-dialog-control="dialog" hsm-enter="dialog.bindTo('commentBox')" hsm-exit="dialog.destroy()">
             <!-- startup goes here when done: -->
             <hsm-state name="GameStarted" parallel="true">

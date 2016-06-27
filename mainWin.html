@@ -9,8 +9,7 @@
       <li ng-if="!mainWin.starting">
         <ga-link ga-dst="/resume" ng-click="mainWin.resume()">Continue</ga-link>
       </li>
-      <li ng-class="{disabled:!mainWin.loadGames}">
-        <ga-link ga-dst="/saved">Load</ga-link>
+        <ga-link ga-dst="/saved" ga-disabled="!mainWin.loadGames">Load</ga-link>
       </li>
       <li ng-if="!mainWin.starting">
         <ga-link ga-dst="/start" ng-click="mainWin.start()">Start New Game</ga-link>

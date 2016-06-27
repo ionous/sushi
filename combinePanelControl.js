@@ -10,23 +10,25 @@ angular.module('demo')
     this.init = function(name) {
       var scope = {
         close: function() {
+          $log.info("combinePanelControl", name, "closing");
           if (defer) {
             defer.reject("closing");
             defer = null;
           }
           if (combineBox) {
-            combineBox.items = combineBox.visible = false;
-            combineBox.image = null;
+            combineBox.scope.items = combineBox.scope.visible = false;
+            combineBox.scope.image = null;
             combineBox = null;
           }
         },
         enableInventoryMessage: function(yes) {
           if (combineBox) {
-            combineBox.items = yes;
+            combineBox.scope.items = yes;
           }
         },
         open: function(windowSlot, item) {
           scope.close();
+          $log.info("combinePanelControl", name, "open", windowSlot, item);
           //
           if (item) {
             combineBox = ElementSlotService.get(windowSlot);
@@ -35,10 +37,9 @@ angular.module('demo')
             images.then(defer.resolve, defer.reject);
             defer.promise.then(function(image) {
               $log.info("combinePanelControl: got image", image);
-              combineBox.image = image;
-              combineBox.visible = true;
+              combineBox.scope.image = image;
+              combineBox.scope.visible = true;
             });
-            combineBox.visible = true;
           }
         }, // combine
       };

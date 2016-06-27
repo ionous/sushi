@@ -1,28 +1,70 @@
 'use strict';
 
 angular.module('demo')
+  .factory("PositionService", function($log) {
+    var defaultAngle = 0;
+    var currAngle = defaultAngle;
+    var currPos = pt(0, 0);
+
+    var memory = {};
+    var Memory = function(skin, pos, angle) {
+      this.skin = skin;
+      this.pos = pt_floor(pos);
+      this.angle = angle;
+    };
+    Memory.prototype.toString = function() {
+      return "skin:" + [this.skin || "''", this.pos.x, this.pos.y, this.angle].join(",");
+    };
+
+    return {
+      defaultAngle: defaultAngle,
+      saveLoad: function(data) {
+        if (angular.isUndefined(data)) {
+          return {
+            pos: pt_floor(currPos),
+            angle: Math.floor(currAngle),
+            memory: memory,
+          };
+        } else {
+          currPos = data.pos;
+          currAngle = data.angle;
+          memory = data.memory.map(function(el) {
+            return new Memory(el.skin, pos(el.pos.x, el.pos.y), el.angle);
+          });
+        }
+      },
+      memorize: function(loc, skin) {
+        var mem = memory[loc] = new Memory(skin, currPos, currAngle);
+        $log.info("PositionService, memorized", loc, mem);
+        return mem;
+      },
+      fetch: function(loc) {
+        var mem = memory[loc];
+        $log.info("PositionService, fetching", loc, mem);
+        return mem;
+      },
+      update: function(newPos, newAngle) {
+        currPos = newPos;
+        if (newAngle != currAngle) {
+          currAngle = newAngle;
+          $log.info("PositionService, set angle", currAngle);
+        }
+      },
+    }; // return
+  })
 
 .directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl"],
-  function(LocationService, ObjectDisplayService, $log) {
+  function(LocationService, ObjectDisplayService, PositionService, $log) {
     this.init = function(name, hsmMachine, keyControl) {
       var currPlayer, currChara, currProp, currSkin, currLoc;
-      //
-      var defaultAngle = 0;
+      var defaultAngle = PositionService.defaultAngle;
       var currPos = pt(0, 0);
       var currAngle = defaultAngle;
 
       var reduce = function(val) {
         return val ? 1.0 : 0.0;
       };
-      var memory = {};
-      var Memory = function(skin, pos, angle) {
-        this.skin = skin;
-        this.pos = pt_floor(pos);
-        this.angle = angle;
-      };
-      Memory.prototype.toString = function() {
-        return "skin:" + [this.skin || "''", this.pos.x, this.pos.y, this.angle].join(",");
-      };
+
       var avatar = {
         create: function(player, physics, size) {
           if (currPlayer) {
@@ -45,13 +87,13 @@ angular.module('demo')
             currAngle = defaultAngle;
 
             var loc = currLoc = LocationService().toString();
-            var mem = memory[loc];
+            var mem = PositionService.fetch(loc);
             if (!mem) {
               $log.info("avatarControl", name, "no memory for", loc);
             } else if (currSkin != mem.skin) {
               $log.info("avatarControl", name, "mismatched skin for", loc, "was", mem.skin, "now", currSkin);
             } else {
-              var prevLoc= LocationService.prev();
+              var prevLoc = LocationService.prev();
               $log.info("avatarControl", name, "restoring", mem.toString(), "from", prevLoc);
               currPos = mem.pos;
               currAngle = mem.angle;
@@ -63,9 +105,11 @@ angular.module('demo')
                   currAngle -= 360;
                 }
               }
-              currChara.setAngle(currAngle, true);
-              currChara.setCorner(currPos);
             }
+
+            currChara.setAngle(currAngle, true);
+            currChara.setCorner(currPos);
+            PositionService.update(currPos, currAngle);
 
             var feet = pt_add(currPos, currChara.feetOfs);
             currProp = physics.addProp(feet, size || 12);
@@ -77,7 +121,7 @@ angular.module('demo')
         destroy: function(reason) {
           $log.info("avatarControl", name, "destroy", reason || '?');
           if (currLoc) {
-            var mem = memory[currLoc] = new Memory(currSkin, currPos, currAngle)
+            var mem = PositionService.memorize(currLoc, currSkin);
             $log.info("avatarControl", name, "memorized", currLoc, mem.toString());
             currLoc = null;
           };
@@ -111,10 +155,10 @@ angular.module('demo')
           var pad = target && target.pads && target.pads.getClosestPad(src);
           if (pad) {
             var angle = pad.getAngle();
-            if (angle) {
+            if (angular.isNumber(angle)) {
               currChara.setAngle(angle);
+              PositionService.update(currPos, angle);
               currAngle = angle;
-              $log.info("avatarControl", name, "new angle", currAngle);
             }
           }
         },
@@ -145,11 +189,7 @@ angular.module('demo')
             var walking = keyControl.buttons('shift');
             // animation facing.
             var face = dir;
-            var newAngle = currChara.setFacing(face.x, face.y);
-            if (newAngle != currAngle) {
-              currAngle = newAngle;
-              $log.info("avatarControl", name, "new angle", currAngle);
-            }
+            var angle = currAngle = currChara.setFacing(face.x, face.y);
             // animation speed.
             currChara.setSpeed(walking ? 1 : 2);
             // physics speed.
@@ -159,6 +199,8 @@ angular.module('demo')
             var feet = currProp.getFeet();
             var pos = currPos = pt_sub(feet, currChara.feetOfs);
             currChara.setCorner(pos);
+            //
+            PositionService.update(pos, angle);
           }
         },
       };

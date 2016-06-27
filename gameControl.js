@@ -42,6 +42,9 @@ angular.module('demo')
           processControl.queue(lastFrame, []);
         });
       };
+      this.getId = function() {
+        return currentGame && currentGame.id;
+      };
       this.newGame = function(windowName, _processControl) {
         gameWindow = ElementSlotService.get(windowName);
         gameWindow.scope.visible = true;
