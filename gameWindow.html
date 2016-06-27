@@ -1,4 +1,4 @@
-<div class="ga-play" ga-map-color ng-if="gameWindow.visible" class="ga-fade">
+<div class="ga-play" ga-map-color ng-if="gameWindow.visible">
   <div element-slot="gameMap" ng-show="gameMap.loaded" ng-style="gameMap.style" class="ga-map"></div>
   <div class="ga-noselect" ng-include="'buttonBar.html'"></div>
   <div element-slot="mouseDisplay"></div>
@@ -8,5 +8,6 @@
   <modal-window name="talk" class="ga-greydismiss" group="modal"></modal-window>
   <modal-window name="invWin" class="ga-greyignore" group="modal" src="'invWin.html'"></modal-window>
   <modal-window name="consoleWindow" class="ga-greydismiss" group="modal" src="'consoleWindow.html'"></modal-window>
+  <modal-window name="settings" class="ga-greydismiss" group="modal" src="'settingsBox.html'"></modal-window>
   <modal-window name="popupBox" class="ga-greydismiss" group="modal" src="'popupBox.html'"></modal-window>
 </div>

@@ -1,17 +1,16 @@
-<!-- FIX: this should have a controller, and the state that enabled the bar should provide the hooks to emit events -->
 <div class="ga-buttonbar ga-left" ng-show="!hideViewButton && clickReturn.msg" element-slot="clickReturn">
   <a class="btn btn-primary btn-lg" uib-tooltip="{{clickReturn.msg}}" tooltip-placement="right" tooltip-class="ga-xtip">
     <i class="fa fa-undo"></i>
   </a>
 </div>
 <div class="ga-buttonbar ga-right">
-  <a class="btn btn-primary btn-lg" ng-click="machine.emit('demo-console')" uib-tooltip="Console" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
+  <a class="btn btn-primary btn-lg disabled" uib-tooltip="Console" tooltip-placement="auto bottom" tooltip-class="ga-xtip" element-slot="consoleButton" ng-click="consoleButton.click()">
     <i class="fa fa-terminal"></i>
   </a>
   <a class="btn btn-primary btn-lg disabled" element-slot="invButton" ng-click="invButton.click()" uib-tooltip="Items" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
     <i class="fa fa-suitcase"></i>
   </a>
-  <a class="btn btn-primary btn-lg disabled" ng-click="machine.emit('demo-settings')" uib-tooltip="Settings" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
+  <a class="btn btn-primary btn-lg disabled" element-slot="settingsButton" ng-click="settingsButton.click()" uib-tooltip="Settings" tooltip-placement="auto bottom" tooltip-class="ga-xtip">
     <i class="fa fa-gear"></i>
   </a>
 </div>

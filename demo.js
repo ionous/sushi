@@ -4,4 +4,10 @@
 // it seems all of the dependencies have to be listed in one place.
 // a new module call with paramters seems to act as a "reset".
 // it clears the contents of the app, resulting in many strange errors.
-angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'mosaic', 'hsm']);
+angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'mosaic', 'hsm'])
+  .constant("HSM_HTML", true)
+  .constant("HsmExpanded", true)
+  // .constant("AutoStart", "Game")
+  //.constant("Talk", "TalkEnabled")
+  //.constant("Popups", "PopupsEnabled")
+  ;

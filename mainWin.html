@@ -1,23 +1,24 @@
 <div ng-if="mainWin.visible">
-  <h1>Alice’s Adventures:</h1>
   <h2>Alice and the Galactic Traveller.</h2>
-  <i>Web Mockup version 1.0.</i>
-  <ul>
-    <li ng-if="mainWin.starting">
-      <ga-link ga-dst="/start" ga-click="mainWin.start()">Begin</ga-link>
-    </li>
-    <li ng-if="!mainWin.starting">
-      <ga-link ga-dst="/resume" ga-click="mainWin.resume()">Continue</ga-link>
-    </li>
-    <li ng-class="{disabled:!mainWin.loadGames}">
-      <ga-link ga-dst="/saved">Load</ga-link>
-    </li>
-    <li ng-if="!mainWin.starting">
-      <ga-link ga-dst="/start" ga-click="mainWin.start()">Start New Game</ga-link>
-    </li>
-    <!-- <li>(options)</li> -->
-    <li>
-      <ga-link ga-dst="/about">About</ga-link>
-    </li>
-  </ul>
+  <h4>Web Mockup version 1.0.</h4>
+  <div class="ga-options">
+    <ul class="list-unstyled">
+      <li ng-if="mainWin.starting">
+        <ga-link ga-dst="/start" ng-click="mainWin.start()">Begin</ga-link>
+      </li>
+      <li ng-if="!mainWin.starting">
+        <ga-link ga-dst="/resume" ng-click="mainWin.resume()">Continue</ga-link>
+      </li>
+      <li ng-class="{disabled:!mainWin.loadGames}">
+        <ga-link ga-dst="/saved">Load</ga-link>
+      </li>
+      <li ng-if="!mainWin.starting">
+        <ga-link ga-dst="/start" ng-click="mainWin.start()">Start New Game</ga-link>
+      </li>
+      <!-- <li>(options)</li> -->
+      <li>
+        <ga-link ga-dst="/about">About</ga-link>
+      </li>
+    </ul>
+  </div>
 </div>

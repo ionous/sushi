@@ -109,9 +109,14 @@ angular.module('demo')
         this.body.sleep();
       };
       Prop.prototype.remove = function() {
-        this.body.world.removeBody(this.body);
-        this.body = null;
-        this.scene = null;
+        if (this.body) {
+          var world = this.body.world;
+          if (world) {
+             world.removeBody(this.body);
+          }
+          this.body = null;
+          this.scene = null;
+        }
       };
       // in canvas pos
       Prop.prototype.getPos = function() {

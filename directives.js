@@ -43,18 +43,19 @@ angular.module('demo')
       // scoping via "name.something" would be annoying for simple apps,  
       // but infinitely better practice.
       scope: {
-        gaClick: "&?", // what to do on click
+        ngClick: "&?", // what to do on click
         gaDst: "@?", // what to display, and where to go ( if no click provided )
+        gaDisabled: "<?",
       },
       require: ["^^locationControl"],
-      template: "<a ng-href='/{{appBase}}/#{{gaDst}}' class='ga-link' ng-click='clicked($event)'><ng-transclude></ng-transclude></a>",
+      template: "<a ng-href='/{{appBase}}/#{{gaDst}}' class='btn btn-default btn-block' ng-class='{disabled:gaDisabled}' ng-click='clicked($event)'  role='button'><ng-transclude></ng-transclude></a>",
       link: function(scope, el, attrs, controllers) {
         var locationControl = controllers[0];
         // there doesnt appeart to be a way to get this via angular
         // there also isnt any way of using location to format, without actually changing the url.
         scope.appBase = "demo";
         var dst = scope.gaDst;
-        var click = scope.gaClick;
+        var click = scope.ngClick;
         scope.clicked = function(evt) {
           // dont follow the href
           evt.preventDefault();
@@ -63,6 +64,7 @@ angular.module('demo')
           } else if (dst) {
             locationControl.goto(dst);
           }
+          evt.stopPropagation();
         };
       }, // link
     };

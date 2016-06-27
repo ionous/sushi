@@ -53,7 +53,7 @@ angular.module('demo')
         },
         // return the url in CapitalCase
         // fix? probably should be an independent filter
-        case: function() {
+        titlecase: function() {
           var SPECIAL_CHARS_REGEXP = /([\/]+(.))/g;
           var p = $location.path().substr(1);
           return p.replace(SPECIAL_CHARS_REGEXP, function(_, separator, letter) {

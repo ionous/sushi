@@ -73,8 +73,22 @@ div.overgrey {
   text-transform: uppercase;
 }
 
-.ga-menu a.disabled {
+
+/*
+a.ga-link.disabled {
   color: grey;
+}*/
+
+h1,
+h2,
+h3,
+h4 {
+  text-align: center;
+}
+
+.ga-options {
+  margin: 0 auto;
+  width: 25%;
 }
 
 

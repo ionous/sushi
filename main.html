@@ -1,8 +1,8 @@
-<hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()">
-  <hsm-state name="Menus" hsm-init="path.case()">
-    <hsm-event on="path-change" run="log.info('location changed', path.case())" goto="Menus"></hsm-event>
+<hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()" constant-control="constant" hsm-init="constant('AutoStart')">
+  <hsm-state name="Menus" hsm-init="path.titlecase()">
+    <hsm-event on="path-change" goto="Menus"></hsm-event>
     <hsm-state name="MainMenu" main-menu-control="main" hsm-enter="main.open('mainWin', '/')" hsm-exit="main.close()">
-     <hsm-event on="main-start" goto="Game"></hsm-event>
+      <hsm-event on="main-start" goto="Game"></hsm-event>
       <!--
       <hsm-event on="main-menu-resume"></hsm-event> -->
     </hsm-state>

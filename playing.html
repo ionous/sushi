@@ -3,6 +3,7 @@
     <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
       <hsm-state key-control="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
         <hsm-state action-bar-control="actionBar" hsm-enter="actionBar.bindTo('gameMap')">
+          <hsm-state button-control="settingsButton" hsm-enter="settingsButton.bindTo('')" hsm-exit="settingsButton.release()">
           <hsm-state name="PlayingParallel" parallel="true" combiner-control="combiner" play-control="turn">
             <ng-include src="'console.html'"></ng-include>
             <ng-include src="'inventory.html'"></ng-include>
@@ -18,14 +19,15 @@
               </hsm-state>
               <!--  -->
               <hsm-event on="turn-paused" goto="HoverPause"></hsm-event>
-              <hsm-state name="HoverPause" hsm-enter="mouse.show(false)">
+              <!-- TESTEING: -->
+              <hsm-state name="HoverPause" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
                 <hsm-event on="turn-playing" goto="Hovering"></hsm-event>
               </hsm-state>
             </hsm-state>
             <!-- shared in both physics and non-physics -->
             <hsm-state name="SharedGame" hsm-init="stream.processing() && 'SharedProcessing'">
               <hsm-state name="SharedTurn" hsm-enter="turn.start()" hsm-exit="turn.end()" hsm-init="modal.showing() && 'SharedModal'">
-                <hsm-state name="SharedPlay">
+                <hsm-state name="SharedPlay" hsm-enter="settingsButton.enable()" hsm-exit="settingsButton.enable(false)">
                   <!-- keep updating the player (drawing) so that facing changes as we open the menu work; basically there's a one frame timing issue b/t requesting facing, and drawing the change -->
                   <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
                   <hsm-state></hsm-state>
@@ -45,6 +47,15 @@
                   <!-- ^~SharedActions -->
                 </hsm-state>
                 <!-- ^~SharedPlay -->
+                <hsm-event on="settings-button-clicked" goto="SharedSettings"></hsm-event>
+                <hsm-state name="SharedSettings" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
+                  <hsm-state settings-control="settings" hsm-enter="settings.open()" hsm-exit="settings.close('exited')">
+                    <hsm-event on="modal-opened" goto=""></hsm-event>
+                    <hsm-event on="modal-closed" goto="SharedPlay"></hsm-event>
+                    <hsm-event on="settings-dismiss" run="settings.close($evt.reason)"></hsm-event>
+                    <hsm-event on="keys" when="$evt.escapeKey()" run="settings.close('escape')"></hsm-event>
+                  </hsm-state>
+                </hsm-state>
                 <hsm-event on="modal-opened" goto="SharedModal"></hsm-event>
                 <hsm-state name="SharedModal" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
                   <hsm-event on="modal-closed" run="log.info('shared modal closed', $evt.source, $evt.reason)" goto="SharedPlay"></hsm-event>
@@ -67,6 +78,7 @@
             <!-- ^~ play, dialog, or processing -->
           </hsm-state>
           <!-- ^~PlayingParallel -->
+          </hsm-state>
         </hsm-state>
       </hsm-state>
     </hsm-state>

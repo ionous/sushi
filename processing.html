@@ -8,8 +8,8 @@
     <hsm-event on="printText" run="text.addLines($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
   </hsm-state>
   <!-- characters saying dialog -->
-  <hsm-state hsm-init="1 && 'TalkEnabled'">
-    <hsm-state>
+  <hsm-state hsm-init="constant('Talk')">
+    <hsm-state name="TalkDisabled">
     </hsm-state>
     <hsm-state name="TalkEnabled" game-listener="speech" hsm-enter="speech.listen('*', 'say')" hsm-exit="speech.silence()">
       <hsm-state talk-control="speaker" hsm-exit="speaker.cleanup('exit')">
@@ -42,8 +42,19 @@
         'offering-vendibles', true)" hsm-exit="vending.silence()">
           <hsm-state game-listener="departing" hsm-enter="departing.listen('*', 'departing', true)" hsm-exit="departing.silence()">
             <!--  -->
-            <hsm-state name="StoryText" hsm-init="1 && 'PopupsEnabled'">
+            <hsm-state name="StoryText" hsm-init="constant('Popups')">
               <hsm-state name="PopupsDisabled">
+              </hsm-state>
+              <!-- regular story text popups -->
+              <hsm-state name="PopupsEnabled" popup-control="popup">
+                <hsm-state>
+                  <hsm-event on="storyText" goto="PopupDisplayed" run="popup.open('popupBox', $evt.data).then($evt.resolve())"></hsm-event>
+                </hsm-state>
+                <hsm-state name="PopupDisplayed" hsm-exit="popup.close('exit')">
+                  <hsm-event on="popup-box-closed" goto="PopupsEnabled"></hsm-event>
+                  <hsm-event on="popup-box-dismiss" run="popup.close($evt.reason)"></hsm-event>
+                  <hsm-event on="keys" when="$evt.escapeKey(true) || $evt.actionKey(true)" run="modal.dismiss()" goto=""></hsm-event>
+                </hsm-state>
               </hsm-state>
               <!--  -->
               <hsm-event on="comments" goto="CaptureComments"></hsm-event>
@@ -66,17 +77,6 @@
                 </hsm-state>
                 <hsm-state name="AwaitVendingComment">
                   <hsm-event on="storyText" goto="AwaitVendingQuip" run="dialog.addChoice($evt.data)"></hsm-event>
-                </hsm-state>
-              </hsm-state>
-              <!-- regular story text popups -->
-              <hsm-state name="PopupsEnabled" popup-control="popup">
-                <hsm-state>
-                  <hsm-event on="storyText" goto="PopupDisplayed" run="popup.open('popupBox', $evt.data).then($evt.resolve())"></hsm-event>
-                </hsm-state>
-                <hsm-state name="PopupDisplayed" hsm-exit="popup.close('exit')">
-                  <hsm-event on="popup-box-closed" goto="PopupsEnabled"></hsm-event>
-                  <hsm-event on="popup-box-dismiss" run="popup.close($evt.reason)"></hsm-event>
-                  <hsm-event on="keys" when="$evt.escapeKey(true) || $evt.actionKey(true)" run="modal.dismiss()" goto=""></hsm-event>
                 </hsm-state>
               </hsm-state>
               <!-- room entry prints nothing-->

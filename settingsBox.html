@@ -1,0 +1,17 @@
+<div class="ga-notify" modal-content="settings" hsm-log="log" ng-click="settings.dismiss('popup clicked')">
+  <h3>Settings</h3>
+  <div class="ga-notify-box">
+    <ul class="list-unstyled">
+      <li>
+        <ga-link ng-click="settings.save()">Save</ga-link>
+      </li>
+      <li>
+        <ga-link ga-disabled="true">Main Menu</ga-link>
+      </li>
+      <!-- itd be nice to go to screen, which would mean not summarily destroying the game -->
+      <li>
+        <ga-link ga-disabled="true">Help</ga-link>
+      </li>
+    </ul>
+  </div>
+</div>

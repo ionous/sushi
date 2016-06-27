@@ -108,7 +108,7 @@ angular.module('demo')
           };
           slot.scope.loaded = true;
           //
-          $log.info("mapControl", name, "loaded!");
+          $log.warn("mapControl", name, "loaded!");
           hsmMachine.emit(name, "loaded", loaded);
           return loaded;
         }, function(reason) {
@@ -126,7 +126,7 @@ angular.module('demo')
         },
         // suspicious of exposing resources object directly to scope watchers
         get: function(key) {
-          var ret = currentMap[key];
+          var ret = currentMap && currentMap[key];
           if (angular.isUndefined(ret)) {
             var msg = "resource not found";
             $log.error(msg, key);

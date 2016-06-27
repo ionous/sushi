@@ -70,6 +70,7 @@
   <script src="avatarControl.js"></script>
   <script src="buttonControl.js"></script>
   <script src="consoleControl.js"></script>
+  <script src="constantControl.js"></script>
   <script src="combinerControl.js"></script>
   <script src="combineCheckControl.js"></script>
   <script src="combinePanelControl.js"></script>
@@ -133,9 +134,9 @@
       <div element-slot="loadGameWin" ng-include="'loadGameWin.html'"></div>
     </div>
   </main>
-  <footer class="state-display" ng-init="showStates=false">
-    <a href="" ng-click="showStates=!showStates">states [{{showStates ? 'x' : 'o'}}]</a>
-    <ng-include src="'main.html'" ng-show="showStates"></ng-include>
+  <footer class="state-display" ng-init="hsmExpanded=constant('HsmExpanded')">
+    <a href="" ng-click="hsmExpanded=!hsmExpanded">states [{{hsmExpanded ? 'x' : 'o'}}]</a>
+    <ng-include src="'main.html'" ng-show="hsmExpanded"></ng-include>
   </footer>
 </body>
 
