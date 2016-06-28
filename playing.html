@@ -1,7 +1,7 @@
 <hsm-state name="Playing" view-control="view" hsm-enter="view.bindTo('clickReturn')" hsm-exit="view.release()">
   <hsm-state mouse-control="mouse" hsm-enter="mouse.bindTo('gameMap', 'mouseDisplay')" hsm-exit="mouse.destroy()">
     <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
-      <hsm-state key-control="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
+      
         <hsm-state action-bar-control="actionBar" hsm-enter="actionBar.bindTo('gameMap')">
           <hsm-state button-control="settingsButton" hsm-enter="settingsButton.bindTo(true)" hsm-exit="settingsButton.bindTo(false)">
             <hsm-state name="PlayingParallel" parallel="true" combiner-control="combiner" play-control="turn">
@@ -86,5 +86,4 @@
         </hsm-state>
       </hsm-state>
     </hsm-state>
-  </hsm-state>
 </hsm-state>

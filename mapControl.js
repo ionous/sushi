@@ -96,8 +96,7 @@ angular.module('demo')
           $log.info("mapControl", name, "got map", next.toString());
           defer.resolve({
             map: loadedMap,
-            where: next,
-            scope: slot.scope
+            where: next
           });
         });
 

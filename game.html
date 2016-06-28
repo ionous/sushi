@@ -1,12 +1,13 @@
 <!--  -->
 <hsm-state name="Game" window-control="gameWin" hsm-enter="gameWin.show('gameWindow')" hsm-exit="gameWin.show(false)">
   <hsm-state status-control="status" hsm-enter="status.bindTo('statusBar')" hsm-exit="status.destroy()">
+  <hsm-state key-control="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
     <hsm-state text-control="text" hsm-enter="text.create()" hsm-exit="text.destroy()">
       <hsm-state map-control="map" hsm-enter="map.bindTo('gameMap')" hsm-exit="map.destroy()">
         <hsm-state player-control="player" hsm-exit="player.destroy()" hsm-init="'Startup'">
           <!-- startup sequence to create the player graphics, locate the player object in the world, and loading the first map. -->
           <ng-include src="'startup.html'"></ng-include>
-          <!-- access to the initialzed game gives us access to the available player actions -->
+          <!-- access to initialzed game gives us access to available player actions -->
           <hsm-state action-service="actions" hsm-enter="actions.fetch(game)" hsm-exit="actions.fetch(false)">
             <!-- dialog choices are created by processing, presented by playing -->
             <hsm-state player-dialog-control="dialog" hsm-enter="dialog.bindTo('commentBox')" hsm-exit="dialog.destroy()">
@@ -25,8 +26,14 @@
                 <hsm-state hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
                   <ng-include src="'playing.html'"></ng-include>
                   <!--  -->
+                  <hsm-state name="Fini" fini-control="fini" hsm-enter="fini.enter()" hsm-exit="fini.exit()">
+                    <hsm-event on="stream-empty" run="fini.showExitPanel()"></hsm-event>
+                    <hsm-event on="fini-exit" goto="Menus"></hsm-event>
+                  </hsm-state>
+                  <!--  -->
                   <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
                   <hsm-state name="PlaySpaceLoading">
+                    <hsm-event on="map-loaded" when="$evt.where.room=='fini'" goto="Fini"></hsm-event>
                     <hsm-event on="map-loaded" goto="Playing"></hsm-event>
                   </hsm-state>
                 </hsm-state>
@@ -36,5 +43,6 @@
         </hsm-state>
       </hsm-state>
     </hsm-state>
+  </hsm-state>
   </hsm-state>
 </hsm-state>

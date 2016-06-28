@@ -1,5 +1,5 @@
-<hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()" save-game-control="saves">
-  <hsm-state game-control="game" process-control="stream" hsm-init="constant('AutoStart')">
+<hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()" game-control="game" process-control="stream" save-game-control="saves">
+  <hsm-state name="AutoStart" hsm-init="constant('AutoStart')">
     <hsm-state name="Menus" hsm-init="path.titlecase()">
       <hsm-event on="path-change" goto="Menus"></hsm-event>
       <hsm-state name="MainMenu" main-menu-control="main" hsm-enter="main.open('mainWin', '/')" hsm-exit="main.close()">
