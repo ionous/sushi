@@ -1,4 +1,4 @@
-<hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()">
+<hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()" save-game-control="saves">
   <hsm-state game-control="game" process-control="stream" hsm-init="constant('AutoStart')" hsm-enter="game.bindTo('gameWindow', stream)" hsm-exit="game.bindTo(false)" stream-control="stream">
     <hsm-state name="Menus" hsm-init="path.titlecase()">
       <hsm-event on="path-change" goto="Menus"></hsm-event>

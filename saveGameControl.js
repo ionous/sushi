@@ -2,7 +2,7 @@
 
 angular.module('demo')
 
-.factory("SaveGameService",
+.directiveAs("saveGameControl", ["^hsmMachine"],
   function(EventStreamService, LocationService, PositionService, SaveVersion,
     $log, $rootScope) {
     var SaveGameData = function(data) {
@@ -10,7 +10,7 @@ angular.module('demo')
     };
     // bound up with gameControl.loadGame
     SaveGameData.prototype.restore = function() {
-      $log.info("SaveGameService", "restoring", this.data);
+      $log.info("saveGameControl", name, "restoring", this.data);
       var loc = this.data.location;
       PositionService.saveLoad(this.data.position);
       //
@@ -33,8 +33,8 @@ angular.module('demo')
       return (data.version == SaveVersion) && new SaveGameData(data);
     };
     //
-    var service = {
-      save: function(id) {
+    this.init = function(name, hsmMachine) {
+      this.save = function(id) {
         var dateTime = new Date().toLocaleString();
         // no need until we enable server save.
         var slot = 0; //localStorage.length;
@@ -49,7 +49,7 @@ angular.module('demo')
           position: PositionService.saveLoad(),
           appData: {
             tunnelBounce: $rootScope.tunnelBounce
-            // FIX: most recently viewed item
+              // FIX: most recently viewed item
           },
           // [screenshot]
         };
@@ -57,16 +57,17 @@ angular.module('demo')
         //save via localStorage: .length, .key to enumerate, .getItem(key), .setItem(key)
         var json = angular.toJson(saveGame);
 
-        $log.info("SaveGameService: saving", json);
+        $log.info("saveGameControl", name, "saving", json);
         var key = "saveGame" + slot;
         localStorage.setItem(key, json);
         localStorage.setItem("mostRecent", key);
-      },
-      mostRecent: function() {
+        hsmMachine.emit(name, "saved", {});
+      };
+      this.mostRecent = function() {
         var key = localStorage.getItem("mostRecent");
         return key && getByKey(key);
-      },
-      enumerate: function(cb) {
+      };
+      this.enumerate = function(cb) {
         var count = 0;
         var l = localStorage.length;
         for (var i = 0; i < l; i++) {
@@ -85,7 +86,7 @@ angular.module('demo')
           }
         }
         return count;
-      },
-    };
-    return service;
+      };
+      return this;
+    }; // init
   });

@@ -2,10 +2,10 @@
 
 angular.module('demo')
 
-.directiveAs("loadGameControl", ["^^hsmMachine"],
-  function(ElementSlotService, SaveGameService, $location, $log) {
+.directiveAs("loadGameControl", ["^saveGameControl", "^hsmMachine"],
+  function(ElementSlotService, $location, $log) {
     var win, games;
-    this.init = function(name, hsmMachine) {
+    this.init = function(name, saveGameControl, hsmMachine) {
       var menu = {
         close: function() {
           if (win) {
@@ -18,7 +18,7 @@ angular.module('demo')
           win = ElementSlotService.get(windowSlot);
           win.scope.visible = true;
           var games = [];
-          SaveGameService.enumerate(function(data) {
+          saveGameControl.enumerate(function(data) {
             games.push(data);
           });
           //

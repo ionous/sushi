@@ -2,10 +2,10 @@
 
 angular.module('demo')
 
-.directiveAs("settingsControl", ["^^gameControl", "^^modalControl"],
-  function(SaveGameService) {
+.directiveAs("settingsControl", ["^^saveGameControl", "^^gameControl", "^^modalControl"],
+  function() {
     var ctrl = this;
-    this.init = function(name, gameControl, modalControl) {
+    this.init = function(name, saveGameControl, gameControl, modalControl) {
       var modal;
       var settings = {
         close: function(reason) {
@@ -22,7 +22,7 @@ angular.module('demo')
             },
             save: function() {
               var id = gameControl.getId();
-              SaveGameService.save(id);
+              saveGameControl.save(id);
               mdl.dismiss("saved!");
             },
           });
