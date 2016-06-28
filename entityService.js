@@ -70,6 +70,9 @@ angular.module('demo')
       /**Object.<string, Entity>*/
       var entities = {};
       var entityService = {
+        reset: function() {
+          entities = {};
+        },
         // create, ensure the existance of an object box.
         // starts listening for object changes, but doesnt request object data.
         getRef: function(ref) {

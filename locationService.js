@@ -64,8 +64,8 @@ angular.module('demo')
           var path = p.join("/");
           $log.debug("LocationService: path", path, next.item);
           $location.path(path).search('item', next.item);
-          return next;
         }
+        return next;
       };
 
       var locationService = function(next) {

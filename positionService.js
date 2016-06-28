@@ -3,11 +3,7 @@
 angular.module('demo')
 
 .factory("PositionService", function($log) {
-  var defaultAngle = 0;
-  var currAngle = defaultAngle;
-  var currPos = pt(0, 0);
 
-  var memory = {};
   var Memory = function(skin, pos, angle) {
     this.skin = skin;
     this.pos = pt_floor(pos);
@@ -17,41 +13,54 @@ angular.module('demo')
     return "skin:" + [this.skin || "''", this.pos.x, this.pos.y, this.angle].join(",");
   };
 
+  var defaultAngle = 0;
+  var Positions = function() {
+    this.pos = pt(0, 0);
+    this.angle = defaultAngle;
+    this.memory = {};
+  };
+  var state = new Positions();
+
   return {
     defaultAngle: defaultAngle,
+    reset: function() {
+      state = new Positions();
+    },
     saveLoad: function(data) {
       if (angular.isUndefined(data)) {
         return {
-          pos: pt_floor(currPos),
-          angle: Math.floor(currAngle),
-          memory: memory,
+          pos: pt_floor(state.pos),
+          angle: Math.floor(state.angle),
+          memory: state.memory,
         };
       } else {
-        currPos = data.pos;
-        currAngle = data.angle;
-        memory = {};
+        var memory = {};
         for (var k in data.memory) {
           var v = data.memory[k];
           var mem = new Memory(v.skin, pt(v.pos.x, v.pos.y), v.angle);
           memory[k] = mem;
         }
+        state = new Positions();
+        state.pos = data.pos;
+        state.angle = data.angle;
+        state.memory = memory;
       }
     },
     memorize: function(loc, skin) {
-      var mem = memory[loc] = new Memory(skin, currPos, currAngle);
+      var mem = state.memory[loc] = new Memory(skin, state.pos, state.angle);
       $log.info("PositionService, memorized", loc, mem);
       return mem;
     },
     fetch: function(loc) {
-      var mem = memory[loc];
+      var mem = state.memory[loc];
       $log.info("PositionService, fetching", loc, mem);
       return mem;
     },
     update: function(newPos, newAngle) {
-      currPos = newPos;
-      if (newAngle != currAngle) {
-        currAngle = newAngle;
-        // $log.info("PositionService, set angle", currAngle);
+      state.pos = newPos;
+      if (newAngle != state.angle) {
+        state.angle = newAngle;
+        // $log.info("PositionService, set angle", state.angle);
       }
     },
   }; // return

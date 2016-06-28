@@ -7,13 +7,12 @@ angular.module('demo')
     $q, $log) {
     //
     var currChara, displaying, pending;
-    var playerObj = PlayerService.getPlayer();
     var memory = {};
     //
     this.init = function(name, hsmMachine) {
       var player = {
         id: function() {
-          return playerObj.id;
+          return "player";
         },
         destroy: function() {
           if (pending) {
@@ -84,7 +83,8 @@ angular.module('demo')
           // uses a separate defered to reject on destroy.
           pending = $q.defer();
           // XXX - hsmMachine.emit(name, "creating", {});
-          CharaService.newChara(playerObj.id, imagePath, size).then(pending.resolve, pending.reject);
+          CharaService.newChara(player.id(), imagePath, size)
+            .then(pending.resolve, pending.reject);
           pending.promise.then(function(chara) {
             pending = null;
             //$log.info(name, "created!");

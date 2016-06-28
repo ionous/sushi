@@ -2,13 +2,10 @@
 
 angular.module('demo')
 
-.directiveAs("consoleControl", ["^^gameControl", "^^modalControl"],
-  function(TextService, $log, $timeout) {
-    this.init = function(_, gameControl, modalControl) {
+.directiveAs("consoleControl", ["^^textControl", "^^gameControl", "^^modalControl"],
+  function(ObjectService, $log, $q, $timeout) {
+    this.init = function(name, textControl, gameControl, modalControl) {
       var modal;
-      // FIX? ideal would be to listen to the same stream as the text display;
-      // have our own blocks to play with.
-      var blocks = TextService.getDisplay().blocks;
       return {
         close: function(reason) {
           if (modal) {
@@ -20,10 +17,10 @@ angular.module('demo')
           if (modal) {
             modal.close(reason || "console showing");
           }
-          var content=  {
+          var blocks = textControl.blocks();
+          var content = {
+            visible: false,
             inputEnabled: false,
-            // visible: true,
-            // block.speaker=name, block.text=[]string
             blocks: blocks,
             submit: function(userInput) {
               if (userInput) {
@@ -38,11 +35,10 @@ angular.module('demo')
               }
             }
           };
-          var mdl = modal = modalControl.open(what,content);
+          var mdl = modal = modalControl.open(what, content);
           $timeout(function() {
-            content.visible= true;
+            content.visible = true;
           });
-
           return mdl;
         },
         allowInput: function(yesNo) {

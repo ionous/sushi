@@ -1,4 +1,3 @@
-
 /**
  * @fileoverview Mange the client game interaction with the server.
  */
@@ -7,7 +6,12 @@ angular.module('demo')
     function(EntityService, JsonService, $http, $log) {
       var currentFrame = -1;
       return {
-        frame: function() {
+        frame: function(x) {
+          // this reset is a hack for new game
+          // GameService needs to die before this can be handled cleanly
+          if (!angular.isUndefined(x)) {
+            currentFrame = x;
+          }
           return currentFrame;
         },
         post: function(where, what) {

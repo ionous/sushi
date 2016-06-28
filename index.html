@@ -58,7 +58,6 @@
   <script src="positionService.js"></script>
   <script src="postalService.js"></script>
   <script src="mapService.js"></script>
-  <script src="textService.js"></script>
   <script src="watcherService.js"></script>
   <script src="updateService.js"></script>
   <!-- directives -->
@@ -107,6 +106,7 @@
   <script src="updateControl.js"></script>
   <script src="unloadControl.js"></script>
   <script src="viewControl.js"></script>
+  <script src="windowControl.js"></script>
   <!-- menus -->
   <script src="aboutControl.js"></script>
   <script src="creditsControl.js"></script>
@@ -140,7 +140,7 @@
       <div element-slot="loadGameWin" ng-include="'loadGameWin.html'"></div>
     </div>
   </main>
-  <footer class="state-display" ng-init="hsmExpanded=constant('HsmExpanded')">
+  <footer class="state-display" ng-init="hsmExpanded=false">
     <a href="" ng-click="hsmExpanded=!hsmExpanded">states [{{hsmExpanded ? 'x' : 'o'}}]</a>
     <ng-include src="'main.html'" ng-show="hsmExpanded"></ng-include>
   </footer>

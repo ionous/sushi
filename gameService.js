@@ -5,13 +5,13 @@
  */
 angular.module('demo')
 
-// FIX: replace getPromisedGame with $scope.game
+// FIX: replace with game-control
 // NOTE: the player and display service are listed as dependencies
 // that precreates those objects before we start talking to the server.
 .factory('GameService', function(
   JsonService, PostalService,
   $http, $log, $q) {
-  var currentFrame;
+  var currentFrame = -1;
   var deferGame = $q.defer();
   var promisedGame = deferGame.promise;
 
@@ -77,7 +77,9 @@ angular.module('demo')
     // FIX: eliminate this from game code first via the states
     // then, eliminate from behind the scenes by parameterizing the state controls.
     hack: function(game) {
-      var gameapi= new GameWrapper(game);
+      $log.info("creating new game", game.id);
+      currentFrame = -1;
+      var gameapi = new GameWrapper(game);
       deferGame.resolve(gameapi);
       return gameapi;
     },

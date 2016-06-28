@@ -18,8 +18,8 @@ angular.module('demo')
           win = ElementSlotService.get(windowSlot);
           win.scope.visible = true;
           var games = [];
-          saveGameControl.enumerate(function(data) {
-            games.push(data);
+          saveGameControl.enumerate(function(save) {
+            games.push(save);
           });
           //
           win.scope.games = games;

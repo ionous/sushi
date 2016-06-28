@@ -2,13 +2,13 @@
   border-color: red;
   border-style: solid;
   border-width: 1px;
-}
-*/
+}*/
 
 body {
   /* light text on dark backgrounds; safari looks different than other browsers */
   -webkit-font-smoothing: subpixel-antialiased;
-  overflow: hidden;
+  /* stops scroll bounce, disabled for load game window */
+  /*overflow: hidden;*/
 }
 
 
@@ -39,7 +39,6 @@ div.overgrey {
   top: 0;
   left: 0;
   position: absolute;
-  /*z-index: 1500;*/
   /*background-color: yellow;*/
   opacity: 0;
 }
@@ -73,12 +72,6 @@ div.overgrey {
   text-transform: uppercase;
 }
 
-
-/*
-a.ga-link.disabled {
-  color: grey;
-}*/
-
 h1,
 h2,
 h3,
@@ -86,7 +79,8 @@ h4 {
   text-align: center;
 }
 
-.ga-options {
+.ga-options,
+.ga-about {
   margin: 0 auto;
   width: 25%;
 }

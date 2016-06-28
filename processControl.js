@@ -22,28 +22,26 @@ angular.module('demo')
         });
       };
       var active;
-      return {
-        processing: function(force) {
-          // hack? to allow our posting of messages to look like processing
-          if (force) {
-            prime();
-          }
-          return processing;
-        },
-        process: function(enable) {
-          var enabled = angular.isUndefined(enabled) || enabled;
-          if (!active && enabled) {
-            handleEvents();
-          }
-          active = enabled;
-        },
-        queue: function(frame, events) {
-          EventStreamService.queueEvents(frame, events);
-          if (active) {
-            handleEvents();
-          }
+      this.processing = function(force) {
+        // hack? to allow our posting of messages to look like processing
+        if (force) {
+          prime();
+        }
+        return processing;
+      };
+      this.process = function(enable) {
+        var enabled = angular.isUndefined(enabled) || enabled;
+        if (!active && enabled) {
+          handleEvents();
+        }
+        active = enabled;
+      };
+      this.queue = function(frame, events) {
+        EventStreamService.queueEvents(frame, events);
+        if (active) {
+          handleEvents();
         }
       };
+      return this;
     };
-  })
-
+  });

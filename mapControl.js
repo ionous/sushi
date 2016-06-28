@@ -72,7 +72,7 @@ angular.module('demo')
         throw new Error("already loading");
       }
       var where = LocationService();
-      if (!next.changes(where)) {
+      if (currentMap && !next.changes(where)) {
         ret = $q.when(where);
       } else {
         destroyMap();
@@ -143,6 +143,7 @@ angular.module('demo')
         },
         destroy: function() {
           mapSlotName = "";
+          destroyMap();
         },
         loaded: function() {
           return !!currentMap;

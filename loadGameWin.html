@@ -5,7 +5,7 @@
       <li ng-repeat="game in loadGameWin.games track by $index">
         <ga-link ng-click="loadGameWin.loadGame($index)">
           <span class="idx">Game: {{$index+1}}</span>
-          <div class="dateTime">{{game.dateTime}}</div>
+          <div class="dateTime">{{game.data.dateTime}}</div>
         </ga-link>
       </li>
       <li>

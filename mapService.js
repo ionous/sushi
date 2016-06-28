@@ -6,15 +6,6 @@
 angular.module('demo')
   .factory('MapService',
     function($http, $log, $rootScope) {
-      // var build = function(names, layer, parentName) {
-      //   if (layer.layers) {
-      //     layer.layers.map(function(child) {
-      //       var name = parentName ? [parentName, child.name].join('_') : child.name;
-      //       names[name] = child;
-      //       build(names, child, name);
-      //     });
-      //   }
-      // };
       var cleanId = function(name) {
         return name.replace(/\//g, "_").replace(/(@|\$|#|!)/g, "");
       }
@@ -32,9 +23,6 @@ angular.module('demo')
         this.src = map;
         this.data = data;
         this.path = path || map.name;
-        // var b = this.getBounds();
-        // var ofs = offset || zero;
-        // this.relPos = (!!b) ? pt_sub(b.min, ofs) : (ofs);
       };
       LayerData.prototype.has = function(attr) {
         var attrs = this.data["properties"];

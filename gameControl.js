@@ -3,11 +3,10 @@
 angular.module('demo')
 
 // -created
-.directiveAs("gameControl", ["^^hsmMachine"],
-  function(ElementSlotService, GameService, PostalService,
-    $log) {
-    this.init = function(name, hsmMachine) {
-      var windowName, processControl, gameWindow, currentGame, lastFrame;
+.directiveAs("gameControl", ["processControl", "^^hsmMachine"],
+  function(ElementSlotService, EntityService, EventService, GameService, PlayerService, PostalService, PositionService, $log) {
+    this.init = function(name, processControl, hsmMachine) {
+      var currentGame, lastFrame;
       var starting = false;
       this.start = function() {
         $log.warn(name, "starting!");
@@ -35,7 +34,7 @@ angular.module('demo')
           lastFrame = res.frame;
           processControl.queue(res.frame, res.events || []);
         }, function(reason) {
-          $log.error("gameControl: post", name, "error:", reason);
+          $log.error("gameControl", name, "post error:", reason);
           hsmMachine.emit(name, "error", {
             reason: reason
           });
@@ -45,14 +44,15 @@ angular.module('demo')
       this.getId = function() {
         return currentGame && currentGame.id;
       };
-      this.bindTo = function(windowName_, processControl_) {
-        windowName = windowName_;
-        processControl = processControl_;
-      }
-
+      var reset = function(reason) {
+        starting = false;
+        PositionService.reset();
+        EntityService.reset();
+        EventService.reset();
+        PostalService.frame(-1);
+        PlayerService.create();
+      };
       var start = function(endpoint, payload, result) {
-        gameWindow = ElementSlotService.get(windowName);
-        gameWindow.scope.visible = true;
         return PostalService.post(endpoint, payload).then(function(res) {
           if (res.events) {
             lastFrame = res.frame;
@@ -68,9 +68,7 @@ angular.module('demo')
         });
       };
       this.loadGame = function(saveGameData) {
-        //return start(data.id, {'in': 'look'}, "loaded");
-        gameWindow = ElementSlotService.get(windowName);
-        gameWindow.scope.visible = true;
+        reset("loading");
         var r = saveGameData.restore();
         //
         currentGame = GameService.hack(r.game);
@@ -81,6 +79,7 @@ angular.module('demo')
         });
       };
       this.newGame = function() {
+        reset("new game");
         return start("new", {}, "created");
       };
       this.request = function(type, id) {
@@ -92,15 +91,6 @@ angular.module('demo')
           type = type.type;
         }
         return currentGame.request(type, id);
-      };
-      this.destroy = function() {
-        if (gameWindow) {
-          gameWindow.scope.visible = false;
-          gameWindow = null;
-        }
-        if (processControl) {
-          processControl = null;
-        }
       };
       return this;
     }; //init

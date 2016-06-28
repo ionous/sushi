@@ -5,14 +5,17 @@
  */
 angular.module('demo')
   .factory('PlayerService',
-    function(EntityService, EventService, ObjectService) {
+    function(EntityService, ObjectService) {
       // get the player object but dont fully create it;
       // the startup frame will do so because it includes() player data from the server.
-      var player = EntityService.getRef({
-        id: 'player',
-        type: 'actors'
-      });
+      var player;
       var playerService = {
+        create: function() {
+          player = EntityService.getRef({
+            id: 'player',
+            type: 'actors'
+          });
+        },
         getPlayer: function() {
           return player;
         },

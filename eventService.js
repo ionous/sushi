@@ -44,6 +44,9 @@ angular.module('demo')
       }); // for each
     };
     var eventService = {
+      reset: function() {
+        handlers = {};
+      },
       /**
        * listen - data, tgt, evt
        * @param {string} target

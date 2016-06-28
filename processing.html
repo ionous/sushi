@@ -4,7 +4,7 @@
     <hsm-event on="roomChange" when="$evt.data.prop=='objects-whereabouts'" run="map.changeRoom($evt.data.next.id).then($evt.resolve())"></hsm-event>
   </hsm-state>
   <!--  the default text handler, always active, stores the lines in global memory, primarily for the the sake of the console. FIX: rework to capture into the console directly.-->
-  <hsm-state text-control="text" game-listener="printText" hsm-enter="printText.listen('*', ['print', 'say'])" hsm-exit="printText.silence()">
+  <hsm-state game-listener="printText" hsm-enter="printText.listen('*', ['print', 'say'])" hsm-exit="printText.silence()">
     <hsm-event on="printText" run="text.addLines($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
   </hsm-state>
   <!-- characters saying dialog -->
