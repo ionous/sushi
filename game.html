@@ -11,7 +11,8 @@
           <hsm-state player-dialog-control="dialog" hsm-enter="dialog.bindTo('commentBox')" hsm-exit="dialog.destroy()">
             <!-- startup goes here when done: -->
             <hsm-state name="GameStarted" parallel="true" unload-control="beforeUnload" hsm-enter="beforeUnload.listen('Progress not saved')" hsm-exit="beforeUnload.silence()">
-              <hsm-event on="saves-saved" run="beforeUnload.requireSave(false)"></hsm-event>
+              <!-- <hsm-event on="saves-saved" run="beforeUnload.requireSave(false)"></hsm-event>-->
+              <hsm-event on="saves-saved" goto="Menus"></hsm-event>
               <hsm-event on="game-posting" run="beforeUnload.requireSave('Game not saved')"></hsm-event>
               <hsm-event on="map-loading" run="beforeUnload.requireSave('Map not saved')"></hsm-event>
               <!-- raises -processing and -empty -->

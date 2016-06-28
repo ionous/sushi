@@ -3,11 +3,11 @@
 angular.module('demo')
 
 .directiveAs("unloadControl",
-  function($log, $window) {
+  function($log, $window, RequireSave) {
     this.init = function(name) {
       var warning;
       var beforeunload = function(event) {
-        if (warning) {
+        if (RequireSave && warning) {
           event.returnValue = warning;
         }
       };
