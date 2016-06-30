@@ -1,7 +1,7 @@
 <hsm-state name="Statics" hsm-init="turn.paused() && 'StaticsPause'" hsm-enter="player.linkup()">
   <hsm-state name="StaticsPlay" mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(map)" hsm-exit="mouseTarget.release()" hsm-init="modal.showing() && 'StaticsModal'">
-    <!--  -->
-    <hsm-state name="StaticTargeting">
+    <!--  note: without an initial show, the mouse requires a target change to become visible. -->
+    <hsm-state name="StaticTargeting" hsm-enter="mouse.show('pointer')">
       <hsm-event on="update-game" run="mouseTarget.update(mouse.pos())"></hsm-event>
       <hsm-event on="mouse-target-changed" run="mouse.show( !$evt.target ? 'pointer' : 'bullseye' )"></hsm-event>
       <!-- 
