@@ -2,8 +2,8 @@
   border-color: red;
   border-style: solid;
   border-width: 1px;
-}*/
-
+}
+*/
 body {
   /* light text on dark backgrounds; safari looks different than other browsers */
   -webkit-font-smoothing: subpixel-antialiased;
@@ -13,7 +13,6 @@ body {
 
 
 /**/
-
 .nav,
 .pagination,
 .carousel,
@@ -63,11 +62,9 @@ div.overgrey {
   cursor: default;
 }
 
-
 /* ----------------------------------------------
    menu display
 */
-
 #ga-menus a.ga-link {
   text-transform: uppercase;
 }
@@ -85,7 +82,6 @@ h4 {
   width: 25%;
 }
 
-
 /* ----------------------------------------------
   main display
 */
@@ -93,17 +89,19 @@ h4 {
 main {
   position: relative;
 }
-
 .ga-play {
-  position: absolute;
-  width: 800px;
-  height: 672px;
+  position: relative;
+  width: 768px; /*24x32; hall, heart are larger.*/
+  height: 640px; /*20x32; no maps are larger.*/
   border-radius: 20px;
+  overflow: hidden;
   background-color: rgb(66, 81, 77);
   top: 50%;
   left: 50%;
   padding: 0px;
   margin-left: -400px;
+  /*https://bugs.chromium.org/p/chromium/issues/detail?id=157218*/
+  z-index:1;
 }
 
 .ga-map {
@@ -121,11 +119,9 @@ main {
   position: absolute;
 }
 
-
 /* ----------------------------------------------
   status  bar
 */
-
 header {
   position: relative;
 }
@@ -162,11 +158,9 @@ header {
   padding: 2px;
 }
 
-
 /* ----------------------------------------------
   states debugging
 */
-
 hsm-state {
   margin-left: 2px;
   display: block;
@@ -176,11 +170,9 @@ hsm-state {
   font-size: x-small;
 }
 
-
 /* ----------------------------------------------
   action  bar
 */
-
 .ga-actionbar {
   position: absolute;
   z-index: 1000;
@@ -212,11 +204,9 @@ hsm-state {
   padding: 0px;
 }
 
-
 /* ----------------------------------------------
   button bar
 */
-
 .ga-buttonbar {
   position: absolute;
   /*z-index: 500;*/
@@ -246,11 +236,9 @@ div.ga-xtip > div.tooltip-inner {
   top: 0;
 }
 
-
 /* ----------------------------------------------
   inventory 
 */
-
 div.carousel {
   min-width: 64px;
   min-height: 64px;
@@ -297,11 +285,9 @@ div.ga-picker {
   justify-content: center;
 }
 
-
 /* ----------------------------------------------
   console
 */
-
 .ga-console {
   position: absolute;
   left: 160px;
@@ -354,11 +340,9 @@ div.ga-picker {
   overflow-y: scroll;
 }
 
-
 /* ----------------------------------------------
  comment ( and combine ) panels 
 */
-
 .ga-comment-box {
   position: absolute;
   background-color: rgba(100, 100, 100, 0.75);
@@ -401,11 +385,9 @@ div.ga-picker {
   max-height: 32px;
 }
 
-
 /* ----------------------------------------------
   combine box 
 */
-
 .ga-context-info {
   font-style: italic;
   margin-left: 2em;
@@ -414,11 +396,9 @@ div.ga-picker {
   font-size: 1.35em;
 }
 
-
 /* ----------------------------------------------
   popup 
 */
-
 .ga-notify {
   cursor: pointer;
 }
@@ -462,7 +442,6 @@ div.ga-notify p {
  talk bubbles, based on:
  http://nicolasgallagher.com/pure-css-speech-bubbles/demo/
 */
-
 .ga-bubble {
   cursor: pointer;
 }
@@ -502,11 +481,9 @@ div.ga-notify p {
   border-color: transparent #075698;
 }
 
-
 /* ----------------------------------------------
   animations 
 */
-
 .ga-pulse {
   box-shadow: 0 0 0 0 rgba(51, 122, 183, 0.7);
   border-radius: 50%;

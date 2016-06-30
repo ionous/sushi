@@ -56,8 +56,9 @@ angular.module('demo')
       // create a hit shape in the group for the passed map layer
       HitGroup.prototype.newHitShape = function(mapLayer) {
         var hitShape;
-        // hack: testing for this.subject ignores the room itself as a shape.
-        if (this.subject && mapLayer.getName().indexOf("x-") && !mapLayer.has("noclick")) {
+        // testing for this.subject ignores the room itself as a shape.
+        // ( and i think, collision shapes )
+        if (this.subject && !mapLayer.has("noclick")) {
           var slashPath = mapLayer.getPath(); // fix, probably want real heirachy path
           var grid = mapLayer.getGrid();
           if (grid) {
@@ -91,7 +92,7 @@ angular.module('demo')
         this.children.push(child);
         return child;
       };
-      
+
       //
       var GridShape = function(name, group, bounds, grid) {
         this.name = name;

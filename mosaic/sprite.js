@@ -10,7 +10,7 @@ function newCanvas(id, w, h) {
 
 var scratch = null;
 
-// helper to access the sprite data.
+// Sprite is a portion of a tile sheet.
 var Sprite = function(src, ofs, size, image) {
   this.src = src;
   this.ofs = ofs;

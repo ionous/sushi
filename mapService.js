@@ -53,16 +53,26 @@ angular.module('demo')
         var b = this.getBounds();
         return b && pt_sub(b.max, b.min);
       };
-      LayerData.prototype.mapEach = function(cb) {
+      LayerData.prototype.forEach = function(cb) {
         var layer = this;
         var base = layer.path;
-        return (layer.data['layers'] || []).map(function(raw) {
-          var name = raw['name'];
-          var path = [base, name].join("/");
-          var data = new LayerData(layer.src, raw, path);
-          var ret = cb(data);
-          return ret;
+        var layers = layer.data['layers'];
+        if (layers) {
+          layers.forEach(function(raw) {
+            var name = raw['name'];
+            var path = [base, name].join("/");
+            var layerData = new LayerData(layer.src, raw, path);
+            return cb(layerData);
+          });
+        }
+      };
+      LayerData.prototype.mapEach = function(cb) {
+        var ret = [];
+        this.forEach(function(layerData) {
+          var val = cb(layerData);
+          ret.push(val);
         });
+        return ret;
       };
       LayerData.prototype.getGrid = function() {
         return this.data['grid'];

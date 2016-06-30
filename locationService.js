@@ -6,7 +6,7 @@
  */
 angular.module('demo')
   .factory('LocationService',
-    function(PlayerService, $location, $log) {
+    function($location, $log) {
       var Location = function(room, view, item) {
         if (room && (view == room)) {
           var msg = "LocationService: invalid location";
@@ -42,27 +42,13 @@ angular.module('demo')
       // returns a promise, resolved when the location has changed.
       var changeLocation = function(next) {
         if (next.changes(currLoc)) {
-
-          // FIX, FIX, FIX: needs work for state machine control
-          var player = PlayerService.getPlayer();
-          var lastRoom = currLoc.room;
-          if (next.room == "other-hallway") {
-            // add a fake state to get alice to appear in a good position.
-            if (lastRoom == "science-lab") {
-              player.changeState("fromLab", "fromAutomat");
-            } else {
-              player.changeState("fromAutomat", "fromLab");
-            }
-          }
-          // location object.
-          $log.info("LocationService: changing", currLoc.toString(), "to", next.toString());
-
+          // $log.info("LocationService: changing", currLoc.toString(), "to", next.toString());
           // change it.
           prevLoc = currLoc;
           currLoc = next;
           var p = ["", "r", next.room].concat(next.view ? ["v", next.view] : []);
           var path = p.join("/");
-          $log.debug("LocationService: path", path, next.item);
+          // $log.debug("LocationService: path", path, next.item);
           $location.path(path).search('item', next.item);
         }
         return next;

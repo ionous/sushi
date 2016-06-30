@@ -51,6 +51,8 @@ angular.module('demo')
           var imageSrc = "/bin/" + src;
           promise = CanvasService.newImage(this.el, imageSrc, opt);
         } else if (mapLayer.getShapes()) {
+          // creating an empty shapes layer for uniformity;
+          // i believe it fixes an bug....
           promise = $q.when(CanvasService.newCanvas(this.el, opt));
         }
       }

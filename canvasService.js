@@ -6,6 +6,7 @@ angular.module('demo')
   .factory('CanvasService', function($log, $q) {
     var names = {};
 
+    // FIX? loadImage can happen multiple times for the same imageSrc
     var loadImage = function(imageSrc) {
       if (!imageSrc) {
         throw new Error("image not defined");

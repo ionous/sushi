@@ -38,7 +38,7 @@ angular.module('demo')
         this.ctx = null;
       };
       // a child contains a potential Node.      
-      var Child = function(ctx, mapLayer) {
+      var Child = function(ctx, mapLayer, autoExpand) {
         if (!ctx || !mapLayer) {
           throw new Error("orly?");
         }
@@ -48,6 +48,10 @@ angular.module('demo')
         this.watcher = false; // a contents server watchers; it expands and collapses us.
         this.expanded = null; // when the content serve expands us, it fill out this with a valid Node.
         this.expanding = false;
+        // experimental(?)
+        if (autoExpand) {
+          this.promise = this.expand();
+        }
       };
       Child.prototype.expand = function() {
         // hack: state showing watcher code triggers twice...
@@ -122,8 +126,7 @@ angular.module('demo')
         this.ofs = pt(0, 0);
       };
       //
-      Context.prototype.newContext = function(opt) {
-        var mapLayer = opt.mapLayer;
+      Context.prototype.newContext = function(mapLayer, opt) {
         if (this.destroyed) {
           var msg = "creating child context, but parent has been destroyed";
           $log.error(msg, opt);
@@ -143,56 +146,51 @@ angular.module('demo')
           id: "md-" + mapLayer.getId(),
           pos: rel
         });
-
+        var hitGroup = opt && opt.hitGroup;
         var next = new Context(
           displayGroup, // DisplayGroup
           // FIX: verify we have ownership over the hit group 
           // why dont we have ownership over the other bits?
           // it seems oddly inconsistent.
-          opt.hitGroup || this.hitGroup, // HitGroup
+          hitGroup || this.hitGroup, // HitGroup
           this.allPads,
-          opt.stateName || this.stateName,
-          opt.enclosure || this.enclosure, // an entity
+          (opt && opt.stateName) || this.stateName,
+          (opt && opt.enclosure) || this.enclosure, // an entity
           function() { // on destroy function
-            if (opt.hitGroup) {
-              opt.hitGroup.parent.remove(opt.hitGroup);
+            if (hitGroup) {
+              hitGroup.parent.remove(hitGroup);
             }
             if (displayGroup) {
               displayGroup.destroyDisplay()
+              displayGroup = null;
             }
-            displayGroup = null;
-            opt = null;
           });
         next.object = this.object;
         next.ofs = abs;
-        next.dynamicDepth = opt.dynamicDepth || this.dynamicDepth;
+        // FIX: old, mostly for automat.
+        next.dynamicDepth = (opt && opt.dynamicDepth) || this.dynamicDepth;
         return next;
       };
       // create a new child node to represent an content free layer
-      Context.prototype.newChild = function(mapLayer, zlayer) {
-        var next = this.newContext({
-          mapLayer: mapLayer,
-          // fix: this turns on dynamic depth forever, we might actually want to be able to turn it off.
-          dynamicDepth: zlayer && mapLayer.has("dynamicDepth")
+      Context.prototype.newZ = function(mapLayer, opt) {
+        var next = this.newContext(mapLayer, opt);
+        var b = mapLayer.getBounds();
+        var zvalue = (b && (next.dynamicDepth || opt.fixedDepth)) ? b.max.y : this.treeCount;
+        next.displayGroup.el.css({
+          "position": "absolute",
+          "z-index": zvalue
         });
-        if (zlayer) {
-          var b = mapLayer.getBounds();
-          var zvalue = (b && next.dynamicDepth) ? b.max.y : this.treeCount;
-          next.displayGroup.el.css({
-            "position": "absolute",
-            "z-index": zvalue
-          });
-        }
-        var child = new Child(next, mapLayer);
-        // experimental
-        child.promise = child.expand();
-        return child;
+        return new Child(next, mapLayer, true);
+      };
+      // create a new child node to represent an content free layer
+      Context.prototype.newChild = function(mapLayer, opt) {
+        var next = this.newContext(mapLayer, opt);
+        return new Child(next, mapLayer, true);
       };
       // create a new child node to represent an object layer
       Context.prototype.newObject = function(mapLayer, objectName) {
         var pos = mapLayer.getPos();
-        var next = this.newContext({
-          mapLayer: mapLayer,
+        var next = this.newContext(mapLayer, {
           hitGroup: this.hitGroup.newHitGroup(mapLayer.getName())
         });
         var child = new Child(next, mapLayer);
@@ -215,14 +213,13 @@ angular.module('demo')
       // create a new child node to represent an object state
       Context.prototype.newState = function(mapLayer, stateName) {
         var pos = mapLayer.getPos();
-        var next = this.newContext({
-          mapLayer: mapLayer,
+        var next = this.newContext(mapLayer, {
           stateName: stateName,
         });
         var child = new Child(next, mapLayer);
         child.watcher = WatcherService.showState(next.object, stateName,
           function(newState) {
-            //$log.info("LayerService: show state", stateName, !!newState);
+            //$log.info("LayerService: show state", next.object.id, stateName, !!newState);
             return (!newState) ? child.collapse() : child.expand();
           });
         child.promise = child.watcher.promise;
@@ -233,9 +230,8 @@ angular.module('demo')
         if (!enclosure) {
           throw new Error("enclosure missing", mapLayer);
         }
-        var next = this.newContext({
+        var next = this.newContext(mapLayer, {
           enclosure: enclosure,
-          mapLayer: mapLayer,
         });
         var child = new Child(next, mapLayer);
         child.watcher = WatcherService.showContents(next.object,
@@ -271,14 +267,10 @@ angular.module('demo')
       // create a new child node to represent a zoom/click region
       Context.prototype.newView = function(mapLayer, viewName) {
         var subject = new Subject(this.object, viewName, mapLayer.path);
-        var next = this.newContext({
-          mapLayer: mapLayer,
+        var next = this.newContext(mapLayer, {
           hitGroup: this.hitGroup.newHitGroup(viewName, subject),
         });
-        var child = new Child(next, mapLayer);
-        // experimental
-        child.promise = child.expand();
-        return child;
+        return new Child(next, mapLayer, true);
       };
       // create a new potential node; return a promise.
       Context.prototype.createChild = function(subLayer) {
@@ -296,10 +288,20 @@ angular.module('demo')
           case "landing":
             // no child returned
             return this.addLandingData(subLayer);
+          case "z":
+            return this.newZ(subLayer, {
+              // fix: this turns on dynamic depth forever, we might actually want to be able to turn it off.
+              dynamicDepth: subLayer.has("dynamicDepth")
+            });
+          case "c":
+            if (cat.shortName != "all") {
+              return this.newZ(subLayer, {
+                fixedDepth: true
+              });
+            }
           default:
-            // something that contains onther children with nothing itself.
-            return this.newChild(subLayer, cat.layerType == "z");
-        }
+            return this.newChild(subLayer);
+        };
       };
 
       // returns the promise of a layer and its sub-layers.
@@ -330,6 +332,7 @@ angular.module('demo')
               } else {
                 tinter = WatcherService.showTint(object, function(color) {
                   canvi.draw(color);
+                  return true;
                 });
                 // hack, hack, hack.
                 // objects want to know their position.
@@ -345,6 +348,11 @@ angular.module('demo')
       };
 
       var service = {
+        // FIX: create layers is a mess, 
+        // multiple iterations would be cleaner, or
+        // visit with a list of visitors, or 
+        // a vistor with a big switch.
+        // either way, some generic ( non data specific ) expand collapse callback.
         createLayers: function(parentEl, map, enclosure, allPads) {
           // note: the room is getting a display group as well... unfortunately.
           var hitGroups = HitService.newHitGroup(map.name);

@@ -6,6 +6,22 @@ angular.module('demo')
 .directiveAs("mapControl", ["^^hsmMachine"],
   function(ElementSlotService, LayerService, LocationService, MapService, ObjectService, ObjectDisplayService, UpdateService,
     $log, $q, $rootScope) {
+
+    var collectCollision = function(map) {
+      var shapes = []; //
+      var subShapes = function(mapLayer) {
+        var l = mapLayer.getCategory();
+        if (l.layerType == "c") {
+          var newShapes = mapLayer.getShapes();
+          shapes = shapes.concat(newShapes);
+        }
+        mapLayer.forEach(function(subLayer) {
+          subShapes(subLayer);
+        });
+      }
+      subShapes(map.topLayer);
+      return shapes;
+    };
     // returns a promise:
     var loadMap = function(mapEl, next) {
       var mapName = next.mapName();
@@ -32,15 +48,15 @@ angular.module('demo')
           // tree contains: el, bounds, nodes
           var allPads = [];
           return LayerService.createLayers(mapEl, map, enclosure, allPads).then(function(tree) {
-            var collide = map.findLayer("$collide") || false;
+            var collide = collectCollision(map);
             return {
               //location: next, everyone is using LocationService instead
               tree: tree,
               bounds: tree.bounds,
               hitGroups: tree.nodes.ctx.hitGroup,
-              physics: collide && {
+              physics: collide.length && {
                 bounds: tree.bounds,
-                shapes: collide.getShapes(),
+                shapes: collide,
               },
               pads: allPads
             };
