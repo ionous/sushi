@@ -66,17 +66,22 @@ angular.module('demo')
           });
           return ret;
         },
-        showTint: function(obj, cb) {
-          var oldTint;
+        showTint: function(obj, drawTint) {
+          // note: not all games have tint
+          var ret;
+          var oldTint = obj.attr["objects-tint"];
           var updateTint = function() {
             var newTint = obj.attr["objects-tint"];
             if (newTint != oldTint) {
               oldTint = newTint;
-              return cb(newTint);
+              return drawTint(newTint);
             }
           };
-          var cancel = EventService.listen(obj.id, "x-txt", updateTint);
-          return new Watcher(cancel, updateTint());
+          drawTint(oldTint);
+          if (oldTint) {
+            ret = new Watcher(EventService.listen(obj.id, "x-txt", updateTint));
+          }
+          return ret;
         }
       }
       return service;
