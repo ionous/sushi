@@ -13,7 +13,11 @@ angular.module('demo')
         var l = mapLayer.getCategory();
         if (l.layerType == "c") {
           var newShapes = mapLayer.getShapes();
+          if (!newShapes) {
+            $log.warn("mapControl", mapLayer.getName(), "has no collision data.");
+          } else { 
           shapes = shapes.concat(newShapes);
+        }
         }
         mapLayer.forEach(function(subLayer) {
           subShapes(subLayer);

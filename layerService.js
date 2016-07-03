@@ -174,8 +174,23 @@ angular.module('demo')
       // create a new child node to represent an content free layer
       Context.prototype.newZ = function(mapLayer, opt) {
         var next = this.newContext(mapLayer, opt);
+        var zvalue;
         var b = mapLayer.getBounds();
-        var zvalue = (b && (next.dynamicDepth || opt.fixedDepth)) ? b.max.y : this.treeCount;
+        if (!b) {
+          zvalue = this.treeCount;
+        } else {
+          if (next.dynamicDepth) {
+            zvalue = b.max.y;
+          } else {
+            var fix = opt.fixedDepth;
+            if (!angular.isUndefined(fix)) {
+              zvalue = b.max.y;
+              if (angular.isNumber(fix)) {
+                zvalue -= fix;
+              }
+            }
+          }
+        }
         next.displayGroup.el.css({
           "position": "absolute",
           "z-index": zvalue
@@ -290,15 +305,15 @@ angular.module('demo')
             return this.addLandingData(subLayer);
           case "z":
             return this.newZ(subLayer, {
-              // fix: this turns on dynamic depth forever, we might actually want to be able to turn it off.
-              dynamicDepth: subLayer.has("dynamicDepth")
+              // FIX: remove dynamic depth, only used for automat
+              dynamicDepth: subLayer.has("dynamicDepth"),
+              fixedDepth: subLayer.has("fixedDepth"),
             });
           case "c":
-            if (cat.shortName != "all") {
-              return this.newZ(subLayer, {
-                fixedDepth: true
-              });
-            }
+            return this.newZ(subLayer, {
+              fixedDepth: true
+            });
+
           default:
             return this.newChild(subLayer);
         };

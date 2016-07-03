@@ -95,10 +95,6 @@ angular.module('demo')
         }
         this.world.applyGravity = false;
         this.world.step(dt);
-        // if (boo) {
-        //   var feet = boo.getFeet();
-        //   $log.debug("POS", "boo",  feet.x, feet.y, boo.body.velocity[0], boo.body.velocity[1]);
-        // }
       };
       // --------------
       var Prop = function(scene, body, radius) {
@@ -151,10 +147,11 @@ angular.module('demo')
       var service = {
         newScene: function(canvasSize) {
           var physics = new Scene(canvasSize);
-          physics.addWall(pt(32, 0), pt(canvasSize.x - 32, 32));
-          physics.addWall(pt(0, 0), pt(32, canvasSize.y));
-          physics.addWall(pt(32, canvasSize.y - 32), pt(canvasSize.x - 32, canvasSize.y));
-          physics.addWall(pt(canvasSize.x - 32, 0), pt(canvasSize.x, canvasSize.y));
+          var ofs= 28; // for alice overlapping left trees on heart
+          physics.addWall(pt(ofs, 0), pt(canvasSize.x - ofs, ofs));
+          physics.addWall(pt(0, 0), pt(ofs, canvasSize.y));
+          physics.addWall(pt(ofs, canvasSize.y - ofs), pt(canvasSize.x - ofs, canvasSize.y));
+          physics.addWall(pt(canvasSize.x - ofs, 0), pt(canvasSize.x, canvasSize.y));
           return physics;
         },
       };
