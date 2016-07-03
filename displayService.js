@@ -10,10 +10,11 @@ angular.module('demo')
   var DisplayGroup = function(el) {
     this.el = el;
     this.pos = pt(0, 0);
+    this.index = undefined;
   };
   DisplayGroup.prototype.setPos = function(pos, index) {
     var p = pt_floor(pos);
-    if ((p.x != this.pos.x) || (p.y != this.pos.y)) {
+    if ((p.x != this.pos.x) || (p.y != this.pos.y) || (index != this.index)) {
       this.el.css({
         "position": "absolute",
         "left": p.x + "px",
@@ -21,6 +22,7 @@ angular.module('demo')
         "z-index": index,
       });
       this.pos = p;
+      this.index = index;
     }
     return this.pos;
   };

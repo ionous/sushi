@@ -29,11 +29,12 @@ angular.module('demo')
             $log.info("avatarControl", name, "create");
             var display = ObjectDisplayService.getDisplay(player.id());
             currPlayer = player;
-            currChara = player.linkup(display);
-            currSkin = display.skin;
-            $log.info("avatarControl", name, "skin", typeof(currSkin), currSkin);
             currPos = display.group.pos;
             currAngle = defaultAngle;
+            currChara = player.linkup(display);
+            currChara.setCorner(currPos);
+            currSkin = display.skin;
+            $log.info("avatarControl", name, "skin", typeof(currSkin), currSkin);
 
             // via map.get("location") instead?
             var loc = currLoc = LocationService().toString();
@@ -87,10 +88,14 @@ angular.module('demo')
         },
         // returns true if the avatar is standing on the landing pads of the target.
         touches: function(target) {
-          var touches = false;
-          if (target && target.pads) {
-            var feet = avatar.getFeet();
-            touches = target.pads.getPadAt(feet);
+          var touches;
+          if (target) {
+            if (!target.pads) {
+              touches = true;
+            } else {
+              var feet = avatar.getFeet();
+              touches = target.pads.getPadAt(feet);
+            }
           }
           return touches;
         },
