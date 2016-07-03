@@ -52,14 +52,14 @@ div.overgrey {
   cursor: default;
 }
 
-.ga-noselect {
+.ga-noselect, .ga-canvas {
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
-  cursor: default;
+  /*cursor: default;*/
 }
 
 /* ----------------------------------------------
