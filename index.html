@@ -140,9 +140,11 @@
       <div element-slot="loadGameWin" ng-include="'loadGameWin.html'"></div>
     </div>
   </main>
-  <footer class="state-display" ng-init="hsmExpanded=false">
-    <a href="" ng-click="hsmExpanded=!hsmExpanded">states [{{hsmExpanded ? 'x' : 'o'}}]</a>
-    <ng-include src="'main.html'" ng-show="hsmExpanded"></ng-include>
+  <footer ng-init="hsmExpanded=false">
+    <div class="state-display" ng-show="constant('HSM_HTML')">
+      <a href="" ng-click="hsmExpanded=!hsmExpanded">states [{{hsmExpanded ? 'x' : 'o'}}]</a>
+      <ng-include src="'main.html'" ng-show="hsmExpanded"></ng-include>
+    </div>
   </footer>
 </body>
 

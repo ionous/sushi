@@ -1,7 +1,7 @@
 <div class="ga-play" ga-map-color ng-if="gameWindow.visible">
   <div element-slot="gameMap" ng-show="gameMap.loaded" ng-style="gameMap.style" class="ga-map"></div>
   <div element-slot="buttonBar" class="ga-noselect" ng-include="'buttonBar.html'"></div>
-  <div element-slot="mouseDisplay"></div>
+  <div element-slot="mouseDisplay" class="ga-cursor"><div popover-placement="auto bottom" uib-popover="{{mouseDisplay.tooltip}}" popover-is-open="!!mouseDisplay.tooltip"></div></div>
   <div element-slot="combineBox" ng-include="'combineBox.html'"></div>
   <div element-slot="finalExit" ng-include="'finalExit.html'"></div>
   <modal-window name="commentBox" class="ga-greyignore" group="modal" src="'commentBox.html'"></modal-window>

@@ -3,7 +3,7 @@
     <!--  note: without an initial show, the mouse requires a target change to become visible. -->
     <hsm-state name="StaticTargeting" hsm-enter="mouse.show('pointer')">
       <hsm-event on="update-game" run="mouseTarget.update(mouse.pos())"></hsm-event>
-      <hsm-event on="mouse-target-changed" run="mouse.show( !$evt.target ? 'pointer' : 'bullseye' )"></hsm-event>
+      <hsm-event on="mouse-target-changed" run="mouse.showTarget($evt.target)"></hsm-event>
       <!-- 
       FIX: doesnt work well for zoomed in views, the player changes size.
       <hsm-event on="hover-press" run="player.facePos($evt.pos)"></hsm-event>

@@ -14,7 +14,7 @@
           <!-- ^~Directing -->
           <hsm-state name="MouseHovering" hsm-enter="mouse.show('pointer')">
             <!--  -->
-            <hsm-event on="mouse-target-changed" run="mouse.show( !$evt.target ? 'pointer' : (!$evt.touches ? 'disk' : 'bullseye'))"></hsm-event>
+            <hsm-event on="mouse-target-changed" run="mouse.showTarget( $evt.target, $evt.touches )"></hsm-event>
             <!--  -->
             <hsm-event on="hover-press" when="mouseTarget()" run="avatar.lookAt(mouseTarget())"></hsm-event>
             <!-- FIX: might "beep" when not on pads -->

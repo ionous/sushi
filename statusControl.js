@@ -29,7 +29,7 @@ angular.module('demo')
             statusSlot = ElementSlotService.get(slotName);
             var scope = statusSlot.scope;
             scope.visible = true;
-            scope.left = "boop!";
+            scope.left = " ";
             scope.right = " ";
             //
             pending = ObjectService.getObject(statusInstance);

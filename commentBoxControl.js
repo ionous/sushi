@@ -8,14 +8,12 @@ angular.module('demo')
       var modal = $scope.modal;
       var contents = modal.contents;
       var comments = contents.comments;
-      $log.info("commentBoxControl", comments);
-
       // the comment box opens and closes on the presence of comments; we display choices.
-      $scope.choices = comments;
 
       var scope = {
-        //  collapsed="collapsed()" could wait till collapse to run comment....
         visible: false,
+        choices: comments,
+        title: contents.title,
         select: function(i) {
           $log.info("commentBoxControl", name, "selected", i);
           if (scope.visible) {

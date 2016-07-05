@@ -1,18 +1,15 @@
 'use strict';
 
-
 angular.module('demo')
 
-// from:gaCommentCapture
 .directiveAs('playerDialogControl', ["^modalControl", "^hsmMachine"],
-  function($log) {
-    var display, quips, comments;
+  function(EntityService, $log) {
+    var comments, display, quips, modal, title;
     var clear = function(where) {
       quips = [];
       comments = [];
+      title = null;
     };
-    var modal;
-
     this.init = function(name, modalControl, hsmMachine) {
       return {
         bindTo: function(where) {
@@ -24,6 +21,11 @@ angular.module('demo')
           $log.info("playerDialog: destroyed");
           display = null;
           clear();
+        },
+        setTitle: function(tgt) {
+          $log.info("playerDialog: set title", tgt);
+          var book = EntityService.getById(tgt);
+          title = book.printedName();
         },
         addQuip: function(tgt) {
           $log.info("playerDialog: add quip", tgt);
@@ -60,6 +62,7 @@ angular.module('demo')
           var localComments = comments.slice();
           var localsQuips = quips.slice();
           modal = modalControl.open(display, {
+            title: title,
             comments: localComments,
             select: function(which) {
               var comment = localComments[which];

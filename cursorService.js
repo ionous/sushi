@@ -11,7 +11,7 @@ angular.module('demo')
         clientX = evt.clientX;
         clientY = evt.clientY;
       });
-      // may want to consider combining, a plus. an underline. etc.
+      /* matches .ga-cursor i */
       var width = 42;
       var center = pt(width * 0.5, width * 0.5);
       var upperLeft = pt(0, 0);
@@ -73,7 +73,7 @@ angular.module('demo')
       //var lights = [cursors.pointer, cursors.disk, cursors.bullseye];
       //<i class="fa fa-shield"></i>
       var Cursor = function(focusEl, displayEl) {
-        var el = this.el = angular.element("<div class='ga-cursor'></div>");
+        var el = this.el = displayEl;//angular.element("<div class='ga-cursor'></div>");
         var inner = this.inner = angular.element("<i class='fa noshape'></i>");
         if (!displayEl) {
           displayEl = focusEl;
@@ -83,15 +83,15 @@ angular.module('demo')
         this.nextShape = cursors.pointer;
         this.size = 0;
         this.enabled = true;
-        el.append(inner);
-        displayEl.append(el);
+        el.prepend(inner);
+        //displayEl.append(el);
         //
         var c = this;
         this.updater = UpdateService.update(function() {
           c.draw();
         });
 
-        this.displayEdge = displayEl[0];
+        this.displayEdge = displayEl.parent()[0];
         this.focusEdge = focusEl[0];
         this.state = {
           rad: 0,
@@ -105,11 +105,16 @@ angular.module('demo')
       Cursor.prototype.pointsTo = function(pos) {
         this.state.dst = pos;
       };
+      var owned= false;
       Cursor.prototype.destroyCursor = function() {
         UpdateService.stop(this.updater);
-        this.el.remove();
+        if (owned) {
+          this.el.remove();
+        } else {
+          this.inner.remove();
+        }
         this.el = null;
-        this.inner = null;
+        this.inner= null;
         this.displayEdge = null;
         this.focusEdge = null;
         this.cursors = null;
