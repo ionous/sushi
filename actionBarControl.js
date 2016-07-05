@@ -72,9 +72,10 @@ angular.module('demo')
                   left = barpos.x + displayRect.left - modalRect.left;
                   top = barpos.y + displayRect.top - modalRect.top;
                 } else {
+                  var i = idx;
                   var len = length();
                   if (idx < 0) {
-                    idx = len - idx + 1;
+                    idx = len - 1;
                   }
                   var angle = 2 * Math.PI * (idx / len);
                   var x = radius * Math.sin(angle);
