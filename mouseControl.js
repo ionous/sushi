@@ -9,7 +9,7 @@ angular.module('demo')
     var reflectList = "mouseenter mouseleave mousemove mousedown mouseup";
     var ctrl = this;
     this.init = function(name, hsmMachine) {
-      var cursor, focusEl, hidden, displaySlot = 0;
+      var cursor, focusEl, displaySlot, hidden = 0;
       var aliases = {};
       // exposed to scope
       var Mouse = function() {
@@ -54,7 +54,6 @@ angular.module('demo')
             focusEl = null;
           }
           if (cursor) {
-            cursor.show(false);
             cursor.destroyCursor();
             cursor = null;
           }
@@ -65,6 +64,7 @@ angular.module('demo')
           var wasHidden = this.hidden();
           hidden += hide ? 1 : -1;
           var nowHidden = this.hidden();
+          // $log.debug("mouseControl", name, hide, hidden, wasHidden, ">", nowHidden);
           if (wasHidden != nowHidden) {
             // patch:
             // we can get a hide after the cursor has been destroyed
@@ -75,7 +75,7 @@ angular.module('demo')
               cursor.show(!nowHidden);
             }
             var emit = nowHidden ? "hidden" : "shown";
-            // $log.debug("mouseControl", name, emit);
+            $log.debug("mouseControl", name, emit);
             hsmMachine.emit(name, emit, {
               mouse: this.mouse
             });
@@ -132,8 +132,9 @@ angular.module('demo')
         };
         this.show = function(yes) {
           var show = angular.isUndefined(yes) || yes;
-          //$log.debug("cursor", show);
-          if (!this.hidden()) {
+          var hidden = this.hidden();
+          // $log.debug("cursor", show, hidden ? "hidden" : "vis");
+          if (!hidden) {
             cursor.show(!!show);
           }
           if (angular.isString(show)) {

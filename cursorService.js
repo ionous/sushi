@@ -73,19 +73,16 @@ angular.module('demo')
       //var lights = [cursors.pointer, cursors.disk, cursors.bullseye];
       //<i class="fa fa-shield"></i>
       var Cursor = function(focusEl, displayEl) {
-        var el = this.el = displayEl;//angular.element("<div class='ga-cursor'></div>");
+        var el = this.el = displayEl;
         var inner = this.inner = angular.element("<i class='fa noshape'></i>");
         if (!displayEl) {
           displayEl = focusEl;
         }
 
         this.shows = true;
-        this.nextShape = cursors.pointer;
         this.size = 0;
         this.enabled = true;
         el.prepend(inner);
-        //displayEl.append(el);
-        //
         var c = this;
         this.updater = UpdateService.update(function() {
           c.draw();
@@ -105,20 +102,23 @@ angular.module('demo')
       Cursor.prototype.pointsTo = function(pos) {
         this.state.dst = pos;
       };
-      var owned= false;
+      var defaultCss = {
+        "visibility": "",
+        "font-size": "",
+        "line-height": "",
+        "transform": "",
+        "left": "",
+        "top": "",
+      };
       Cursor.prototype.destroyCursor = function() {
         UpdateService.stop(this.updater);
-        if (owned) {
-          this.el.remove();
-        } else {
-          this.inner.remove();
-        }
+        this.inner.remove();
+        this.el.css(defaultCss);
         this.el = null;
-        this.inner= null;
+        this.inner = null;
         this.displayEdge = null;
         this.focusEdge = null;
         this.cursors = null;
-        this.last = null;
         return false;
       };
       Cursor.prototype.enable = function(enable) {
@@ -158,8 +158,13 @@ angular.module('demo')
           var shape = this.shape;
           if (last.shape !== shape) {
             //$log.debug("CursorService: changed shape", shape.cls);
-            this.inner.removeClass(last.shape.cls);
-            this.inner.addClass(shape.cls);
+            var i = this.inner;
+            var rub = last.shape.cls;
+            var add = shape.cls;
+            // $timeout(function() {
+              i.removeClass(rub);
+              i.addClass(add);
+            // });
             last.shape = shape;
             //
             var size = shape.size;
