@@ -1,6 +1,7 @@
 <div class="ga-comment-box" uib-collapse="!commentBox.visible" comment-box-control="commentBox">
+  <h2 ng-if="!!commentBox.title">{{commentBox.title}}</h2>
   <ul>
-    <li ng-repeat="text in choices track by $index" ng-click="commentBox.select($index)" class="ga-noselect">
+    <li ng-repeat="text in commentBox.choices track by $index" ng-click="commentBox.select($index)" class="ga-noselect">
       {{text}}
     </li>
   </ul>
