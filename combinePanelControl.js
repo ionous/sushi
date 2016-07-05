@@ -4,7 +4,7 @@
 angular.module('demo')
 
 .directiveAs("combinePanelControl",
-  function(ElementSlotService, ItemService, $log, $q) {
+  function(ElementSlotService, EntityService, ItemService, $log, $q) {
     var defer, combineBox;
 
     this.init = function(name) {
@@ -33,11 +33,14 @@ angular.module('demo')
           if (item) {
             combineBox = ElementSlotService.get(windowSlot);
             defer = $q.defer();
+            var itemObject = EntityService.getById(item.id);
+            var itemName = itemObject.printedName();
             var images = ItemService.getImageSource(item.id);
             images.then(defer.resolve, defer.reject);
             defer.promise.then(function(image) {
               $log.info("combinePanelControl: got image", image);
               combineBox.scope.image = image;
+              combineBox.scope.item = itemName;
               combineBox.scope.visible = true;
             });
           }
