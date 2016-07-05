@@ -6,7 +6,7 @@
 angular.module('demo')
 
 .directiveAs("playerItemControl", ["^hsmMachine", "^playerControl"],
-  function(ActionListService,EntityService, $log, $q) {
+  function(ActionListService, EntityService, $log, $q) {
     this.init = function(name, hsmMachine, playerControl) {
       var Record = function(item, context) {
         this.id = item.id;
@@ -43,8 +43,8 @@ angular.module('demo')
             for (var id in list) {
               var item = EntityService.getById(id);
               var rec = items[id] = new Record(item, context);
+              currentId = id;
               ++count;
-              //$log.info("playerItemControl", item, rec);
             }
           };
           var p = EntityService.getById("player");

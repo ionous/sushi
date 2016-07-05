@@ -1,9 +1,36 @@
-<div class="ga-picker" items-control="items" uib-collapse="!items.visible" expanded="items.expanded()" collapsing="collapsing()">
-  <div ng-include="'picker.html'"></div>
-  <div class="ga-buttonbar ga-invbar" ng-if="currentActions && items.barVisible">
+<div class="ga-picker" items-control="items" uib-collapse="!items.visible" expanded="items.expanded()" collapsing="items.collapsing()">
+  <div class="modal-body ga-carousel">
+    <script type="text/ng-template" id="carousel.html">
+      <div ng-mouseenter="pause()" ng-mouseleave="play()" class="carousel" ng-swipe-right="prev()" ng-swipe-left="next()">
+        <div class="carousel-inner" ng-transclude></div>
+        <a role="button" href class="left carousel-control" ng-click="prev()" ng-show="slides.length > 1">
+          <span aria-hidden="true" class="glyphicon glyphicon-chevron-left"></span>
+          <span class="sr-only">previous</span>
+        </a>
+        <a role="button" href class="right carousel-control" ng-click="next()" ng-show="slides.length> 1">
+          <span aria-hidden="true" class="glyphicon glyphicon-chevron-right"></span>
+          <span class="sr-only">next</span>
+        </a>
+      </div>
+    </script>
+    <!-- carousel is uib's default carousel template -->
+    <uib-carousel template-url="carousel.html" no-transition="!transition">
+      <uib-slide ng-repeat="slide in slides" active="slide.active">
+        <div ng-controller="ItemSlideController" class="ga-slide ga-noselect">
+          <img ng-src="{{slideImage}}" style="margin:auto;">
+        </div>
+      </uib-slide>
+    </uib-carousel>
+    <div class="ga-picker-caption ga-noselect">
+      <p style="text-align: center;">&nbsp;{{currentSlide.name}}&nbsp;</p>
+    </div>
+  </div>
+  <div class="ga-buttonbar ga-invbar" ng-if="currentActions" ng-show="items.barVisible">
     <a ng-repeat="act in currentActions track by act.id" class="btn btn-primary" uib-tooltip="{{act.name}}" ng-click="items.clicked(currentSlide, act)" tooltip-placement="bottom" tooltip-class="ga-xtip">
       <i ng-class="act.iconClass"></i>
-    </a><!--no space between tags--><a ng-if="slides.length && combine" class="btn btn-primary" uib-tooltip="Use Item" ng-click="items.clicked(currentSlide)" tooltip-placement="bottom" tooltip-class="ga-xtip">
+    </a>
+    <!--no space between tags-->
+    <a ng-if="slides.length && combine" class="btn btn-primary" uib-tooltip="Use Item" ng-click="items.clicked(currentSlide)" tooltip-placement="bottom" tooltip-class="ga-xtip">
       <i ng-class="combine.iconClass"></i>
     </a>
   </div>

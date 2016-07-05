@@ -11,12 +11,13 @@ angular.module('demo')
         $scope.slideImage = src;
       });
       syncImage = function() {};
-    }
+    };
     if (slide.active) {
+      slide.activated(true);
       syncImage();
     }
-    $scope.$watch('slide.active', function(newValue) {
-      if (newValue) {
+    $scope.$watch('slide.active', function(newValue, oldValue) {
+      if (newValue && (newValue !== oldValue)) {
         slide.activated(newValue);
         syncImage();
       }

@@ -72,7 +72,10 @@ angular.module('demo')
 
       var scope = {
         visible: true,
-        barVisible: true,
+        barVisible: false,
+        expanded: function() {
+          scope.barVisible = true;
+        },
         clicked: function(slide, act) {
           contents.clicked(slide.item, act);
         },
