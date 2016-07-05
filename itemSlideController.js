@@ -12,12 +12,8 @@ angular.module('demo')
       });
       syncImage = function() {};
     };
-    if (slide.active) {
-      slide.activated(true);
-      syncImage();
-    }
-    $scope.$watch('slide.active', function(newValue, oldValue) {
-      if (newValue && (newValue !== oldValue)) {
+    $scope.$watch('slide.active', function(newValue) {
+      if (newValue) {
         slide.activated(newValue);
         syncImage();
       }

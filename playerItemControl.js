@@ -100,14 +100,11 @@ angular.module('demo')
             if (id != item.id) {
               var other = items[id];
               var wait = ActionListService.getMultiActions(other, item).then(
-                function(actions) {
-                  if (actions && actions.length) {
-                    itemActions.push({
-                      item: other,
-                      actions: actions
-                    });
+                function(ia) {
+                  if (ia.actions.length) {
+                    itemActions.push(ia);
                   }
-                  return actions;
+                  return ia;
                 });
               waits.push(wait);
             }

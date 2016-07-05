@@ -41,7 +41,8 @@ angular.module('demo')
         } // obj
         var displayEl = ElementSlotService.get(displaySlot).element;
 
-        var pendingConfig = $q.when(pendingActions).then(function(actions) {
+        var pendingConfig = $q.when(pendingActions).then(function(itemActions) {
+          var actions = itemActions.actions;
           var zoom = view && IconService.getIcon("$zoom");
           if ((!actions || !actions.length) && !zoom) {
             throw new Error("no actions found");

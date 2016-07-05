@@ -43,8 +43,8 @@ angular.module('demo')
               // lazy load actions:
               if (!slide.actions && !slide.pending) {
                 slide.pending = ActionListService.getItemActions(item, context).then(
-                  function(actions) {
-                    slide.actions = actions;
+                  function(itemActions) {
+                    var actions = slide.actions = itemActions.actions;
                     var visibleNow = items.isCurrent(slide);
                     //$log.info("actions received", slide,visibleNow);
                     // still current now that our actions have been retreived?

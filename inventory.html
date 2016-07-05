@@ -31,15 +31,17 @@
           <!-- we open the panel here, lazily close it elsewhere to keep it displayed when the inventory is open. and b/c we switch from inventory to field and back, we keep the current item stored in combiner.
           that's also used as a sort of hack for the action bar, well out in playing.html -->
           <hsm-state name="PlayCombining" hsm-enter="panel.open('combineBox', combiner.item())">
-            <hsm-state hsm-enter="mouse.alias('bullseye','combine')" hsm-exit="mouse.alias('bullseye')">
-              <hsm-state combine-check-control="invCombine" hsm-enter="invCombine.start(combiner.item(), items)" hsm-exit="invCombine.stop()">
-                <hsm-state name="CombineChecking" hsm-enter="invButton.enable(false)">
-                  <hsm-event on="inv-combine-checked" goto="CombineChecked"></hsm-event>
-                </hsm-state>
-                <hsm-state name="CombineChecked" hsm-enter="invButton.enable(!invCombine.empty())">
-                  <hsm-state hsm-enter="panel.enableInventoryMessage(!invCombine.empty())">
-                    <hsm-event on="inv-button-clicked" run="invWin.open(items, invCombine.item(), invCombine.itemActions())" goto="WindowCombining"> </hsm-event>
-                    <hsm-event on="keys" when="$evt.escapeKey()" goto="PlayNormal"></hsm-event>
+            <hsm-state hsm-enter="mouse.alias('disk','combine')" hsm-exit="mouse.alias('disk')">
+              <hsm-state hsm-enter="mouse.alias('bullseye','combine')" hsm-exit="mouse.alias('bullseye')">
+                <hsm-state combine-check-control="invCombine" hsm-enter="invCombine.start(combiner.item(), items)" hsm-exit="invCombine.stop()">
+                  <hsm-state name="CombineChecking" hsm-enter="invButton.enable(false)">
+                    <hsm-event on="inv-combine-checked" goto="CombineChecked"></hsm-event>
+                  </hsm-state>
+                  <hsm-state name="CombineChecked" hsm-enter="invButton.enable(!invCombine.empty())">
+                    <hsm-state hsm-enter="panel.enableInventoryMessage(!invCombine.empty())">
+                      <hsm-event on="inv-button-clicked" run="invWin.open(items, invCombine.item(), invCombine.itemActions())" goto="WindowCombining"> </hsm-event>
+                      <hsm-event on="keys" when="$evt.escapeKey()" goto="PlayNormal"></hsm-event>
+                    </hsm-state>
                   </hsm-state>
                 </hsm-state>
               </hsm-state>
