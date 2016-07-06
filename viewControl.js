@@ -1,44 +1,45 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("viewControl", ["^^mapControl"],
-    function(ElementSlotService, LocationService, $log, $scope) {
-      this.init = function(name, mapControl) {
-        var currentEl, currentScope, prevLoc;
-        var returnToRoom = function() {
-          var next = prevLoc.item ? prevLoc.nextItem() : prevLoc.nextView();
-          $log.info("return to room", next);
-          $scope.$apply(function() {
-            mapControl.changeMap(next);
-          });
+  function(ElementSlotService, LocationService, $log, $scope) {
+    'use strict';
+
+    this.init = function(name, mapControl) {
+      var currentEl, currentScope, prevLoc;
+      var returnToRoom = function() {
+        var next = prevLoc.item ? prevLoc.nextItem() : prevLoc.nextView();
+        $log.info("return to room", next);
+        $scope.$apply(function() {
+          mapControl.changeMap(next);
+        });
+        release();
+      };
+      var release = function() {
+        if (currentEl) {
+          currentEl.off("click", returnToRoom);
+          currentEl = null;
+        }
+        if (currentScope) {
+          currentScope.msg = false;
+        }
+      };
+      return {
+        release: release,
+        bindTo: function(slotName) {
           release();
-        };
-        var release = function() {
-          if (currentEl) {
-            currentEl.off("click", returnToRoom);
-            currentEl = null;
-          }
-          if (currentScope) {
-            currentScope.msg = false;
-          }
-        };
-        return {
-          release: release,
-          bindTo: function(slotName) {
-            release();
-            var slot = ElementSlotService.get(slotName);
+          var slot = ElementSlotService.get(slotName);
 
-            var loc = prevLoc = LocationService();
-            var viewing = loc.view || loc.item;
+          var loc = LocationService();
+          var viewing = loc.view || loc.item;
+          prevLoc = loc;
 
-            if (viewing) {
-              currentEl = slot.element;
-              currentScope = slot.scope;
-              currentEl.on("click", returnToRoom);
-              currentScope.msg = loc.item ? "Return..." : "Return to room...";
-            }
-          },
-        }; //return: export to scope
-      }; //init
-    }) // viewControl
+          if (viewing) {
+            currentEl = slot.element;
+            currentScope = slot.scope;
+            currentEl.on("click", returnToRoom);
+            currentScope.msg = loc.item ? "Return..." : "Return to room...";
+          }
+        },
+      }; //return: export to scope
+    }; //init
+  });

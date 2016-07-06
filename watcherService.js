@@ -1,11 +1,11 @@
-'use strict';
-
 /** 
  * Objects that have contents.
  */
 angular.module('demo')
   .factory('WatcherService',
     function(ClassService, EntityService, EventService, $log, $q) {
+      'use strict';
+
       var Watcher = function(listener, promise) {
         this.cancel = listener;
         this.promise = promise;
@@ -18,9 +18,9 @@ angular.module('demo')
             var nowExists = enclosure.contents[objId];
             var obj = nowExists && EntityService.getById(objId);
             return cb(obj);
-          }
+          };
           var cancel = EventService.listen(enclosure.id, "x-mod", function(data) {
-            var child = data['child'];
+            var child = data.child;
             if (child.id == objId) {
               return updateVis();
             }
@@ -33,7 +33,7 @@ angular.module('demo')
           var updateState = function() {
             var inState = obj.is(stateName);
             return cb(inState ? stateName : "");
-          }
+          };
           var cancel = EventService.listen(obj.id, "x-set", updateState);
           return new Watcher(cancel, updateState());
         },
@@ -83,6 +83,6 @@ angular.module('demo')
           }
           return ret;
         }
-      }
+      };
       return service;
     });

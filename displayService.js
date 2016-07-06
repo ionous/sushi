@@ -1,10 +1,10 @@
-'use strict';
-
 /**
  */
 angular.module('demo')
 
 .factory('DisplayService', function(CanvasService, $log, $q) {
+  'use strict';
+
   // contains either ".ga-canvas" canvases or ".ga-display" divs.
   // FIX: canvi are getting created too late to intermix as siblings, every layer needs a display group right now; leaf nodes shouldnt need this.
   var DisplayGroup = function(el) {
@@ -45,11 +45,11 @@ angular.module('demo')
       var grid = mapLayer.getGrid();
       if (grid) {
         var mapName = map.name;
-        var imageSrc = "/bin/maps/" + mapName + ".png"
-        promise = CanvasService.newGrid(this.el, imageSrc, grid, opt);
+        var gridSrc = "/bin/maps/" + mapName + ".png";
+        promise = CanvasService.newGrid(this.el, gridSrc, grid, opt);
       } else {
         var src = mapLayer.getImageSource();
-        if (angular.isString(src) && src != "") {
+        if (angular.isString(src) && src !== "") {
           var imageSrc = "/bin/" + src;
           promise = CanvasService.newImage(this.el, imageSrc, opt);
         } else if (mapLayer.getShapes()) {
