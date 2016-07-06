@@ -1,9 +1,8 @@
-'use strict';
-
 angular.module('demo')
   .factory('LayerService',
     function(DisplayService, HitService, LandingService, ObjectDisplayService, WatcherService,
       $log, $q) {
+      'use strict';
       // an activated layer from a map.
       var Node = function(ctx, name, canvi, tinter, hitShape, children) {
         this.ctx = ctx; // owned externally ( by child exapnder or root )
@@ -119,7 +118,7 @@ angular.module('demo')
         this.destroyContext = function() {
           ctx.destroyed = true;
           onDestroy();
-        }
+        };
         this.object = null;
         this.dynamicDepth = false;
         this.treeCount = 0;
@@ -128,15 +127,15 @@ angular.module('demo')
       //
       Context.prototype.newContext = function(mapLayer, opt) {
         if (this.destroyed) {
-          var msg = "creating child context, but parent has been destroyed";
-          $log.error(msg, opt);
-          throw new Error(msg);
+          var msg1 = "creating child context, but parent has been destroyed";
+          $log.error(msg1, opt);
+          throw new Error(msg1);
         }
         var parentEl = this.displayGroup.el;
         if (!parentEl) {
-          var msg = "creating child context, but no parent display";
-          $log.error(msg, opt);
-          throw new Error(msg);
+          var msg2 = "creating child context, but no parent display";
+          $log.error(msg2, opt);
+          throw new Error(msg2);
         }
         this.treeCount += 1;
 
@@ -161,7 +160,7 @@ angular.module('demo')
               hitGroup.parent.remove(hitGroup);
             }
             if (displayGroup) {
-              displayGroup.destroyDisplay()
+              displayGroup.destroyDisplay();
               displayGroup = null;
             }
           });
@@ -265,15 +264,15 @@ angular.module('demo')
         // we should track locally.
         var subject = this.hitGroup.subject;
         if (!subject) {
-          var msg = "hit group doesnt have a subject";
-          $log.error(msg, slashPath);
-          throw new Error(msg);
-        };
+          var msg1 = "hit group doesnt have a subject";
+          $log.error(msg1, slashPath);
+          throw new Error(msg1);
+        }
         if (subject.pads) {
-          var msg = "multiple pads per hit group";
-          $log.error(msg, slashPath);
-          throw new Error(msg);
-        };
+          var msg2 = "multiple pads per hit group";
+          $log.error(msg2, subject, slashPath);
+          throw new Error(msg2);
+        }
         var pads = LandingService.newLandingPads(subject, grid);
         subject.pads = pads;
         this.allPads.push(pads);
@@ -316,7 +315,7 @@ angular.module('demo')
 
           default:
             return this.newChild(subLayer);
-        };
+        }
       };
 
       // returns the promise of a layer and its sub-layers.

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * helper for using one item with another item:
  */
@@ -7,6 +5,8 @@ angular.module('demo')
 
 .directiveAs("windowControl",
   function(ElementSlotService, $log) {
+    'use strict';
+
     this.init = function(name) {
       var old;
       var scope = {
@@ -16,8 +16,9 @@ angular.module('demo')
             old = false;
           }
           if (windowName) {
-            var scope = old = ElementSlotService.get(windowName).scope;
+            var scope = ElementSlotService.get(windowName).scope;
             scope.visible = true;
+            old = scope;
           }
         }
       };

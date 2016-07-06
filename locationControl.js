@@ -1,13 +1,12 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("locationControl", ["^hsmMachine"],
   function($location, $log, $scope) {
+    'use strict';
     var Context = function(dst) {
       this.is = function(tst) {
         return tst == dst;
-      }
+      };
     };
     this.init = function(name, hsmMachine) {
       // since $location doesn't provide "fail",

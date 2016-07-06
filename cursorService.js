@@ -1,10 +1,10 @@
-'use strict';
-
 /**
  */
 angular.module('demo')
   .factory('CursorService',
     function(UpdateService, $log, $rootElement) {
+      'use strict';
+
       var clientX = 0;
       var clientY = 0;
       $rootElement.on("mousemove", function(evt) {
@@ -150,7 +150,7 @@ angular.module('demo')
         var show = !!(this.shows && this.enabled && this.shape);
         var update, css = {};
         if (show != last.show) {
-          css["visibility"] = show ? "" : "hidden";
+          css["visibility"] = show ? "" : "hidden"; // jshint ignore:line
           last.show = show;
           update = true;
         }
@@ -162,15 +162,15 @@ angular.module('demo')
             var rub = last.shape.cls;
             var add = shape.cls;
             // $timeout(function() {
-              i.removeClass(rub);
-              i.addClass(add);
+            i.removeClass(rub);
+            i.addClass(add);
             // });
             last.shape = shape;
             //
             var size = shape.size;
             if (last.size != size) {
-              css["font-size"] = size + "px";
-              css["line-height"] = size + "px";
+              css["font-size"] = size + "px"; // jshint ignore:line
+              css["line-height"] = size + "px"; // jshint ignore:line
               last.size = size;
               update = true;
             }
@@ -180,7 +180,8 @@ angular.module('demo')
           var cp = this.cursorPos();
           var rad = calcRad(cp, this.state.dst);
           if (last.rad != rad) {
-            css["transform"] = rad ? "rotate(" + rad + "rad)" : "";
+            var x = rad ? "rotate(" + rad + "rad)" : "";
+            css["transform"] = x; // jshint ignore:line
             last.rad = rad;
             update = true;
           }
@@ -192,8 +193,8 @@ angular.module('demo')
           var dr = this.displayEdge.getBoundingClientRect();
           var pos = pt(src.x - dr.left, src.y - dr.top);
           if (!pt_exact(pos, last.pos)) {
-            css["left"] = pos.x + "px";
-            css["top"] = pos.y + "px";
+            css["left"] = pos.x + "px"; // jshint ignore:line
+            css["top"] = pos.y + "px"; // jshint ignore:line
             last.pos = pos;
             update = true;
           }

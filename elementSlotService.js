@@ -1,10 +1,10 @@
-'use strict';
-
 angular.module('demo')
 
 // expose an element to the slot service
 .directiveAs("elementSlot",
   function(ElementSlotService, $element, $attrs) {
+    'use strict';
+
     var scope = {};
     ElementSlotService.bind($attrs.elementSlot, $element, scope);
     this.init = function() {
@@ -17,6 +17,8 @@ angular.module('demo')
 // angular doesnt seem to provide the ability via its public api.
 // at any rate, we need a simple way to encapsulate chunks of dom and their scope.
 .factory('ElementSlotService', function($log) {
+  'use strict';
+
   var elements = {};
   var service = {
     bind: function(name, element, scope) {

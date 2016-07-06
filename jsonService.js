@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @fileoverview JsonService
  * Reads the jsonapi-ish documents and objects.
@@ -8,12 +6,14 @@
 angular.module('demo')
   .factory('JsonService',
     function() {
+      'use strict';
+
       var parseObject = function(data) {
-        var attr = data['attributes'] || {};
-        var meta = data['meta'] || {};
+        var attr = data.attributes || {};
+        var meta = data.meta || {};
         var obj = {
-          id: data['id'],
-          type: data['type'],
+          id: data.id,
+          type: data.type,
           attr: attr,
           meta: meta
         };
@@ -27,12 +27,12 @@ angular.module('demo')
        * includes - from the document included
        */
       var parseDoc = function(src) {
-        var meta = src['meta'] || {};
-        var data = src['data'] || {};
-        var included = src['included'] || [];
+        var meta = src.meta || {};
+        var data = src.data || {};
+        var included = src.included || [];
         var doc = {
-          id: data['id'],
-          type: data['type'],
+          id: data.id,
+          type: data.type,
           data: data,
           meta: meta,
           includes: included.map(parseObject)
@@ -43,8 +43,8 @@ angular.module('demo')
       var jsonService = {
         parseRef: function(data) {
           var ref = {
-            id: data['id'],
-            type: data['type']
+            id: data.id,
+            type: data.type
           };
           return ref;
         },

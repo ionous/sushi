@@ -1,10 +1,10 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("playerControl", ["^^hsmMachine"],
   function(CharaService, LocationService, PlayerService,
     $q, $log) {
+    'use strict';
+
     //
     var currChara, displaying, pending;
     var memory = {};
@@ -67,11 +67,11 @@ angular.module('demo')
           hsmMachine.emit(name, "approach", {
             target: target,
             pos: pos,
-          })
+          });
         },
         direct: function() {
           $log.info("playerControl", name, "direct");
-          hsmMachine.emit(name, "direct", {})
+          hsmMachine.emit(name, "direct", {});
         },
         // target is of type "Subject"
         // facePos: function(pos) {
@@ -103,4 +103,4 @@ angular.module('demo')
       }; // return
       return player;
     }; //init
-  })
+  });

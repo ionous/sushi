@@ -1,9 +1,8 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl"],
   function(LocationService, ObjectDisplayService, PositionService, $log) {
+    'use strict';
     this.init = function(name, hsmMachine, keyControl) {
       var currPlayer, currChara, currProp, currSkin, currLoc;
       var defaultAngle = PositionService.defaultAngle;
@@ -37,7 +36,8 @@ angular.module('demo')
             $log.info("avatarControl", name, "skin", typeof(currSkin), currSkin);
 
             // via map.get("location") instead?
-            var loc = currLoc = LocationService().toString();
+            var loc = LocationService().toString();
+            currLoc = loc;
             var mem = PositionService.fetch(loc);
             if (!mem) {
               $log.info("avatarControl", name, "no memory for", loc);
@@ -75,7 +75,7 @@ angular.module('demo')
             var mem = PositionService.memorize(currLoc, currSkin);
             $log.info("avatarControl", name, "memorized", currLoc, mem.toString());
             currLoc = null;
-          };
+          }
           if (currChara) {
             currChara.setSpeed(false);
             currChara = null;
@@ -144,7 +144,8 @@ angular.module('demo')
             var walking = keyControl.buttons('shift');
             // animation facing.
             var face = dir;
-            var angle = currAngle = currChara.setFacing(face.x, face.y);
+            var angle = currChara.setFacing(face.x, face.y);
+            currAngle = angle;
             // animation speed.
             currChara.setSpeed(walking ? 1 : 2);
             // physics speed.
@@ -152,13 +153,14 @@ angular.module('demo')
             currProp.setVel(vel);
             // position based on last physics.
             var feet = currProp.getFeet();
-            var pos = currPos = pt_sub(feet, currChara.feetOfs);
+            var pos = pt_sub(feet, currChara.feetOfs);
             currChara.setCorner(pos);
+            currPos = pos;
             //
             PositionService.update(pos, angle);
           }
         },
       };
       return avatar;
-    }
-  })
+    };
+  });

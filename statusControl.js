@@ -1,10 +1,9 @@
-'use strict';
-
 /** 
  */
 angular.module('demo')
   .directiveAs('statusControl',
     function(ElementSlotService, ObjectService, $q, $log) {
+      'use strict';
       // query via ObjectService for initial state to help with save game.
       var statusInstance = {
         id: 'status-bar',

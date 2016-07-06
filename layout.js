@@ -32,7 +32,7 @@ angular.module('demo', ['ui.bootstrap', 'ngAnimate'])
             scope[directiveAttr] = scopeAs;
           }
         },
-      }
+      };
     });
   };
 angular.module('demo')
@@ -66,7 +66,6 @@ angular.module('demo')
     link: function(scope, el) {
       var color = "black";
       el.css("background-color", color);
-
     }
   };
 })
@@ -99,7 +98,7 @@ angular.module('demo')
         $scope.currentSlide = slide;
         //$scope.currentActions = slide.actions;
       };
-    }
+    };
     this.init = function() {
       $scope.transition = false;
       var slides = $scope.slides = [new Slide("button"), new Slide("beasty"), new Slide("coat")];

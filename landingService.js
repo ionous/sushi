@@ -1,10 +1,9 @@
-'use strict';
-
 /**
  * parse "landing pads": places where a player can stop to interact with an object.
  */
 angular.module('demo')
   .factory('LandingService', function($log) {
+    'use strict';
     var facings = [
       "any",
       "up", "left", "down", "right",

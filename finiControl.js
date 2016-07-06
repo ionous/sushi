@@ -1,12 +1,11 @@
-'use strict';
-
 angular.module('demo')
 
 // expose an element to the slot service
 .directiveAs("finiControl", ["^hsmMachine"],
   function(ElementSlotService, $scope) {
-    this.init = function(name, hsmMachine) {
+    'use strict';
 
+    this.init = function(name, hsmMachine) {
       var Fini = function() {
         this.map = ElementSlotService.get("gameMap");
         this.bar = ElementSlotService.get("buttonBar");
@@ -45,6 +44,5 @@ angular.module('demo')
         },
       };
       return scope;
-    }
-
+    };
   });

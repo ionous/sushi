@@ -1,9 +1,8 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("updateControl", ["^^hsmMachine"],
   function($log, UpdateService) {
+    'use strict';
     this.init = function(name, hsmMachine) {
       var evt;
       var update = function(dt) {
@@ -22,4 +21,4 @@ angular.module('demo')
         },
       };
     };
-  })
+  });

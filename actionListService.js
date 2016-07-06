@@ -1,9 +1,8 @@
-'use strict';
-
-
 angular.module('demo')
   .factory('ActionListService',
     function(ActionService, ClassService, EntityService, IconService, $log, $q) {
+      'use strict';
+
       var makeAction = function(act) {
         return {
           id: act.id,
@@ -12,7 +11,7 @@ angular.module('demo')
           emitAction: function(p, c) {
             return act.emitAction(p, c);
           }
-        }
+        };
       };
       // creates a filter for actions requiring one object
       var newActionFilter = function(obj, classInfo, context) {
@@ -27,7 +26,7 @@ angular.module('demo')
             }
           }
           return allows;
-        }
+        };
       };
       // creates a filter for actions requires two objects
       var newMultiFilter = function(c1, c2) {
@@ -37,7 +36,7 @@ angular.module('demo')
             // $log.info(actionInfo.id, "c2.contains(actionInfo.ctx)", c2, actionInfo.ctx, c2.contains(actionInfo.ctx) );
             return c1.contains(actionInfo.tgt) && c2.contains(actionInfo.ctx);
           }
-        }
+        };
       };
       // promise of a service.
       var getSingleActions = function(obj, classInfo, context) {

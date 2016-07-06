@@ -1,11 +1,10 @@
-'use strict';
-
 /**
  * Fetch room/map data from the server.
  */
 angular.module('demo')
   .factory('CollisionService',
     function($log) {
+      'use strict';
 
       var Scene = function(canvasSize) {
         var vec2 = p2.vec2;
@@ -108,7 +107,7 @@ angular.module('demo')
         if (this.body) {
           var world = this.body.world;
           if (world) {
-             world.removeBody(this.body);
+            world.removeBody(this.body);
           }
           this.body = null;
           this.scene = null;
@@ -147,7 +146,7 @@ angular.module('demo')
       var service = {
         newScene: function(canvasSize) {
           var physics = new Scene(canvasSize);
-          var ofs= 28; // for alice overlapping left trees on heart
+          var ofs = 28; // for alice overlapping left trees on heart
           physics.addWall(pt(ofs, 0), pt(canvasSize.x - ofs, ofs));
           physics.addWall(pt(0, 0), pt(ofs, canvasSize.y));
           physics.addWall(pt(ofs, canvasSize.y - ofs), pt(canvasSize.x - ofs, canvasSize.y));

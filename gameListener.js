@@ -1,9 +1,9 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("gameListener", ["^^hsmMachine"],
   function($log, $q, EventService) {
+    'use strict';
+
     var ctrl = this;
     ctrl.init = function(name, hsmMachine) {
       var listeners;
@@ -60,4 +60,4 @@ angular.module('demo')
         }
       };
     }; // init
-  })
+  });

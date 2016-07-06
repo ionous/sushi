@@ -1,11 +1,11 @@
-'use strict';
-
 /**
  * @fileoverview Registry of updatable entities.
  */
 angular.module('demo')
   .factory('EntityService',
     function(EventService, EventStreamService, $log, $timeout) {
+      'use strict';
+
       var containment = {
         "objects-wearer": "actors-clothing",
         "objects-owner": "actors-inventory",
@@ -171,8 +171,8 @@ angular.module('demo')
         if (data) {
           this._validate(data, "create");
           this.attr = data.attr;
-          this.states = data.meta['states'] || [];
-          this.name = data.meta['name'] || ("unnamed:" + this.id);
+          this.states = data.meta.states || [];
+          this.name = data.meta.name || ("unnamed:" + this.id);
         }
 
         // event helper
@@ -183,7 +183,7 @@ angular.module('demo')
           var frame = EventStreamService.currentFrame();
           //$log.debug("EntityService:", evt, tgt, frame, data);
           f.call(that, frame, dat);
-        }
+        };
 
         // subscribe to events; these callback member methods
         var that = this;
@@ -226,20 +226,20 @@ angular.module('demo')
           throw new Error("frame is not a number");
         }
         // add/remove children on x_rel changes.
-        var prop = data['prop'];
+        var prop = data.prop;
         var c = containment[prop];
         if (c) {
-          var invRel = data['other'];
+          var invRel = data.other;
           if (c != invRel) {
             $log.error("EntityService: mismatched rel, want:", c, "got:", invRel);
           } else {
             var shortName = c.slice(c.indexOf("-") + 1);
-            var prev = data['prev'];
+            var prev = data.prev;
             if (prev) {
               var oldParent = entityService.getRef(prev);
               oldParent.removeChild(this, shortName);
             }
-            var next = data['next'];
+            var next = data.next;
             if (next) {
               var newParent = entityService.getRef(next);
               newParent.addChild(this, shortName);
@@ -265,9 +265,9 @@ angular.module('demo')
         if (frame < this.frame) {
           $log.warn("EntityService:", "skipping events for frame:", frame, ", this:", this.frame);
         } else {
-          var prop = data['prop'];
-          var now = data['next'];
-          var was = data['prev'];
+          var prop = data.prop;
+          var now = data.next;
+          var was = data.prev;
           this.attr[prop] = now;
           this.changeState(now, was);
         }
@@ -277,8 +277,8 @@ angular.module('demo')
         if (!angular.isNumber(frame)) {
           throw new Error("frame is not a number");
         }
-        var p = data['prop'];
-        var now = data['value'];
+        var p = data.prop;
+        var now = data.value;
 
         // mimic a json-object so we can merge in the data changes
         var obj = {
@@ -322,7 +322,7 @@ angular.module('demo')
           } else {
             this.frame = frame;
             // merge data:
-            var states = obj.meta['states'];
+            var states = obj.meta.states;
             if (states) {
               this.states = states;
             }

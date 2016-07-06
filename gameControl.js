@@ -1,10 +1,10 @@
-'use strict';
-
 angular.module('demo')
 
 // -created
 .directiveAs("gameControl", ["processControl", "^^hsmMachine"],
   function(ElementSlotService, EntityService, EventService, GameService, PlayerService, PostalService, PositionService, $log) {
+    'use strict';
+
     this.init = function(name, processControl, hsmMachine) {
       var currentGame, lastFrame;
       var starting = false;
@@ -94,4 +94,4 @@ angular.module('demo')
       };
       return this;
     }; //init
-  })
+  });

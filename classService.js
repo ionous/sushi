@@ -1,15 +1,14 @@
-'use strict';
-
 /**
  * @fileoverview Client-side game objects.
  */
 angular.module('demo')
   .factory('ClassService',
     function(GameService, $log, $q) {
+      'use strict';
 
       var ClassInfo = function(data) {
         this.classInfo = data;
-        this.classList = data.meta['classes'];
+        this.classList = data.meta.classes;
       };
 
       ClassInfo.prototype.contains = function(className) {
@@ -17,7 +16,7 @@ angular.module('demo')
       };
 
       ClassInfo.prototype.singular = function() {
-        return this.classInfo.attr['singular'];
+        return this.classInfo.attr.singular;
       };
 
       var classService = {

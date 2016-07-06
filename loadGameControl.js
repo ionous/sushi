@@ -1,9 +1,8 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("loadGameControl", ["^saveGameControl", "^hsmMachine"],
   function(ElementSlotService, $location, $log) {
+    'use strict';
     var win, games;
     this.init = function(name, saveGameControl, hsmMachine) {
       var menu = {

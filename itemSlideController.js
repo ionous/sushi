@@ -1,9 +1,9 @@
-'use strict';
-
 angular.module('demo')
 
 .controller("ItemSlideController",
   function($log, $scope, ItemService) {
+    'use strict';
+
     var slide = $scope.slide;
     $scope.slideImage = ItemService.defaultImage;
     var syncImage = function() {

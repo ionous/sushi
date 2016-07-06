@@ -1,8 +1,9 @@
-'use strict';
-
 angular.module('demo')
 
 .factory("PositionService", function($log) {
+  'use strict';
+
+
 
   var Memory = function(skin, pos, angle) {
     this.skin = skin;

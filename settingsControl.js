@@ -1,9 +1,8 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("settingsControl", ["^^saveGameControl", "^^gameControl", "^^modalControl"],
   function() {
+    'use strict';
     var ctrl = this;
     this.init = function(name, saveGameControl, gameControl, modalControl) {
       var modal;
@@ -16,7 +15,7 @@ angular.module('demo')
         },
         open: function(what) {
           settings.close();
-          var mdl = modal = modalControl.open(what || name, {
+          var mdl = modalControl.open(what || name, {
             dismiss: function(reason) {
               mdl.dismiss(reason);
             },
@@ -26,9 +25,10 @@ angular.module('demo')
               mdl.dismiss("saved!");
             },
           });
+          modal = mdl;
           return mdl;
         },
       };
       return settings;
     };
-  })
+  });

@@ -1,9 +1,8 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("timeoutControl", ["^^hsmMachine"],
   function($log, $timeout) {
+    'use strict';
     var promise = null;
     this.init = function(name, hsmMachine) {
       return {
@@ -14,7 +13,7 @@ angular.module('demo')
             hsmMachine.emit(name, "timeout", {
               elapsed: ms
             });
-          }, ms)
+          }, ms);
         },
         cancel: function() {
           //$log.debug("timeoutControl", name, "cancel");
@@ -23,4 +22,4 @@ angular.module('demo')
         },
       };
     };
-  })
+  });

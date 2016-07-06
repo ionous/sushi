@@ -1,10 +1,9 @@
-'use strict';
-
 angular.module('demo')
 
 // passes the callers content into the modal window's scope.
 .directiveAs('modalContent',
   function($scope) {
+    'use strict';
     this.init = function() {
       return $scope.modal.contents;
     };
@@ -12,6 +11,7 @@ angular.module('demo')
 
 .directive('modalWindow',
   function() {
+    'use strict';
     return {
       restrict: 'E',
       // i like this specification of attributes, but wish it didnt bind to scope.
@@ -60,6 +60,9 @@ angular.module('demo')
 
 .directiveAs('modalControl', ["^hsmMachine"],
   function(ElementSlotService, $log, $q, $timeout) {
+    'use strict';
+
+
     this.init = function(name, hsmMachine) {
       // modal instance object
       var Modal = function(slot, input, result) {
@@ -110,7 +113,8 @@ angular.module('demo')
         //
         var input = $q.defer(); // params resolved after open; rejected if closed early.
         var result = $q.defer(); // resolved when closed.
-        var modal = modalInstance = new Modal(slot, input, result);
+        var modal = new Modal(slot, input, result);
+        modalInstance = modal;
 
         // specific event:
         var which = slotName;
@@ -196,4 +200,4 @@ angular.module('demo')
       };
       return scope;
     }; // init
-  })
+  });

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @fileoverview player helper.
  * take a pool (object) of action names
@@ -13,6 +11,8 @@
 angular.module('demo')
   .factory('IconService',
     function($log) {
+      'use strict';
+
       /** 
        * @param {string} act - the only required parameter.
        * @param {string} icon - used to generate font awesome class; if it starts with "fa-" the icon text is used as is, otherwise fa- is prepended, and fa-2x is postpended.
@@ -34,7 +34,7 @@ angular.module('demo')
          */
         this.act = act;
         // setup font awesome icons 
-        if (icon && !icon.indexOf("fa-") == 0) {
+        if (icon && icon.indexOf("fa-") !== 0) {
           icon = ["fa", "fa-" + icon, "fa-2x"].join(" "); //
         }
         /**
@@ -64,7 +64,7 @@ angular.module('demo')
           }
         }
         return allows;
-      }
+      };
       // set a filter function
       Icon.prototype.requires = function(state) {
         this._requireStates.push(state);

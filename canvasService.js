@@ -1,9 +1,9 @@
-'use strict';
-
 /**
  */
 angular.module('demo')
   .factory('CanvasService', function($log, $q) {
+    'use strict';
+
     var names = {};
 
     // FIX? loadImage can happen multiple times for the same imageSrc

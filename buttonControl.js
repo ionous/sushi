@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * helper for using one item with another item:
  */
@@ -7,6 +5,7 @@ angular.module('demo')
 
 .directiveAs("buttonControl", ["^hsmMachine"],
   function(ElementSlotService, $log) {
+    'use strict';
     this.init = function(name, hsmMachine) {
       var button;
       var scope = {

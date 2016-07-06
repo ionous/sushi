@@ -48,4 +48,4 @@ angular.module('demo')
       };
       return scope;
     }; //init
-  })
+  });

@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * helper for using one item with another item:
  */
@@ -7,6 +5,8 @@ angular.module('demo')
 
 .directiveAs("combinerControl", ["^hsmMachine"],
   function($log, $q) {
+    'use strict';
+
     this.init = function(name, hsmMachine) {
       var source = null;
       this.item = function() {

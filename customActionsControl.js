@@ -1,9 +1,9 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("customActionsControl", ["^^gameControl", "^^mapControl"],
   function(ActionService, $log) {
+    'use strict';
+
     // FIX, FIX, FIX: needs work for state machine control
     // when we search the coat, zoom in on it.
     // also: this doesnt actually check whether the player has the coat; 

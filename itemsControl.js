@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('demo')
 
 // manages the inventory window;
@@ -7,6 +5,8 @@ angular.module('demo')
 .directiveAs('itemsControl',
   function(ActionListService, EntityService, IconService,
     $log, $scope) {
+    'use strict';
+
     this.init = function(name) {
       var contents = $scope.modal.contents;
       var items = contents.items();

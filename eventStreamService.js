@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @fileoverview EventStreamService
  * Process a stream of server events delivered in jsonapi-ish format.
@@ -8,13 +6,15 @@
 angular.module('demo')
   .factory('EventStreamService',
     function(EventService, JsonService, $log, $q) {
+      'use strict';
+
       var Handler = function(evt, cb) {
         this.evt = evt;
         this.cb = cb;
       };
       Handler.prototype.run = function() {
         var e = this.evt;
-        var startup= this.cb;
+        var startup = this.cb;
         //$log.info("EventStreamService: run", e.evt, e.tgt.id);
         return startup.call(startup);
       };
@@ -86,15 +86,15 @@ angular.module('demo')
         }
         return events.map(function(evt) {
           var kids;
-          var children = evt['events'];
+          var children = evt.events;
           if (children && children.length) {
             kids = packEvents(currentFrame, children);
           }
           return {
             evt: new Event(
-              evt['evt'],
-              JsonService.parseObject(evt['tgt']),
-              evt['data'],
+              evt.evt,
+              JsonService.parseObject(evt.tgt),
+              evt.data,
               currentFrame
             ),
             kids: kids,
@@ -127,16 +127,17 @@ angular.module('demo')
        * runAll: 
        */
       var runAll = function(resolve, _reject) {
+        // reactivate the runAll function when done.
+        var rerun = function() {
+          runAll(resolve);
+        };
         while (1) {
           // run any event start up callbacks
           while (handlers.length) {
             var startup = handlers.shift();
             var wait = startup.run();
             if (wait) {
-              $q.when(wait).then(function() {
-                // reactivate the runAll function when done.
-                runAll(resolve);
-              });
+              $q.when(wait).then(rerun);
               return;
             }
           }
@@ -152,13 +153,9 @@ angular.module('demo')
             } else {
               // we have a child node?
               // ( this is depth first processing. )
-              var next = top.kids.shift();
-              active.push(next);
-              var starts = next.evt.getStartHandlers();
-              // if (!starts.length) {
-              //   $log.warn("unhandled event", next.evt.evt, next.evt.tgt);
-              // }
-              handlers.push.apply(handlers, starts);
+              var kid = top.kids.shift();
+              active.push(kid);
+              handlers.push.apply(handlers, kid.evt.getStartHandlers());
             }
           } else {
             // get next event node to process
@@ -169,11 +166,7 @@ angular.module('demo')
             }
             active.push(next);
             // build the list of handlers for the next event
-            var starts = next.evt.getStartHandlers();
-            // if (!starts.length) {
-            //   $log.warn("unhandled event", next.evt.evt, next.evt.tgt);
-            // }
-            handlers.push.apply(handlers, starts);
+            handlers.push.apply(handlers, next.evt.getStartHandlers());
           }
         } // while 1, breks when pending is empty.
       }; // runAll

@@ -1,9 +1,9 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("unloadControl",
   function($log, $window, RequireSave) {
+    'use strict';
+
     this.init = function(name) {
       var warning;
       var beforeunload = function(event) {

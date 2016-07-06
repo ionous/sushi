@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Wraps angular's $location service, translating it into rooms and views.
  * by changing the location, the demo.js router re/renders play.html
@@ -7,6 +5,7 @@
 angular.module('demo')
   .factory('LocationService',
     function($location, $log) {
+      'use strict';
       var Location = function(room, view, item) {
         if (room && (view == room)) {
           var msg = "LocationService: invalid location";

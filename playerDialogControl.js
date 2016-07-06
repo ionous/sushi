@@ -1,9 +1,8 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs('playerDialogControl', ["^modalControl", "^hsmMachine"],
   function(EntityService, $log) {
+    'use strict';
     var comments, display, quips, modal, title;
     var clear = function(where) {
       quips = [];
@@ -41,7 +40,7 @@ angular.module('demo')
           comments.push(text);
         },
         empty: function() {
-          return comments.length == 0;
+          return comments.length === 0;
         },
         close: function(reason) {
           if (modal) {

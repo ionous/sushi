@@ -1,22 +1,21 @@
-'use strict';
-
 /**
  * Fetch room/map data from the server.
  */
 angular.module('demo')
   .factory('MapService',
     function($http, $log, $rootScope) {
+      'use strict';
       var cleanId = function(name) {
         return name.replace(/\//g, "_").replace(/(@|\$|#|!)/g, "");
-      }
+      };
       var dataPt = function(d) {
-        return pt(d['x'], d['y']);
-      }
+        return pt(d.x, d.y);
+      };
       var dataRect = function(b) {
         return {
-          max: dataPt(b['max']),
-          min: dataPt(b['min'])
-        }
+          max: dataPt(b.max),
+          min: dataPt(b.min)
+        };
       };
       var zero = pt(0, 0);
       var LayerData = function(map, data, path) {
@@ -25,9 +24,9 @@ angular.module('demo')
         this.path = path || map.name;
       };
       LayerData.prototype.has = function(attr) {
-        var attrs = this.data["properties"];
+        var attrs = this.data.properties;
         return attrs && attrs[attr];
-      }
+      };
       LayerData.prototype.getMap = function() {
         return this.src;
       };
@@ -38,11 +37,11 @@ angular.module('demo')
         return this.path;
       };
       LayerData.prototype.getName = function() {
-        return this.data['name'];
+        return this.data.name;
       };
       // return original bounds.
       LayerData.prototype.getBounds = function() {
-        var b = this.data['bounds'];
+        var b = this.data.bounds;
         return b && dataRect(b);
       };
       LayerData.prototype.getPos = function() {
@@ -56,10 +55,10 @@ angular.module('demo')
       LayerData.prototype.forEach = function(cb) {
         var layer = this;
         var base = layer.path;
-        var layers = layer.data['layers'];
+        var layers = layer.data.layers;
         if (layers) {
           layers.forEach(function(raw) {
-            var name = raw['name'];
+            var name = raw.name;
             var path = [base, name].join("/");
             var layerData = new LayerData(layer.src, raw, path);
             return cb(layerData);
@@ -75,15 +74,15 @@ angular.module('demo')
         return ret;
       };
       LayerData.prototype.getGrid = function() {
-        return this.data['grid'];
+        return this.data.grid;
       };
       LayerData.prototype.getImageSource = function() {
-        var img = this.data['image'];
-        return img && img['source'];
+        var img = this.data.image;
+        return img && img.source;
       };
       LayerData.prototype.getShapes = function() {
-        var shapes = this.data['shapes'];
-        return shapes && shapes['rect'].map(function(b) {
+        var shapes = this.data.shapes;
+        return shapes && shapes.rect.map(function(b) {
           return dataRect(b);
         });
       };
@@ -175,10 +174,9 @@ angular.module('demo')
           return $http.get(url).then(function(resp) {
             $log.debug("MapService: received", mapName);
             var names = {};
-            var map = resp.data['map'];
             var map = new MapData(mapName,
-              resp.data['map'],
-              resp.data['bkcolor']);
+              resp.data.map,
+              resp.data.bkcolor);
             $rootScope.$broadcast("map ready", map);
             return map;
           }, function(reason) {

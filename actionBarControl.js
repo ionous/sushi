@@ -1,10 +1,10 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("actionBarControl", ["^^hsmMachine", "^^modalControl", "^^mouseControl"],
   function(ActionListService, ElementSlotService, IconService,
     $element, $log, $q) {
+    'use strict';
+
     this.init = function(name, hsmMachine, modalControl, mouseControl) {
       var actionBarModal, displaySlot, currentTarget;
       this.bindTo = function(slotName) {
@@ -55,7 +55,7 @@ angular.module('demo')
               l += 1;
             }
             return l;
-          }
+          };
           return {
             actions: actions,
             zoom: zoom,

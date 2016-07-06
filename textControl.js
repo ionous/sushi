@@ -1,9 +1,8 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("textControl",
   function(ObjectService, $log, $q, $timeout) {
+    'use strict';
     this.init = function(name) {
       var blocks = [];
       var display = {
@@ -44,4 +43,4 @@ angular.module('demo')
       };
       return this;
     }; // init
-  })
+  });

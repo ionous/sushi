@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @fileoverview EventService
  * supports direct callbacks w/o dom-like bubble/capture.
@@ -10,7 +8,7 @@
  */
 angular.module('demo')
   .factory('EventService', function($log) {
-
+    'use strict';
     /**
      * @callback eventCallback
      * @param {*} data

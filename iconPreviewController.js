@@ -1,11 +1,10 @@
-'use strict';
-
 /** 
  */
 angular.module('demo')
   .controller('IconPreviewController',
     // ex. http://localhost:8080/demo/#/icons
     function(GameService, IconService, $log, $routeParams, $scope) {
+      'use strict';
       // icon is of type IconService.Icon
       $scope.icons = IconService.allIcons().filter(function(icon) {
         return icon.iconClass;
@@ -13,13 +12,13 @@ angular.module('demo')
         return {
           tooltip: icon.id,
           onAction: function() {
-            $scope.details= "";
+            $scope.details = "";
             GameService.getConstantData(icon).then(
               function(doc) {
-                $scope.details = angular.toJson(doc,true);
+                $scope.details = angular.toJson(doc, true);
               },
               function() {
-                $scope.details= "rejected";
+                $scope.details = "rejected";
               }
             );
           },

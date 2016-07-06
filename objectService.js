@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * @fileoverview Fetch objects from the server.
  * ( ObjectService obtains objects explicitly, usually objects are retrieved implicitly. )
@@ -7,6 +5,7 @@
 angular.module('demo')
   .factory('ObjectService',
     function(EntityService, GameService, $log, $q) {
+      'use strict';
 
       var objectService = {
         /**
@@ -28,7 +27,7 @@ angular.module('demo')
           var obj = EntityService.getRef(ref);
           return obj.created() ? $q.when(obj) :
             GameService.getFrameData(ref).then(function(doc) {
-              obj.createOrUpdate(doc.meta['frame'], doc.data);
+              obj.createOrUpdate(doc.meta.frame, doc.data);
               return obj;
             });
         },
@@ -41,7 +40,7 @@ angular.module('demo')
           var rel = [ref.id, relation].join('/');
           //$log.debug("ObjectService: get objects", "id", ref.id, "rel", relation)
           return GameService.getFrameData(ref.type, rel).then(function(doc) {
-            var frame = doc.meta['frame'];
+            var frame = doc.meta.frame;
             // create any associated objects
             doc.includes.map(function(obj) {
               return EntityService.getRef(obj).create(frame, obj);

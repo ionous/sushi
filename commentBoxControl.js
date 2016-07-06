@@ -1,9 +1,9 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs('commentBoxControl', ["^hsmMachine"],
   function($element, $log, $scope, $timeout) {
+    'use strict';
+
     this.init = function(name, hsmMachine) {
       var modal = $scope.modal;
       var contents = modal.contents;
@@ -20,7 +20,7 @@ angular.module('demo')
             if (contents.select(i)) {
               scope.visible = false;
             }
-          };
+          }
         }
       };
       // start collapsed, wait to open:
@@ -28,7 +28,6 @@ angular.module('demo')
         $log.info("allow choices", true);
         scope.visible = true;
       });
-
 
       return scope;
     };

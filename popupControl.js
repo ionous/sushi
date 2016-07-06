@@ -1,15 +1,17 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs('popupControl', ["^modalControl"],
   function($log, $q) {
+    'use strict';
+
+
     this.init = function(name, modalControl) {
       var modal;
       return {
         open: function(where, data) {
           var defer = $q.defer();
-          var mdl = modal = modalControl.open(where, data);
+          var mdl = modalControl.open(where, data);
+          modal = mdl;
           mdl.closed.finally(defer.resolve);
           return defer.promise;
         },
@@ -26,6 +28,9 @@ angular.module('demo')
 
 .directiveAs('popupBoxControl',
   function($log, $scope) {
+    'use strict';
+
+
     this.init = function(name) {
       var modal = $scope.modal;
       var lines = modal.contents;

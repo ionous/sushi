@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * helper for using one item with another item:
  */
@@ -7,13 +5,14 @@ angular.module('demo')
 
 .directiveAs("playerItemControl", ["^hsmMachine", "^playerControl"],
   function(ActionListService, EntityService, $log, $q) {
+    'use strict';
     this.init = function(name, hsmMachine, playerControl) {
       var Record = function(item, context) {
         this.id = item.id;
         this.type = item.type;
         this.printedName = function() {
           return item.printedName();
-        }
+        };
         this.context = context;
       };
       var propContext = function(property) {
@@ -96,16 +95,17 @@ angular.module('demo')
         getCombinations: function(item) {
           var waits = [];
           var itemActions = [];
+          var addToActions = function(ia) {
+            if (ia.actions.length) {
+              itemActions.push(ia);
+            }
+          };
           for (var id in items) {
             if (id != item.id) {
               var other = items[id];
-              var wait = ActionListService.getMultiActions(other, item).then(
-                function(ia) {
-                  if (ia.actions.length) {
-                    itemActions.push(ia);
-                  }
-                  return ia;
-                });
+              var wait = ActionListService
+                .getMultiActions(other, item)
+                .then(addToActions);
               waits.push(wait);
             }
           }

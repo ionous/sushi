@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Character Animation Service
  */
@@ -7,6 +5,7 @@ angular.module('demo')
 
 .factory('CharaService',
   function($log, $q) {
+    'use strict';
     var dir = {
       up: 0,
       left: 1,

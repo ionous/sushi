@@ -1,13 +1,11 @@
-'use strict';
-
-
 angular.module('demo')
 
 .directiveAs('talkControl', ["^modalControl"], function(
   ElementSlotService, ObjectDisplayService,
   $log, $q, $timeout) {
-  this.init = function(name, modalControl) {
+  'use strict';
 
+  this.init = function(name, modalControl) {
     // hmmm.... the images have different spacings in them... :(
     // should probably be part of a character/state description.
     var adjust = function(id) {
@@ -21,7 +19,7 @@ angular.module('demo')
         case "sam":
           y = 0;
           break;
-      };
+      }
       return pt(x, y);
     };
 
@@ -94,7 +92,8 @@ angular.module('demo')
       if (!currentLines || !currentLines.length) {
         throw new Error("nothing to say");
       }
-      var mdl = currentModal = modalControl.open("talk");
+      var mdl = modalControl.open("talk");
+      currentModal = mdl;
       var text = currentLines.shift();
       currentTalker.displayText(mdl, text);
     };
@@ -136,7 +135,8 @@ angular.module('demo')
         if (!data || !data.length) {
           return $q.when();
         }
-        var defer = currentDefer = $q.defer();
+        var defer = $q.defer();
+        currentDefer = defer;
         currentTalker = new Talker(actorId);
         currentLines = data.slice();
         // needed to get the first line on map transitions

@@ -1,9 +1,8 @@
-'use strict';
-
 angular.module('demo')
 
 // backcompat -- this part is ugly
 .factory('ActionService', function($q) {
+  'use strict';
   var defer = $q.defer();
   return {
     bind: function(actions) {
@@ -27,13 +26,14 @@ angular.module('demo')
 // and when is it better to init implicitly, ex. through promises
 .directiveAs("actionService", ["^hsmMachine"],
   function(ActionService, $log, $q) {
+    'use strict';
     this.init = function(name, hsmMachine) {
       var currentGame, pendingActions;
 
       var ActionInfo = function(act, round) {
-        var name = act.attr['act'];
-        var ctx = act.attr['ctx'];
-        var tgt = act.attr['tgt'];
+        var name = act.attr.act;
+        var ctx = act.attr.ctx;
+        var tgt = act.attr.tgt;
         var nounCount = ctx ? 2 : tgt ? 1 : 0;
         this.id = act.id;
         this.nounCount = nounCount;

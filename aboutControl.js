@@ -1,10 +1,8 @@
-'use strict';
-
 angular.module('demo')
-
 
 .directiveAs("aboutControl", ["^^hsmMachine"],
   function(ElementSlotService, $location, $log) {
+    'use strict';
     var win;
     this.init = function(name, hsmMachine) {
       var menu = {

@@ -1,9 +1,9 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("hoverControl", ["^^mouseControl", "^^hsmMachine"],
   function() {
+    'use strict';
+
     this.init = function(name, mouseControl, hsmMachine) {
       var highlight;
       var emit = function(evt, pos) {

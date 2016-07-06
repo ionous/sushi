@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * HitService produces hit rects with z-depth.
  * Each group can carry user data. 
@@ -8,6 +6,7 @@
 angular.module('demo')
   .factory('HitService',
     function($log) {
+      'use strict';
       // r is rectangle like
       var ptInRect = function(p, r) {
         return (p.x >= r.min.x) && (p.y >= r.min.y) && (p.x < r.max.x) && (p.y < r.max.y);

@@ -1,9 +1,8 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("processControl", ["^^hsmMachine"],
   function($timeout, EventStreamService) {
+    'use strict';
     this.init = function(name, hsmMachine) {
       var processing;
       var prime = function() {

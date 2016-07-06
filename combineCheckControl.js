@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * helper for using one item with another item:
  */
@@ -8,6 +6,7 @@ angular.module('demo')
 .directiveAs('combineCheckControl', ["^hsmMachine"],
   function(ActionListService, EntityService, ItemService,
     $log, $q) {
+    'use strict';
 
     this.init = function(name, hsmMachine) {
       var pending, combining, itemActions;
@@ -41,7 +40,7 @@ angular.module('demo')
           }
           scope.cancel();
           pending = $q.defer();
-          hsmMachine.emit(name, "checking", {})
+          hsmMachine.emit(name, "checking", {});
           items.getCombinations(item).then(pending.resolve, pending.reject);
           //
           pending.promise.then(function(ia) {
@@ -50,14 +49,14 @@ angular.module('demo')
             hsmMachine.emit(name, "checked", {
               item: item,
               itemActions: ia
-            })
+            });
           }, function(r) {
             combining = null;
             itemActions = null;
             hsmMachine.emit(name, "failed", {
               item: item,
               reason: r
-            })
+            });
           });
           return pending.promise;
         }

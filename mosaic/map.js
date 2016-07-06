@@ -2,14 +2,14 @@
 
 var Calc = function(numCells) {
   this.numCells = numCells;
-}
+};
 
 Calc.prototype.indexToCell = function(index) {
   var cellsWide = this.numCells.x;
   var cy = Math.floor(index / cellsWide);
   var cx = index % cellsWide;
   return pt(cx, cy);
-}
+};
 
 
 /** @typedef {string} */

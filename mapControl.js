@@ -1,11 +1,10 @@
-'use strict';
-
 angular.module('demo')
 
 // -loaded, -loading
 .directiveAs("mapControl", ["^^hsmMachine"],
   function(ElementSlotService, LayerService, LocationService, MapService, ObjectService, ObjectDisplayService, UpdateService,
     $log, $q, $rootScope) {
+    'use strict';
 
     var collectCollision = function(map) {
       var shapes = []; //
@@ -15,14 +14,14 @@ angular.module('demo')
           var newShapes = mapLayer.getShapes();
           if (!newShapes) {
             $log.warn("mapControl", mapLayer.getName(), "has no collision data.");
-          } else { 
-          shapes = shapes.concat(newShapes);
-        }
+          } else {
+            shapes = shapes.concat(newShapes);
+          }
         }
         mapLayer.forEach(function(subLayer) {
           subShapes(subLayer);
         });
-      }
+      };
       subShapes(map.topLayer);
       return shapes;
     };
@@ -103,7 +102,8 @@ angular.module('demo')
 
         // use a defer so we can cancel if need be
         // note, the cancel doesnt really work -- wed need to check for cancel at each stage... somehow
-        var defer = loading = $q.defer();
+        var defer = $q.defer();
+        loading = defer;
 
         // location service can condition next
         next = LocationService(next);
@@ -122,7 +122,8 @@ angular.module('demo')
 
         // loaded! (and not cancelled int he mean time)
         ret = defer.promise.then(function(loaded) {
-          var map = currentMap = loaded.map;
+          var map = loaded.map;
+          currentMap = map;
           loading = null;
           // size the view
           slot.scope.style = {
@@ -154,7 +155,7 @@ angular.module('demo')
             var msg = "resource not found";
             $log.error(msg, key);
             throw new Error(msg);
-          };
+          }
           return ret;
         },
         bindTo: function(slotName) {
@@ -208,4 +209,4 @@ angular.module('demo')
       this.changeRoom = scope.changeRoom;
       return scope;
     };
-  })
+  });

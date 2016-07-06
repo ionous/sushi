@@ -1,11 +1,11 @@
-'use strict';
-
 /** 
  * 
  */
 angular.module('demo')
 
 .directive('gaMapColor', function($log) {
+  'use strict';
+
   return {
     link: function(scope, el) {
       var rub = scope.$on("map ready", function(evt, map) {
@@ -22,6 +22,8 @@ angular.module('demo')
 
 .directive('gaAutoFocus',
   function($log, $timeout) {
+    'use strict';
+
     return {
       link: function(scope, el, attrs) {
         var focus = function() {
@@ -29,7 +31,7 @@ angular.module('demo')
             el[0].focus();
           });
         };
-        scope.$watch(attrs["gaAutoFocus"], focus);
+        scope.$watch(attrs.gaAutoFocus, focus);
       }
     };
   })
@@ -37,6 +39,8 @@ angular.module('demo')
 // provide an <a> with a consistent class that uses locationControl to follow links
 .directive('gaLink',
   function($log) {
+    'use strict';
+
     return {
       transclude: true,
       //  exposing properties into an isolated scope for undotted access seems like a misfeature. 
@@ -72,12 +76,13 @@ angular.module('demo')
 
 .directive('gaScrolldown',
   function($log, $timeout) {
+    'use strict';
     return {
       scope: {
         watch: "=gaScrolldown" // two-way binding parameter
       },
-      link: function(scope, el) {
-        var el = el[0];
+      link: function(scope, element) {
+        var el = element[0];
         scope.$watchCollection('watch', function(newValue) {
           if (newValue) {
             $timeout(function() {

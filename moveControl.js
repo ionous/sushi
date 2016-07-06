@@ -1,11 +1,8 @@
-'use strict';
-
-
-
 angular.module('demo')
 
 .directiveAs("moveControl", ["^^hsmMachine"],
   function($log) {
+    'use strict';
 
     // track movement towards a target object or position.
     var Arrival = function(startingPos) {
@@ -109,7 +106,7 @@ angular.module('demo')
           }
           mover = new Mover(avatar);
           target = subject;
-          var initialPos = mover.getPos(!!target)
+          var initialPos = mover.getPos(!!target);
           arrival = new Arrival(initialPos);
           paused = moveError = false;
           var dest = target ? getTargetPos(initialPos, target) : pos;

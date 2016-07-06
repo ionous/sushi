@@ -1,9 +1,9 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("consoleControl", ["^^textControl", "^^gameControl", "^^modalControl"],
   function(ObjectService, $log, $q, $timeout) {
+    'use strict';
+
     this.init = function(name, textControl, gameControl, modalControl) {
       var modal;
       return {
@@ -35,10 +35,11 @@ angular.module('demo')
               }
             }
           };
-          var mdl = modal = modalControl.open(what, content);
+          var mdl = modalControl.open(what, content);
           $timeout(function() {
             content.visible = true;
           });
+          modal = mdl;
           return mdl;
         },
         allowInput: function(yesNo) {
@@ -54,4 +55,4 @@ angular.module('demo')
         },
       };
     };
-  })
+  });

@@ -1,10 +1,10 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("mouseControl", ["^^hsmMachine"],
   function(CursorService, ElementSlotService, EntityService,
     $log, $scope) {
+    'use strict';
+
     // eventually what i want is to track the mouse always so i can tell in out of bounds at all time.
     var reflectList = "mouseenter mouseleave mousemove mousedown mouseup";
     var ctrl = this;
@@ -27,7 +27,7 @@ angular.module('demo')
             default:
               type = evt.type.slice("mouse".length);
               break;
-          };
+          }
           //$log.warn(evt.type, type);
           $scope.$apply(function() {
             hsmMachine.emit(name, type, evt);
@@ -120,7 +120,7 @@ angular.module('demo')
                 default:
                   $log.error("unknown view", target.view);
                   break;
-              };
+              }
             } else {
               var ref = EntityService.getById(obj.id);
               tip = ref.printedName();
@@ -161,4 +161,4 @@ angular.module('demo')
       };
       return mouse;
     };
-  })
+  });

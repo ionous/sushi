@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * used for zoomed items
  */
@@ -7,6 +5,7 @@ angular.module('demo')
   .controller('MapZoomController',
     function(EntityService, LocationService, PlayerService,
       $log, $scope) {
+      'use strict';
       var item = $scope.item;
       if (item) {
         $log.debug("MapZoomController: viewing", item);

@@ -1,9 +1,8 @@
-'use strict';
-
-
 angular.module('demo')
   .factory('ItemService',
     function($http, $log) {
+      'use strict';
+
       var promisedList = $http.get("/bin/item.list");
       // promisedList.then(function(resp) {
       //   $log.info("got image list", resp.data);
@@ -17,9 +16,9 @@ angular.module('demo')
             if (itemList) {
               var item = itemList[name];
               if (item) {
-                var img = item['image'];
+                var img = item.image;
                 if (img) {
-                  var src = img["source"];
+                  var src = img.source;
                   if (src) {
                     ret = "/bin/" + src;
                   }

@@ -26,11 +26,11 @@ function pt_add(a, b) {
 
 function pt_eq(a, b, tolerance) {
   var t = tolerance || 0.0001;
-  return (Math.abs(a.x - b.x) < t) && (Math.abs(a.y - b.y) < t)
+  return (Math.abs(a.x - b.x) < t) && (Math.abs(a.y - b.y) < t);
 }
 
 function pt_exact(a, b) {
-  return (a.x == b.x) && (a.y == b.y)
+  return (a.x == b.x) && (a.y == b.y);
 }
 
 function pt_div(a, b) {

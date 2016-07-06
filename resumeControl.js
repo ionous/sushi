@@ -1,9 +1,9 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("resumeControl", ["^saveGameControl", "^hsmMachine"],
   function($log, $timeout) {
+    'use strict';
+    //
     var win;
     this.init = function(name, saveGameControl, hsmMachine) {
       var resume = {

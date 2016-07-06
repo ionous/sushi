@@ -1,9 +1,9 @@
-'use strict';
-
 // interesting that "directive injection" could have/be used for services too;
 // "normalizing" a bit the difference between the two.
 angular.module('demo')
   .directiveAs = function(directiveName, requireOrFn, fnOpt) {
+    'use strict';
+
     var require, fn;
     if (!fnOpt) {
       fn = requireOrFn;
@@ -34,6 +34,6 @@ angular.module('demo')
             scope[directiveAttr] = scopeAs;
           }
         },
-      }
+      };
     });
   };

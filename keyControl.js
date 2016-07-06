@@ -1,9 +1,9 @@
-'use strict';
-
 angular.module('demo')
 
 .directiveAs("keyControl", ["^^hsmMachine"],
   function($log, $scope, $rootElement) {
+    'use strict';
+
     var keyValues = {
       'up': [87, 38, 104],
       'left': [65, 37, 100],
@@ -16,13 +16,14 @@ angular.module('demo')
     var makeKeybits = function(src, dst) {
       for (var k in src) {
         var list = src[k];
-        list.forEach(function(n, i) {
+        for (var i = 0; i < list.length; i++) {
+          var n = list[i];
           dst[n] = {
+            key: k,
             bit: i,
-            key: k
           };
-        });
-      };
+        }
+      }
       return dst;
     };
 
@@ -61,7 +62,6 @@ angular.module('demo')
     ];
     this.init = function(name, hsmMachine) {
       var el = $rootElement;
-      var ctrl = this;
       var handleKey = function(e) {
         var which = e.which;
         var keybit = keybits[which];
@@ -70,7 +70,7 @@ angular.module('demo')
           var keyname = keybit.key;
           var mask = 1 << keybit.bit;
           var prev = currentKeys[keyname] || 0;
-          var wasPressed = (prev & mask) != 0;
+          var wasPressed = (prev & mask) !== 0;
           var nowPressed = e.type == "keydown";
           if (nowPressed != wasPressed) {
             var val = (prev ^ mask);
@@ -118,4 +118,4 @@ angular.module('demo')
         },
       };
     };
-  })
+  });
