@@ -29,7 +29,8 @@ angular.module('demo')
           type: type,
           id: id,
         });
-        return GameServerService.get(this.id, type, id);
+        var what = !id ? type : (type + "/" + id);
+        return GameServerService.get(this.id, what);
       };
       Game.prototype.post = function(what) {
         hsmMachine.emit(name, "posting", {
@@ -40,10 +41,12 @@ angular.module('demo')
               var frame = doc.meta.frame;
               lastFrame = frame;
 
+              // update the game's own object data
               EntityService
                 .getRef(doc.data)
                 .createOrUpdate(frame, doc.data);
 
+              // update objects referenced by the game
               doc.includes.forEach(function(obj) {
                 EntityService
                   .getRef(obj)
@@ -124,11 +127,10 @@ angular.module('demo')
         if (currentGame) {
           throw new Error("game already in progress");
         }
-        return GameServerService.post("new", {})
-          .then(function(res) {
-            currentGame = new Game(res.id);
-            hsmMachine.emit(name, "created", {});
-          });
+        return GameServerService.new().then(function(res) {
+          currentGame = new Game(res.id);
+          hsmMachine.emit(name, "created", {});
+        });
       };
       this.loadGame = function(saveGameData) {
         if (currentGame) {
