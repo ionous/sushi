@@ -61,8 +61,6 @@ angular.module('demo')
 .directiveAs('modalControl', ["^hsmMachine"],
   function(ElementSlotService, $log, $q, $timeout) {
     'use strict';
-
-
     this.init = function(name, hsmMachine) {
       // modal instance object
       var Modal = function(slot, input, result) {

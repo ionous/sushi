@@ -48,7 +48,7 @@ angular.module('demo')
         var gridSrc = "/bin/maps/" + mapName + ".png";
         promise = CanvasService.newGrid(this.el, gridSrc, grid, opt);
       } else {
-        var src = mapLayer.getImageSource();
+        var src = mapLayer.getMapImage();
         if (angular.isString(src) && src !== "") {
           var imageSrc = "/bin/" + src;
           promise = CanvasService.newImage(this.el, imageSrc, opt);

@@ -48,7 +48,7 @@ angular.module('demo')
         this.pobj = pobj;
         this.cobj = cobj;
       };
-      ActionEvent.prototype.post = function() {
+      ActionEvent.prototype.pack = function() {
         var act = this.act;
         var pobj = this.pobj;
         var cobj = this.cobj;
@@ -63,8 +63,8 @@ angular.module('demo')
       };
 
       var scope = {
-        fetch: function(game) {
-          if (!game) {
+        fetch: function(gameControl) {
+          if (!gameControl) {
             currentGame = null;
             if (pendingActions) {
               pendingActions.reject();
@@ -75,6 +75,7 @@ angular.module('demo')
               throw new Error("already bound");
             }
 
+            var game = gameControl.getGame();
             currentGame = game;
             ActionService.bind(scope);
 
@@ -95,7 +96,7 @@ angular.module('demo')
                   if (game !== currentGame) {
                     throw new Error("game changed");
                   }
-                  return game.request(actRef).then(function(doc) {
+                  return game.request(actRef.type, actRef.id).then(function(doc) {
                     var act = new ActionInfo(doc.data);
                     ret.push(act);
                     return repeat();

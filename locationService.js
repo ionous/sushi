@@ -42,12 +42,10 @@ angular.module('demo')
       var changeLocation = function(next) {
         if (next.changes(currLoc)) {
           // $log.info("LocationService: changing", currLoc.toString(), "to", next.toString());
-          // change it.
           prevLoc = currLoc;
           currLoc = next;
           var p = ["", "r", next.room].concat(next.view ? ["v", next.view] : []);
           var path = p.join("/");
-          // $log.debug("LocationService: path", path, next.item);
           $location.path(path).search('item', next.item);
         }
         return next;

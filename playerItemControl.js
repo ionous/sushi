@@ -3,10 +3,11 @@
  */
 angular.module('demo')
 
-.directiveAs("playerItemControl", ["^hsmMachine", "^playerControl"],
+.directiveAs("playerItemControl", 
+  ["^hsmMachine", "^playerControl","^gameControl"],
   function(ActionListService, EntityService, $log, $q) {
     'use strict';
-    this.init = function(name, hsmMachine, playerControl) {
+    this.init = function(name, hsmMachine, playerControl, gameControl) {
       var Record = function(item, context) {
         this.id = item.id;
         this.type = item.type;
@@ -34,7 +35,7 @@ angular.module('demo')
 
       var items, count, currentId;
 
-      var scope = {
+      var playerItems = {
         collect: function() {
           items = {};
           count = 0;
@@ -53,7 +54,7 @@ angular.module('demo')
           $log.info("playerItemControl: collected", count, "items");
         },
         has: function(item) {
-          return items[item.id];
+          return !!items[item.id];
         },
         empty: function() {
           return !count;
@@ -64,7 +65,7 @@ angular.module('demo')
           }
         },
         add: function(item, prop) {
-          var had = scope.has(item);
+          var had = playerItems.has(item);
           // record to update context
           items[item.id] = new Record(item, propContext(prop));
           // update changes:
@@ -78,7 +79,7 @@ angular.module('demo')
           }
         },
         remove: function(item) {
-          if (scope.has(item)) {
+          if (playerItems.has(item)) {
             delete items[item.id];
             count -= 1;
             hsmMachine.emit(name, "removed", {
@@ -87,7 +88,7 @@ angular.module('demo')
           }
         },
         isCurrent: function(item) {
-          return item && (item.id == currentId) && scope.has(item);
+          return item && (item.id == currentId) && playerItems.has(item);
         },
         setCurrent: function(item) {
           currentId = item && item.id;
@@ -95,6 +96,8 @@ angular.module('demo')
         getCombinations: function(item) {
           var waits = [];
           var itemActions = [];
+          var game= gameControl.getGame();
+          
           var addToActions = function(ia) {
             if (ia.actions.length) {
               itemActions.push(ia);
@@ -103,8 +106,7 @@ angular.module('demo')
           for (var id in items) {
             if (id != item.id) {
               var other = items[id];
-              var wait = ActionListService
-                .getMultiActions(other, item)
+              var wait = ActionListService.getMultiActions(game, other, item)
                 .then(addToActions);
               waits.push(wait);
             }
@@ -114,6 +116,6 @@ angular.module('demo')
           });
         },
       };
-      return scope;
+      return playerItems;
     };
   });

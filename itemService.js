@@ -9,7 +9,7 @@ angular.module('demo')
       // });
       var itemService = {
         defaultImage: "/bin/images/gift-small.png",
-        getImageSource: function(name) {
+        getItemImage: function(name) {
           return promisedList.then(function(resp) {
             var ret;
             var itemList = resp.data;
@@ -21,6 +21,7 @@ angular.module('demo')
                   var src = img.source;
                   if (src) {
                     ret = "/bin/" + src;
+                    //$log.info("ItemService:", name, "received", ret);
                   }
                 }
               }

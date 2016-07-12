@@ -1,8 +1,8 @@
 angular.module('demo')
 
 // -loaded, -loading
-.directiveAs("mapControl", ["^^hsmMachine"],
-  function(ElementSlotService, LayerService, LocationService, MapService, ObjectService, ObjectDisplayService, UpdateService,
+.directiveAs("mapControl", ["^gameControl", "^^hsmMachine"],
+  function(ElementSlotService, LayerService, LocationService, MapService, ObjectDisplayService, UpdateService,
     $log, $q, $rootScope) {
     'use strict';
 
@@ -26,13 +26,13 @@ angular.module('demo')
       return shapes;
     };
     // returns a promise:
-    var loadMap = function(mapEl, next) {
+    var loadMap = function(game, mapEl, next) {
       var mapName = next.mapName();
       return MapService.getMap(mapName).then(function(map) {
         $log.debug("MapControl: loading map content", mapName);
         var roomId = next.room;
         //
-        return ObjectService.getById(roomId).then(function(room) {
+        return game.getById(roomId).then(function(room) {
           var enclosure;
           if (!next.item) {
             enclosure = room;
@@ -50,7 +50,7 @@ angular.module('demo')
 
           // tree contains: el, bounds, nodes
           var allPads = [];
-          return LayerService.createLayers(mapEl, map, enclosure, allPads).then(function(tree) {
+          return LayerService.createLayers(game, mapEl, map, enclosure, allPads).then(function(tree) {
             var collide = collectCollision(map);
             return {
               //location: next, everyone is using LocationService instead
@@ -85,64 +85,65 @@ angular.module('demo')
       }
       ObjectDisplayService.clear();
     };
-    var changeMap = function(name, hsmMachine, next) {
-      var ret; // promise
-      if (loading) {
-        throw new Error("already loading");
-      }
-      var where = LocationService();
-      if (currentMap && !next.changes(where)) {
-        ret = $q.when(where);
-      } else {
-        destroyMap();
-        // FIX, FIX, FIX: needs work for state machine control
-        // when we are entering tunnels, toggle the view.
-        var show = next.item || (next.view && (next.room != "tunnels"));
-        $rootScope.hideViewButton = !show;
 
-        // use a defer so we can cancel if need be
-        // note, the cancel doesnt really work -- wed need to check for cancel at each stage... somehow
-        var defer = $q.defer();
-        loading = defer;
-
-        // location service can condition next
-        next = LocationService(next);
-        $log.info("mapControl", name, "loading", next.toString());
-        hsmMachine.emit(name, "loading", next);
-
-        // load!
-        var slot = ElementSlotService.get(mapSlotName);
-        loadMap(slot.element, next).then(function(loadedMap) {
-          $log.info("mapControl", name, "got map", next.toString());
-          defer.resolve({
-            map: loadedMap,
-            where: next
-          });
-        });
-
-        // loaded! (and not cancelled int he mean time)
-        ret = defer.promise.then(function(loaded) {
-          var map = loaded.map;
-          currentMap = map;
-          loading = null;
-          // size the view
-          slot.scope.style = {
-            'width': map.bounds.x + 'px',
-            'height': map.bounds.y + 'px',
-          };
-          slot.scope.loaded = true;
-          //
-          $log.warn("mapControl", name, "loaded!");
-          hsmMachine.emit(name, "loaded", loaded);
-          return loaded;
-        }, function(reason) {
-          $log.error("mapControl", name, "map failed to load", reason);
-        }); // return
-      }
-      return ret;
-    }; // changeMap
-    this.init = function(name, hsmMachine) {
+    this.init = function(name, gameControl, hsmMachine) {
       var ctrl = this;
+
+      var changeMap = function(next) {
+        var ret; // promise
+        if (loading) {
+          throw new Error("already loading");
+        }
+        var where = LocationService();
+        if (currentMap && !next.changes(where)) {
+          ret = $q.when(where);
+        } else {
+          destroyMap();
+          // FIX, FIX, FIX: needs work for state machine control
+          // when we are entering tunnels, toggle the view.
+          var show = next.item || (next.view && (next.room != "tunnels"));
+          $rootScope.hideViewButton = !show;
+
+          // use a defer so we can cancel if need be
+          // note, the cancel doesnt really work -- wed need to check for cancel at each stage... somehow
+          var defer = $q.defer();
+          loading = defer;
+
+          $log.info("mapControl", name, "loading", next.toString());
+          LocationService(next);
+          hsmMachine.emit(name, "loading", next);
+
+          // load!
+          var slot = ElementSlotService.get(mapSlotName);
+          loadMap(gameControl.getGame(), slot.element, next).then(function(loadedMap) {
+            $log.info("mapControl", name, "got map", next.toString());
+            defer.resolve({
+              map: loadedMap,
+              where: next
+            });
+          });
+
+          // loaded! (and not cancelled int he mean time)
+          ret = defer.promise.then(function(loaded) {
+            var map = loaded.map;
+            currentMap = map;
+            loading = null;
+            // size the view
+            slot.scope.style = {
+              'width': map.bounds.x + 'px',
+              'height': map.bounds.y + 'px',
+            };
+            slot.scope.loaded = true;
+            //
+            $log.warn("mapControl", name, "loaded!");
+            hsmMachine.emit(name, "loaded", loaded);
+            return loaded;
+          }, function(reason) {
+            $log.error("mapControl", name, "map failed to load", reason);
+          }); // return
+        }
+        return ret;
+      }; // changeMap
 
       var scope = {
         name: function() {
@@ -172,9 +173,7 @@ angular.module('demo')
           return ctrl.which();
         },
         // return a promise
-        changeMap: function(next) {
-          return changeMap(name, hsmMachine, next);
-        },
+        changeMap: changeMap,
         changeRoom: function(room) {
           var currLoc = LocationService();
           //$log.info("mapControl", name, "changeRoom", room);
@@ -191,15 +190,15 @@ angular.module('demo')
             $rootScope.tunnelBounce = tunnelBounce;
             next = next.nextView(tunnelBounce ? "tunnels-2" : "tunnels-1");
           }
-          return scope.changeMap(next);
+          return changeMap(next);
         },
         changeView: function(view) {
           //$log.info("mapControl", name, "changeView", view);
-          return changeMap(name, hsmMachine, LocationService().nextView(view));
+          return changeMap(LocationService().nextView(view));
         },
         changeItem: function(item) {
           //$log.info("mapControl", name, "changeItem", item);
-          return changeMap(name, hsmMachine, LocationService().nextItem(item));
+          return changeMap(LocationService().nextItem(item));
         },
       };
 

@@ -304,7 +304,7 @@ angular.module('demo')
       };
 
       /**
-       * Apply new data ( ex. from a get or post )
+       * Apply new data from server.
        * attributes are applied directly, metadata contain commands to update the object.
        * @param {frame:number, data} frameData data is a jsonapi object.
        * @returns {Object|undefined} promise.

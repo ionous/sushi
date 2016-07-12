@@ -64,7 +64,6 @@ angular.module('demo')
           var wasHidden = this.hidden();
           hidden += hide ? 1 : -1;
           var nowHidden = this.hidden();
-          // $log.debug("mouseControl", name, hide, hidden, wasHidden, ">", nowHidden);
           if (wasHidden != nowHidden) {
             // patch:
             // we can get a hide after the cursor has been destroyed
@@ -75,7 +74,7 @@ angular.module('demo')
               cursor.show(!nowHidden);
             }
             var emit = nowHidden ? "hidden" : "shown";
-            $log.debug("mouseControl", name, emit);
+            // $log.debug("mouseControl", name, emit);
             hsmMachine.emit(name, emit, {
               mouse: this.mouse
             });

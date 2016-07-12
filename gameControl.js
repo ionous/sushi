@@ -2,95 +2,163 @@ angular.module('demo')
 
 // -created
 .directiveAs("gameControl", ["processControl", "^^hsmMachine"],
-  function(ElementSlotService, EntityService, EventService, GameService, PlayerService, PostalService, PositionService, $log) {
+  function(EntityService, EventService, GameServerService, PositionService,
+    $log, $q) {
     'use strict';
-
     this.init = function(name, processControl, hsmMachine) {
-      var currentGame, lastFrame;
-      var starting = false;
-      this.start = function() {
-        $log.warn(name, "starting!");
-        if (starting) {
-          throw new Error("starting");
+      //
+      var ClassInfo = function(data) {
+        this.classInfo = data;
+        this.classList = data.meta.classes;
+      };
+      ClassInfo.prototype.contains = function(className) {
+        return this.classList.indexOf(className) >= 0;
+      };
+      ClassInfo.prototype.singular = function() {
+        return this.classInfo.attr.singular;
+      };
+
+      //
+      var Game = function(id) {
+        this.id = id;
+        this.started = false;
+        this.promisedClasses = {};
+      };
+      Game.prototype.request = function(type, id) {
+        hsmMachine.emit(name, "requesting", {
+          type: type,
+          id: id,
+        });
+        return GameServerService.get(this.id, type, id);
+      };
+      Game.prototype.post = function(what) {
+        hsmMachine.emit(name, "posting", {
+          what: what
+        });
+        return GameServerService.post(this.id, what)
+          .then(function(doc) {
+              var frame = doc.meta.frame;
+              lastFrame = frame;
+
+              EntityService
+                .getRef(doc.data)
+                .createOrUpdate(frame, doc.data);
+
+              doc.includes.forEach(function(obj) {
+                EntityService
+                  .getRef(obj)
+                  .createOrUpdate(frame, obj);
+              });
+
+              var events = doc.data.attr.events;
+              processControl.queue(frame, events || []);
+            },
+            function(reason) {
+              $log.error("gameControl post error:", reason);
+              hsmMachine.emit(name, "error", {
+                reason: reason
+              });
+              processControl.queue(lastFrame, []);
+            });
+      };
+      Game.prototype.getClass = function(classType) {
+        if (!classType) {
+          throw new Error("classType should not be empty");
         }
-        starting = true;
+        var promise = this.promisedClasses[classType];
+        if (!promise) {
+          var p = this.request('class', classType);
+          this.promisedClasses[classType] = promise = p.then(function(clsDoc) {
+            return new ClassInfo(clsDoc.data);
+          });
+        }
+        return promise;
+      };
+      // request the object, we must have heard about it before.
+      Game.prototype.getById = function(id) {
+        var ref = EntityService.getById(id);
+        return this.getObject(ref);
+      };
+      // request the object if we dont have it.
+      Game.prototype.getObject = function(ref) {
+        var obj = EntityService.getRef(ref);
+        return obj.created() ? $q.when(obj) :
+          this.request(ref.type, ref.id).then(function(doc) {
+            obj.createOrUpdate(doc.meta.frame, doc.data);
+            return obj;
+          });
+      };
+      // returns the promise of an array of objects for some relation.
+      // each object contains id and type
+      Game.prototype.getObjects = function(ref, relation) {
+        var rel = [ref.id, relation].join('/');
+        return this.request(ref.type, rel).then(function(doc) {
+          var frame = doc.meta.frame;
+          // create any associated objects
+          doc.includes.map(function(obj) {
+            return EntityService.getRef(obj).create(frame, obj);
+          });
+          // retrieve all the objects listed in the relation
+          var objs = doc.data.map(function(ref) {
+            return EntityService.getRef(ref);
+          });
+          // finished?
+          return objs;
+        });
+      };
+      var currentGame, lastFrame;
+
+      this.destroy = function() {
+        currentGame = null;
+        PositionService.reset();
+        EntityService.reset();
+        EventService.reset();
+      };
+      this.getGame = function() {
+        if (!currentGame) {
+          throw new Error("youve got no game");
+        }
+        return currentGame;
+      };
+      this.newGame = function() {
+        if (currentGame) {
+          throw new Error("game already in progress");
+        }
+        return GameServerService.post("new", {})
+          .then(function(res) {
+            currentGame = new Game(res.id);
+            hsmMachine.emit(name, "created", {});
+          });
+      };
+      this.loadGame = function(saveGameData) {
+        if (currentGame) {
+          throw new Error("game already in progress");
+        }
+        var saved = saveGameData.restore();
+        currentGame = new Game(saved.game.id);
+        hsmMachine.emit(name, "loaded", {
+          game: currentGame,
+          gameId: currentGame.id,
+          where: saved.loc
+        });
+      };
+      // NOTE: start happens after new game
+      this.startGame = function() {
+        var game = this.getGame();
+        if (game.started) {
+          throw new Error("game already started");
+        }
+        game.started = true;
         hsmMachine.emit(name, "starting", {});
-        this.post({
+        game.post({
           'in': 'start'
         }).then(function() {
           hsmMachine.emit(name, "started", {});
         });
       };
       this.post = function(what) {
-        hsmMachine.emit(name, "posting", {
-          what: what
-        });
-        return currentGame.post(what).then(function(res) {
-          hsmMachine.emit(name, "posted", {
-            frame: res.frame,
-            events: res.events,
-          });
-          // fine for now:....
-          lastFrame = res.frame;
-          processControl.queue(res.frame, res.events || []);
-        }, function(reason) {
-          $log.error("gameControl", name, "post error:", reason);
-          hsmMachine.emit(name, "error", {
-            reason: reason
-          });
-          processControl.queue(lastFrame, []);
-        });
-      };
-      this.getId = function() {
-        return currentGame && currentGame.id;
-      };
-      var reset = function(reason) {
-        starting = false;
-        PositionService.reset();
-        EntityService.reset();
-        EventService.reset();
-        PostalService.frame(-1);
-        PlayerService.create();
-      };
-      var start = function(endpoint, payload, result) {
-        return PostalService.post(endpoint, payload).then(function(res) {
-          if (res.events) {
-            lastFrame = res.frame;
-            processControl.queue(res.frame, res.events);
-          }
-          return res.game;
-        }).then(function(game) {
-          currentGame = GameService.hack(game);
-          hsmMachine.emit(name, result, {
-            game: game,
-            gameId: game.id,
-          });
-        });
-      };
-      this.loadGame = function(saveGameData) {
-        reset("loading");
-        var r = saveGameData.restore();
-        //
-        currentGame = GameService.hack(r.game);
-        hsmMachine.emit(name, "loaded", {
-          game: r.game,
-          gameId: r.game.id,
-          where: r.loc
-        });
-      };
-      this.newGame = function() {
-        reset("new game");
-        return start("new", {}, "created");
-      };
-      this.request = function(type, id) {
-        if (!currentGame) {
-          throw new Error("not in game");
-        }
-        if (angular.isObject(type)) {
-          id = type.id;
-          type = type.type;
-        }
-        return currentGame.request(type, id);
+        var game = this.getGame();
+        return game.post(what);
       };
       return this;
     }; //init

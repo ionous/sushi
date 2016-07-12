@@ -3,7 +3,7 @@
  */
 angular.module('demo')
   .factory('WatcherService',
-    function(ClassService, EntityService, EventService, $log, $q) {
+    function(EntityService, EventService, $log, $q) {
       'use strict';
 
       var Watcher = function(listener, promise) {
@@ -39,7 +39,7 @@ angular.module('demo')
         },
         // callback whenever the contents of the passed object changes.
         // cb should return a promise, fufilled once the content changes have been fully displayed.
-        showContents: function(obj, cb) {
+        showContents: function(game, obj, cb) {
           // note: cant call sync until we know "container"
           var container;
           var visible;
@@ -53,7 +53,7 @@ angular.module('demo')
           // get the class, then start syncing contents.
           var ret = new Watcher();
           var cancelledEarly = false;
-          var cpin = ClassService.getClass(obj.type);
+          var cpin = game.getClass(obj.type);
           ret.cancel = function() {
             cancelledEarly = true;
           };

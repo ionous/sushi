@@ -57,7 +57,7 @@ angular.module('demo')
         var hitShape;
         // testing for this.subject ignores the room itself as a shape.
         // ( and i think, collision shapes )
-        if (this.subject && !mapLayer.has("noclick")) {
+        if (this.subject && !mapLayer.getProperty("noclick")) {
           var slashPath = mapLayer.getPath(); // fix, probably want real heirachy path
           var grid = mapLayer.getGrid();
           if (grid) {

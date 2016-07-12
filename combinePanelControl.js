@@ -35,7 +35,7 @@ angular.module('demo')
             defer = $q.defer();
             var itemObject = EntityService.getById(item.id);
             var itemName = itemObject.printedName();
-            var images = ItemService.getImageSource(item.id);
+            var images = ItemService.getItemImage(item.id);
             images.then(defer.resolve, defer.reject);
             defer.promise.then(function(image) {
               $log.info("combinePanelControl: got image", image);

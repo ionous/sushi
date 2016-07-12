@@ -23,7 +23,7 @@ angular.module('demo')
         this.data = data;
         this.path = path || map.name;
       };
-      LayerData.prototype.has = function(attr) {
+      LayerData.prototype.getProperty = function(attr) {
         var attrs = this.data.properties;
         return attrs && attrs[attr];
       };
@@ -76,7 +76,7 @@ angular.module('demo')
       LayerData.prototype.getGrid = function() {
         return this.data.grid;
       };
-      LayerData.prototype.getImageSource = function() {
+      LayerData.prototype.getMapImage = function() {
         var img = this.data.image;
         return img && img.source;
       };

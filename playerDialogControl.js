@@ -71,7 +71,7 @@ angular.module('demo')
                 hsmMachine.emit(name, 'quip', {
                   'comment': comment,
                   'quip': quip,
-                  'post': {
+                  'payload': {
                     'in': quip
                   }
                 });

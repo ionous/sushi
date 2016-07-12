@@ -1,19 +1,18 @@
 angular.module('demo')
 
-.directiveAs("customActionsControl", ["^^gameControl", "^^mapControl"],
+.directiveAs("customActionsControl", ["^^mapControl"],
   function(ActionService, $log) {
     'use strict';
-
     // FIX, FIX, FIX: needs work for state machine control
     // when we search the coat, zoom in on it.
     // also: this doesnt actually check whether the player has the coat; 
     // the interaction here with the server here needs more thought.
-    this.init = function(name, gameControl, mapControl) {
+    this.init = function(name, mapControl) {
       var zoomables = ["lab-coat"];
       return {
         handles: function(actionEvent) {
-          var post = actionEvent.post();
-          return (post.act == "search-it") && (zoomables.indexOf(post.tgt) >= 0);
+          var p = actionEvent.pack();
+          return (p.act == "search-it") && (zoomables.indexOf(p.tgt) >= 0);
         },
         run: function(actionEvent) {
           var prop = actionEvent.pobj;

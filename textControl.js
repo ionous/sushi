@@ -1,9 +1,9 @@
 angular.module('demo')
 
-.directiveAs("textControl",
-  function(ObjectService, $log, $q, $timeout) {
+.directiveAs("textControl", ["^gameControl"],
+  function($log, $q, $timeout) {
     'use strict';
-    this.init = function(name) {
+    this.init = function(name, gameControl) {
       var blocks = [];
       var display = {
         id: "_display_",
@@ -30,14 +30,17 @@ angular.module('demo')
           defer.resolve();
         } else {
           // need the speaker? add the block as soon as we know their name.
-          ObjectService.getById(speaker).then(function(s) {
-            var speakerName = s.attr['kinds-printed-name'] || s.name;
-            blocks.push({
-              speaker: speakerName,
-              text: text,
+          gameControl
+            .getGame()
+            .getById(speaker)
+            .then(function(s) {
+              var speakerName = s.attr['kinds-printed-name'] || s.name;
+              blocks.push({
+                speaker: speakerName,
+                text: text,
+              });
+              defer.resolve();
             });
-            defer.resolve();
-          });
         }
         return defer.promise;
       };

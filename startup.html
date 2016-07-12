@@ -11,7 +11,7 @@
     <hsm-event on="player-located" run="map.changeMap($evt.where)" goto="LoadingFirstMap"></hsm-event>
   </hsm-state>
   <hsm-state name="LoadingFirstMap">
-    <hsm-event on="map-loaded" run="game.start()" goto="GameStarting"></hsm-event>
+    <hsm-event on="map-loaded" run="game.startGame()" goto="GameStarting"></hsm-event>
   </hsm-state>
   <hsm-state name="GameStarting">
     <hsm-event on="game-started" goto="GameStarted"></hsm-event>

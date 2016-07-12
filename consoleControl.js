@@ -1,7 +1,8 @@
 angular.module('demo')
 
-.directiveAs("consoleControl", ["^^textControl", "^^gameControl", "^^modalControl"],
-  function(ObjectService, $log, $q, $timeout) {
+.directiveAs("consoleControl", 
+  ["^^textControl", "^^gameControl", "^^modalControl"],
+  function($log, $q, $timeout) {
     'use strict';
 
     this.init = function(name, textControl, gameControl, modalControl) {
@@ -28,8 +29,7 @@ angular.module('demo')
                   input: true,
                   text: ["> " + userInput]
                 });
-
-                gameControl.post({
+                gameControl.getGame().post({
                   'in': userInput,
                 });
               }

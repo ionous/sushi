@@ -12,6 +12,7 @@ body {
   /*overflow: hidden;*/
 }
 
+
 /**/
 
 .nav,
@@ -60,6 +61,7 @@ div.overgrey {
 /* ----------------------------------------------
    mouse cursor
 */
+
 .ga-cursor {
   position: absolute;
   /*z-index: 1000;*/
@@ -68,7 +70,9 @@ div.overgrey {
   text-shadow: 1px 0px #2e6da4, -1px 0px #2e6da4, 0px 1px #2e6da4, 0px -1px #2e6da4, 1px 1px 2px black;
 }
 
+
 /* matches cursor service */
+
 .ga-cursor i {
   width: 36px;
   height: 42px;
@@ -99,6 +103,7 @@ div.overgrey {
   font-size: small;
   text-transform: capitalize;
 }
+
 
 /* ----------------------------------------------
    menu display
@@ -132,17 +137,15 @@ main {
 
 .ga-play {
   position: relative;
-  width: 768px;
-  /*24x32; hall, heart are larger.*/
-  height: 640px;
-  /*20x32; no maps are larger.*/
+  width: 768px;/*24x32; hall, heart are larger.*/
+  height: 640px; /*20x32; no maps are larger.*/
   border-radius: 20px;
   overflow: hidden;
   background-color: rgb(66, 81, 77);
   top: 50%;
   left: 50%;
   padding: 0px;
-  margin-left: -400px;
+  margin-left: -383px;
   /*https://bugs.chromium.org/p/chromium/issues/detail?id=157218*/
   z-index: 1;
 }
@@ -173,19 +176,21 @@ header {
 
 .ga-status {
   position: relative;
-  width: 800px;
+  width: 768px;
   min-height: 1.5em;
   left: 50%;
   padding: 0px;
-  margin-left: -400px;
+  margin-left: -383px;
 }
 
 .whereabouts {
   font-weight: bold;
+  font-size:large;
 }
 
 .story-title {
   font-weight: bold;
+  font-size:large;
   float: right;
 }
 
@@ -199,7 +204,8 @@ header {
   border: thin solid black;
   background-color: white;
   padding: 2px;
-  z-index: 1; /* for ga-play */
+  z-index: 1;
+  /* for ga-play */
 }
 
 
@@ -296,6 +302,10 @@ div.carousel {
   min-height: 64px;
 }
 
+.carousel-indicators {
+  display: none;
+}
+
 .ga-picker-caption {
   color: white;
   text-transform: capitalize;
@@ -387,6 +397,7 @@ div.ga-picker {
 
 .ga-console form > * {
   width: 100%;
+  color: black;
 }
 
 .ga-console .scroll-text {
@@ -513,7 +524,6 @@ div.ga-notify p {
   min-width: 140px;
   max-width: 220px;
   text-align: center;
-  line-height: 1.2rem;
   margin: 0;
   padding: 0.6rem 0.8rem 0.6rem 0.5rem;
   color: #fff;

@@ -1,13 +1,12 @@
-'use strict';
-
 /**
  * Fetch room/map data from the server.
  */
 angular.module('demo')
   .factory('UpdateService',
     function($log, $q) {
-      var fns = [];
+      'use strict';
 
+      var fns = [];
       var frame = 0;
       var lastTime;
       var request, timer;
@@ -27,16 +26,8 @@ angular.module('demo')
         frame += 1;
       };
 
-      require(["/script/request-frame/dist/request-frame.min.js"],
-        function(requestFrame) {
-          request = requestFrame('request');
-          update();
-        },
-        function(error) {
-          var msg = "UpdateService failed request";
-          $log.error(msg, error);
-          throw new Error(msg);
-        });
+      request = requestFrame('request');
+      update();
 
       var service = {
         debugFrame: function() {

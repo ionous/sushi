@@ -94,7 +94,8 @@ angular.module('demo')
       // the current game object in question -- noting that not all layers represent game objects
       // how to clean up when this map layer which generated this ctx has been destroyed.
       // Contexts are owned Child(ren), and are destroyed when the Child is.
-      var Context = function(displayGroup, hitGroup, allPads, stateName, enclosure, onDestroy) {
+      var Context = function(game, displayGroup, hitGroup, allPads, stateName, enclosure, onDestroy) {
+        this.game= game;
         // without a displayGroup, nothing can be added to the scene.
         if (!displayGroup) {
           throw new Error("LayerContext: missing display group");
@@ -147,6 +148,7 @@ angular.module('demo')
         });
         var hitGroup = opt && opt.hitGroup;
         var next = new Context(
+          this.game,
           displayGroup, // DisplayGroup
           // FIX: verify we have ownership over the hit group 
           // why dont we have ownership over the other bits?
@@ -248,7 +250,7 @@ angular.module('demo')
           enclosure: enclosure,
         });
         var child = new Child(next, mapLayer);
-        child.watcher = WatcherService.showContents(next.object,
+        child.watcher = WatcherService.showContents(this.game, next.object,
           function(objId, contentsVisible) {
             return !contentsVisible ? child.collapse() : child.expand();
           });
@@ -305,8 +307,8 @@ angular.module('demo')
           case "z":
             return this.newZ(subLayer, {
               // FIX: remove dynamic depth, only used for automat
-              dynamicDepth: subLayer.has("dynamicDepth"),
-              fixedDepth: subLayer.has("fixedDepth"),
+              dynamicDepth: subLayer.getProperty("dynamicDepth"),
+              fixedDepth: subLayer.getProperty("fixedDepth"),
             });
           case "c":
             return this.newZ(subLayer, {
@@ -367,16 +369,15 @@ angular.module('demo')
         // visit with a list of visitors, or 
         // a vistor with a big switch.
         // either way, some generic ( non data specific ) expand collapse callback.
-        createLayers: function(parentEl, map, enclosure, allPads) {
+        createLayers: function(game, parentEl, map, enclosure, allPads) {
           // note: the room is getting a display group as well... unfortunately.
           var hitGroups = HitService.newHitGroup(map.name);
           var displayGroup = DisplayService.newDisplayGroup(parentEl, {
             id: "md-root"
           });
-          var ctx = new Context(displayGroup, hitGroups, allPads, null, enclosure, function() {
+          var ctx = new Context(game, displayGroup, hitGroups, allPads, null, enclosure, function() {
             displayGroup.destroyDisplay();
           });
-
           // FIX FIX FIX what destroys the context in this case?
           // FIX FIX FIX -- can we make the parent a child
           // a child snan Expander if thats necessary.

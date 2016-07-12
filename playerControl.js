@@ -1,18 +1,22 @@
 angular.module('demo')
 
-.directiveAs("playerControl", ["^^hsmMachine"],
-  function(CharaService, LocationService, PlayerService,
+.directiveAs("playerControl", ["^gameControl", "^^hsmMachine"],
+  function(CharaService, LocationService,
     $q, $log) {
     'use strict';
 
+    var playerRef = {
+      id: 'player',
+      type: 'actors'
+    };
     //
     var currChara, displaying, pending;
     var memory = {};
     //
-    this.init = function(name, hsmMachine) {
+    this.init = function(name, gameControl, hsmMachine) {
       var player = {
         id: function() {
-          return "player";
+          return playerRef.id;
         },
         destroy: function() {
           if (pending) {
@@ -23,16 +27,20 @@ angular.module('demo')
         },
         // raises -located
         locate: function(prevLoc) {
-          $log.info("locating with previous", prevLoc);
-          PlayerService.fetchWhere().then(function(where) {
-            var loc = prevLoc;
-            if (!prevLoc || (where.id != prevLoc.room)) {
-              loc = LocationService.newLocation(where.id);
-            }
-            hsmMachine.emit(name, "located", {
-              where: loc
+          $log.info("playerControl", name, "locating with previous", prevLoc);
+          gameControl
+            .getGame()
+            .getObjects(playerRef, "objects-whereabouts")
+            .then(function(objects) {
+              var where = objects[0];
+              var loc = prevLoc;
+              if (!prevLoc || (where.id != prevLoc.room)) {
+                loc = LocationService.newLocation(where.id);
+              }
+              hsmMachine.emit(name, "located", {
+                where: loc
+              });
             });
-          });
         },
         linkup: function(display) {
           if (!currChara) {

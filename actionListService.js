@@ -1,6 +1,6 @@
 angular.module('demo')
   .factory('ActionListService',
-    function(ActionService, ClassService, EntityService, IconService, $log, $q) {
+    function(ActionService, EntityService, IconService, $log, $q) {
       'use strict';
 
       var makeAction = function(act) {
@@ -64,19 +64,19 @@ angular.module('demo')
       };
 
       return {
-        getObjectActions: function(obj, context) {
-          return ClassService.getClass(obj.type).then(function(classInfo) {
+        getObjectActions: function(game, obj, context) {
+          return game.getClass(obj.type).then(function(classInfo) {
             return getSingleActions(obj, classInfo, (obj.id == "player") ?
               "player" : (classInfo.contains("doors") ? "doors" : context));
           });
         },
-        getItemActions: function(obj, context) {
-          return ClassService.getClass(obj.type).then(function(classInfo) {
+        getItemActions: function(game, obj, context) {
+          return game.getClass(obj.type).then(function(classInfo) {
             return getSingleActions(obj, classInfo, context);
           });
         },
-        getMultiActions: function(o2, o1) {
-          return $q.all([ClassService.getClass(o2.type), ClassService.getClass(o1.type)]).then(function(classes) {
+        getMultiActions: function(game, o2, o1) {
+          return $q.all([game.getClass(o2.type), game.getClass(o1.type)]).then(function(classes) {
             return getMultiActions(o2, classes.shift(), classes.shift());
           });
         },

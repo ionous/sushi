@@ -13,18 +13,19 @@
   <base href="/demo/">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/script/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/script/html5-boilerplate/css/main.css">
-  <link rel="stylesheet" href="/script/components-font-awesome/css/font-awesome.min.css">
-  <script src="/script/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
-  <script src="/script/requirejs/require.js"></script>
-  <script src="/script/angular/angular.js"></script>
-  <script src="/script/angular-animate/angular-animate.min.js"></script>
-  <script src="/script/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+  <!--  -->
+  <link rel="stylesheet" href="/script/bootstrap-css-only/css/bootstrap.min.css">
+   <!-- <link rel="stylesheet" href="/script/html5-boilerplate/dist/css/main.css"> -->
+  <!-- <link rel="stylesheet" href="/script/bootstrap-css-only/css/bootstrap-theme.min.css"> -->
+  <link rel="stylesheet" href="/script/components-font-awesome/css/font-awesome.min.css">  
   <link rel="stylesheet" href="demo.css">
-  <link rel="stylesheet" href="mosaic/mosaic.css">
+  <!--  -->
+  <script src="/script/angular/angular.min.js"></script>
+  <script src="/script/angular-animate/angular-animate.min.js"></script>
+  <script src="/script/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+  <script src="/script/request-frame/dist/request-frame.min.js"></script>
+  <script src="/script/p2js/build/p2.min.js" type="text/javascript"></script>
   <!--  main, routes, etc. -->
-  <script src="/script/p2.min.js" type="text/javascript"></script>
   <script src="demo.js"></script>
   <script src="subject.js"></script>
   <!--  angular mods -->
@@ -35,7 +36,6 @@
   <script src="actionListService.js"></script>
   <script src="canvasService.js"></script>
   <script src="charaService.js"></script>
-  <script src="classService.js"></script>
   <script src="collisionService.js"></script>
   <script src="cursorService.js"></script>
   <script src="displayService.js"></script>
@@ -43,7 +43,7 @@
   <script src="entityService.js"></script>
   <script src="eventService.js"></script>
   <script src="eventStreamService.js"></script>
-  <script src="gameService.js"></script>
+  <script src="gameServerService.js"></script>
   <script src="hitService.js"></script>
   <script src="iconService.js"></script>
   <script src="itemService.js"></script>
@@ -53,10 +53,7 @@
   <script src="locationService.js"></script>
   <script src="mapService.js"></script>
   <script src="objectDisplayService.js"></script>
-  <script src="objectService.js"></script>
-  <script src="playerService.js"></script>
   <script src="positionService.js"></script>
-  <script src="postalService.js"></script>
   <script src="mapService.js"></script>
   <script src="watcherService.js"></script>
   <script src="updateService.js"></script>
@@ -77,6 +74,7 @@
   <script src="combinePanelControl.js"></script>
   <script src="commentBoxControl.js"></script>
   <script src="customActionsControl.js"></script>
+  <script src="finiControl.js"></script>
   <script src="gameControl.js"></script>
   <script src="gameListener.js"></script>
   <script src="hoverControl.js"></script>
@@ -116,7 +114,6 @@
   <!-- controllers  -->
   <script src="inputController.js"></script>
   <script src="itemSlideController.js"></script>
-  <!-- <script src="mapZoomController.js"></script>-->
   <!--  -->
   <script src="mosaic/map.js"></script>
   <script src="mosaic/mosaic.js"></script>

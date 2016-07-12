@@ -20,7 +20,7 @@ angular.module('demo')
               mdl.dismiss(reason);
             },
             save: function() {
-              var id = gameControl.getId();
+              var id = gameControl.getGame().id;
               saveGameControl.save(id);
               mdl.dismiss("saved!");
             },

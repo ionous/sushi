@@ -2,12 +2,11 @@ angular.module('demo')
 
 // opens the inventory window;
 // pairs with itemsControl
-.directiveAs('inventoryControl', ["^^hsmMachine", "^^modalControl"],
-  function($q, $log) {
+.directiveAs('inventoryControl', ["^^gameControl", "^^hsmMachine", "^^modalControl"],
+  function(ActionListService, ItemService, $q, $log) {
     'use strict';
-
-    this.init = function(name, hsmMachine, modalControl) {
-      var invWin = 'invWin';
+    var invWin = 'invWin';
+    this.init = function(name, gameControl, hsmMachine, modalControl) {
       var modal;
       var scope = {
         close: function(reason) {
@@ -16,15 +15,25 @@ angular.module('demo')
             modal = null;
           }
         },
-        open: function(items, combining, itemActions) {
+        // playerItems == player-item-control.scope
+        open: function(playerItems, combining, itemActions) {
+          var game = gameControl.getGame();
+
           $log.info("inventoryControl", name, "opening", combining ? "combining" : "not combining", itemActions ? "have actions" : "no actions");
 
           var mdl = modalControl.open(invWin, {
-            items: function() {
-              return items;
+            playerItems: function() {
+              return playerItems;
             },
             itemActions: function() {
               return itemActions;
+            },
+            images: ItemService,
+            getActions: function(item, context) {
+              return ActionListService.getItemActions(game, item, context).then(
+                function(itemActions) {
+                  return itemActions.actions;
+                });
             },
             combining: function() {
               return combining;

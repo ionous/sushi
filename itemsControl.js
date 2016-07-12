@@ -3,68 +3,61 @@ angular.module('demo')
 // manages the inventory window;
 // pairs with inventoryControl
 .directiveAs('itemsControl',
-  function(ActionListService, EntityService, IconService,
-    $log, $scope) {
+  function(IconService,
+    $log, $q, $scope) {
     'use strict';
 
     this.init = function(name) {
-      var contents = $scope.modal.contents;
-      var items = contents.items();
-      var itemActions = contents.itemActions();
-      var combining = contents.combining();
-
-      // we write into scope directly for sake of backwards comapt.
-      $scope.slideController = "ItemSlideController";
+      // from inventoryControl
+      var inv = $scope.modal.contents;
       //
-      var slides = $scope.slides = [];
+      var playerItems = inv.playerItems();
+      var itemActions = inv.itemActions();
+      var combining = inv.combining();
 
-      $scope.currentSlide = false;
-      $scope.currentActions = [];
-      var c = $scope.combine = !combining && IconService.getIcon("$use");
-
+      //
+      var idx = 0;
+      var activeIdx = 0;
       var newSlide = function(item, defaultActions) {
         var context = item.context;
-        var isActive = items.isCurrent(item);
-        return {
-          id: item.id,
+        var isActive = playerItems.isCurrent(item);
+        var thisIdx = idx;
+        idx += 1;
+        if (isActive) {
+          activeIdx = thisIdx;
+        }
+        var pending;
+        var slide = {
+          idx: thisIdx,
           item: item,
-          name: item.printedName(),
-          active: isActive,
-          type: item.type,
-          pending: false,
-          actions: defaultActions,
-          activated: function(active) {
-            var slide = this;
-            if (active) {
-              $scope.transition = true;
-              $scope.currentSlide = slide;
-              $scope.currentActions = slide.actions;
-              items.setCurrent(slide);
-              // lazy load actions:
-              if (!slide.actions && !slide.pending) {
-                slide.pending = ActionListService.getItemActions(item, context).then(
-                  function(itemActions) {
-                    var actions = slide.actions = itemActions.actions;
-                    var visibleNow = items.isCurrent(slide);
-                    //$log.info("actions received", slide,visibleNow);
-                    // still current now that our actions have been retreived?
-                    if (visibleNow) {
-                      $scope.currentActions = actions;
-                    }
-                  });
+          image: inv.images.defaultImage,
+          activated: function() {
+            if (!pending) {
+              inv.images
+                .getItemImage(item.id)
+                .then(function(src) {
+                  slide.image = src;
+                });
+              if (defaultActions) {
+                pending = $q.when(defaultActions);
+              } else {
+                pending = inv.getActions(item, context);
               }
-            }
-          },
+            } // first activated
+            return pending;
+          }, // activated()
         };
-      };
+        return slide;
+      }; //newSlide
 
+      var slides = [];
       if (itemActions) {
         itemActions.forEach(function(ia) {
           var slide = newSlide(ia.item, ia.actions);
           slides.push(slide);
         });
       } else {
-        items.forEach(function(item) {
+        playerItems.forEach(function(item) {
           var slide = newSlide(item);
           slides.push(slide);
         });
@@ -73,13 +66,31 @@ angular.module('demo')
       var scope = {
         visible: true,
         barVisible: false,
+        active: 0,
+        slides: slides,
+        name: "",
+        actions: null,
+        // allow combining when we are not currently combining
+        combine: !combining && IconService.getIcon("$use"),
         expanded: function() {
           scope.barVisible = true;
         },
-        clicked: function(slide, act) {
-          contents.clicked(slide.item, act);
+        clicked: function(act) {
+          var slide = slides[scope.active];
+          inv.clicked(slide.item, act);
         },
       };
+
+      $scope.$watch([name, "active"].join("."), function(newValue) {
+        var slide = slides[newValue];
+        slide.activated().then(function(actions) {
+          if (scope.active == newValue) {
+            scope.actions = actions;
+          }
+        });
+        playerItems.setCurrent(slide.item);
+        scope.name = slide.item.printedName();
+      });
       return scope;
     };
   });

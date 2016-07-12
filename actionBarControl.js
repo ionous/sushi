@@ -6,8 +6,9 @@ angular.module('demo')
     'use strict';
 
     this.init = function(name, hsmMachine, modalControl, mouseControl) {
-      var actionBarModal, displaySlot, currentTarget;
-      this.bindTo = function(slotName) {
+      var actionBarModal, currentTarget, displaySlot, game;
+      this.bindTo = function(game_, slotName) {
+        game = game_;
         displaySlot = slotName;
       };
       this.dismiss = function(reason) {
@@ -34,15 +35,15 @@ angular.module('demo')
         var pendingActions;
         if (obj) {
           if (!combining) {
-            pendingActions = ActionListService.getObjectActions(obj);
+            pendingActions = ActionListService.getObjectActions(game, obj);
           } else {
-            pendingActions = ActionListService.getMultiActions(obj, combining);
+            pendingActions = ActionListService.getMultiActions(game, obj, combining);
           }
         } // obj
         var displayEl = ElementSlotService.get(displaySlot).element;
 
         var pendingConfig = $q.when(pendingActions).then(function(itemActions) {
-          var actions = itemActions.actions;
+          var actions = itemActions && itemActions.actions;
           var zoom = view && IconService.getIcon("$zoom");
           if ((!actions || !actions.length) && !zoom) {
             throw new Error("no actions found");

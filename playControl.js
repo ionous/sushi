@@ -3,11 +3,11 @@
  */
 angular.module('demo')
 
-.directiveAs("playControl", ["^hsmMachine", "^gameControl"],
+.directiveAs("playControl", ["^hsmMachine"],
   function($log, $q) {
     'use strict';
 
-    this.init = function(name, hsmMachine, gameControl) {
+    this.init = function(name, hsmMachine) {
       var started, paused = false;
       var go = function(run) {
         var emit = run ? "playing" : "paused";
