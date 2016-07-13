@@ -99,10 +99,7 @@ angular.module('demo')
           ret = $q.when(where);
         } else {
           destroyMap();
-          // FIX, FIX, FIX: needs work for state machine control
-          // when we are entering tunnels, toggle the view.
-          var show = next.item || (next.view && (next.room != "tunnels"));
-          $rootScope.hideViewButton = !show;
+          var show = next.item || next.view;
 
           // use a defer so we can cancel if need be
           // note, the cancel doesnt really work -- wed need to check for cancel at each stage... somehow
@@ -172,36 +169,20 @@ angular.module('demo')
         which: function() {
           return ctrl.which();
         },
-        // return a promise
         changeMap: changeMap,
         changeRoom: function(room) {
-          var currLoc = LocationService();
-          //$log.info("mapControl", name, "changeRoom", room);
-          var next = currLoc.nextRoom(room);
-
-          var tunnels = next.room == "tunnels";
-          if (tunnels && !next.view) {
-            var tunnelBounce = $rootScope.tunnelBounce;
-            if (currLoc.room == "automat") {
-              tunnelBounce = false;
-            } else {
-              tunnelBounce = !tunnelBounce;
-            }
-            $rootScope.tunnelBounce = tunnelBounce;
-            next = next.nextView(tunnelBounce ? "tunnels-2" : "tunnels-1");
-          }
-          return changeMap(next);
+          // $log.info("mapControl", name, "changeRoom", room);
+          return changeMap(LocationService().nextRoom(room));
         },
         changeView: function(view) {
-          //$log.info("mapControl", name, "changeView", view);
+          // $log.info("mapControl", name, "changeView", view);
           return changeMap(LocationService().nextView(view));
         },
         changeItem: function(item) {
-          //$log.info("mapControl", name, "changeItem", item);
+          // $log.info("mapControl", name, "changeItem", item);
           return changeMap(LocationService().nextItem(item));
         },
       };
-
       this.changeMap = scope.changeMap;
       this.changeView = scope.changeView;
       this.changeItem = scope.changeItem;

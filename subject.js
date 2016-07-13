@@ -7,5 +7,5 @@ var Subject = function(obj, view, path) {
 };
 
 Subject.prototype.toString = function() {
-  return "target:" + this.path;
+  return "subject:" + this.path;
 };

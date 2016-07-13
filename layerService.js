@@ -95,7 +95,7 @@ angular.module('demo')
       // how to clean up when this map layer which generated this ctx has been destroyed.
       // Contexts are owned Child(ren), and are destroyed when the Child is.
       var Context = function(game, displayGroup, hitGroup, allPads, stateName, enclosure, onDestroy) {
-        this.game= game;
+        this.game = game;
         // without a displayGroup, nothing can be added to the scene.
         if (!displayGroup) {
           throw new Error("LayerContext: missing display group");
@@ -270,10 +270,12 @@ angular.module('demo')
           $log.error(msg1, slashPath);
           throw new Error(msg1);
         }
-        if (subject.pads) {
-          var msg2 = "multiple pads per hit group";
-          $log.error(msg2, subject, slashPath);
-          throw new Error(msg2);
+        var replace = subject.pads;
+        if (replace) {
+          $log.info("replacing pads on", subject.toString(), "with", slashPath);
+          this.allPads = this.allPads.filter(function(el) {
+            return el !== replace;
+          });
         }
         var pads = LandingService.newLandingPads(subject, grid);
         subject.pads = pads;

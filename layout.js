@@ -225,7 +225,6 @@ angular.module('demo')
 
 .directiveAs("buttonBarControl", function($log, $scope) {
   this.init = function(name) {
-    $scope.hideViewButton = false;
     $scope.clickReturn = {
       msg: "Return to room..."
     };

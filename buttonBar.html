@@ -1,5 +1,5 @@
 <div ng-hide="buttonBar.hidden">
-<div class="ga-buttonbar ga-left" ng-show="!hideViewButton && clickReturn.msg" element-slot="clickReturn">
+<div class="ga-buttonbar ga-left" ng-show="!!clickReturn.msg" element-slot="clickReturn">
   <a class="btn btn-primary btn-lg" uib-tooltip="{{clickReturn.msg}}" tooltip-placement="right" tooltip-class="ga-xtip">
     <i class="fa fa-undo"></i>
   </a>
