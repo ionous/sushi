@@ -177,7 +177,7 @@ header {
 .ga-status {
   position: relative;
   width: 768px;
-  min-height: 1.5em;
+  min-height: 1.8em;
   left: 50%;
   padding: 0px;
   margin-left: -383px;
@@ -521,11 +521,11 @@ div.ga-notify p {
 .ga-bubble {
   position: absolute;
   z-index: 1000;
-  min-width: 140px;
+  min-width: 100px;
   max-width: 220px;
   text-align: center;
   margin: 0;
-  padding: 0.6rem 0.8rem 0.6rem 0.5rem;
+  padding: 0.6rem 1.8rem 0.6rem 1.8rem;
   color: #fff;
   background: #075698;
   /* default background for browsers without gradient support */
