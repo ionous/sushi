@@ -35,6 +35,7 @@ angular.module('demo')
     var promise;
     var map = mapLayer.getMap();
     var bounds = mapLayer.getBounds();
+        
     // make sure the top layer never contributes the the canvas set
     // otherwise, it pushes all the canvases down -- maybe some css styling issues here.
     if (bounds && mapLayer !== map.topLayer) {

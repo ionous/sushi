@@ -5,7 +5,6 @@ angular.module('demo')
 .factory('ObjectDisplayService',
   function($log, $q) {
     'use strict';
-
     var objectDisplay = {};
     //
     var service = {
@@ -29,10 +28,6 @@ angular.module('demo')
           throw new Error(msg);
         }
         return display;
-      },
-      getCanvi: function(id) {
-        var display = objectDisplay[id];
-        return display && display.canvi;
       },
     };
     return service;
