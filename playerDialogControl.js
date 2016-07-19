@@ -22,9 +22,18 @@ angular.module('demo')
           clear();
         },
         setTitle: function(tgt) {
-          $log.info("playerDialog: set title", tgt);
-          var book = EntityService.getById(tgt);
-          title = book.printedName();
+          if (!tgt) {
+            title = null;
+          } else {
+            var book = EntityService.getById(tgt);
+            // patch: dont want titles on conversations with alien-boy, etc.
+            // for instance: after reading matter converter.
+            // it might be better if "topic" had a title, and if we querried for it.
+            if (book.type == "books") {
+              title = book.printedName();
+            }
+          }
+          $log.info("playerDialog: set title", tgt, title);
         },
         addQuip: function(tgt) {
           $log.info("playerDialog: add quip", tgt);

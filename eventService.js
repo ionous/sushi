@@ -41,6 +41,21 @@ angular.module('demo')
         handler[evt] = up;
       }); // for each
     };
+    var cat = function(ret, evt, handler) {
+      // all events for this handler's target
+      if (handler) {
+        var all = handler['*'];
+        if (all) {
+          ret.push.apply(ret, all);
+        }
+        // the specific event for this handler's target
+        var some = handler[evt];
+        if (some) {
+          ret.push.apply(ret, some);
+        }
+      }
+      return ret;
+    };
     var eventService = {
       reset: function() {
         handlers = {};
@@ -91,21 +106,6 @@ angular.module('demo')
         if (!angular.isString(tgt)) {
           throw new Error("EventService expects string targets");
         }
-        var cat = function(ret, evt, handler) {
-          // all events for this handler's target
-          if (handler) {
-            var all = handler['*'];
-            if (all) {
-              ret.push.apply(ret, all);
-            }
-            // the specific event for this handler's target
-            var some = handler[evt];
-            if (some) {
-              ret.push.apply(ret, some);
-            }
-          }
-          return ret;
-        };
         // the "all handlers" bucket:
         var ret = cat([], evt, handlers['*']);
         // the specific handler:
@@ -119,16 +119,17 @@ angular.module('demo')
        * @returns {start:Function,end:Function}
        */
       forEach: function(tgt, evt, fn) {
+        //$log.info("eventService, forEach", tgt, evt);
         if (!angular.isString(tgt)) {
           throw new Error("EventService expects string targets");
         }
-        return eventService.getHandlers(tgt, evt)
-          .map(function(handler) {
-            return angular.isFunction(handler) ? {
-              start: handler
-            } : handler;
-          })
-          .forEach(fn);
+        var handlers = eventService.getHandlers(tgt, evt);
+        var fns = handlers.map(function(handler) {
+          return angular.isFunction(handler) ? {
+            start: handler
+          } : handler;
+        });
+        fns.forEach(fn);
       },
       /**
        * raise events  ( mainly for testing. )
