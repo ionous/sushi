@@ -105,7 +105,13 @@ angular.module('demo')
       };
 
       Entity.prototype.printedName = function() {
-        return this.attr['kinds-printed-name'] || this.id.replace(/-/g, " ");
+        var n = this.attr['kinds-printed-name'] || this.id.replace(/-/g, " ");
+        // ALICE FIX
+        var v = "vending ";
+        if (!n.indexOf(v) && (n !== "vending machine")) {
+          n = n.slice(v.length);
+        }
+        return n;
       };
 
       Entity.prototype.created = function() {
