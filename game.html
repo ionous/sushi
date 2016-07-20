@@ -12,30 +12,33 @@
               <hsm-state action-service="actions" hsm-enter="actions.fetch(game)" hsm-exit="actions.fetch(false)">
                 <!-- dialog choices are created by processing, presented by playing -->
                 <hsm-state player-dialog-control="dialog" hsm-enter="dialog.bindTo('commentBox')" hsm-exit="dialog.destroy()">
-                  <!-- startup goes here when done: -->
-                  <hsm-state name="GameStarted" parallel="true" unload-control="beforeUnload" hsm-enter="beforeUnload.listen('Progress not saved')" hsm-exit="beforeUnload.silence()">
-                    <!--  on="saves-saved" run="beforeUnload.requireSave(false)" -->
-                    <hsm-event on="game-posting" run="beforeUnload.requireSave('Game not saved')"></hsm-event>
-                    <hsm-event on="map-loading" run="beforeUnload.requireSave('Map not saved')"></hsm-event>
-                    <hsm-event on="saves-saved" goto="Menus"></hsm-event>
-                    <!-- raises -processing and -empty -->
-                    <hsm-state hsm-enter="stream.process()" hsm-exit="stream.process(false)">
-                      <hsm-event on="game-posting" run="stream.processing(true)"></hsm-event>
-                      <ng-include src="'processing.html'"></ng-include>
-                    </hsm-state>
-                    <!-- loading and playing the game -->
-                    <hsm-state hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
-                      <ng-include src="'playing.html'"></ng-include>
-                      <!--  -->
-                      <hsm-state name="Fini" fini-control="fini" hsm-enter="fini.enter()" hsm-exit="fini.exit()">
-                        <hsm-event on="stream-empty" run="fini.showExitPanel()"></hsm-event>
-                        <hsm-event on="fini-exit" goto="Menus"></hsm-event>
-                      </hsm-state>
-                      <!--  -->
-                      <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
-                      <hsm-state name="PlaySpaceLoading">
-                        <hsm-event on="map-loaded" when="$evt.where.room=='fini'" goto="Fini"></hsm-event>
-                        <hsm-event on="map-loaded" goto="Playing"></hsm-event>
+                  <hsm-state unload-control="beforeUnload" hsm-enter="beforeUnload.listen()" hsm-exit="beforeUnload.silence()">
+                    <hsm-state hsm-enter="$evt.newGame? beforeUnload.requreSave('Your game isn\'t saved.'):false">
+                      <!-- startup goes here when done: -->
+                      <hsm-state name="GameStarted" parallel="true">
+                        <hsm-event on="game-posting" run="beforeUnload.requireSave('Your game isn\'t saved.')"></hsm-event>
+                        <hsm-event on="map-loading" run="beforeUnload.requireSave('Your location isn\'t saved.')"></hsm-event>
+                        <hsm-event on="saves-saved" run="beforeUnload.requireSave(false)"></hsm-event>
+                        <!-- raises -processing and -empty -->
+                        <hsm-state hsm-enter="stream.process()" hsm-exit="stream.process(false)">
+                          <hsm-event on="game-posting" run="stream.processing(true)"></hsm-event>
+                          <ng-include src="'processing.html'"></ng-include>
+                        </hsm-state>
+                        <!-- loading and playing the game -->
+                        <hsm-state hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
+                          <ng-include src="'playing.html'"></ng-include>
+                          <!--  -->
+                          <hsm-state name="Fini" fini-control="fini" hsm-enter="fini.enter()" hsm-exit="fini.exit()">
+                            <hsm-event on="stream-empty" run="fini.showExitPanel()"></hsm-event>
+                            <hsm-event on="fini-exit" goto="Menus"></hsm-event>
+                          </hsm-state>
+                          <!--  -->
+                          <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
+                          <hsm-state name="PlaySpaceLoading">
+                            <hsm-event on="map-loaded" when="$evt.where.room=='fini'" goto="Fini"></hsm-event>
+                            <hsm-event on="map-loaded" goto="Playing"></hsm-event>
+                          </hsm-state>
+                        </hsm-state>
                       </hsm-state>
                     </hsm-state>
                   </hsm-state>

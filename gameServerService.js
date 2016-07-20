@@ -13,12 +13,6 @@ angular.module('demo')
           id: "gopherjs", // all games have the same id.; see jsmem.go
         });
       };
-      this.snapshot = function() {
-        // return blob
-      };
-      this.restore = function(blob) {
-        //
-      };
       this.get = function(_, what) {
         var ret = js.Get(what);
         var resp = ret[0];
@@ -54,8 +48,13 @@ angular.module('demo')
           return JsonService.parseObjectDoc(resp.data, 'new game');
         });
       };
-      this.snapshot = false;
-      this.restore = false;
+      this.load = function(slot) {
+        // parse our own response, because gopher doesnt have one
+        var url = [GameServerUrl, "load"].join("/");
+        return http.post(url, {"slot":slot}).then(function(resp) {
+          return JsonService.parseObjectDoc(resp.data, 'load game');
+        });
+      };
       this.get = function(id, what) {
         var url = [GameServerUrl, id, what].join("/");
         return http.get(url).then(function(resp) {
@@ -77,6 +76,9 @@ angular.module('demo')
     var service = {
       new: function() {
         return transport.new();
+      },
+      load: function(id) {
+        return transport.load(id);
       },
       get: function(id, what) {
         return transport.get(id, what).then(function(payload) {

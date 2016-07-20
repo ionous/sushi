@@ -1,6 +1,34 @@
 angular.module('demo')
 
-.directiveAs("saveGameControl", ["^hsmMachine"],
+.directiveAs("saveResponseControl", ["^hsmMachine"],
+  function($log) {
+    this.init = function(name) {
+      var saveGameControl;
+      return {
+        bindTo: function(saveGameControl_) {
+          saveGameControl = saveGameControl_;
+        },
+        destroy: function() {
+          if (saveGameControl) {
+            saveGameControl.complete();
+            saveGameControl = null;
+          }
+        },
+        parse: function(texts) {
+          // "saved /Users/ionous/alice/cc77e9d0-843b-4604-9892-f4369cfa0908.sashimi"
+          var text = (texts && texts.length == 1) ? texts[0] : "";
+          $log.info("saveResponseControl", name, "parsing", text);
+          var saved = text.split(" ");
+          var slot = saved.length == 2 ? saved[1] : null;
+          saveGameControl.complete(slot);
+          saveGameControl = null;
+        },
+      };
+    };
+    return this;
+  })
+
+.directiveAs("saveGameControl", ["^gameControl", "^hsmMachine"],
   function(EventStreamService, LocationService, PositionService,
     LocalStorage, SaveVersion,
     $log, $rootScope) {
@@ -10,25 +38,18 @@ angular.module('demo')
       this.id = id;
       this.data = data;
     };
-    // bound up with gameControl.loadGame
-    SaveGameData.prototype.restore = function() {
-      var id = this.id;
-      var saved = this.data;
-      $log.info("saveGameControl", name, "restoring", id, saved);
-      var loc = saved.location;
-      PositionService.saveLoad(saved.position);
-      //
-      var appData = saved.appData;
-      $rootScope.tunnelBounce = appData.tunnelBounce;
-      //
-      return {
-        game: {
-          id: id, // saved.gameId
-          type: "game",
-        },
-        loc: LocationService.newLocation(loc.room, loc.view, loc.item),
-      };
+    // server storage key
+    SaveGameData.prototype.getSlot = function() {
+      return this.data.slot;
     };
+    SaveGameData.prototype.getLocation = function() {
+      var loc = this.data.location;
+      return LocationService.newLocation(loc.room, loc.view, loc.item);
+    };
+    SaveGameData.prototype.getPosition = function() {
+      return this.data.position;
+    };
+    //
     var SavePrefix = "saveGame";
     // retreive save game data from local storage
     var getByKey = function(key) {
@@ -49,34 +70,59 @@ angular.module('demo')
       return ret;
     };
     //
-    this.init = function(name, hsmMachine) {
-      this.save = function(id) {
-        if (LocalStorage) {
-          // FIX: slots cant be branched until we have enable server-side save.
-          var slot = id; // localStorage.length
-          var dateTime = new Date().toLocaleString();
-          var saveGame = {
-            //gameId: id,
-            dateTime: dateTime,
-            version: SaveVersion,
-            frame: EventStreamService.currentFrame(),
-            // via map.get("location") instead?
-            location: LocationService(),
-            position: PositionService.saveLoad(),
-            appData: {
-              tunnelBounce: $rootScope.tunnelBounce
-                // FIX: most recently viewed item
-            },
-            // [screenshot]
-          };
+    this.init = function(name, gameControl, hsmMachine) {
+      var currentId;
+      this.saveGame = function(id) {
+        currentId = id;
+        // FIX FIX: it would be ***much*** better to have this return a promise
+        // so we can have a then() handler instead of complete
+        gameControl.post({
+          'in': 'save'
+        });
+      };
+      // tightly coupled with save game response and processing.html
+      this.complete = function(slot) {
+        var okay, error;
+        if (currentId) {
+          var id = currentId;
+          currentId = null;
+          if (!LocalStorage) {
+            error = "no local storage";
+          } else if (!slot) {
+            error = "server failed to save";
+          } else {
+            // FIX: slots cant be branched until we have enable server-side save.
+            var dateTime = new Date().toLocaleString();
+            var saveData = {
+              slot: slot,
+              dateTime: dateTime,
+              version: SaveVersion,
+              frame: EventStreamService.currentFrame(),
+              // via map.get("location") instead?
+              location: LocationService(),
+              position: PositionService.saveLoad(),
+              // [screenshot]
+            };
 
-          var json = angular.toJson(saveGame);
-          $log.info("saveGameControl", name, "saving", json);
-          var key = SavePrefix + slot;
-          localStorage.setItem(key, json);
-          localStorage.setItem("mostRecent", key);
+            var json = angular.toJson(saveData);
+            $log.info("saveGameControl", name, "saving", json);
+            try {
+              var key = SavePrefix + id;
+              localStorage.setItem(key, json);
+              localStorage.setItem("mostRecent", key);
+              okay = true;
+            } catch (e) {
+              $log.error("save game error", e);
+              error = e.toString();
+            }
+          }
+          // emit on error;
+          hsmMachine.emit(name, "saved", {
+            id: id,
+            success: slot,
+            error: error
+          });
         }
-        hsmMachine.emit(name, "saved", {});
       };
       this.mostRecent = function() {
         if (LocalStorage) {

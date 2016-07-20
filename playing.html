@@ -7,7 +7,7 @@
             <ng-include src="'console.html'"></ng-include>
             <ng-include src="'inventory.html'"></ng-include>
             <!-- we run one of physics or not-physics -->
-            <hsm-state name="PlayOne" hsm-init="1 && map.get('physics') ? 'Physics' : 'Statics'">
+            <hsm-state name="PlayOne" hsm-init="0 && map.get('physics') ? 'Physics' : 'Statics'">
               <ng-include src="'statics.html'"></ng-include>
               <ng-include src="'physics.html'"></ng-include>
             </hsm-state>
@@ -54,11 +54,26 @@
                 <hsm-state name="SharedSettings" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
                   <hsm-state settings-control="settings" hsm-enter="settings.open()" hsm-exit="settings.close('exited')">
                     <hsm-event on="modal-opened" goto=""></hsm-event>
-                    <hsm-event on="modal-closed" goto="SharedPlay"></hsm-event>
-                    <hsm-event on="settings-dismiss" run="settings.close($evt.reason)"></hsm-event>
                     <hsm-event on="keys" when="$evt.escapeKey()" run="settings.close('escape')"></hsm-event>
+                    <!--  -->
+                    <hsm-event on="settings-closed" goto="SharedPlay"></hsm-event>
+                    <hsm-event on="settings-dismiss" run="settings.close($evt.reason)"></hsm-event>
+                    <hsm-event on="settings-exit" when="beforeUnload.needsToBeSaved()" goto="SharedExit"></hsm-event>
+                    <hsm-event on="settings-exit" goto="Menus"></hsm-event>
                   </hsm-state>
                 </hsm-state>
+                <!-- ^~SharedSettings -->
+                <hsm-state name="SharedExit" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
+                  <hsm-state confirm-exit-control="confirm" hsm-enter="confirm.open('confirmExit', beforeUnload)" hsm-exit="confirm.close()">
+                    <hsm-event on="modal-opened" goto=""></hsm-event>
+                    <hsm-event on="keys" when="$evt.escapeKey()" run="confirm.close('escape')"></hsm-event>
+                    <!--  -->
+                    <hsm-event on="confirm-exit-dismiss" run="confirm.close($evt.reason)"></hsm-event>
+                    <hsm-event on="confirm-exit-closed" goto="SharedPlay"></hsm-event>
+                    <hsm-event on="confirm-exit" goto="Menus"></hsm-event>
+                  </hsm-state>
+                </hsm-state>
+                <!-- ^~SharedExit -->
                 <hsm-event on="modal-opened" goto="SharedModal"></hsm-event>
                 <hsm-state name="SharedModal" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
                   <hsm-event on="modal-closed" run="log.info('shared modal closed', $evt.source, $evt.reason)" goto="SharedPlay"></hsm-event>

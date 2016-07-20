@@ -40,7 +40,6 @@ angular.module('demo')
 .directive('gaLink',
   function($log) {
     'use strict';
-
     return {
       transclude: true,
       //  exposing properties into an isolated scope for undotted access seems like a misfeature. 
@@ -52,7 +51,7 @@ angular.module('demo')
         gaDisabled: "<?",
       },
       require: ["^^locationControl"],
-      template: "<a ng-href='/{{appBase}}/#{{gaDst}}' class='btn btn-default btn-block' ng-class='{disabled:gaDisabled}' ng-click='clicked($event)'  role='button'><ng-transclude></ng-transclude></a>",
+      template: "<a ng-href='/{{appBase}}/#{{gaDst}}' class='btn btn-default btn-block' ng-class='{disabled:gaDisabled}' ng-click='clicked($event)' role='button'><ng-transclude></ng-transclude></a>",
       link: function(scope, el, attrs, controllers) {
         var locationControl = controllers[0];
         // there doesnt appeart to be a way to get this via angular

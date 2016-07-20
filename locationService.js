@@ -34,6 +34,11 @@ angular.module('demo')
       Location.prototype.nextItem = function(item) {
         return new Location(this.room, this.view, item);
       };
+      Location.prototype.sync = function() {
+        var p = ["", "r", this.room].concat(this.view ? ["v", this.view] : []);
+        var path = p.join("/");
+        $location.path(path).search('item', this.item);
+      };
       //
       var currLoc = new Location();
       var prevLoc;
@@ -44,9 +49,7 @@ angular.module('demo')
           // $log.info("LocationService: changing", currLoc.toString(), "to", next.toString());
           prevLoc = currLoc;
           currLoc = next;
-          var p = ["", "r", next.room].concat(next.view ? ["v", next.view] : []);
-          var path = p.join("/");
-          $location.path(path).search('item', next.item);
+          next.sync();
         }
         return next;
       };

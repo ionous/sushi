@@ -1,0 +1,12 @@
+<div class="ga-notify" modal-content="confirm" ng-click="confirm.dismiss('popup clicked')">
+  <div class="ga-notify-box">
+    <b>Are you sure you want to stop playing?</b>
+    <div ng-if="!!confirm.saveMessage">
+      {{confirm.saveMessage}}
+    </div>
+    <div>
+      <ga-link ng-click="confirm.exitGame()">Yes, quit game.</ga-link>
+      <ga-link ng-click="confirm.dismiss('keep playing')">No, keep playing.</ga-link>
+    </div>
+  </div>
+</div>

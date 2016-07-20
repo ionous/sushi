@@ -132,19 +132,26 @@ angular.module('demo')
           hsmMachine.emit(name, "created", {});
         });
       };
-      this.loadGame = function(saveGameData) {
+      this.loadGame = function(saved) {
         if (currentGame) {
           throw new Error("game already in progress");
         }
-        var saved = saveGameData.restore();
-        currentGame = new Game(saved.game.id);
-        hsmMachine.emit(name, "loaded", {
-          game: currentGame,
-          gameId: currentGame.id,
-          where: saved.loc
+        // format from saveGameControl
+        var slot = saved.getSlot();
+        GameServerService.load(slot).then(function(res) {
+          var loc = saved.getLocation();
+          var pos = saved.getPosition();
+          PositionService.saveLoad(pos);
+          currentGame = new Game(res.id);
+          currentGame.started = true;
+          hsmMachine.emit(name, "loaded", {
+            game: currentGame,
+            gameId: res.id,
+            where: loc
+          });
         });
       };
-      // NOTE: start happens after new game
+      // NOTE: start happens after new game the firsttime only
       this.startGame = function() {
         var game = this.getGame();
         if (game.started) {
@@ -155,7 +162,9 @@ angular.module('demo')
         game.post({
           'in': 'start'
         }).then(function() {
-          hsmMachine.emit(name, "started", {});
+          hsmMachine.emit(name, "started", {
+            newGame: true,
+          });
         });
       };
       this.post = function(what) {

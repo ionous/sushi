@@ -7,6 +7,7 @@ angular.module('demo')
     this.init = function(name) {
       var warning;
       var beforeunload = function(event) {
+        var ret;
         if (RequireSave && warning) {
           event.returnValue = warning;
         }
@@ -17,13 +18,23 @@ angular.module('demo')
           $log.info("unloadControl", name, "requireSave", msg);
           warning = msg;
         },
-        listen: function(msg) {
+        listen: function() {
           win.on("beforeunload", beforeunload);
-          unloader.requireSave(msg || false);
         },
         silence: function() {
           win.off("beforeunload", beforeunload);
         },
+        saveMessage: function() {
+          return warning;
+        },
+        needsToBeSaved: function() {
+          return !!warning;
+        },
+      };
+      this.needsToBeSaved = function() {
+        // technically, this should be handled by a parallel sub-state
+        // but, im not ready for that today, simple is good.
+        return !!warning;
       };
       return unloader;
     }; //  init
