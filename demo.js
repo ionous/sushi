@@ -9,14 +9,13 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'mosaic', 'hsm'],
     //aHrefSanitizationWhitelist ///^\s*(https?|ftp|mailto|tel|file|chrome-extension):/;
     $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|ftp|file|blob|chrome-extension):|data:image\/)/);
 })
-  // .constant("HSM_HTML", true)
-  // .constant("HsmExpanded", true) -- doesnt work.
+  .constant("HSM_HTML", true)
   .constant("GameVersion", "0")
   .constant("SaveVersion", "01")
-  .constant("RequireSave", false)
-  .constant("AutoStart", "Begin") //Begin,Resume,Menus
+  .constant("RequireSave", true)
+  .constant("AutoStart", "Resume") //Begin,Resume,Menus
   .constant("Talk", "TalkEnabled")
   .constant("Popups", "PopupsEnabled")
-  .constant("LocalStorage", false)
-  .constant("GameServerUrl", "http://localhost:8080/game") // alt: "/"
+  .constant("LocalStorage", true)
+  .constant("GameServerUrl", "http://localhost:8080/game") 
   ;

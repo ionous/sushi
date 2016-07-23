@@ -10,12 +10,12 @@ angular.module('demo')
     this.init = function(name) {
       var scope = {
         close: function() {
-          $log.info("combinePanelControl", name, "closing");
           if (defer) {
             defer.reject("closing");
             defer = null;
           }
           if (combineBox) {
+            $log.info("combinePanelControl", name, "closing");
             combineBox.scope.items = combineBox.scope.visible = false;
             combineBox.scope.image = null;
             combineBox = null;
@@ -42,6 +42,7 @@ angular.module('demo')
               combineBox.scope.image = image;
               combineBox.scope.item = itemName;
               combineBox.scope.visible = true;
+              defer = null;
             });
           }
         }, // combine
