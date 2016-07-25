@@ -3,8 +3,7 @@
  */
 angular.module('demo')
 
-.directiveAs("playerItemControl", 
-  ["^hsmMachine", "^playerControl","^gameControl"],
+.directiveAs("playerItemControl", ["^hsmMachine", "^playerControl", "^gameControl"],
   function(ActionListService, EntityService, $log, $q) {
     'use strict';
     this.init = function(name, hsmMachine, playerControl, gameControl) {
@@ -36,6 +35,7 @@ angular.module('demo')
       var items, count, currentId;
 
       var playerItems = {
+        // build the initial list of server items
         collect: function() {
           items = {};
           count = 0;
@@ -53,7 +53,7 @@ angular.module('demo')
           record(p.inventory, propContext("inventory"));
           $log.info("playerItemControl: collected", count, "items");
         },
-        has: function(item) {
+        hasItem: function(item) {
           return !!items[item.id];
         },
         empty: function() {
@@ -64,8 +64,9 @@ angular.module('demo')
             cb(items[id]);
           }
         },
-        add: function(item, prop) {
-          var had = playerItems.has(item);
+        addItem: function(item, prop) {
+          var had = playerItems.hasItem(item);
+          // $log.info("playerItemControl", name, "addItem", item, had);
           // record to update context
           items[item.id] = new Record(item, propContext(prop));
           // update changes:
@@ -78,8 +79,8 @@ angular.module('demo')
             });
           }
         },
-        remove: function(item) {
-          if (playerItems.has(item)) {
+        removeItem: function(item) {
+          if (playerItems.hasItem(item)) {
             delete items[item.id];
             count -= 1;
             hsmMachine.emit(name, "removed", {
@@ -88,7 +89,9 @@ angular.module('demo')
           }
         },
         isCurrent: function(item) {
-          return item && (item.id == currentId) && playerItems.has(item);
+          var yes = item && (item.id == currentId) && playerItems.hasItem(item);
+          // $log.debug("playerControl", name, "isCurrent", item, currentId, yes);
+          return yes;
         },
         setCurrent: function(item) {
           currentId = item && item.id;
@@ -96,8 +99,8 @@ angular.module('demo')
         getCombinations: function(item) {
           var waits = [];
           var itemActions = [];
-          var game= gameControl.getGame();
-          
+          var game = gameControl.getGame();
+
           var addToActions = function(ia) {
             if (ia.actions.length) {
               itemActions.push(ia);

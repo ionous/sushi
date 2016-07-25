@@ -82,8 +82,8 @@
         <!-- note: stream listeners only raise events when paused -->
         <hsm-state game-listener="invChange" hsm-enter="invChange.listen('player', 'x-mod')" hsm-exit="invChange.silence()">
           <!-- modify inventory in response to the server giving or taking the player items. -->
-          <hsm-event on="invChange" when="$evt.data.adding" run="items.add($evt.data.child, $evt.data.prop)"></hsm-event>
-          <hsm-event on="invChange" when="$evt.data.removing" run="items.remove($evt.data.child)"></hsm-event>
+          <hsm-event on="invChange" when="$evt.data.adding" run="items.addItem($evt.data.child, $evt.data.prop)"></hsm-event>
+          <hsm-event on="invChange" when="$evt.data.removing" run="items.removeItem($evt.data.child)"></hsm-event>
         </hsm-state>
       </hsm-state>
       <!-- ^~ItemPause -->

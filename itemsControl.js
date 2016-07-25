@@ -66,7 +66,7 @@ angular.module('demo')
       var scope = {
         visible: true,
         barVisible: false,
-        active: 0,
+        active: activeIdx,
         slides: slides,
         name: "",
         actions: null,

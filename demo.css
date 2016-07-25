@@ -137,8 +137,10 @@ main {
 
 .ga-play {
   position: relative;
-  width: 768px;/*24x32; hall, heart are larger.*/
-  height: 640px; /*20x32; no maps are larger.*/
+  width: 768px;
+  /*24x32; hall, heart are larger.*/
+  height: 640px;
+  /*20x32; no maps are larger.*/
   border-radius: 20px;
   overflow: hidden;
   background-color: rgb(66, 81, 77);
@@ -185,12 +187,12 @@ header {
 
 .whereabouts {
   font-weight: bold;
-  font-size:large;
+  font-size: large;
 }
 
 .story-title {
   font-weight: bold;
-  font-size:large;
+  font-size: large;
   float: right;
 }
 
@@ -263,15 +265,12 @@ hsm-state {
   button bar
 */
 
-.ga-buttonbar {
-  position: absolute;
-  /*z-index: 500;*/
-}
-
 .ga-buttonbar .btn {
   margin: 0.2em 0.3em;
   border-radius: 50% !important;
   outline: none !important;
+  max-width: 50px;
+  max-height: 50px;
 }
 
 div.ga-xtip > div.tooltip-inner {
@@ -289,13 +288,16 @@ div.ga-xtip > div.tooltip-inner {
 .ga-right {
   position: absolute;
   right: 0;
-  top: 0;
 }
 
 
 /* ----------------------------------------------
   inventory 
 */
+
+.ga-invbar {
+  position: absolute;
+}
 
 div.carousel {
   min-width: 64px;
