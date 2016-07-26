@@ -1,11 +1,11 @@
 angular.module('demo')
 
-.directiveAs('talkControl', ["^modalControl"], function(
+.directiveAs('talkControl', ["^hsmMachine", "^modalControl"], function(
   ElementSlotService, ObjectDisplayService,
   $log, $q, $timeout) {
   'use strict';
 
-  this.init = function(name, modalControl) {
+  this.init = function(name, hsmMachine, modalControl) {
     // hmmm.... the images have different spacings in them... :(
     // should probably be part of a character/state description.
     var adjust = function(id) {
@@ -34,9 +34,8 @@ angular.module('demo')
       // request this every time in case the map or actor state changes
       var getCharRect = function() {
         var display = ObjectDisplayService.getDisplay(id);
-        if (!display.canvas) {
-          var msg = "dont know how to display text";
-          $log.error(msg, id, actor);
+        if (!display.canvas || !angular.element(display.canvas).parent()) {
+          var msg = ["dont know how to display text", msg, id, actor].join(" ");
           throw new Error(msg);
         }
         return display.canvas.getBoundingClientRect();
@@ -107,11 +106,13 @@ angular.module('demo')
         try {
           nextUnsafe();
         } catch (e) {
-          $log.error(e);
-          destroy = true;
+          $log.warn(e);
+          destroy = e.toString();
         }
         if (destroy) {
-          scope.cleanup("errored out");
+          hsmMachine.emit(name, "error", {
+            reason: destroy,
+          });
         }
       },
       cleanup: function(reason) {

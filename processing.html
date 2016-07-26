@@ -19,6 +19,7 @@
         <hsm-state name="Speaking">
           <hsm-event on="talk-dismiss" when="!speaker.finished()" goto="" run="speaker.next()"></hsm-event>
           <hsm-event on="talk-dismiss" goto="TalkEnabled" run="speaker.cleanup('finished')"></hsm-event>
+          <hsm-event on="speaker-error" goto="TalkEnabled" run="speaker.cleanup($evt.reason)"></hsm-event>
           <hsm-event on="keys" when="$evt.escapeKey(true) || $evt.actionKey(true)" run="modal.dismiss()" goto=""></hsm-event>
         </hsm-state>
       </hsm-state>

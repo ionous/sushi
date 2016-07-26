@@ -23,8 +23,7 @@ angular.module('demo')
       getDisplay: function(id) {
         var display = objectDisplay[id];
         if (!display) {
-          var msg = "no display for object";
-          $log.error(msg, id);
+          var msg = ["no display for object", id ].join(" ");
           throw new Error(msg);
         }
         return display;
