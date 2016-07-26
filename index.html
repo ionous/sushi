@@ -15,9 +15,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!--  -->
   <link rel="stylesheet" href="/script/bootstrap-css-only/css/bootstrap.min.css">
-   <!-- <link rel="stylesheet" href="/script/html5-boilerplate/dist/css/main.css"> -->
+  <!-- <link rel="stylesheet" href="/script/html5-boilerplate/dist/css/main.css"> -->
   <!-- <link rel="stylesheet" href="/script/bootstrap-css-only/css/bootstrap-theme.min.css"> -->
-  <link rel="stylesheet" href="/script/components-font-awesome/css/font-awesome.min.css">  
+  <link rel="stylesheet" href="/script/components-font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="demo.css">
   <!--  -->
   <script src="/script/angular/angular.min.js"></script>
@@ -132,7 +132,8 @@
   </header>
   <main>
     <div element-slot="gameWindow" ng-include="'gameWindow.html'" class="ga-noselect"></div>
-    <div id="ga-menus">
+    <div class="ga-menus" element-slot="menuWindow" ng-show="menuWindow.visible">
+      {{menuWindow.visible}}
       <div element-slot="mainWin" ng-include="'mainWin.html'"></div>
       <div element-slot="aboutWin" ng-include="'aboutWin.html'"></div>
       <div element-slot="creditsWin" ng-include="'creditsWin.html'"></div>

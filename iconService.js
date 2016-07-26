@@ -12,6 +12,7 @@ angular.module('demo')
   .factory('IconService',
     function($log) {
       'use strict';
+      var index = 0;
 
       /** 
        * @param {string} act - the only required parameter.
@@ -23,6 +24,7 @@ angular.module('demo')
          * @const string
          */
         this.id = act.replace(/ /g, "-");
+        this.index = index++;
         /**
          * along with id, allows icon to fulfil an ident role
          * @const string
@@ -101,7 +103,9 @@ angular.module('demo')
         exclude("worn", "carried", "doors"),
 
         // inventory actions
+        //
         new Icon("show it to", "hand-paper-o"),
+
         new Icon("give it to", "hand-rock-o fa-rotate-180"),
         // ( put page on button )
         new Icon("insert it into", "hand-pointer-o"),
@@ -114,7 +118,8 @@ angular.module('demo')
 
         new Icon("put it onto", "hand-pointer-o fa-rotate-180"),
 
-        new Icon("exchange item with", "exchange"),
+        // had "exchange" but already have give for vendibles and the machine
+        new Icon("exchange item with", null),
 
         new Icon("tickle it with", "leaf"),
 
@@ -183,7 +188,6 @@ angular.module('demo')
         new Icon("debug direct parent", null),
         new Icon("debug room contents", null),
         new Icon("debug contents", null),
-
       ];
       var iconLookup = {};
       for (var i = 0; i < iconList.length; ++i) {
@@ -192,24 +196,9 @@ angular.module('demo')
       }
 
       var iconService = {
-        // getIconList: function() {
-        //   return player;
-        // }
-        allIcons: function() {
-          return iconList;
-        },
-        sort: function(a, b) {
-          var oa = iconLookup[a.id] || 0;
-          var ob = iconLookup[b.id] || 0;
-          return oa - ob;
-        },
         getIcon: function(id) {
           var i = iconLookup[id] || 0;
           return iconList[i];
-        },
-        getIconClass: function(id) {
-          var i = iconLookup[id] || 0;
-          return iconList[i].iconClass;
         },
       };
       return iconService;

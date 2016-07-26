@@ -12,11 +12,13 @@ angular.module('demo')
       var scope = {
         show: function(windowName) {
           if (old) {
+            $log.info("windowControl", name, "hiding");
             old.visible = false;
             old = false;
           }
           if (windowName) {
             var scope = ElementSlotService.get(windowName).scope;
+            $log.info("windowControl", name, "showing", windowName);
             scope.visible = true;
             old = scope;
           }

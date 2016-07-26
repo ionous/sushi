@@ -167,7 +167,7 @@ angular.module('demo')
           return !!currentMap;
         },
         which: function() {
-          return ctrl.which();
+          return LocationService();
         },
         changeMap: changeMap,
         changeRoom: function(room) {

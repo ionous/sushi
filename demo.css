@@ -5,6 +5,11 @@
 }
 */
 
+html,
+body {
+  height: 100%;
+}
+
 body {
   /* light text on dark backgrounds; safari looks different than other browsers */
   -webkit-font-smoothing: subpixel-antialiased;
@@ -44,6 +49,11 @@ div.overgrey {
   /*cursor: pointer;
   its actually nice to see some change in the cursor i think*/
   cursor: default;
+}
+
+.ga-greyshow > div.overgrey {
+  opacity: 0.25;
+  background-color: black;
 }
 
 .ga-noselect,
@@ -109,8 +119,22 @@ div.overgrey {
    menu display
 */
 
-#ga-menus a.ga-link {
+main {
+  height: 100%;
+}
+
+.ga-menus {
+  height: 100%;
+  background-color: #337AB7;
+  color: white;
+}
+
+.ga-menus a.ga-link {
   text-transform: uppercase;
+}
+
+.ga-menus .btn {
+  margin-bottom: 10px;
 }
 
 h1,
@@ -508,6 +532,30 @@ div.ga-notify p {
   padding-right: 1.5em;
   margin-top: 0.1em;
   margin-bottom: 0.1em;
+}
+
+
+/* ----------------------------------------------
+  settings 
+*/
+
+.ga-settings {
+  position: absolute;
+  cursor: pointer;
+  background-color: #337AB7;
+  color: white;
+  top: 50%;
+  left: 50%;
+  width: 40%;
+  transform: translate(-50%, -50%);
+  box-shadow: 1px 10px 6px -6px black;
+  border-radius: 20px;
+  border-width: 3px;
+  overflow-y: scroll;
+}
+
+div.ga-settings .btn {
+  margin-bottom: 10px;
 }
 
 

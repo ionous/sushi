@@ -2,7 +2,7 @@
   <h1>Load Game</h1>
   <div class="ga-options">
     <ul class="list-unstyled">
-      <li ng-repeat="game in loadGameWin.games track by $index">
+      <li ng-repeat="game in loadGameWin.games | orderBy: '-data.dateTime' track by $index">
         <ga-link ng-click="loadGameWin.loadGame($index)">
           <span class="idx">Game: {{$index+1}}</span>
           <div class="dateTime">{{game.data.dateTime}}</div>

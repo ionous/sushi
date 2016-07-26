@@ -4,10 +4,12 @@ angular.module('demo')
       'use strict';
 
       var makeAction = function(act) {
+        var icon = IconService.getIcon(act.id);
         return {
           id: act.id,
           name: act.name.split(' ', 1)[0],
-          iconClass: IconService.getIconClass(act.id),
+          iconIndex: icon.index,
+          iconClass: icon.iconClass,
           emitAction: function(p, c) {
             return act.emitAction(p, c);
           }
@@ -34,7 +36,8 @@ angular.module('demo')
           if (actionInfo.nounCount >= 2) {
             // $log.info(actionInfo.id, "c1.contains(actionInfo.tgt)", c1, actionInfo.tgt, c1.contains(actionInfo.tgt) );
             // $log.info(actionInfo.id, "c2.contains(actionInfo.ctx)", c2, actionInfo.ctx, c2.contains(actionInfo.ctx) );
-            return c1.contains(actionInfo.tgt) && c2.contains(actionInfo.ctx);
+            var icon = IconService.getIcon(actionInfo.id);
+            return icon.iconClass && c1.contains(actionInfo.tgt) && c2.contains(actionInfo.ctx);
           }
         };
       };

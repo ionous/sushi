@@ -105,11 +105,15 @@
                   <hsm-state name="SilenceRoomEntryText">
                     <hsm-event on="reportView" when="$evt.end" goto="StoryText"></hsm-event>
                   </hsm-state>
-                  <!-- quiet "the actor says goodbye" -->
+                  <!-- quiet "the actor says goodbye" 
+                  except this is silencing all text that falls inside of the departing event.
+                  ( ex. returning items )
+                  FIX: i hacked sashimi to turn off the message. the correct fix involves the fact before and after actions dont really fall before/after the scope, and they probably should.
                   <hsm-event on="departing" goto="SilenceDepartingText"></hsm-event>
                   <hsm-state name="SilenceDepartingText">
                     <hsm-event on="departing" when="$evt.end" goto="StoryText"></hsm-event>
                   </hsm-state>
+                  -->
                 </hsm-state>
               </hsm-state>
             </hsm-state>
