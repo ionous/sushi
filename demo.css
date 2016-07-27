@@ -478,7 +478,6 @@ div.ga-picker {
   max-height: 32px;
 }
 
-
 /* ----------------------------------------------
   combine box 
 */
@@ -560,6 +559,15 @@ div.ga-settings .btn {
 
 
 /* ----------------------------------------------
+  load game 
+*/
+
+.ga-saved .location {
+  text-transform: capitalize;
+}
+
+
+/* ----------------------------------------------
  talk bubbles, based on:
  http://nicolasgallagher.com/pure-css-speech-bubbles/demo/
 */
@@ -592,8 +600,8 @@ div.ga-settings .btn {
 .ga-bubble:after {
   content: "";
   position: absolute;
-  /* value = - border-top-width - border-bottom-width */
-  bottom: -15px;
+  /* value = - border-top-width - border-bottom-width; additional -1 for annoying gap */
+  bottom: -14px;
   /* controls horizontal position */
   left: 60px;
   /* vary these values to change the angle of the vertex */
