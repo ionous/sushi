@@ -29,13 +29,13 @@ angular.module('demo')
   })
 
 .directiveAs("saveGameControl", ["^gameControl", "^hsmMachine"],
-  function(EventStreamService, LocationService, PositionService,
+  function(EntityService, EventStreamService, LocationService, PositionService,
     LocalStorage, SaveVersion,
     $log, $rootScope) {
     'use strict';
     //
-    var SaveGameData = function(id, data) {
-      this.id = id;
+    var SaveGameData = function(key, data) {
+      this.key = key;
       this.data = data;
     };
     // server storage key
@@ -50,7 +50,7 @@ angular.module('demo')
       return this.data.position;
     };
     //
-    var SavePrefix = "saveGame";
+    var SavePrefix = "save-";
     // retreive save game data from local storage
     var getByKey = function(key) {
       var ret;
@@ -62,18 +62,17 @@ angular.module('demo')
         var item = localStorage.getItem(key);
         var data = angular.fromJson(item);
         if (data.version == SaveVersion) {
-          var id = key.substr(SavePrefix.length);
-          // $log.warn("KEY", id);
-          ret = new SaveGameData(id, data);
+          ret = new SaveGameData(key, data);
         }
       }
       return ret;
     };
     //
     this.init = function(name, gameControl, hsmMachine) {
-      var currentId;
-      this.saveGame = function(id) {
+      var currentId, mapOverride;
+      this.saveGame = function(id, mapOverride_) {
         currentId = id;
+        mapOverride = mapOverride_;
         // FIX FIX: it would be ***much*** better to have this return a promise
         // so we can have a then() handler instead of complete
         gameControl.post({
@@ -92,22 +91,41 @@ angular.module('demo')
             error = "server failed to save";
           } else {
             // FIX: slots cant be branched until we have enable server-side save.
-            var dateTime = new Date().toLocaleString();
+            var date = new Date();
+            var order = date.getTime();
+            var key = "" + order;
+            var loc = LocationService();
+            // FIX: add custom names per map? the blast doors, the vending machine, etc.
+            var roomName;
+            if (!!mapOverride) {
+              roomName = mapOverride;
+            }
+            if (!roomName && !loc.view && !loc.item) {
+              var room = EntityService.getById(loc.room, true);
+              roomName = room.printedName();
+            }
+            if (!roomName) {
+              roomName = loc.mapName();
+            }
+
             var saveData = {
-              slot: slot,
-              dateTime: dateTime,
+              ikey: order,
+              slot: slot, // server slot for recovering server data.
+              where: roomName,
+              when: date.toLocaleString(),
               version: SaveVersion,
               frame: EventStreamService.currentFrame(),
               // via map.get("location") instead?
-              location: LocationService(),
+              location: loc,
               position: PositionService.saveLoad(),
               // [screenshot]
+              // current item
             };
 
             var json = angular.toJson(saveData);
-            $log.info("saveGameControl", name, "saving", json);
+            $log.info("saveGameControl", name, "saving...");
             try {
-              var key = SavePrefix + id;
+              var key = SavePrefix + key;
               localStorage.setItem(key, json);
               localStorage.setItem("mostRecent", key);
               okay = true;
@@ -118,8 +136,7 @@ angular.module('demo')
           }
           // emit on error;
           hsmMachine.emit(name, "saved", {
-            id: id,
-            success: slot,
+            success: saveData,
             error: error
           });
         }
@@ -137,9 +154,10 @@ angular.module('demo')
           for (var i = 0; i < l; i++) {
             try {
               var key = localStorage.key(i);
-              var data = getByKey(key);
-              if (data) {
-                var fini = cb(data);
+              // saveGameData is of type SaveGameData
+              var saveGameData = getByKey(key);
+              if (saveGameData) {
+                var fini = cb(saveGameData);
                 if (fini === false) {
                   break;
                 }

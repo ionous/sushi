@@ -132,10 +132,11 @@ angular.module('demo')
         throw new Error("MapService: unknown category");
       };
 
-      var MapData = function(name, data, bkcolor) {
+      var MapData = function(name, data, bkcolor, properties) {
         this.name = name;
         this.bkcolor = bkcolor;
         this.topLayer = new LayerData(this, data);
+        this.properties= properties || {};
       };
       MapData.prototype.findPath = function(path) {
         var match = function(l, p) {
@@ -168,7 +169,7 @@ angular.module('demo')
 
       var mapService = {
         // FIX: can this be replaced with an angular resource?
-        getMap: function(mapName) {
+        loadMap: function(mapName) {
           var url = "/bin/maps/" + mapName + ".map";
           $log.debug("MapService: get map", url);
           return $http.get(url).then(function(resp) {
@@ -176,7 +177,8 @@ angular.module('demo')
             var names = {};
             var map = new MapData(mapName,
               resp.data.map,
-              resp.data.bkcolor);
+              resp.data.bkcolor,
+              resp.data.properties);
             $rootScope.$broadcast("map ready", map);
             return map;
           }, function(reason) {

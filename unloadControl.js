@@ -15,8 +15,10 @@ angular.module('demo')
       var win = angular.element($window);
       var unloader = {
         requireSave: function(msg) {
-          $log.info("unloadControl", name, "requireSave", msg);
-          warning = msg;
+          if (msg !== warning) {
+            $log.info("unloadControl", name, "requireSave", msg);
+            warning = msg;
+          }
         },
         listen: function() {
           win.on("beforeunload", beforeunload);

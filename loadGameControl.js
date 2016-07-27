@@ -17,18 +17,22 @@ angular.module('demo')
           win = ElementSlotService.get(windowSlot);
           win.scope.visible = true;
           var games = [];
-          saveGameControl.enumerate(function(save) {
-            games.push(save);
+          var lookup = {}
+          saveGameControl.enumerate(function(saveGameData) {
+            var data = saveGameData.data;
+            games.push(data);
+            lookup[data.ikey] = saveGameData;
           });
           //
           win.scope.games = games;
           //
-          win.scope.loadGame = function(index) {
-            var game = games[index];
-            $log.warn("loadGameControl", name, "resume", index);
-            hsmMachine.emit(name, "resume", {
-              gameData: game,
-            });
+          win.scope.loadGame = function(ikey) {
+            var saveGameData = lookup[ikey];
+            if (saveGameData) {
+              hsmMachine.emit(name, "resume", {
+                gameData: saveGameData,
+              });
+            }
           };
         }
       };

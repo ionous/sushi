@@ -91,9 +91,9 @@ angular.module('demo')
           return obj;
         },
         // can return undefined.
-        getById: function(id) {
+        getById: function(id, nothrow) {
           var obj = entities[id];
-          if (!obj) {
+          if (!obj && !nothrow) {
             throw new Error("couldnt find object: " + id);
           }
           return obj;

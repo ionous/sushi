@@ -557,7 +557,7 @@ describe("MapService", function() {
     $httpBackend.when('GET', '/bin/maps/automat.map')
       .respond({map:automat});
 
-    MapService.getMap("automat").then(function(map) {
+    MapService.loadMap("automat").then(function(map) {
       // alien-boy, and alice
       return map.layers["chara"].layers.length;
     }).then(handler);

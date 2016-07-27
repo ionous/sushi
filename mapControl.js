@@ -28,7 +28,7 @@ angular.module('demo')
     // returns a promise:
     var loadMap = function(game, mapEl, next) {
       var mapName = next.mapName();
-      return MapService.getMap(mapName).then(function(map) {
+      return MapService.loadMap(mapName).then(function(map) {
         $log.debug("MapControl: loading map content", mapName);
         var roomId = next.room;
         //
@@ -53,7 +53,8 @@ angular.module('demo')
           return LayerService.createLayers(game, mapEl, map, enclosure, allPads).then(function(tree) {
             var collide = collectCollision(map);
             return {
-              //location: next, everyone is using LocationService instead
+              // note, not all maps are named
+              nameOverride: map.properties.name,
               tree: tree,
               bounds: tree.bounds,
               hitGroups: tree.nodes.ctx.hitGroup,
@@ -143,15 +144,11 @@ angular.module('demo')
       }; // changeMap
 
       var scope = {
-        name: function() {
-          return name;
-        },
         // suspicious of exposing resources object directly to scope watchers
         get: function(key) {
           var ret = currentMap && currentMap[key];
           if (angular.isUndefined(ret)) {
-            var msg = "resource not found";
-            $log.error(msg, key);
+            var msg = ["resource not found", key].join(" ");
             throw new Error(msg);
           }
           return ret;
@@ -182,6 +179,9 @@ angular.module('demo')
           // $log.info("mapControl", name, "changeItem", item);
           return changeMap(LocationService().nextItem(item));
         },
+      };
+      this.nameOverride = function() {
+        return currentMap && currentMap.nameOverride;
       };
       this.changeMap = scope.changeMap;
       this.changeView = scope.changeView;

@@ -49,7 +49,7 @@ angular.module('demo')
         avatar = avatar_;
         if (!hitGroups) {
           var msg = "map has no hit groups";
-          $log.error(msg, map.name());
+          $log.error(msg);
         }
       };
       target.selected = function(mousePos) {
