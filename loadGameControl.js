@@ -17,7 +17,7 @@ angular.module('demo')
           win = ElementSlotService.get(windowSlot);
           win.scope.visible = true;
           var games = [];
-          var lookup = {}
+          var lookup = {};
           saveGameControl.enumerate(function(saveGameData) {
             var data = saveGameData.data;
             games.push(data);

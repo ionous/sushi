@@ -29,11 +29,7 @@ angular.module('demo')
             scope.left = " ";
             scope.right = " ";
           },
-          setStatus: function(evt) {
-            // evt.data = {
-            //   prop: "status-bar-instances-left"
-            //   value: "Alice and the Galactic Traveller"
-            // };
+          updateStatus: function() {
             gameControl
               .getGame()
               .getObject(statusInstance)

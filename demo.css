@@ -13,8 +13,12 @@ body {
 body {
   /* light text on dark backgrounds; safari looks different than other browsers */
   -webkit-font-smoothing: subpixel-antialiased;
-  /* stops scroll bounce, disabled for load game window */
-  /*overflow: hidden;*/
+  /* stops scroll bounce */
+  overflow: hidden;
+}
+
+.ga-fill {
+  height: 100%;
 }
 
 
@@ -52,7 +56,7 @@ div.overgrey {
 }
 
 .ga-greyshow > div.overgrey {
-  opacity: 0.25;
+  opacity: 0.45;
   background-color: black;
 }
 
@@ -119,14 +123,12 @@ div.overgrey {
    menu display
 */
 
-main {
-  height: 100%;
-}
-
 .ga-menus {
-  height: 100%;
   background-color: #337AB7;
   color: white;
+  /* something is causing a gap at the top of body */
+  position: fixed;
+  width: 100%;
 }
 
 .ga-menus a.ga-link {
@@ -148,6 +150,25 @@ h4 {
 .ga-about {
   margin: 0 auto;
   width: 25%;
+}
+
+.ga-saved {
+  position: relative;
+}
+
+.ga-saved > div {
+  margin: 0 auto;
+  width: 50%;
+  height: 100%;
+}
+
+.ga-saved ul {
+  overflow-y: scroll;
+  height: 80%;
+}
+
+.ga-saved .location {
+  text-transform: capitalize;
 }
 
 
@@ -195,10 +216,6 @@ main {
 /* ----------------------------------------------
   status  bar
 */
-
-header {
-  position: relative;
-}
 
 .ga-status {
   position: relative;
@@ -380,10 +397,8 @@ div.ga-picker {
 
 .ga-console {
   position: absolute;
-  left: 160px;
-  width: 480px;
-  /*width: 60%;
-  left: 20%;*/
+  left: 150px;
+  width: 500px;
   background-color: rgba(10, 10, 10, 0.5);
   border-style: ridge;
   border-top-style: none;
@@ -427,7 +442,7 @@ div.ga-picker {
 }
 
 .ga-console .scroll-text {
-  max-height: 500px;
+  height: 500px;
   overflow-y: scroll;
 }
 
@@ -477,6 +492,7 @@ div.ga-picker {
   max-width: 32px;
   max-height: 32px;
 }
+
 
 /* ----------------------------------------------
   combine box 
@@ -555,15 +571,6 @@ div.ga-notify p {
 
 div.ga-settings .btn {
   margin-bottom: 10px;
-}
-
-
-/* ----------------------------------------------
-  load game 
-*/
-
-.ga-saved .location {
-  text-transform: capitalize;
 }
 
 

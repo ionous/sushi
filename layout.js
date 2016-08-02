@@ -191,14 +191,14 @@ angular.module('demo')
     this.text = angular.isArray(text) ? text : [text];
     this.speaker = speaker !== InputMarker ? speaker : false;
   };
-  var blocks = [
+  var history = [
     new Block("Non tortor consequat id id. Semper tempor lobortis rutrum pretium ut elementum dolor."),
     new Block("Risus elit nulla sit augue nulla mollis erat sed. Augue nunc ipsum nec in condimentum nec ipsum. Adipiscing orci dapibus orci ultrices. Posuere ac in ullamcorper orci condimentum. Lacus amet risus ac sollicitudin. Erat non lacus vehicula gravida massa ultrices fusce ipsum viverra. In pellentesque ante porttitor aliquet imperdiet dolor iaculis. Etiam eleifend odio ultricies neque. In id pharetra morbi in non a lorem at feugiat. Et pretium orci lorem vestibulum. Porta molestie vitae est elit arcu augue. Congue orci ultricies convallis erat ultrices ut nulla nisi non."),
     new Block("Risus elit nulla sit augue nulla mollis erat sed. Augue nunc ipsum nec in condimentum nec ipsum. Adipiscing orci dapibus orci ultrices. Posuere ac in ullamcorper orci condimentum. Lacus amet risus ac sollicitudin. Erat non lacus vehicula gravida massa ultrices fusce ipsum viverra. In pellentesque ante porttitor aliquet imperdiet dolor iaculis. Etiam eleifend odio ultricies neque. In id pharetra morbi in non a lorem at feugiat. Et pretium orci lorem vestibulum. Porta molestie vitae est elit arcu augue. Congue orci ultricies convallis erat ultrices ut nulla nisi non."),
     new Block("Risus elit nulla sit augue nulla mollis erat sed. Augue nunc ipsum nec in condimentum nec ipsum. Adipiscing orci dapibus orci ultrices. Posuere ac in ullamcorper orci condimentum. Lacus amet risus ac sollicitudin. Erat non lacus vehicula gravida massa ultrices fusce ipsum viverra. In pellentesque ante porttitor aliquet imperdiet dolor iaculis. Etiam eleifend odio ultricies neque. In id pharetra morbi in non a lorem at feugiat. Et pretium orci lorem vestibulum. Porta molestie vitae est elit arcu augue. Congue orci ultricies convallis erat ultrices ut nulla nisi non."),
   ];
   var console = $scope.console = {
-    blocks: blocks,
+    history: history,
     inputEnabled: true,
     visible: true,
     submit: function(text) {
@@ -206,7 +206,7 @@ angular.module('demo')
         console.visible = false;
       }
       if (text) {
-        blocks.push(new Block("> " + text, InputMarker));
+        history.push(new Block("> " + text, InputMarker));
       }
     },
   };

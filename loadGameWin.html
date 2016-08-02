@@ -1,7 +1,7 @@
-<div class="ga-saved" ng-if="loadGameWin.visible">
+<div class="ga-saved ga-fill" ng-if="loadGameWin.visible">
   <h1>Load Game</h1>
-  <div class="ga-options">
-    <ul class="list-unstyled">
+  <div>
+    <ul class="list-unstyled ga-fill">
       <li ng-repeat="game in loadGameWin.games | orderBy: '-ikey' track by $index">
         <ga-link ng-click="loadGameWin.loadGame(game.ikey)">
           <span class="idx">Game: {{$index+1}}</span>

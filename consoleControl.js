@@ -1,7 +1,6 @@
 angular.module('demo')
 
-.directiveAs("consoleControl", 
-  ["^^textControl", "^^gameControl", "^^modalControl"],
+.directiveAs("consoleControl", ["^^textControl", "^^gameControl", "^^modalControl"],
   function($log, $q, $timeout) {
     'use strict';
 
@@ -18,21 +17,15 @@ angular.module('demo')
           if (modal) {
             modal.close(reason || "console showing");
           }
-          var blocks = textControl.blocks();
+          var history = textControl.history();
           var content = {
             visible: false,
             inputEnabled: false,
-            blocks: blocks,
+            history: history,
             submit: function(userInput) {
-              if (userInput) {
-                blocks.push({
-                  input: true,
-                  text: ["> " + userInput]
-                });
-                gameControl.getGame().post({
-                  'in': userInput,
-                });
-              }
+              gameControl.getGame().post({
+                'in': userInput,
+              });
             }
           };
           var mdl = modalControl.open(what, content);

@@ -20,7 +20,7 @@ angular.module('demo')
               mdl.dismiss(reason);
             },
             saved: function() {
-              return false; //!unloadControl.needsToBeSaved();
+              return !unloadControl.needsToBeSaved();
             },
             saveGame: function() {
               // hrmm....

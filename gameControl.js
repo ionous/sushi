@@ -147,7 +147,8 @@ angular.module('demo')
           hsmMachine.emit(name, "loaded", {
             game: currentGame,
             gameId: res.id,
-            where: loc
+            where: loc,
+            history: saved.history
           });
         });
       };

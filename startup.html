@@ -1,8 +1,8 @@
 <!-- flow chart, default starts waiting for game-created, leaves via GameState -->
 <hsm-state name="Startup">
   <hsm-state name="GamePending">
-    <hsm-event on="game-created" goto="StartingGame"></hsm-event>
-    <hsm-event on="game-loaded" goto="RestoringGame"></hsm-event>
+    <hsm-event on="game-created" run="textHistory.reset()" goto="StartingGame"></hsm-event>
+    <hsm-event on="game-loaded" run="textHistory.reset($evt.history)" goto="RestoringGame"></hsm-event>
   </hsm-state>
   <hsm-state hsm-enter="player.create($evt.where, '/bin/images/princess.png', 64)">
     <hsm-event on="player-created" run="player.locate($evt.where)"></hsm-event>

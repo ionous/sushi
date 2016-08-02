@@ -1,48 +1,36 @@
 angular.module('demo')
 
-.directiveAs("textControl", ["^gameControl"],
-  function($log, $q, $timeout) {
+// text/history control
+.directiveAs("textControl",
+  function($log) {
     'use strict';
-    this.init = function(name, gameControl) {
-      var blocks = [];
-      var display = {
-        id: "_display_",
-        type: "_sys_",
+    this.init = function(name) {
+      // an array of objects
+      // { speaker:string, input:boolean, text:[string] }
+      var history = [];
+      this.reset = function(src) {
+        history = angular.isArray(src) ? src.slice() : [];
       };
-      this.create = function() {
-        blocks = [];
+      this.addText = function(text) {
+        history.push({
+          text: text
+        });
       };
-      this.destroy = function() {
-        blocks = [];
+      this.addSpeech = function(speaker, text) {
+        history.push({
+          speaker: speaker,
+          text: text,
+        });
       };
-      this.blocks = function() {
-        return blocks;
+      this.addInput = function(act, tgt, ctx) {
+        var text = [">", act, tgt, ctx].join(" ").trim();
+        history.push({
+          input: true,
+          text: [text]
+        });
       };
-      this.addLines = function(speaker, lines) {
-        // $log.debug("textControl", name, "addLines", speaker, lines ? lines.length : "???");
-        var defer = $q.defer();
-        var text = lines.slice();
-        // no speaker? add the block immediately:
-        if (speaker == display.id) {
-          blocks.push({
-            text: text
-          });
-          defer.resolve();
-        } else {
-          // need the speaker? add the block as soon as we know their name.
-          gameControl
-            .getGame()
-            .getById(speaker)
-            .then(function(s) {
-              var speakerName = s.attr['kinds-printed-name'] || s.name;
-              blocks.push({
-                speaker: speakerName,
-                text: text,
-              });
-              defer.resolve();
-            });
-        }
-        return defer.promise;
+      this.history = function() {
+        return history;
       };
       return this;
     }; // init

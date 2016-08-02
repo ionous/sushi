@@ -1,8 +1,8 @@
 angular.module('demo')
 
-.directiveAs("saveResponseControl", ["^hsmMachine"],
+.directiveAs("saveResponseControl", ["^textControl"],
   function($log) {
-    this.init = function(name) {
+    this.init = function(name, textControl) {
       var saveGameControl;
       return {
         bindTo: function(saveGameControl_) {
@@ -20,7 +20,13 @@ angular.module('demo')
           $log.info("saveResponseControl", name, "parsing", text);
           var saved = text.split(" ");
           var slot = saved.length == 2 ? saved[1] : null;
-          saveGameControl.complete(slot);
+          var history;
+          try {
+            history = textControl.history().slice(-100);
+          } catch (e) {
+            history = [];
+          }
+          saveGameControl.complete(slot, history);
           saveGameControl = null;
         },
       };
@@ -80,8 +86,8 @@ angular.module('demo')
         });
       };
       // tightly coupled with save game response and processing.html
-      this.complete = function(slot) {
-        var okay, error;
+      this.complete = function(slot, history) {
+        var okay, saveData, error;
         if (currentId) {
           var id = currentId;
           currentId = null;
@@ -108,7 +114,7 @@ angular.module('demo')
               roomName = loc.mapName();
             }
 
-            var saveData = {
+            saveData = {
               ikey: order,
               slot: slot, // server slot for recovering server data.
               where: roomName,
@@ -118,23 +124,24 @@ angular.module('demo')
               // via map.get("location") instead?
               location: loc,
               position: PositionService.saveLoad(),
-              // [screenshot]
-              // current item
+              history: history
+                // [screenshot]
+                // current item
             };
 
             var json = angular.toJson(saveData);
             $log.info("saveGameControl", name, "saving...");
             try {
-              var key = SavePrefix + key;
-              localStorage.setItem(key, json);
-              localStorage.setItem("mostRecent", key);
+              var item = SavePrefix + key;
+              localStorage.setItem(item, json);
+              localStorage.setItem("mostRecent", item);
               okay = true;
             } catch (e) {
               $log.error("save game error", e);
               error = e.toString();
             }
           }
-          // emit on error;
+          // emit on error
           hsmMachine.emit(name, "saved", {
             success: saveData,
             error: error

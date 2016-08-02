@@ -101,9 +101,9 @@ angular.module('demo')
           throw new Error("LayerContext: missing display group");
         }
         this.displayGroup = displayGroup;
-        // without a hitgroup, nothing can be selected.
+        // without a hitGroup, nothing can be selected.
         if (!hitGroup) {
-          throw new Error("LayerContext: hitgroup");
+          throw new Error("LayerContext: hitGroup");
         }
         this.hitGroup = hitGroup;
         // objects needs an enclosure to be displayed
@@ -262,13 +262,12 @@ angular.module('demo')
         var slashPath = mapLayer.getPath();
         var grid = mapLayer.getGrid();
         // var subject = this.object || this.view;
-        // FIX; obviously we shouldnt be yanking from the hitgroup,
+        // FIX; obviously we shouldnt be yanking from the hitGroup,
         // we should track locally.
         var subject = this.hitGroup.subject;
         if (!subject) {
-          var msg1 = "hit group doesnt have a subject";
-          $log.error(msg1, slashPath);
-          throw new Error(msg1);
+          var err1 = ["hit group doesnt have a subject", slashPath].join(" ");
+          throw new Error(err1);
         }
         var replace = subject.pads;
         if (replace) {
@@ -284,7 +283,15 @@ angular.module('demo')
       };
       // create a new child node to represent a zoom/click region
       Context.prototype.newView = function(mapLayer, viewName) {
-        var subject = new Subject(this.object, viewName, mapLayer.path);
+        var object = this.object;
+        // used for the hatch: the object (closed state) is marked as noclick:
+        // requiring zoom when closed, and excluding zoom once opened.
+        if (object && this.hitGroup && !this.hitGroup.children.length) {
+          $log.warn("creating a view for a noclick object", mapLayer);
+          object = null;
+        }
+
+        var subject = new Subject(object, viewName, mapLayer.path);
         var next = this.newContext(mapLayer, {
           hitGroup: this.hitGroup.newHitGroup(viewName, subject),
         });
