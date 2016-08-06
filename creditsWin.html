@@ -1,3 +1,5 @@
-<div class="ga-about" ng-if="creditsWin.visible">
-  <h1>Credits</h1>
+<div class="ga-menus ga-credits" ng-if="!!creditsWin.credits">
+  <div ng-init="credits={items:creditsWin.credits}">
+    <ng-include src="'creditList.html'"></ng-include>
+  </div>
 </div>
