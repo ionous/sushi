@@ -129,12 +129,16 @@ angular.module('demo')
         }
         return GameServerService.new().then(function(res) {
           currentGame = new Game(res.id);
-          hsmMachine.emit(name, "created", {});
+          hsmMachine.emit(name, "created", {
+          });
         });
       };
       this.loadGame = function(saved) {
         if (currentGame) {
           throw new Error("game already in progress");
+        }
+        if (!saved || !saved.valid()) {
+          throw new Error("invalid saved game");
         }
         // format from saveGameControl
         var slot = saved.getSlot();
@@ -152,13 +156,14 @@ angular.module('demo')
           });
         });
       };
-      // NOTE: start happens after new game the firsttime only
+      // NOTE: start happens after new game the first time only
       this.startGame = function() {
         var game = this.getGame();
         if (game.started) {
           throw new Error("game already started");
         }
         game.started = true;
+        $log.info("gameControl", name, "starting new game");
         hsmMachine.emit(name, "starting", {});
         game.post({
           'in': 'start'

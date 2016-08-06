@@ -6,7 +6,7 @@
       <li ng-if="!mainWin.loadGames">
         <ga-link ga-dst="/start" ng-click="mainWin.start()">Begin Game</ga-link>
       </li>
-      <li ng-if="mainWin.loadGames">
+      <li ng-if="mainWin.resumable">
         <ga-link ga-dst="/resume" ng-click="mainWin.resume()">Continue Playing</ga-link>
       </li>
       <li>
@@ -17,7 +17,8 @@
       </li>
       <!-- <li>(options)</li> -->
       <li>
-        <ga-link ga-dst="/about">About</ga-link>
+        <!-- <ga-link ga-dst="/about">About</ga-link> -->
+         <ga-link ga-dst="/about/credits">Credits</ga-link> 
       </li>
     </ul>
   </div>

@@ -16,6 +16,5 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'mosaic', 'hsm'],
   .constant("AutoStart", "Menus") //Begin,Resume,Menus
   .constant("Talk", "TalkEnabled")
   .constant("Popups", "PopupsEnabled")
-  .constant("LocalStorage", true)
   .constant("GameServerUrl", "http://localhost:8080/game") 
   ;

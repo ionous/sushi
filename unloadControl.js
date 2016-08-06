@@ -20,14 +20,18 @@ angular.module('demo')
             warning = msg;
           }
         },
-        listen: function() {
+        create: function() {
           win.on("beforeunload", beforeunload);
         },
-        silence: function() {
+        destroy: function() {
           win.off("beforeunload", beforeunload);
+          warning = false;
         },
         saveMessage: function() {
           return warning;
+        },
+        test: function(evt) {
+          $log.warn("unloadControl", name, "evt:", evt);
         },
         needsToBeSaved: function() {
           return !!warning;

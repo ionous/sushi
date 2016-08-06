@@ -11,8 +11,8 @@
               <hsm-state action-service="actions" hsm-enter="actions.fetch(game)" hsm-exit="actions.fetch(false)">
                 <!-- dialog choices are created by processing, presented by playing -->
                 <hsm-state player-dialog-control="dialog" hsm-enter="dialog.bindTo('commentBox')" hsm-exit="dialog.destroy()">
-                  <hsm-state unload-control="beforeUnload" hsm-enter="beforeUnload.listen()" hsm-exit="beforeUnload.silence()">
-                    <hsm-state hsm-enter="$evt.newGame? beforeUnload.requreSave('Your game isn\'t saved.'):false">
+                  <hsm-state unload-control="beforeUnload" hsm-enter="beforeUnload.create()" hsm-exit="beforeUnload.destroy()">
+                    <hsm-state hsm-enter="$evt.newGame? beforeUnload.requireSave('Your game isn\'t saved.'):false">
                       <!-- startup goes here when done: -->
                       <hsm-state name="GameStarted" parallel="true" command-control="commands" hsm-enter="status.updateStatus()">
                         <hsm-event on="game-posting" run="commands.post($evt.what)"></hsm-event>

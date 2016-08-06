@@ -3,10 +3,11 @@ angular.module('demo')
 .directiveAs("saveResponseControl", ["^textControl"],
   function($log) {
     this.init = function(name, textControl) {
-      var saveGameControl;
+      var saveGameControl, storage;
       return {
         bindTo: function(saveGameControl_) {
           saveGameControl = saveGameControl_;
+          storage = storage;
         },
         destroy: function() {
           if (saveGameControl) {
@@ -34,9 +35,9 @@ angular.module('demo')
     return this;
   })
 
-.directiveAs("saveGameControl", ["^gameControl", "^hsmMachine"],
+.directiveAs("saveGameControl", ["^gameControl", "^storageControl", "^hsmMachine"],
   function(EntityService, EventStreamService, LocationService, PositionService,
-    LocalStorage, SaveVersion,
+    SaveVersion,
     $log, $rootScope) {
     'use strict';
     //
@@ -55,26 +56,14 @@ angular.module('demo')
     SaveGameData.prototype.getPosition = function() {
       return this.data.position;
     };
-    //
-    var SavePrefix = "save-";
-    // retreive save game data from local storage
-    var getByKey = function(key) {
-      var ret;
-      if (!LocalStorage) {
-        throw new Error("local storage disabled");
-      }
-      // $log.info("testing", key);
-      if (key.indexOf(SavePrefix) === 0) {
-        var item = localStorage.getItem(key);
-        var data = angular.fromJson(item);
-        if (data.version == SaveVersion) {
-          ret = new SaveGameData(key, data);
-        }
-      }
-      return ret;
+    SaveGameData.prototype.valid = function() {
+      return this.data.version === SaveVersion;
     };
     //
-    this.init = function(name, gameControl, hsmMachine) {
+    var SavePrefix = "save-";
+
+    //
+    this.init = function(name, gameControl, storageControl, hsmMachine) {
       var currentId, mapOverride;
       this.saveGame = function(id, mapOverride_) {
         currentId = id;
@@ -87,96 +76,102 @@ angular.module('demo')
       };
       // tightly coupled with save game response and processing.html
       this.complete = function(slot, history) {
-        var okay, saveData, error;
-        if (currentId) {
-          var id = currentId;
-          currentId = null;
-          if (!LocalStorage) {
-            error = "no local storage";
-          } else if (!slot) {
-            error = "server failed to save";
-          } else {
-            // FIX: slots cant be branched until we have enable server-side save.
-            var date = new Date();
-            var order = date.getTime();
-            var key = "" + order;
-            var loc = LocationService();
-            // FIX: add custom names per map? the blast doors, the vending machine, etc.
-            var roomName;
-            if (!!mapOverride) {
-              roomName = mapOverride;
-            }
-            if (!roomName && !loc.view && !loc.item) {
-              var room = EntityService.getById(loc.room, true);
-              roomName = room.printedName();
-            }
-            if (!roomName) {
-              roomName = loc.mapName();
-            }
-
-            saveData = {
-              ikey: order,
-              slot: slot, // server slot for recovering server data.
-              where: roomName,
-              when: date.toLocaleString(),
-              version: SaveVersion,
-              frame: EventStreamService.currentFrame(),
-              // via map.get("location") instead?
-              location: loc,
-              position: PositionService.saveLoad(),
-              history: history
-                // [screenshot]
-                // current item
-            };
-
-            var json = angular.toJson(saveData);
-            $log.info("saveGameControl", name, "saving...");
-            try {
-              var item = SavePrefix + key;
-              localStorage.setItem(item, json);
-              localStorage.setItem("mostRecent", item);
-              okay = true;
-            } catch (e) {
-              $log.error("save game error", e);
-              error = e.toString();
-            }
-          }
-          // emit on error
+        if (!currentId) {
+          return;
+        }
+        var fail = function(res) {
           hsmMachine.emit(name, "saved", {
-            success: saveData,
-            error: error
+            error: res || "unknown error"
           });
+        };
+
+        var id = currentId;
+        currentId = null;
+        var store = storageControl.getStorage();
+        if (!store) {
+          return fail("no local storage");
         }
-      };
+        if (!slot) {
+          return fail("server failed to save");
+        }
+        // FIX: slots cant be branched until we have enable server-side save.
+        var date = new Date();
+        var order = date.getTime();
+        var key = "" + order;
+        var loc = LocationService();
+        // FIX: add custom names per map? the blast doors, the vending machine, etc.
+        var roomName;
+        if (!!mapOverride) {
+          roomName = mapOverride;
+        }
+        if (!roomName && !loc.view && !loc.item) {
+          var room = EntityService.getById(loc.room, true);
+          roomName = room.printedName();
+        }
+        if (!roomName) {
+          roomName = loc.mapName();
+        }
+
+        var saveData = {
+          ikey: order,
+          slot: slot, // server slot for recovering server data.
+          where: roomName,
+          when: date.toLocaleString(),
+          version: SaveVersion,
+          frame: EventStreamService.currentFrame(),
+          // via map.get("location") instead?
+          location: loc,
+          position: PositionService.saveLoad(),
+          history: history
+            // [screenshot]
+            // current item
+        }; // saveData
+
+        $log.info("saveGameControl", name, "saving...");
+        var item = SavePrefix + key;
+
+        // angular q doesnt have .fail, how to chain failures?
+        store.setItem(item, saveData, true).then(function() {
+          return store.setItem("mostRecent", item, false);
+        }, fail).then(function() {
+          hsmMachine.emit(name, "saved", {
+            success: saveData
+          });
+        }, fail);
+      }; // complete.
+
+      // PROMISE
       this.mostRecent = function() {
-        if (LocalStorage) {
-          var key = localStorage.getItem("mostRecent");
-          return key && getByKey(key);
-        }
+        var store = storageControl.getStorage();
+        return store.getItem("mostRecent", false).then(function(key) {
+          $log.debug("saveGameControl", name, "retrieved most recent", key);
+          return store.getItem(key, true).then(function(data) {
+            $log.debug("saveGameControl", name, "retrieved data", !!data);
+            if (data) { // null data can happen on save error
+              return new SaveGameData(key, data);
+            }
+          });
+        });
+      };
+      this.checkData = function() {
+        var store = storageControl.getStorage();
+        return store.checkItems();
       };
       this.enumerate = function(cb) {
+        var store = storageControl.getStorage();
         var count = 0;
-        if (LocalStorage) {
-          var l = localStorage.length;
-          for (var i = 0; i < l; i++) {
-            try {
-              var key = localStorage.key(i);
-              // saveGameData is of type SaveGameData
-              var saveGameData = getByKey(key);
-              if (saveGameData) {
-                var fini = cb(saveGameData);
-                if (fini === false) {
-                  break;
-                }
-              }
-              count += 1;
-            } catch (x) {
-              $log.error("SaveResourceControl: error parsing local storage", x);
-            }
+        return store.enumerate(function(k) {
+          return k.indexOf(SavePrefix) === 0;
+        }, function(k, data) {
+          if (data) {
+            var saveGameData = new SaveGameData(k, data);
+            cb(saveGameData);
           }
-        }
-        return count;
-      };
+          count += 1;
+        }).then(function() {
+          return count;
+        });
+      }; // enumerate
       return this;
     }; // init
   });

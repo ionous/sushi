@@ -13,18 +13,22 @@ angular.module('demo')
           }
         },
         open: function(windowSlot, path) {
+          $log.info("loadGameControl", name, "opening", "slot:", windowSlot, "path:", path);
           $location.path(path).search("");
           win = ElementSlotService.get(windowSlot);
           win.scope.visible = true;
           var games = [];
           var lookup = {};
           saveGameControl.enumerate(function(saveGameData) {
-            var data = saveGameData.data;
-            games.push(data);
-            lookup[data.ikey] = saveGameData;
+            if (saveGameData.valid()) {
+              $log.info("adding", saveGameData.key);
+              var data = saveGameData.data;
+              games.push(data);
+              lookup[data.ikey] = saveGameData;
+            }
+          }).then(function() {
+            win.scope.games = games;
           });
-          //
-          win.scope.games = games;
           //
           win.scope.loadGame = function(ikey) {
             var saveGameData = lookup[ikey];

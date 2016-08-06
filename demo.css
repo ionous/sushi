@@ -13,14 +13,10 @@ body {
 body {
   /* light text on dark backgrounds; safari looks different than other browsers */
   -webkit-font-smoothing: subpixel-antialiased;
-  /* stops scroll bounce */
-  overflow: hidden;
+  /* stops scroll bounce at the expense of having to drop height 100% everywhere:
+  ( and difficulty with getting menus to not push other elements off screen ).
+  overflow: hidden;*/
 }
-
-.ga-fill {
-  height: 100%;
-}
-
 
 /**/
 
@@ -126,9 +122,10 @@ div.overgrey {
 .ga-menus {
   background-color: #337AB7;
   color: white;
-  /* something is causing a gap at the top of body */
   position: fixed;
   width: 100%;
+  height: 100%;
+  overflow-y: scroll;
 }
 
 .ga-menus a.ga-link {
@@ -152,23 +149,40 @@ h4 {
   width: 25%;
 }
 
-.ga-saved {
-  position: relative;
-}
-
-.ga-saved > div {
+.ga-saved ul {
+  height: 80%;
   margin: 0 auto;
   width: 50%;
-  height: 100%;
-}
-
-.ga-saved ul {
-  overflow-y: scroll;
-  height: 80%;
 }
 
 .ga-saved .location {
   text-transform: capitalize;
+}
+
+
+/* ----------------------------------------------
+  credits
+*/
+
+.ga-credits {
+  text-align: center;
+}
+
+.ga-credits a {
+  color: white;
+  cursor: auto;
+  font-size: small;
+}
+
+.ga-credits .author {
+  font-size: small;
+}
+.ga-credits a.url {
+  text-decoration: underline;
+}
+
+.ga-credits h3 {
+  margin-bottom: 0;
 }
 
 
@@ -191,7 +205,7 @@ main {
   background-color: rgb(66, 81, 77);
   top: 50%;
   left: 50%;
-  padding: 0px;
+  padding: 0;
   margin-left: -383px;
   /*https://bugs.chromium.org/p/chromium/issues/detail?id=157218*/
   z-index: 1;
@@ -222,7 +236,7 @@ main {
   width: 768px;
   min-height: 1.8em;
   left: 50%;
-  padding: 0px;
+  padding: 0;
   margin-left: -383px;
 }
 
@@ -239,9 +253,9 @@ main {
 
 .state-display {
   position: absolute;
-  left: 0px;
-  overflow: scroll;
-  top: 0px;
+  left: 0;
+  /*overflow: scroll;*/
+  top: 0;
   max-height: 600px;
   margin: 0 auto;
   border: thin solid black;
@@ -297,8 +311,8 @@ hsm-state {
   width: 42px;
   height: 42px;
   line-height: 42px;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
 
@@ -454,8 +468,8 @@ div.ga-picker {
 .ga-comment-box {
   position: absolute;
   background-color: rgba(100, 100, 100, 0.75);
-  left: 0px;
-  bottom: 0px;
+  left: 0;
+  bottom: 0;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
   padding-top: 0.5em;
@@ -467,7 +481,7 @@ div.ga-picker {
   list-style-type: none;
   margin-right: 10px;
   margin-left: 10px;
-  padding-left: 0px;
+  padding-left: 0;
 }
 
 .ga-comment-box li {
@@ -534,7 +548,7 @@ div.ga-picker {
   border-width: 3px;
   /*border-style: inset;
   border-color: white;*/
-  overflow-y: scroll;
+  /*overflow-y: scroll;*/
 }
 
 div.ga-notify-box {
@@ -542,7 +556,7 @@ div.ga-notify-box {
 }
 
 div.ga-notify p {
-  padding: 0px;
+  padding: 0;
   padding-left: 1.5em;
   padding-right: 1.5em;
   margin-top: 0.1em;
@@ -566,7 +580,7 @@ div.ga-notify p {
   box-shadow: 1px 10px 6px -6px black;
   border-radius: 20px;
   border-width: 3px;
-  overflow-y: scroll;
+  /*overflow-y: scroll;*/
 }
 
 div.ga-settings .btn {

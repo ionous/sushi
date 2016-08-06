@@ -100,6 +100,7 @@
   <script src="physicsControl.js"></script>
   <script src="resumeControl.js"></script>
   <script src="saveGameControl.js"></script>
+  <script src="storageControl.js"></script>
   <script src="settingsControl.js"></script>
   <script src="statusControl.js"></script>
   <script src="talkControl.js"></script>
@@ -131,14 +132,14 @@
       <span class="ga-noselect story-title">{{statusBar.right}}</span>
     </div>
   </header>
-  <main class="ga-fill">
+  <main>
     <div element-slot="gameWindow" ng-include="'gameWindow.html'">
     </div>
-    <div class="ga-menus ga-fill" element-slot="menuWindow" ng-show="menuWindow.visible">
+    <div class="ga-menus" element-slot="menuWindow" ng-show="menuWindow.visible">
       <div element-slot="mainWin" ng-include="'mainWin.html'"></div>
       <div element-slot="aboutWin" ng-include="'aboutWin.html'"></div>
       <div element-slot="creditsWin" ng-include="'creditsWin.html'"></div>
-      <div class="ga-fill" element-slot="loadGameWin" ng-include="'loadGameWin.html'">
+      <div element-slot="loadGameWin" ng-include="'loadGameWin.html'">
       </div>
     </div>
   </main>
