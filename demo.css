@@ -18,6 +18,7 @@ body {
   overflow: hidden;*/
 }
 
+
 /**/
 
 .nav,
@@ -149,10 +150,18 @@ h4 {
   width: 25%;
 }
 
+.ga-saved {
+  position: absolute;
+  margin: 0 auto;
+  height: 100%;
+  width: 100%;
+}
+
 .ga-saved ul {
   height: 80%;
   margin: 0 auto;
   width: 50%;
+  overflow-y: scroll;
 }
 
 .ga-saved .location {
@@ -177,6 +186,7 @@ h4 {
 .ga-credits .author {
   font-size: small;
 }
+
 .ga-credits a.url {
   text-decoration: underline;
 }
@@ -542,13 +552,9 @@ div.ga-picker {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /*box-shadow: 3px 3px 5px 6px black; */
   box-shadow: 1px 10px 6px -6px black;
   border-radius: 20px;
   border-width: 3px;
-  /*border-style: inset;
-  border-color: white;*/
-  /*overflow-y: scroll;*/
 }
 
 div.ga-notify-box {
@@ -580,7 +586,6 @@ div.ga-notify p {
   box-shadow: 1px 10px 6px -6px black;
   border-radius: 20px;
   border-width: 3px;
-  /*overflow-y: scroll;*/
 }
 
 div.ga-settings .btn {
