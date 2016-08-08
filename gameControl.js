@@ -129,8 +129,7 @@ angular.module('demo')
         }
         return GameServerService.new().then(function(res) {
           currentGame = new Game(res.id);
-          hsmMachine.emit(name, "created", {
-          });
+          hsmMachine.emit(name, "created", {});
         });
       };
       this.loadGame = function(saved) {
@@ -140,7 +139,7 @@ angular.module('demo')
         if (!saved || !saved.valid()) {
           throw new Error("invalid saved game");
         }
-        // format from saveGameControl
+        // format from loadGameControl
         var slot = saved.getSlot();
         GameServerService.load(slot).then(function(res) {
           var loc = saved.getLocation();

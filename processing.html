@@ -54,15 +54,9 @@
       <hsm-event on="converse" when="!$evt.data.next" run="dialog.setTitle()" goto="Entitlement"></hsm-event>
     </hsm-state>
   </hsm-state>
-  <!-- handle save responses -->
-  <hsm-state game-listener="saveGame" hsm-enter="saveGame.listen('player', 'saving-it')" hsm-exit="saveGame.silence()" save-response-control="saveResponse">
-    <hsm-state game-listener="storyText" hsm-enter="storyText.listen('_display_', 'print')" hsm-exit="storyText.silence()" hsm-init="'Playback'">
-      <hsm-event on="stream-empty" run="saveResponse.destroy()"></hsm-event>
-      <hsm-event on="saveGame" goto="Saving"></hsm-event>
-      <hsm-state name="Saving" hsm-enter="saveResponse.bindTo(saves)">
-        <hsm-event on="storyText" run="saveResponse.parse($evt.data)" goto="Playback"></hsm-event>
-      </hsm-state>
-      <hsm-state name="Playback">
+  
+    <hsm-state game-listener="storyText" hsm-enter="storyText.listen('_display_', 'print')" hsm-exit="storyText.silence()">
+      
         <!-- handle story text -->
         <hsm-state game-listener="reportView" hsm-enter="reportView.listen('*', 'reporting-the-view', true)" hsm-exit="reportView.silence()">
           <hsm-state game-listener="comments" hsm-enter="comments.listen('player', 'printing-conversation-choices', true)" hsm-exit="comments.silence()">
@@ -126,7 +120,5 @@
             </hsm-state>
           </hsm-state>
         </hsm-state>
-      </hsm-state>
     </hsm-state>
-  </hsm-state>
 </hsm-state>

@@ -1,10 +1,10 @@
 angular.module('demo')
 
-.directiveAs("mainMenuControl", ["^saveGameControl", "^^hsmMachine"],
+.directiveAs("mainMenuControl", ["^loadGameControl", "^^hsmMachine"],
   function(ElementSlotService, $location, $log) {
     'use strict';
     var win;
-    this.init = function(name, saveGameControl, hsmMachine) {
+    this.init = function(name, loadGameControl, hsmMachine) {
       var menu = {
         close: function() {
           if (win) {
@@ -20,12 +20,12 @@ angular.module('demo')
           // speed, move over many frames?
           // or, maybe save "most recent" key.
           var mostRecent;
-          saveGameControl.mostRecent().then(function(mr) {
+          loadGameControl.mostRecent().then(function(mr) {
             mostRecent = mr;
             win.scope.resumable = !!mostRecent && mostRecent.valid();
           });
-          saveGameControl.checkData().then(function(yes) {
-            win.scope.loadGames = yes;
+          loadGameControl.checkData().then(function(yes) {
+            win.scope.loadGame = yes;
           });
           win.scope.start = function() {
             hsmMachine.emit(name, "start", {

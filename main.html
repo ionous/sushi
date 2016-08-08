@@ -1,36 +1,36 @@
 <hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()">
-  <hsm-state storage-control="store" hsm-enter="store.create()" hsm-exit="store.destroy()">
-    <hsm-state game-control="game" process-control="stream" save-game-control="saves" text-control="textHistory">
+  <hsm-state storage-control="store" hsm-enter="store.create()" hsm-exit="store.destroy()" load-game-control="games">
+    <hsm-state game-control="game" process-control="stream" text-control="textHistory">
       <hsm-state window-control="menus" hsm-enter="menus.show('menuWindow')" hsm-exit="menus.show(false)">
-    <hsm-state name="AutoStart" hsm-init="constant('AutoStart')">
-      <hsm-state name="Menus" hsm-init="path.titlecase()">
-        <hsm-event on="path-change" goto="Menus"></hsm-event>
-        <hsm-state name="MainMenu" main-menu-control="main" hsm-enter="main.open('mainWin', '/')" hsm-exit="main.close()">
-          <hsm-event on="main-start" run="game.newGame()" goto="Game"></hsm-event>
-          <hsm-event on="main-resume" run="game.loadGame($evt.gameData)" goto="Game"></hsm-event>
-        </hsm-state>
-        <hsm-state name="About" about-control="about" hsm-enter="about.open('aboutWin', '/about')" hsm-exit="about.close()">
-        </hsm-state>
-        <hsm-state name="AboutCredits" credits-control="credits" hsm-enter="credits.open('creditsWin', '/about/credits')" hsm-exit="credits.close()">
-          <hsm-event on="about-main" goto="Menu"></hsm-event>
-        </hsm-state>
-        <hsm-state name="Saved" load-game-control="saved" hsm-enter="saved.open('loadGameWin', '/saved')" hsm-exit="saved.close()">
-          <hsm-event on="saved-resume" run="game.loadGame($evt.gameData)" goto="Game"></hsm-event>
+        <hsm-state name="AutoStart" hsm-init="constant('AutoStart')">
+          <hsm-state name="Menus" hsm-init="path.titlecase()">
+            <hsm-event on="path-change" goto="Menus"></hsm-event>
+            <hsm-state name="MainMenu" main-menu-control="main" hsm-enter="main.open('mainWin', '/')" hsm-exit="main.close()">
+              <hsm-event on="main-start" run="game.newGame()" goto="Game"></hsm-event>
+              <hsm-event on="main-resume" run="game.loadGame($evt.gameData)" goto="Game"></hsm-event>
+            </hsm-state>
+            <hsm-state name="About" about-control="about" hsm-enter="about.open('aboutWin', '/about')" hsm-exit="about.close()">
+            </hsm-state>
+            <hsm-state name="AboutCredits" credits-control="credits" hsm-enter="credits.open('creditsWin', '/about/credits')" hsm-exit="credits.close()">
+              <hsm-event on="about-main" goto="Menu"></hsm-event>
+            </hsm-state>
+            <hsm-state name="Saved" load-menu-control="saved" hsm-enter="saved.open('loadMenuWin', '/saved')" hsm-exit="saved.close()">
+              <hsm-event on="saved-resume" run="game.loadGame($evt.gameData)" goto="Game"></hsm-event>
+            </hsm-state>
+          </hsm-state>
+          <hsm-state hsm-enter="menus.show(false)" hsm-exit="menus.show('menuWindow')">
+            <ng-include src="'game.html'"></ng-include>
+          </hsm-state>
+          <!-- auto start helpers: -->
+          <hsm-state name="Resume" resume-control="mostRecent" hsm-enter="mostRecent.load()">
+            <hsm-event on="most-recent-loaded" when="$evt.gameData" run="game.loadGame($evt.gameData)" goto="Game"></hsm-event>
+            <hsm-event on="most-recent-loaded" run="game.newGame()" goto="Game"></hsm-event>
+          </hsm-state>
+          <hsm-state name="Begin" resume-control="ignore" hsm-enter="ignore.load()">
+            <hsm-event on="ignore-loaded" run="game.newGame()" goto="Game"></hsm-event>
+          </hsm-state>
         </hsm-state>
       </hsm-state>
-      <hsm-state hsm-enter="menus.show(false)" hsm-exit="menus.show('menuWindow')">
-        <ng-include src="'game.html'"></ng-include>
-      </hsm-state>
-      <!-- auto start helpers: -->
-      <hsm-state name="Resume" resume-control="mostRecent" hsm-enter="mostRecent.load()">
-        <hsm-event on="most-recent-loaded" when="$evt.gameData" run="game.loadGame($evt.gameData)" goto="Game"></hsm-event>
-        <hsm-event on="most-recent-loaded" run="game.newGame()" goto="Game"></hsm-event>
-      </hsm-state>
-      <hsm-state name="Begin" resume-control="ignore" hsm-enter="ignore.load()">
-        <hsm-event on="ignore-loaded" run="game.newGame()" goto="Game"></hsm-event>
-      </hsm-state>
-    </hsm-state>
-  </hsm-state>
     </hsm-state>
   </hsm-state>
 </hsm-state>

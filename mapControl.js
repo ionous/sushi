@@ -47,14 +47,22 @@ angular.module('demo')
               contents: contents,
             };
           }
+          // derive user friendly map name
+          var friendlyName = map.properties.name;
+          if (!friendlyName && !next.view && !next.item) {
+            friendlyName = room.printedName();
+          }
+          if (!friendlyName) {
+            friendlyName = mapName;
+          }
 
           // tree contains: el, bounds, nodes
           var allPads = [];
           return LayerService.createLayers(game, mapEl, map, enclosure, allPads).then(function(tree) {
             var collide = collectCollision(map);
             return {
-              // note, not all maps are named
-              nameOverride: map.properties.name,
+              mapName: friendlyName,
+              where: next,
               tree: tree,
               bounds: tree.bounds,
               hitGroups: tree.nodes.ctx.hitGroup,
@@ -103,7 +111,7 @@ angular.module('demo')
           var show = next.item || next.view;
 
           // use a defer so we can cancel if need be
-          // note, the cancel doesnt really work -- wed need to check for cancel at each stage... somehow
+          // note, cancel doesnt work well -- wed need to check for cancel at each stage... somehow
           var defer = $q.defer();
           loading = defer;
 
@@ -113,17 +121,10 @@ angular.module('demo')
 
           // load!
           var slot = ElementSlotService.get(mapSlotName);
-          loadMap(gameControl.getGame(), slot.element, next).then(function(loadedMap) {
-            $log.info("mapControl", name, "got map", next.toString());
-            defer.resolve({
-              map: loadedMap,
-              where: next
-            });
-          });
+          loadMap(gameControl.getGame(), slot.element, next).then(defer.resolve);
 
-          // loaded! (and not cancelled int he mean time)
-          ret = defer.promise.then(function(loaded) {
-            var map = loaded.map;
+          // loaded! (and not rejected in the meantime)
+          ret = defer.promise.then(function(map) {
             currentMap = map;
             loading = null;
             // size the view
@@ -133,9 +134,9 @@ angular.module('demo')
             };
             slot.scope.loaded = true;
             //
-            $log.warn("mapControl", name, "loaded!");
-            hsmMachine.emit(name, "loaded", loaded);
-            return loaded;
+            $log.warn("mapControl", name, "loaded", map.name);
+            hsmMachine.emit(name, "loaded", map);
+            return map;
           }, function(reason) {
             $log.error("mapControl", name, "map failed to load", reason);
           }); // return
@@ -180,13 +181,13 @@ angular.module('demo')
           return changeMap(LocationService().nextItem(item));
         },
       };
-      this.nameOverride = function() {
-        return currentMap && currentMap.nameOverride;
-      };
       this.changeMap = scope.changeMap;
       this.changeView = scope.changeView;
       this.changeItem = scope.changeItem;
       this.changeRoom = scope.changeRoom;
+      this.currentMap = function() {
+        return currentMap;
+      };
       return scope;
     };
   });

@@ -9,12 +9,14 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'mosaic', 'hsm'],
     //aHrefSanitizationWhitelist ///^\s*(https?|ftp|mailto|tel|file|chrome-extension):/;
     $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|ftp|file|blob|chrome-extension):|data:image\/)/);
 })
-  .constant("ShowHsm", false)
+  .constant("ShowHsm", true) // state chart
   .constant("GameVersion", "0")
+  .constant("SavePrefix", "save-")
   .constant("SaveVersion", "01")
-  .constant("RequireSave", true)
-  .constant("AutoStart", "Menus") //Begin,Resume,Menus
+  .constant("AutoStart", "Begin") //Begin,Resume,Menus
   .constant("Talk", "TalkEnabled")
   .constant("Popups", "PopupsEnabled")
   .constant("GameServerUrl", "http://localhost:8080/game") 
+  .constant("RequireSave", "Prompt") // Prompt,Autosave,false. note: prompt becomes Autosave under chrome.
+  
   ;

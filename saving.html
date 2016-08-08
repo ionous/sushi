@@ -1,0 +1,21 @@
+<hsm-state name="Saving" save-popup-control="savepop" hsm-enter="savepop.open('savePopup')" hsm-exit="savepop.close()">
+  <hsm-event on="modal-opened" goto=""></hsm-event>
+  <!-- received frame -->
+  <hsm-state name="SaveProcessing" game-listener="saveGame" hsm-enter="saveGame.listen('player', 'saving-it')" hsm-exit="saveGame.silence()">
+    <hsm-event on="saveGame" goto="SaveFinishing"></hsm-event>
+  </hsm-state>
+  <!-- parsing save game response -->
+  <hsm-state name="SaveFinishing" game-listener="storyText" hsm-enter="storyText.listen('_display_', 'print')" hsm-exit="storyText.silence()">
+    <hsm-event on="storyText" run="save.completeSave($evt.data).finally($evt.resolve())"></hsm-event>
+  </hsm-state>
+  <!-- finished saving -->
+  <hsm-event on="save-saved" run="savepop.onSuccess($evt)" goto="SaveEnd"></hsm-event>
+  <hsm-event on="save-error" run="savepop.onError($evt)" goto="SaveEnd"></hsm-event>
+  <!--  -->
+  <hsm-state name="SaveEnd">
+    <!-- ugly: savepop.close resolves the storyText event,
+    its the resolve not the close that gets us out of this state.-->
+    <hsm-event on="savepop-continue" run="savepop.close()"></hsm-event>
+    <hsm-event on="savepop-exit" goto="Menus"></hsm-event>
+  </hsm-state>
+</hsm-state>

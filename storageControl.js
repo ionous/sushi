@@ -3,7 +3,10 @@ angular.module('demo')
 // normalize chrome StorageArea and the normal browser localStorage
 .directiveAs("storageControl",
   function($log, $q, $window) {
+    'use strict';
     var storgeSingleton;
+    var chrome = $window.chrome;
+
     this.init = function(name) {
       var NoStore = function() {
         var notImplemented = function() {
@@ -36,7 +39,7 @@ angular.module('demo')
         this.setItem = function(k, v, pack) {
           return $q.when().then(function() {
             v = pack ? angular.toJson(v) : v;
-            $log.info("storageControl", name, "saving", k, v);
+            $log.info("storageControl", name, "saving", k);
             ls.setItem(k, v);
           });
         };
@@ -144,7 +147,7 @@ angular.module('demo')
             throw new Error("storage already created");
           }
           var store;
-          var sa = $window.chrome && $window.chrome.storage && $window.chrome.storage.local;
+          var sa = chrome && chrome.storage && chrome.storage.local;
           if (!!sa) {
             $log.info("storageControl", name, "initializing chrome storage");
             store = new ChromeStore(sa);

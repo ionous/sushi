@@ -58,13 +58,14 @@
                     <!--  -->
                     <hsm-event on="settings-closed" goto="SharedPlay"></hsm-event>
                     <hsm-event on="settings-dismiss" run="settings.close($evt.reason)"></hsm-event>
-                    <hsm-event on="settings-exit" when="beforeUnload.needsToBeSaved()" goto="SharedExit"></hsm-event>
+                    <hsm-event on="settings-save" run="save.requestSave()"></hsm-event>
+                    <hsm-event on="settings-exit" when="save.needsToBeSaved()" goto="SharedExit"></hsm-event>
                     <hsm-event on="settings-exit" goto="Menus"></hsm-event>
                   </hsm-state>
                 </hsm-state>
                 <!-- ^~SharedSettings -->
                 <hsm-state name="SharedExit" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
-                  <hsm-state confirm-exit-control="confirm" hsm-enter="confirm.open('confirmExit', beforeUnload)" hsm-exit="confirm.close()">
+                  <hsm-state confirm-exit-control="confirm" hsm-enter="confirm.open('confirmExit')" hsm-exit="confirm.close()">
                     <hsm-event on="modal-opened" goto=""></hsm-event>
                     <hsm-event on="keys" when="$evt.escapeKey()" run="confirm.close('escape')"></hsm-event>
                     <!--  -->

@@ -171,7 +171,6 @@ angular.module('demo')
       };
 
       this.open = function(slotName, params) {
-
         if (modalInstance) {
           modalInstance.close("opening:" + slotName);
           scope.topWindow = "";

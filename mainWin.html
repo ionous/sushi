@@ -3,16 +3,16 @@
   <h4>web version 0.{{constant('GameVersion')}}.{{constant('SaveVersion')}}</h4>
   <div class="ga-options">
     <ul class="list-unstyled">
-      <li ng-if="!mainWin.loadGames">
+      <li ng-if="!mainWin.loadGame">
         <ga-link ga-dst="/start" ng-click="mainWin.start()">Begin Game</ga-link>
       </li>
       <li ng-if="mainWin.resumable">
         <ga-link ga-dst="/resume" ng-click="mainWin.resume()">Continue Playing</ga-link>
       </li>
       <li>
-        <ga-link ga-dst="/saved" ga-disabled="!mainWin.loadGames">Load Game</ga-link>
+        <ga-link ga-dst="/saved" ga-disabled="!mainWin.loadGame">Load Game</ga-link>
       </li>
-      <li ng-if="mainWin.loadGames">
+      <li ng-if="mainWin.loadGame">
         <ga-link ga-dst="/start" ng-click="mainWin.start()">New Game</ga-link>
       </li>
       <!-- <li>(options)</li> -->

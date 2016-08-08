@@ -84,6 +84,7 @@
   <script src="inventoryControl.js"></script>
   <script src="itemsControl.js"></script>
   <script src="keyControl.js"></script>
+  <script src="loadGameControl.js"></script>
   <script src="locationControl.js"></script>
   <script src="mapControl.js"></script>
   <script src="modalControl.js"></script>
@@ -99,7 +100,8 @@
   <script src="processControl.js"></script>
   <script src="physicsControl.js"></script>
   <script src="resumeControl.js"></script>
-  <script src="saveGameControl.js"></script>
+  <script src="saveControl.js"></script>
+  <script src="savePopupControl.js"></script>
   <script src="storageControl.js"></script>
   <script src="settingsControl.js"></script>
   <script src="statusControl.js"></script>
@@ -107,13 +109,12 @@
   <script src="textControl.js"></script>
   <script src="timeoutControl.js"></script>
   <script src="updateControl.js"></script>
-  <script src="unloadControl.js"></script>
   <script src="viewControl.js"></script>
   <script src="windowControl.js"></script>
   <!-- menus -->
   <script src="aboutControl.js"></script>
   <script src="creditsControl.js"></script>
-  <script src="loadGameControl.js"></script>
+  <script src="loadMenuControl.js"></script>
   <script src="mainMenuControl.js"></script>
   <!-- components  -->
   <!-- controllers  -->
@@ -139,11 +140,11 @@
       <div element-slot="mainWin" ng-include="'mainWin.html'"></div>
       <div element-slot="aboutWin" ng-include="'aboutWin.html'"></div>
       <div element-slot="creditsWin" ng-include="'creditsWin.html'"></div>
-      <div element-slot="loadGameWin" ng-include="'loadGameWin.html'">
+      <div element-slot="loadMenuWin" ng-include="'loadMenuWin.html'">
       </div>
     </div>
   </main>
-  <footer ng-init="hsmExpanded=false">
+  <footer ng-init="hsmExpanded=true">
     <div class="state-display" ng-show="constant('ShowHsm')">
       <a href="" ng-click="hsmExpanded=!hsmExpanded">states [{{hsmExpanded ? 'x' : 'o'}}]</a>
       <ng-include src="'main.html'" ng-show="hsmExpanded"></ng-include>

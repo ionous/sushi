@@ -1,14 +1,12 @@
 angular.module('demo')
 
-.directiveAs("resumeControl", ["^saveGameControl", "^hsmMachine"],
+.directiveAs("resumeControl", ["^loadGameControl", "^hsmMachine"],
   function($log) {
     'use strict';
-    //
-    var win;
-    this.init = function(name, saveGameControl, hsmMachine) {
+    this.init = function(name, loadGameControl, hsmMachine) {
       var resume = {
         load: function() {
-          saveGameControl.mostRecent().then(function(mostRecent) {
+          loadGameControl.mostRecent().then(function(mostRecent) {
             hsmMachine.emit(name, "loaded", {
               gameData: mostRecent
             });

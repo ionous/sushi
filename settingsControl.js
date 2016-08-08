@@ -1,10 +1,10 @@
 angular.module('demo')
 
-.directiveAs("settingsControl", ["^^gameControl", "^hsmMachine", "^mapControl", "^^modalControl", "^^saveGameControl", "^^unloadControl"],
+.directiveAs("settingsControl", ["^hsmMachine", "^^modalControl", "^^saveControl"],
   function() {
     'use strict';
     var ctrl = this;
-    this.init = function(name, gameControl, hsmMachine, mapControl, modalControl, saveGameControl, unloadControl) {
+    this.init = function(name, hsmMachine, modalControl,  saveControl) {
       var modal;
       var settings = {
         close: function(reason) {
@@ -20,12 +20,10 @@ angular.module('demo')
               mdl.dismiss(reason);
             },
             saved: function() {
-              return !unloadControl.needsToBeSaved();
+              return !saveControl.needsToBeSaved();
             },
             saveGame: function() {
-              // hrmm....
-              var id = gameControl.getGame().id;
-              saveGameControl.saveGame(id, mapControl.nameOverride());
+              hsmMachine.emit(name, "save", {});
             },
             exitGame: function() {
               hsmMachine.emit(name, "exit", {});

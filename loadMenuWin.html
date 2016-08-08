@@ -1,8 +1,8 @@
-<div class="ga-saved" ng-if="loadGameWin.visible">
+<div class="ga-saved" ng-if="loadMenuWin.visible">
   <h1>Load Game</h1>
   <ul class="list-unstyled">
-    <li ng-repeat="game in loadGameWin.games | orderBy: '-ikey' track by $index">
-      <ga-link ng-click="loadGameWin.loadGame(game.ikey)">
+    <li ng-repeat="game in loadMenuWin.games | orderBy: '-ikey' track by $index">
+      <ga-link ng-click="loadMenuWin.loadGame(game.ikey)">
         <span class="idx">Game: {{$index+1}}</span>
         <div class="dateTime">{{game.when}}</div>
         <div class="location">where: {{game.where}}</div>
