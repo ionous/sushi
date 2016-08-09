@@ -1,0 +1,14 @@
+<!-- settings.html -->
+<hsm-event on="settings-button-clicked" goto="Settings"></hsm-event>
+<hsm-state name="Settings" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
+  <hsm-state settings-control="settings" hsm-enter="settings.open()" hsm-exit="settings.close('exited')">
+    <hsm-event on="modal-opened" goto=""></hsm-event>
+    <hsm-event on="keys" when="$evt.escapeKey()" run="settings.close('escape')"></hsm-event>
+    <!--  -->
+    <hsm-event on="settings-closed" goto="SharedPlay"></hsm-event>
+    <hsm-event on="settings-dismiss" run="settings.close($evt.reason)"></hsm-event>
+    <hsm-event on="settings-save" run="save.saveGame()"></hsm-event>
+    <hsm-event on="settings-exit" when="save.needsToBeSaved()" goto="Exiting"></hsm-event>
+    <hsm-event on="settings-exit" goto="Menus"></hsm-event>
+  </hsm-state>
+</hsm-state>

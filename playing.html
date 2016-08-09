@@ -1,3 +1,4 @@
+<!-- playing is re-entered everytime we load a map; most of its elements need to bind to the elements in a map. -->
 <hsm-state name="Playing" view-control="view" hsm-enter="view.bindTo('clickReturn')" hsm-exit="view.release()">
   <hsm-state mouse-control="mouse" hsm-enter="mouse.bindTo('gameMap', 'mouseDisplay')" hsm-exit="mouse.destroy()">
     <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
@@ -7,7 +8,7 @@
             <ng-include src="'console.html'"></ng-include>
             <ng-include src="'inventory.html'"></ng-include>
             <!-- we run one of physics or not-physics -->
-            <hsm-state name="PlayOne" hsm-init="1 && map.get('physics') ? 'Physics' : 'Statics'">
+            <hsm-state name="PlayOne" hsm-init="0 && map.get('physics') ? 'Physics' : 'Statics'">
               <ng-include src="'statics.html'"></ng-include>
               <ng-include src="'physics.html'"></ng-include>
             </hsm-state>
@@ -24,7 +25,7 @@
               </hsm-state>
             </hsm-state>
             <!-- shared in both physics and non-physics -->
-            <hsm-state name="SharedGame" hsm-init="stream.processing() && 'SharedProcessing'" custom-actions-control="customActions">
+            <hsm-state name="SharedGame" hsm-init="stream.processing() ? 'SharedProcessing' : 'SharedTurn'" custom-actions-control="customActions">
               <hsm-state name="SharedTurn" hsm-enter="turn.start()" hsm-exit="turn.end()" hsm-init="modal.showing() && 'SharedModal'">
                 <!-- multiple sources for this, action bar, inventory window;
                   we usually get pulled out to process the results -->
@@ -50,31 +51,9 @@
                   <!-- ^~SharedActions -->
                 </hsm-state>
                 <!-- ^~SharedPlay -->
-                <hsm-event on="settings-button-clicked" goto="SharedSettings"></hsm-event>
-                <hsm-state name="SharedSettings" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
-                  <hsm-state settings-control="settings" hsm-enter="settings.open()" hsm-exit="settings.close('exited')">
-                    <hsm-event on="modal-opened" goto=""></hsm-event>
-                    <hsm-event on="keys" when="$evt.escapeKey()" run="settings.close('escape')"></hsm-event>
-                    <!--  -->
-                    <hsm-event on="settings-closed" goto="SharedPlay"></hsm-event>
-                    <hsm-event on="settings-dismiss" run="settings.close($evt.reason)"></hsm-event>
-                    <hsm-event on="settings-save" run="save.requestSave()"></hsm-event>
-                    <hsm-event on="settings-exit" when="save.needsToBeSaved()" goto="SharedExit"></hsm-event>
-                    <hsm-event on="settings-exit" goto="Menus"></hsm-event>
-                  </hsm-state>
-                </hsm-state>
-                <!-- ^~SharedSettings -->
-                <hsm-state name="SharedExit" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
-                  <hsm-state confirm-exit-control="confirm" hsm-enter="confirm.open('confirmExit')" hsm-exit="confirm.close()">
-                    <hsm-event on="modal-opened" goto=""></hsm-event>
-                    <hsm-event on="keys" when="$evt.escapeKey()" run="confirm.close('escape')"></hsm-event>
-                    <!--  -->
-                    <hsm-event on="confirm-exit-dismiss" run="confirm.close($evt.reason)"></hsm-event>
-                    <hsm-event on="confirm-exit-closed" goto="SharedPlay"></hsm-event>
-                    <hsm-event on="confirm-exit" goto="Menus"></hsm-event>
-                  </hsm-state>
-                </hsm-state>
-                <!-- ^~SharedExit -->
+                <ng-include src="'settings.html'"></ng-include>
+                <ng-include src="'exiting.html'"></ng-include>
+                <!--  -->
                 <hsm-event on="modal-opened" goto="SharedModal"></hsm-event>
                 <hsm-state name="SharedModal" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
                   <hsm-event on="modal-closed" run="log.info('shared modal closed', $evt.source, $evt.reason)" goto="SharedPlay"></hsm-event>
@@ -87,12 +66,13 @@
                 </hsm-state>
               </hsm-state>
               <!-- ^~SharedDialog -->
+              <ng-include src="'saving.html'"></ng-include>
               <hsm-event on="stream-processing" goto="SharedProcessing"></hsm-event>
               <hsm-state name="SharedProcessing" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
                 <hsm-event on="stream-empty" when="!dialog.empty()" goto="SharedDialog"></hsm-event>
                 <hsm-event on="stream-empty" goto="SharedTurn"></hsm-event>
               </hsm-state>
-              <!-- ^~SharedProcessing -->
+              <!-- ^~SharedProcessing parent-->
             </hsm-state>
             <!-- ^~ play, dialog, or processing -->
           </hsm-state>

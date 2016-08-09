@@ -14,9 +14,8 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'mosaic', 'hsm'],
   .constant("SavePrefix", "save-")
   .constant("SaveVersion", "01")
   .constant("AutoStart", "Begin") //Begin,Resume,Menus
-  .constant("Talk", "TalkEnabled")
-  .constant("Popups", "PopupsEnabled")
+  .constant("Talk", true)
+  .constant("Popups", true)
   .constant("GameServerUrl", "http://localhost:8080/game") 
-  .constant("RequireSave", "Prompt") // Prompt,Autosave,false. note: prompt becomes Autosave under chrome.
-  
-  ;
+  .constant("RequireSave", true)
+  .constant("SaveProgress", true);

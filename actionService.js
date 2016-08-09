@@ -53,9 +53,9 @@ angular.module('demo')
         var pobj = this.pobj;
         var cobj = this.cobj;
         return {
-          'act': act.id,
-          'tgt': pobj ? pobj.id : null,
-          'ctx': cobj ? cobj.id : null,
+          act: act.id,
+          tgt: pobj ? pobj.id : null,
+          ctx: cobj ? cobj.id : null,
         };
       };
       ActionInfo.prototype.emitAction = function(pobj, cobj) {

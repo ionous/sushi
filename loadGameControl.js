@@ -4,22 +4,22 @@ angular.module('demo')
   function(LocationService, SavePrefix, SaveVersion, $log) {
     'use strict';
     //
-    var SaveGameData = function(key, data) {
+    var SaveData = function(key, data) {
       this.key = key;
       this.data = data;
     };
     // server storage key
-    SaveGameData.prototype.getSlot = function() {
+    SaveData.prototype.getSlot = function() {
       return this.data.slot;
     };
-    SaveGameData.prototype.getLocation = function() {
+    SaveData.prototype.getLocation = function() {
       var loc = this.data.location;
       return LocationService.newLocation(loc.room, loc.view, loc.item);
     };
-    SaveGameData.prototype.getPosition = function() {
+    SaveData.prototype.getPosition = function() {
       return this.data.position;
     };
-    SaveGameData.prototype.valid = function() {
+    SaveData.prototype.valid = function() {
       return this.data.version === SaveVersion;
     };
     //
@@ -32,7 +32,7 @@ angular.module('demo')
           return store.getItem(key, true).then(function(data) {
             $log.debug("loadGameControl", name, "retrieved data", !!data);
             if (data) { // null data can happen on save error
-              return new SaveGameData(key, data);
+              return new SaveData(key, data);
             }
           });
         });
@@ -48,8 +48,8 @@ angular.module('demo')
           return k.indexOf(SavePrefix) === 0;
         }, function(k, data) {
           if (data) {
-            var saveGameData = new SaveGameData(k, data);
-            cb(saveGameData);
+            var saveData = new SaveData(k, data);
+            cb(saveData);
           }
           count += 1;
         }).then(function() {

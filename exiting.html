@@ -1,0 +1,10 @@
+<hsm-state name="Exiting" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
+  <hsm-state confirm-exit-control="confirm" hsm-enter="confirm.open('confirmExit')" hsm-exit="confirm.close()">
+    <hsm-event on="modal-opened" goto=""></hsm-event>
+    <hsm-event on="keys" when="$evt.escapeKey()" run="confirm.close('escape')"></hsm-event>
+    <!--  -->
+    <hsm-event on="confirm-exit-dismiss" run="confirm.close($evt.reason)"></hsm-event>
+    <hsm-event on="confirm-exit-closed" goto="SharedPlay"></hsm-event>
+    <hsm-event on="confirm-exit" goto="Menus"></hsm-event>
+  </hsm-state>
+</hsm-state>

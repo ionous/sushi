@@ -32,11 +32,20 @@ angular.module('demo')
         var what = !id ? type : (type + "/" + id);
         return GameServerService.get(this.id, what);
       };
+      // un-signaled, un-procssed post
+      Game.prototype.upost = function(what) {
+        return GameServerService.post(this.id, what)
+          .then(function(doc) {
+            var frame = doc.meta.frame;
+            lastFrame = frame;
+            return doc;
+          });
+      };
       Game.prototype.post = function(what) {
         hsmMachine.emit(name, "posting", {
           what: what
         });
-        return GameServerService.post(this.id, what)
+        return this.upost(what)
           .then(function(doc) {
               var frame = doc.meta.frame;
               lastFrame = frame;
@@ -151,7 +160,7 @@ angular.module('demo')
             game: currentGame,
             gameId: res.id,
             where: loc,
-            history: saved.history
+            history: saved.data.history
           });
         });
       };
@@ -175,6 +184,10 @@ angular.module('demo')
       this.post = function(what) {
         var game = this.getGame();
         return game.post(what);
+      };
+      this.upost = function(what) {
+        var game = this.getGame();
+        return game.upost(what);
       };
       return this;
     }; //init

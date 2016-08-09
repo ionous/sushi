@@ -1,4 +1,3 @@
-<!--  -->
 <hsm-state name="Game" hsm-exit="game.destroy()">
   <hsm-state window-control="gameWin" hsm-enter="gameWin.show('gameWindow')" hsm-exit="gameWin.show(false)">
     <hsm-state status-control="status" hsm-enter="status.bindTo('statusBar')" hsm-exit="status.destroy()">
@@ -18,19 +17,10 @@
                       <hsm-event on="game-posting" run="commands.post($evt.what)"></hsm-event>
                       <hsm-event on="game-posting" run="save.requireSave('Your game isn\'t saved.')"></hsm-event>
                       <hsm-event on="map-loading" run="save.requireSave('Your location isn\'t saved.')"></hsm-event>
-                      <hsm-event on="save-autosave" run="save.requestSave()"></hsm-event>
                       <!-- raises -processing and -empty -->
                       <hsm-state hsm-enter="stream.process()" hsm-exit="stream.process(false)">
                         <hsm-event on="game-posting" run="stream.processing(true)"></hsm-event>
-                        <hsm-event on="game-posting" when="$evt.what.in==='save'" goto="Saving"></hsm-event>
-                        <hsm-state name="StreamListen">
-                          <hsm-event on="stream-processing" goto="Processing"></hsm-event>
-                        </hsm-state>
-                        <hsm-state>
-                          <hsm-event on="stream-empty" goto="StreamListen"></hsm-event>
-                          <ng-include src="'saving.html'"></ng-include>
-                          <ng-include src="'processing.html'"></ng-include>
-                        </hsm-state>
+                        <ng-include src="'processing.html'"></ng-include>
                       </hsm-state>
                       <!-- loading and playing the game -->
                       <hsm-state hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
@@ -44,6 +34,7 @@
                         <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
                         <hsm-state name="PlaySpaceLoading">
                           <hsm-event on="map-loaded" when="$evt.where.room=='fini'" goto="Fini"></hsm-event>
+                          <hsm-event on="map-loaded" when="constant('SaveProgress') &&save.needsToBeSaved()" run="save.saveGame('auto-save')" goto="Saving"></hsm-event> 
                           <hsm-event on="map-loaded" goto="Playing"></hsm-event>
                         </hsm-state>
                       </hsm-state>

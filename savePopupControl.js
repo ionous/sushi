@@ -1,30 +1,32 @@
 angular.module('demo')
 
-.directiveAs("savePopupControl", ["^^modalControl", "^hsmMachine"],
+.directiveAs("savePopupControl", ["^modalControl", "^hsmMachine"],
   function($log) {
     'use strict';
     this.init = function(name, modalControl, hsmMachine) {
-      var modal, scope, resolver;
+      var modal, scope, data, error, resolver;
       return {
-        onSuccess: function(evt) {
-          resolver = evt;
+        saved: function(evt) {
+          data = evt.data;
+          error = evt.error;
+          resolver = evt.resolver();
           if (scope) {
-            scope.state = "saved";
-          }
-        },
-        onError: function(evt) {
-          resolver = evt;
-          if (scope) {
-            scope.state = "error";
-            scope.errorMessage = evt.reason || "Unknown error.";
+            scope.state = !!data ? "saved" : "error";
+            scope.errorMessage = error || "unknown error";
           }
         },
         close: function(reason) {
           $log.info("savePopupControl", name, "closing");
           if (resolver) {
-            resolver.notify(reason);
+            if (data) {
+              resolver.resolve(data);
+            } else {
+              resolver.reject(error || reason);
+            }
             resolver = null;
           }
+          data= null;
+          error= null;
           if (modal) {
             modal.close(reason || "close called");
             modal = null;

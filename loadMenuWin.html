@@ -3,7 +3,7 @@
   <ul class="list-unstyled">
     <li ng-repeat="game in loadMenuWin.games | orderBy: '-ikey' track by $index">
       <ga-link ng-click="loadMenuWin.loadGame(game.ikey)">
-        <span class="idx">Game: {{$index+1}}</span>
+        <span class="idx">Save {{$index+1}}<span ng-if="game.slot == 'autosave'"> - Autosave</span></span>
         <div class="dateTime">{{game.when}}</div>
         <div class="location">where: {{game.where}}</div>
       </ga-link>

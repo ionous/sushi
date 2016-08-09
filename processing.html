@@ -8,7 +8,7 @@
     <hsm-event on="printText" run="printer.addLines($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
   </hsm-state>
   <!-- characters saying dialog -->
-  <hsm-state hsm-init="constant('Talk')">
+  <hsm-state hsm-init="constant('Talk') ? 'TalkEnabled':'TalkDisabled'">
     <hsm-state name="TalkDisabled">
     </hsm-state>
     <hsm-state name="TalkEnabled" game-listener="speech" hsm-enter="speech.listen('*', 'say')" hsm-exit="speech.silence()">
@@ -54,17 +54,22 @@
       <hsm-event on="converse" when="!$evt.data.next" run="dialog.setTitle()" goto="Entitlement"></hsm-event>
     </hsm-state>
   </hsm-state>
-  
-    <hsm-state game-listener="storyText" hsm-enter="storyText.listen('_display_', 'print')" hsm-exit="storyText.silence()">
-      
+  <hsm-state game-listener="savingGame" hsm-enter="savingGame.listen('player', 'saving-it')" hsm-exit="savingGame.silence()">
+    <hsm-state game-listener="storyText" hsm-enter="storyText.listen('_display_', 'print')" hsm-exit="storyText.silence()" hsm-init="'Playback'">
+      <!-- handle unexpected save responses ( ex. coming from the console ) -->
+      <hsm-event on="savingGame" goto="UnexpectedSave"></hsm-event>
+      <hsm-state name="UnexpectedSave" ng-init="mem={}" hsm-enter="mem.saveType=$evt.ctx.id">
+        <hsm-event on="storyText" run="save.unexpected(mem.saveType, $evt.data).then($evt.resolve())" goto="Playback"></hsm-event>
+      </hsm-state>
+      <hsm-state name="Playback">
         <!-- handle story text -->
         <hsm-state game-listener="reportView" hsm-enter="reportView.listen('*', 'reporting-the-view', true)" hsm-exit="reportView.silence()">
           <hsm-state game-listener="comments" hsm-enter="comments.listen('player', 'printing-conversation-choices', true)" hsm-exit="comments.silence()">
-            <hsm-state game-listener="vending" hsm-enter="vending.listen('vending-machine', 
+            <hsm-state game-listener="vending" hsm-enter="vending.listen('vending-machine',
         'offering-vendibles', true)" hsm-exit="vending.silence()">
               <hsm-state game-listener="departing" hsm-enter="departing.listen('*', 'departing', true)" hsm-exit="departing.silence()">
                 <!--  -->
-                <hsm-state name="StoryText" hsm-init="constant('Popups')">
+                <hsm-state name="StoryText" hsm-init="constant('Popups') ? 'PopupsEnabled' : 'PopupsDisabled'">
                   <hsm-state name="PopupsDisabled">
                   </hsm-state>
                   <!-- regular story text popups -->
@@ -120,5 +125,7 @@
             </hsm-state>
           </hsm-state>
         </hsm-state>
+      </hsm-state>
     </hsm-state>
+  </hsm-state>
 </hsm-state>

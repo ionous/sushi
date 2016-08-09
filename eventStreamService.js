@@ -18,7 +18,7 @@ angular.module('demo')
         //$log.info("EventStreamService: run", e.evt, e.tgt.id);
         return startup.call(startup);
       };
-      var Event = function(evt, tgt, data, frame) {
+      var Event = function(evt, tgt, ctx, data, frame) {
         /**
          * Event name.
          * @const {string}
@@ -29,6 +29,11 @@ angular.module('demo')
          * @const {{id: string, type:string}}
          */
         this.tgt = tgt;
+        /**
+         * Object ident.
+         * @const {{id: string, type:string}}
+         */
+        this.ctx = ctx;
         /** 
          * Event data specific to each event.
          * @const {*}
@@ -53,7 +58,7 @@ angular.module('demo')
         EventService.forEach(e.tgt.id, e.evt, function(cb) {
           var startup = function() {
             Event.streamFrame = e.frame;
-            return cb.start(e.data, e.tgt.id, e.evt, e.frame);
+            return cb.start(e.data, e.tgt.id, e.evt, e);
           };
           handlers.push(new Handler(e, startup));
         });
@@ -65,7 +70,7 @@ angular.module('demo')
         EventService.forEach(e.tgt.id, e.evt, function(cb) {
           Event.streamFrame = e.frame;
           if (cb.end) {
-            return cb.end(e.data, e.tgt.id, e.evt, e.frame);
+            return cb.end(e.data, e.tgt.id, e.evt, e);
           }
         });
       };
@@ -94,6 +99,7 @@ angular.module('demo')
             evt: new Event(
               evt.evt,
               JsonService.parseObject(evt.tgt),
+              evt.ctx && JsonService.parseObject(evt.ctx),
               evt.data,
               currentFrame
             ),

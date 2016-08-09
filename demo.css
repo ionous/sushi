@@ -472,6 +472,65 @@ div.ga-picker {
 
 
 /* ----------------------------------------------
+ save popup
+*/
+
+.ga-save {
+  color: white;
+  background-color: #337ab7;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  border-radius: 20px;
+  padding: 8px;
+}
+
+span.ga-super {
+  vertical-align: super;
+}
+
+.ga-save.saved {
+  padding: 20px;
+  padding-top: 0px;
+}
+
+.ga-save.error {
+  background-color: red;
+  padding: 20px;
+  padding-top: 0px;
+}
+
+.ga-save .btn {
+  margin-bottom: 10px;
+}
+
+p.ga-center {
+  text-align: center;
+  width: 100%;
+}
+
+
+/* ----------------------------------------------
+ autosave spinner
+*/
+
+.ga-autosave {
+  position: absolute;
+  color: white;
+  background-color: #337ab7;
+  border-radius: 20px;
+  padding: 8px;
+  bottom: 8px;
+  right: 8px;
+  /*top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);*/
+}
+
+
+/* ----------------------------------------------
  comment ( and combine ) panels 
 */
 

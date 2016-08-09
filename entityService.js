@@ -136,10 +136,10 @@ angular.module('demo')
         //$log.debug("EntityService:", this.id, list, existed ? "replaced" : "added", "child", child.id);
         contents[child.id] = true;
         EventService.raise(this.id, 'x-mod', {
-          'prop': list,
-          'ent': this,
-          'op': 'add',
-          'child': child,
+          prop: list,
+          ent: this,
+          op: 'add',
+          child: child,
           adding: true,
         });
       };
@@ -149,10 +149,10 @@ angular.module('demo')
         var ok = delete contents[child.id];
         //$log.debug("EntityService:", this.id, list, ok ? "removed" : "ignored", "child", child.id);
         EventService.raise(this.id, 'x-mod', {
-          'prop': list,
-          'ent': this,
-          'op': 'rem',
-          'child': child,
+          prop: list,
+          ent: this,
+          op: 'rem',
+          child: child,
           removing: true,
         });
       };

@@ -19,19 +19,20 @@ angular.module('demo')
           silence();
         }
       };
-      var emit = function(data, tgt, evt, endEvent) {
+      var emit = function(data, tgt, evt, raw, endEvent) {
         var defer; // lazily created, so only used if accessed.
         hsmMachine.emit(name, {
           data: data,
           name: evt,
           tgt: tgt,
+          ctx: raw.ctx,
           start: !endEvent,
           end: !!endEvent,
-          resolve: function() {
+           // returns the function to be called.
+           resolve: function() {
             if (!defer) {
               defer = $q.defer();
             }
-            // returns the function to be called.
             return defer.resolve;
           },
         });
@@ -39,11 +40,11 @@ angular.module('demo')
       };
       // be a little explict so that if the event service wants to send us extra params...
       // we only pass the params we are expecting.
-      var sendEventStart = function(d, t, e) {
-        return emit(d, t, e, false);
+      var sendEventStart = function(d, t, e, x) {
+        return emit(d, t, e, x, false);
       };
-      var sendEventEnd = function(d, t, e) {
-        return emit(d, t, e, true);
+      var sendEventEnd = function(d, t, e, x) {
+        return emit(d, t, e, x, true);
       };
       // exposed to scope:
       return {

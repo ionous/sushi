@@ -22,10 +22,10 @@ angular.module('demo')
             saved: function() {
               return !saveControl.needsToBeSaved();
             },
-            saveGame: function() {
+            requestSave: function() {
               hsmMachine.emit(name, "save", {});
             },
-            exitGame: function() {
+            requestQuit: function() {
               hsmMachine.emit(name, "exit", {});
             },
           });
