@@ -7,6 +7,8 @@
     </hsm-state>
     <hsm-state name="SaveEnd">
       <hsm-event on="savepop-continue" run="savepop.close()" goto="SharedGame"></hsm-event>
+      <!-- capital letter because its coming from the modal window element, not our control. -->
+      <hsm-event on="savePopup-dismiss" run="savepop.close()" goto="SharedGame"></hsm-event>
       <hsm-event on="savepop-exit" goto="Menus"></hsm-event>
     </hsm-state>
   </hsm-state>
