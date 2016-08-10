@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("locationControl", ["^hsmMachine"],
   function($location, $log, $scope) {
     'use strict';
+    'ngInject';
     var Context = function(dst) {
       this.is = function(tst) {
         return tst == dst;
@@ -40,11 +41,12 @@ angular.module('demo')
       this.path = function() {
         return $location();
       };
+      var ctrl= this;
       return {
         listen: listen,
         silence: silence,
         goto: function(dst) {
-          return this.goto(dst);
+          return ctrl.goto(dst);
         },
         is: function(dst) {
           return $location.path() == dst;
