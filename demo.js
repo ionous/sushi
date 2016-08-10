@@ -11,9 +11,8 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'mosaic', 'hsm'],
 })
   .constant("ShowHsm", true) // state chart
   .constant("GameVersion", "0")
-  .constant("SavePrefix", "save-")
   .constant("SaveVersion", "01")
-  .constant("AutoStart", "Begin") //Begin,Resume,Menus
+  .constant("AutoStart", "Menus") //Begin,Resume,Menus
   .constant("Talk", true)
   .constant("Popups", true)
   .constant("GameServerUrl", "http://localhost:8080/game") 
