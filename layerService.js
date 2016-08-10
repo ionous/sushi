@@ -287,7 +287,7 @@ angular.module('demo')
         // used for the hatch: the object (closed state) is marked as noclick:
         // requiring zoom when closed, and excluding zoom once opened.
         if (object && this.hitGroup && !this.hitGroup.children.length) {
-          $log.warn("creating a view for a noclick object", mapLayer);
+          $log.warn("creating a view for a noclick object", mapLayer.path);
           object = null;
         }
 

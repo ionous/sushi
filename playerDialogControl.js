@@ -12,12 +12,12 @@ angular.module('demo')
     this.init = function(name, modalControl, hsmMachine) {
       return {
         bindTo: function(where) {
-          $log.info("playerDialog: bound", where);
+          //$log.info("playerDialog", name, "bound", where);
           display = where;
           clear(where);
         },
         destroy: function() {
-          $log.info("playerDialog: destroyed");
+          //$log.info("playerDialog", name, "destroyed");
           display = null;
           clear();
         },
@@ -33,18 +33,18 @@ angular.module('demo')
               title = book.printedName();
             }
           }
-          $log.info("playerDialog: set title", tgt, title);
+          $log.info("playerDialog", name, "set title", tgt, title);
         },
         addQuip: function(tgt) {
-          $log.info("playerDialog: add quip", tgt);
+          //$log.debug("playerDialog", name, "add quip", tgt);
           quips.push(tgt);
         },
         addChoice: function(lines) {
-          $log.info("playerDialog: add choices", lines);
+          //$log.debug("playerDialog", name,"add choices", lines);
           comments.push(lines && lines.length ? lines[0] : "");
         },
         addFallback: function(quip, text) {
-          $log.info("playerDialog: fallback", quip, text);
+          //$log.info("playerDialog", name",add fallback", quip, text);
           quips.push(quip);
           comments.push(text);
         },
@@ -66,7 +66,7 @@ angular.module('demo')
             throw new Error("nothing to comment");
           }
           //
-          $log.info("playerDialog: show choices", comments.length);
+          //$log.debug("playerDialog",name,"show choices", comments.length);
           var localComments = comments.slice();
           var localsQuips = quips.slice();
           modal = modalControl.open(display, {

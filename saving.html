@@ -1,13 +1,16 @@
-<hsm-event on="save-saving" goto="Saving"></hsm-event>
+<hsm-event on="save-unexpected" goto="Saving"></hsm-event>
 <hsm-state name="Saving" save-popup-control="savepop" hsm-init="'Save-' + $evt.saveType" hsm-exit="savepop.close()">
   <hsm-state name="Save-normal-save" hsm-enter="savepop.open('savePopup')">
-    <hsm-event on="modal-opened" goto=""></hsm-event>
-    <hsm-event on="save-saved" run="savepop.saved($evt)" goto="SaveEnd"></hsm-event>
+    <hsm-state name="SaveWaiting">
+      <hsm-event on="modal-opened" goto=""></hsm-event>
+      <hsm-event on="save-saved" run="savepop.saved($evt)" goto="SaveEnd"></hsm-event>
+    </hsm-state>
     <hsm-state name="SaveEnd">
       <hsm-event on="savepop-continue" run="savepop.close()" goto="SharedGame"></hsm-event>
       <hsm-event on="savepop-exit" goto="Menus"></hsm-event>
     </hsm-state>
   </hsm-state>
+  <!-- note: id rather track listen for -saved, but  -->
   <hsm-state name="Save-auto-save" hsm-enter="savepop.open('autoSave')">
     <hsm-event on="modal-opened" goto=""></hsm-event>
     <hsm-event on="save-saved" run="savepop.close('finished saving')" goto="SharedGame"></hsm-event>

@@ -1,10 +1,9 @@
 angular.module('demo')
 
-.directiveAs("settingsControl", ["^hsmMachine", "^^modalControl", "^^saveControl"],
+.directiveAs("settingsControl", ["^hsmMachine", "^^modalControl", "^^changeControl"],
   function() {
     'use strict';
-    var ctrl = this;
-    this.init = function(name, hsmMachine, modalControl,  saveControl) {
+    this.init = function(name, hsmMachine, modalControl,  changeControl) {
       var modal;
       var settings = {
         close: function(reason) {
@@ -19,8 +18,8 @@ angular.module('demo')
             dismiss: function(reason) {
               mdl.dismiss(reason);
             },
-            saved: function() {
-              return !saveControl.needsToBeSaved();
+            hasChanges: function() {
+              return changeControl.minorChange();
             },
             requestSave: function() {
               hsmMachine.emit(name, "save", {});

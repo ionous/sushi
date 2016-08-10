@@ -1,11 +1,11 @@
 angular.module('demo')
 
-// -created
-.directiveAs("gameControl", ["processControl", "^^hsmMachine"],
-  function(EntityService, EventService, GameServerService, PositionService,
+// -created,-started,-loaded,-posting
+.directiveAs("gameControl", ["^serverControl", "^processControl", "^^hsmMachine"],
+  function(EntityService, EventService, PositionService,
     $log, $q) {
     'use strict';
-    this.init = function(name, processControl, hsmMachine) {
+    this.init = function(name, serverControl, processControl, hsmMachine) {
       //
       var ClassInfo = function(data) {
         this.classInfo = data;
@@ -17,24 +17,20 @@ angular.module('demo')
       ClassInfo.prototype.singular = function() {
         return this.classInfo.attr.singular;
       };
-
       //
-      var Game = function(id) {
+      var Game = function(server, id) {
+        this.server = server;
         this.id = id;
         this.started = false;
         this.promisedClasses = {};
       };
       Game.prototype.request = function(type, id) {
-        hsmMachine.emit(name, "requesting", {
-          type: type,
-          id: id,
-        });
         var what = !id ? type : (type + "/" + id);
-        return GameServerService.get(this.id, what);
+        return this.server.get(this.id, what);
       };
       // un-signaled, un-procssed post
       Game.prototype.upost = function(what) {
-        return GameServerService.post(this.id, what)
+        return this.server.post(this.id, what)
           .then(function(doc) {
             var frame = doc.meta.frame;
             lastFrame = frame;
@@ -67,9 +63,6 @@ angular.module('demo')
             },
             function(reason) {
               $log.error("gameControl post error:", reason);
-              hsmMachine.emit(name, "error", {
-                reason: reason
-              });
               processControl.queue(lastFrame, []);
             });
       };
@@ -136,8 +129,12 @@ angular.module('demo')
         if (currentGame) {
           throw new Error("game already in progress");
         }
-        return GameServerService.new().then(function(res) {
-          currentGame = new Game(res.id);
+        var server = serverControl.getServer();
+        return server.requestCreate().then(function(gameId) {
+          if (!angular.isString(gameId)) {
+            throw new Error("empty destination");
+          }
+          currentGame = new Game(server, gameId);
           hsmMachine.emit(name, "created", {});
         });
       };
@@ -150,15 +147,20 @@ angular.module('demo')
         }
         // format from loadGameControl
         var slot = saved.getSlot();
-        GameServerService.load(slot).then(function(res) {
+        var server = serverControl.getServer();
+        server.requestRestore(slot).then(function(gameId) {
+          if (!angular.isString(gameId)) {
+            throw new Error("empty destination");
+          }
+
           var loc = saved.getLocation();
           var pos = saved.getPosition();
           PositionService.saveLoad(pos);
-          currentGame = new Game(res.id);
+          currentGame = new Game(server, gameId);
           currentGame.started = true;
           hsmMachine.emit(name, "loaded", {
             game: currentGame,
-            gameId: res.id,
+            gameId: gameId,
             where: loc,
             history: saved.data.history
           });
@@ -172,7 +174,6 @@ angular.module('demo')
         }
         game.started = true;
         $log.info("gameControl", name, "starting new game");
-        hsmMachine.emit(name, "starting", {});
         game.post({
           'in': 'start'
         }).then(function() {

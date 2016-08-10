@@ -1,10 +1,9 @@
 angular.module('demo')
 
-.directiveAs("confirmExitControl", ["^saveControl", "^modalControl", "^hsmMachine"],
+.directiveAs("confirmExitControl", ["^changeControl", "^modalControl", "^hsmMachine"],
   function() {
     'use strict';
-    var ctrl = this;
-    this.init = function(name, saveControl, modalControl, hsmMachine) {
+    this.init = function(name, changeControl, modalControl, hsmMachine) {
       var modal;
       var settings = {
         close: function(reason) {
@@ -19,7 +18,7 @@ angular.module('demo')
             dismiss: function(reason) {
               mdl.dismiss(reason);
             },
-            saveMessage: saveControl.saveMessage(),
+            saveMessage: changeControl.majorChange() ? "Your game isn't saved.": "",
             exitGame: function() {
               hsmMachine.emit(name, "exit", {});
             },

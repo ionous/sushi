@@ -96,8 +96,6 @@ angular.module('demo')
     };
 
     this.init = function(name, gameControl, hsmMachine) {
-      var ctrl = this;
-
       var changeMap = function(next) {
         var ret; // promise
         if (loading) {
@@ -134,7 +132,7 @@ angular.module('demo')
             };
             slot.scope.loaded = true;
             //
-            $log.warn("mapControl", name, "loaded", map.name);
+            $log.info("mapControl", name, "loaded", map.mapName);
             hsmMachine.emit(name, "loaded", map);
             return map;
           }, function(reason) {

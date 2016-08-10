@@ -95,7 +95,7 @@ angular.module('demo')
         this.dismiss = function(reason) {
           // removing emit of modal for specifics:
           var which = slot.name;
-          $log.info("modalControl", name, "dismiss", which, reason);
+          $log.debug("modalControl", name, "dismiss", which, reason);
           hsmMachine.emit(which, "dismiss", {
             reason: reason,
           });

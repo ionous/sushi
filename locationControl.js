@@ -40,7 +40,6 @@ angular.module('demo')
       this.path = function() {
         return $location();
       };
-      var ctrl = this;
       return {
         listen: listen,
         silence: silence,

@@ -6,6 +6,7 @@ angular.module('demo')
     'use strict';
     var storgeSingleton;
     var chrome = $window.chrome;
+    var savePrefix = $window.sashimi ? "sashimi-" : "save-";
 
     this.init = function(name) {
       var NoStore = function() {
@@ -136,6 +137,7 @@ angular.module('demo')
           }
           return store.enumerate(cb, filter);
         };
+        this.prefix = savePrefix;
       };
 
       return {
@@ -166,6 +168,7 @@ angular.module('demo')
         },
       };
     }; // init
+
     this.getStorage = function() {
       if (!storgeSingleton) {
         throw new Error("storage not created");

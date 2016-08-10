@@ -3,9 +3,7 @@ angular.module('demo')
 .directiveAs("gameListener", ["^^hsmMachine"],
   function($log, $q, EventService) {
     'use strict';
-
-    var ctrl = this;
-    ctrl.init = function(name, hsmMachine) {
+    this.init = function(name, hsmMachine) {
       var listeners;
       var silence = function() {
         if (listeners) {
@@ -13,7 +11,7 @@ angular.module('demo')
           listeners = null;
         }
       };
-      ctrl.$onDestroy = function() {
+      this.$onDestroy = function() {
         if (listeners) {
           $log.error("gameListener", name, "still active");
           silence();

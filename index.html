@@ -44,7 +44,6 @@
   <script src="entityService.js"></script>
   <script src="eventService.js"></script>
   <script src="eventStreamService.js"></script>
-  <script src="gameServerService.js"></script>
   <script src="hitService.js"></script>
   <script src="iconService.js"></script>
   <script src="itemService.js"></script>
@@ -68,6 +67,7 @@
   <script src="actionButtonControl.js"></script>
   <script src="avatarControl.js"></script>
   <script src="buttonControl.js"></script>
+  <script src="changeControl.js"></script>
   <script src="confirmExitControl.js"></script>
   <script src="consoleControl.js"></script>
   <script src="constantControl.js"></script>
@@ -102,6 +102,7 @@
   <script src="resumeControl.js"></script>
   <script src="saveControl.js"></script>
   <script src="savePopupControl.js"></script>
+  <script src="serverControl.js"></script>
   <script src="storageControl.js"></script>
   <script src="settingsControl.js"></script>
   <script src="statusControl.js"></script>
@@ -144,7 +145,7 @@
       </div>
     </div>
   </main>
-  <footer ng-init="hsmExpanded=true">
+  <footer ng-init="hsmExpanded=false">
     <div class="state-display" ng-show="constant('ShowHsm')">
       <a href="" ng-click="hsmExpanded=!hsmExpanded">states [{{hsmExpanded ? 'x' : 'o'}}]</a>
       <ng-include src="'main.html'" ng-show="hsmExpanded"></ng-include>

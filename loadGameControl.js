@@ -1,7 +1,7 @@
 angular.module('demo')
   
 .directiveAs("loadGameControl", ["^storageControl", "^hsmMachine"],
-  function(LocationService, SavePrefix, SaveVersion, $log) {
+  function(LocationService, SaveVersion, $log) {
     'use strict';
     //
     var SaveData = function(key, data) {
@@ -45,7 +45,7 @@ angular.module('demo')
         var store = storageControl.getStorage();
         var count = 0;
         return store.enumerate(function(k) {
-          return k.indexOf(SavePrefix) === 0;
+          return k.indexOf(store.prefix) === 0;
         }, function(k, data) {
           if (data) {
             var saveData = new SaveData(k, data);

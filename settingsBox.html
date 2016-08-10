@@ -3,7 +3,7 @@
   <div class="ga-notify-box">
     <ul class="list-unstyled">
       <li>
-        <ga-link ga-disabled="settings.saved()" ng-click="settings.requestSave()">Save Game</ga-link>
+        <ga-link ga-disabled="!settings.hasChanges()" ng-click="settings.requestSave()">Save Game</ga-link>
       </li>
       <li>
         <ga-link ng-click="settings.requestQuit()">Quit Game</ga-link>
