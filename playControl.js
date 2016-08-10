@@ -1,5 +1,4 @@
 /**
- * helper for using one item with another item:
  */
 angular.module('demo')
 
