@@ -2,14 +2,15 @@ angular.module('demo')
 
 .directiveAs("serverControl", ["^storageControl"],
   function(GameServerUrl, JsonService,
-    $http, $log, $q, $window) {
+    $http, $log, $q, $timeout, $window) {
     'use strict';
+    'ngInject';
     // transport for golang server held in javascript memory
     var GopherJs = function(sashimi, store, name) {
       var js;
       var frame = 1;
 
-      var frameDelay;
+      var saveDelay;
       var localSave = function(values, autosave) {
         var slot;
         if (autosave) {
@@ -20,9 +21,9 @@ angular.module('demo')
           slot = "" + order;
         }
 
-        var frameDelay = $q.defer();
+        var saveDelay = $q.defer();
         store.setItem("game-" + slot, values, true)
-          .then(frameDelay.resolve, frameDelay.reject);
+          .then(saveDelay.resolve, saveDelay.reject);
         return slot;
       };
 
@@ -37,7 +38,7 @@ angular.module('demo')
           defer.resolve(res);
         }
         return defer.promise.then(function(res) {
-          var data = JSON.parse(res);
+          var data = angular.fromJson(res);
           data.meta = data.meta || {};
           data.meta.frame = frame;
           return data;
@@ -48,8 +49,10 @@ angular.module('demo')
       var gameId = "gopherjs";
       this.requestCreate = function(store) {
         $log.info("serverControl", name, "new");
-        js = sashimi.New(localSave);
-        return $q.when(gameId);
+        return $timeout().then(function() {
+          js = sashimi.New(localSave);
+          return $q.when(gameId);
+        });
       };
       this.requestRestore = function(slot) {
         $log.info("serverControl", name, "loading", slot);
@@ -59,23 +62,27 @@ angular.module('demo')
         });
       };
       this.get = function(id, what) {
-        $log.info("serverControl", name, "get", id, what);
-        return respond(js.Get(id, what));
+        // $log.info("serverControl", name, "get", id, what);
+        return $timeout().then(function() {
+          return respond(js.Get(id, what));
+        });
       };
       this.post = function(id, what) {
-        var body = JSON.stringify(what);
-        $log.info("serverControl", name, "post", id, body);
-        if (frameDelay) {
-          frameDelay.reject("re-posting");
-          frameDelay = null;
+        var body = angular.toJson(what);
+        // $log.info("serverControl", name, "post", id, body);
+        if (saveDelay) {
+          saveDelay.reject("re-posting");
+          saveDelay = null;
         }
-        var resp = js.Post(id, body);
-        return $q.when(frameDelay && frameDelay.promise).then(function() {
-          frameDelay = null;
-          return respond(resp);
-        }).then(function(data) {
-          frame++;
-          return data;
+        return $timeout().then(function() {
+          var resp = js.Post(id, body);
+          return $q.when(saveDelay && saveDelay.promise).then(function() {
+            saveDelay = null;
+            return respond(resp);
+          }).then(function(data) {
+            frame++;
+            return data;
+          });
         });
       };
     };
@@ -141,6 +148,7 @@ angular.module('demo')
         });
       };
     };
+
 
     //
     this.init = function(name, storageControl) {
