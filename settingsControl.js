@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("settingsControl", ["^hsmMachine", "^^modalControl", "^^changeControl"],
   function() {
     'use strict';
+    'ngInject';
     this.init = function(name, hsmMachine, modalControl,  changeControl) {
       var modal;
       var settings = {

@@ -4,6 +4,7 @@ angular.module('demo')
 .directiveAs('modalContent',
   function($scope) {
     'use strict';
+    'ngInject';
     this.init = function() {
       return $scope.modal.contents;
     };
@@ -12,6 +13,7 @@ angular.module('demo')
 .directive('modalWindow',
   function() {
     'use strict';
+    'ngInject';
     return {
       restrict: 'E',
       // i like this specification of attributes, but wish it didnt bind to scope.
@@ -61,6 +63,7 @@ angular.module('demo')
 .directiveAs('modalControl', ["^hsmMachine"],
   function(ElementSlotService, $log, $q, $timeout) {
     'use strict';
+    'ngInject';
     this.init = function(name, hsmMachine) {
       // modal instance object
       var Modal = function(slot, input, result) {

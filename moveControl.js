@@ -3,7 +3,7 @@ angular.module('demo')
 .directiveAs("moveControl", ["^^hsmMachine"],
   function($log) {
     'use strict';
-
+    'ngInject';
     // track movement towards a target object or position.
     var Arrival = function(startingPos) {
       var arrival = this;

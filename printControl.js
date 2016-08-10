@@ -4,6 +4,7 @@ angular.module('demo')
 .directiveAs("printControl", ["^gameControl", "^textControl"],
   function($log, $q) {
     'use strict';
+    'ngInject';
     // custom 
     var display = {
       id: "_display_",

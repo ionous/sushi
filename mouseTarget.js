@@ -3,7 +3,7 @@ angular.module('demo')
 .directiveAs("mouseTarget", ["^^hsmMachine"],
   function(UpdateService, $log) {
     'use strict';
-
+    'ngInject';
     this.init = function(name, hsmMachine) {
       var avatar, subject, touches, ghost, hitGroups;
       // access the current target;
@@ -92,4 +92,4 @@ angular.module('demo')
       }; // target.update
       return target;
     }; // ctrl.init
-  }); // directiveAs
+  }); // directive

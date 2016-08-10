@@ -4,7 +4,7 @@ angular.module('demo')
 .directiveAs("elementSlot",
   function(ElementSlotService, $element, $attrs) {
     'use strict';
-
+    'ngInject';
     var scope = {};
     ElementSlotService.bind($attrs.elementSlot, $element, scope);
     this.init = function() {
@@ -18,7 +18,7 @@ angular.module('demo')
 // at any rate, we need a simple way to encapsulate chunks of dom and their scope.
 .factory('ElementSlotService', function($log) {
   'use strict';
-
+  'ngInject';
   var elements = {};
   var service = {
     bind: function(name, element, scope) {

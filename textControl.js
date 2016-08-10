@@ -4,6 +4,7 @@ angular.module('demo')
 .directiveAs("textControl",
   function($log) {
     'use strict';
+    'ngInject';
     this.init = function(name) {
       // an array of objects
       // { speaker:string, input:boolean, text:[string] }

@@ -6,6 +6,7 @@ angular.module('demo')
 .directiveAs("playerItemControl", ["^hsmMachine", "^playerControl", "^gameControl"],
   function(ActionListService, EntityService, $log, $q) {
     'use strict';
+    'ngInject';
     this.init = function(name, hsmMachine, playerControl, gameControl) {
       var Record = function(item, context) {
         this.id = item.id;

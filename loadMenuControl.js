@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("loadMenuControl", ["^loadGameControl", "^hsmMachine"],
   function(ElementSlotService, $location, $log) {
     'use strict';
+    'ngInject';
     var win, games;
     this.init = function(name, loadGameControl, hsmMachine) {
       var menu = {

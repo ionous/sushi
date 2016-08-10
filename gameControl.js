@@ -5,8 +5,8 @@ angular.module('demo')
   function(EntityService, EventService, PositionService,
     $log, $q) {
     'use strict';
+    'ngInject';
     this.init = function(name, serverControl, processControl, hsmMachine) {
-      //
       var ClassInfo = function(data) {
         this.classInfo = data;
         this.classList = data.meta.classes;

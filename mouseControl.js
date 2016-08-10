@@ -4,7 +4,7 @@ angular.module('demo')
   function(CursorService, ElementSlotService, EntityService,
     $log, $scope) {
     'use strict';
-
+    'ngInject';
     // eventually what i want is to track the mouse always so i can tell in out of bounds at all time.
     var reflectList = "mouseenter mouseleave mousemove mousedown mouseup";
     var ctrl = this;

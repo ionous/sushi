@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs('playerDialogControl', ["^modalControl", "^hsmMachine"],
   function(EntityService, $log) {
     'use strict';
+    'ngInject';
     var comments, display, quips, modal, title;
     var clear = function(where) {
       quips = [];

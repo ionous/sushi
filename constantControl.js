@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("constantControl",
   function($injector, $log) {
     'use strict';
+    'ngInject';
     this.init = function(name) {
       return function(key) {
         var val;

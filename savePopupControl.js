@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("savePopupControl", ["^modalControl", "^hsmMachine"],
   function($log) {
     'use strict';
+    'ngInject';
     this.init = function(name, modalControl, hsmMachine) {
       var modal, scope, data, error, resolver;
       return {

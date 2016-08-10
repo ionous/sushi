@@ -3,7 +3,7 @@ angular.module('demo')
 .directiveAs("viewControl", ["^^mapControl"],
   function(ElementSlotService, LocationService, $log, $scope) {
     'use strict';
-
+    'ngInject';
     this.init = function(name, mapControl) {
       var currentEl, currentScope, prevLoc;
       var returnToRoom = function() {

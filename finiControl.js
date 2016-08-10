@@ -4,7 +4,7 @@ angular.module('demo')
 .directiveAs("finiControl", ["^hsmMachine"],
   function(ElementSlotService, $scope) {
     'use strict';
-
+    'ngInject';
     this.init = function(name, hsmMachine) {
       var Fini = function() {
         this.map = ElementSlotService.get("gameMap");

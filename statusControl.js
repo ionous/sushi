@@ -3,7 +3,8 @@
 angular.module('demo')
   .directiveAs('statusControl', ["^gameControl"],
     function(ElementSlotService, $q, $log) {
-      'use strict';
+    'use strict';
+    'ngInject';
       // query via ObjectService for initial state to help with save game.
       var statusInstance = {
         id: 'status-bar',

@@ -3,7 +3,7 @@ angular.module('demo')
 .directiveAs("creditsControl", ["^^hsmMachine"],
   function(ElementSlotService, $location, $log) {
     'use strict';
-
+    'ngInject';
     var ccsa = {
       name: "CC BY-SA 3.0",
       url: "https://creativecommons.org/licenses/by-sa/3.0/legalcode",

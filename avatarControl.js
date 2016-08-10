@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl"],
   function(LocationService, ObjectDisplayService, PositionService, $log) {
     'use strict';
+    'ngInject';
     this.init = function(name, hsmMachine, keyControl) {
       var currPlayer, currChara, currProp, currSkin, currLoc;
       var defaultAngle = PositionService.defaultAngle;

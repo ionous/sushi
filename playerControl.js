@@ -4,7 +4,7 @@ angular.module('demo')
   function(CharaService, LocationService,
     $q, $log) {
     'use strict';
-
+    'ngInject';
     var playerRef = {
       id: 'player',
       type: 'actors'

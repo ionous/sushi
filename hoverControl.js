@@ -3,7 +3,7 @@ angular.module('demo')
 .directiveAs("hoverControl", ["^^mouseControl", "^^hsmMachine"],
   function() {
     'use strict';
-
+    'ngInject';
     this.init = function(name, mouseControl, hsmMachine) {
       var highlight;
       var emit = function(evt, pos) {

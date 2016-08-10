@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("processControl", ["^^hsmMachine"],
   function($timeout, EventStreamService) {
     'use strict';
+    'ngInject';
     this.init = function(name, hsmMachine) {
       var processing;
       var prime = function() {

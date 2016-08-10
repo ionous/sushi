@@ -7,7 +7,7 @@ angular.module('demo')
   function(ActionListService, EntityService, ItemService,
     $log, $q) {
     'use strict';
-
+    'ngInject';
     this.init = function(name, hsmMachine) {
       var pending, combining, itemActions;
       var scope = {

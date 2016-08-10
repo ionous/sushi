@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("physicsControl", ["^^hsmMachine"],
   function(CollisionService) {
     'use strict';
+    'ngInject';
     this.init = function(hsmMachine) {
       var scene;
       return {

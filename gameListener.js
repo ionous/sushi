@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("gameListener", ["^^hsmMachine"],
   function($log, $q, EventService) {
     'use strict';
+    'ngInject';
     this.init = function(name, hsmMachine) {
       var listeners;
       var silence = function() {
@@ -26,8 +27,8 @@ angular.module('demo')
           ctx: raw.ctx,
           start: !endEvent,
           end: !!endEvent,
-           // returns the function to be called.
-           resolve: function() {
+          // returns the function to be called.
+          resolve: function() {
             if (!defer) {
               defer = $q.defer();
             }

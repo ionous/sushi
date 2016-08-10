@@ -3,7 +3,7 @@ angular.module('demo')
 .directiveAs("consoleControl", ["^^textControl", "^^gameControl", "^^modalControl"],
   function($log, $q, $timeout) {
     'use strict';
-
+    'ngInject';
     this.init = function(name, textControl, gameControl, modalControl) {
       var modal;
       return {

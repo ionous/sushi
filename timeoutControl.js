@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("timeoutControl", ["^^hsmMachine"],
   function($log, $timeout) {
     'use strict';
+    'ngInject';
     var promise = null;
     this.init = function(name, hsmMachine) {
       return {

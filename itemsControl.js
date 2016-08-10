@@ -6,7 +6,7 @@ angular.module('demo')
   function(IconService,
     $log, $q, $scope) {
     'use strict';
-
+    'ngInject';
     this.init = function(name) {
       // from inventoryControl
       var inv = $scope.modal.contents;

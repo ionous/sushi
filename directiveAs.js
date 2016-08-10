@@ -3,7 +3,6 @@
 angular.module('demo')
   .directiveAs = function(directiveName, requireOrFn, fnOpt) {
     'use strict';
-
     var require, fn;
     if (!fnOpt) {
       fn = requireOrFn;
@@ -17,7 +16,7 @@ angular.module('demo')
     // using an explicitly named controller *does not* work.
     // https://github.com/angular/angular.js/issues/5893#issuecomment-65968829
     var requires = [directiveName].concat(require || []);
-    return this.directive(directiveName, function($log) {
+    return this.directive(directiveName, ["$log", function($log) {
       return {
         controller: fn,
         require: requires,
@@ -35,5 +34,5 @@ angular.module('demo')
           }
         },
       };
-    });
+    }]);
   };

@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("resumeControl", ["^loadGameControl", "^hsmMachine"],
   function($log) {
     'use strict';
+    'ngInject';
     this.init = function(name, loadGameControl, hsmMachine) {
       var resume = {
         load: function() {

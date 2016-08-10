@@ -5,6 +5,7 @@ angular.module('demo')
 .directiveAs('inventoryControl', ["^^gameControl", "^^hsmMachine", "^^modalControl"],
   function(ActionListService, ItemService, $q, $log) {
     'use strict';
+    'ngInject';
     var invWin = 'invWin';
     this.init = function(name, gameControl, hsmMachine, modalControl) {
       var modal;

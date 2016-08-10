@@ -4,6 +4,7 @@ angular.module('demo')
   function(EventStreamService, LocationService, PositionService,
     SaveVersion, $log, $q, $timeout) {
     'use strict';
+    'ngInject';
     //
     this.init = function(name, gameControl, mapControl, storageControl, textControl, hsmMachine) {
       // passes the event resolution to whomever handles -saved, -error events

@@ -1,6 +1,5 @@
-'use strict';
-
 function newCanvas(id, w, h) {
+  'use strict';
   var el = angular.element('<canvas id="' + id + '"></canvas>');
   var canvas = el[0];
   canvas.width = w;
@@ -12,6 +11,7 @@ var scratch = null;
 
 // Sprite is a portion of a tile sheet.
 var Sprite = function(src, ofs, size, image) {
+  'use strict';
   this.src = src;
   this.ofs = ofs;
   this.size = size;
@@ -20,6 +20,7 @@ var Sprite = function(src, ofs, size, image) {
 
 // cache a new image source containing the pixel data for this sprite.
 Sprite.prototype.image = function() {
+  'use strict';
   if (!this._image && this.src) {
     var img = new Image();
     img.src = this.src;
@@ -30,10 +31,12 @@ Sprite.prototype.image = function() {
 
 // clear a region at the passed pos of the size of this sprite
 Sprite.prototype.clearAt = function(ctx, pos) {
+  'use strict';
   ctx.clearRect(pos.x, pos.y, this.size.x, this.size.y);
 };
 
 Sprite.prototype.drawAt = function(ctx, pos, rot) {
+  'use strict';
   // use a temporary canvas to handle the pain of destination-only rotation.
   if (!scratch) {
     scratch = newCanvas("scratch", this.size.x, this.size.y)[0];
@@ -49,6 +52,7 @@ Sprite.prototype.drawAt = function(ctx, pos, rot) {
 
 // fill the passed canvas with this sprite, rotating it as we go.
 Sprite.prototype.fillCanvas = function(canvas, rot) {
+  'use strict';
   var ctx = canvas.getContext("2d");
   var wx = 0.5 * canvas.width;
   var wy = 0.5 * canvas.height;
@@ -67,5 +71,6 @@ Sprite.prototype.fillCanvas = function(canvas, rot) {
 
 // create a new canvas (element) filling it with the image of this sprite.
 Sprite.prototype.newCanvas = function(id) {
+  'use strict';
   return newCanvas(id, this.size.x, this.size.y);
 };

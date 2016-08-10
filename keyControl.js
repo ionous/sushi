@@ -3,7 +3,7 @@ angular.module('demo')
 .directiveAs("keyControl", ["^^hsmMachine"],
   function($log, $scope, $rootElement) {
     'use strict';
-
+    'ngInject';
     var keyValues = {
       'up': [87, 38, 104],
       'left': [65, 37, 100],

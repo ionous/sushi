@@ -4,7 +4,7 @@ angular.module('demo')
   function(ActionListService, ElementSlotService, IconService,
     $element, $log, $q) {
     'use strict';
-
+    'ngInject';
     this.init = function(name, hsmMachine, modalControl, mouseControl) {
       var actionBarModal, currentTarget, displaySlot, game;
       this.bindTo = function(game_, slotName) {

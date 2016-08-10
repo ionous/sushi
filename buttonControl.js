@@ -6,6 +6,7 @@ angular.module('demo')
 .directiveAs("buttonControl", ["^hsmMachine"],
   function(ElementSlotService, $log) {
     'use strict';
+    'ngInject';
     this.init = function(name, hsmMachine) {
       var button;
       var scope = {

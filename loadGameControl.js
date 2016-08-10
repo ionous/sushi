@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("loadGameControl", ["^storageControl", "^hsmMachine"],
   function(LocationService, SaveVersion, $log) {
     'use strict';
+    'ngInject';
     //
     var SaveData = function(key, data) {
       this.key = key;

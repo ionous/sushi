@@ -5,8 +5,9 @@ angular.module('demo')
 
 .directiveAs("combinePanelControl",
   function(ElementSlotService, EntityService, ItemService, $log, $q) {
+    'use strict';
+    'ngInject';
     var defer, combineBox;
-
     this.init = function(name) {
       var scope = {
         close: function() {

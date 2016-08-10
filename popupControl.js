@@ -3,8 +3,7 @@ angular.module('demo')
 .directiveAs('popupControl', ["^modalControl"],
   function($log, $q) {
     'use strict';
-
-
+    'ngInject';
     this.init = function(name, modalControl) {
       var modal;
       return {
@@ -29,8 +28,7 @@ angular.module('demo')
 .directiveAs('popupBoxControl',
   function($log, $scope) {
     'use strict';
-
-
+    'ngInject';
     this.init = function(name) {
       var modal = $scope.modal;
       var lines = modal.contents;

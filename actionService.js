@@ -27,6 +27,7 @@ angular.module('demo')
 .directiveAs("actionService", ["^hsmMachine"],
   function(ActionService, $log, $q) {
     'use strict';
+    'ngInject';
     this.init = function(name, hsmMachine) {
       var currentGame, pendingActions;
 

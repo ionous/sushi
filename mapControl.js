@@ -5,7 +5,7 @@ angular.module('demo')
   function(ElementSlotService, LayerService, LocationService, MapService, ObjectDisplayService, UpdateService,
     $log, $q, $rootScope) {
     'use strict';
-
+    'ngInject';
     var collectCollision = function(map) {
       var shapes = []; //
       var subShapes = function(mapLayer) {

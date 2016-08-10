@@ -3,7 +3,7 @@ angular.module('demo')
 .directiveAs('commentBoxControl', ["^hsmMachine"],
   function($element, $log, $scope, $timeout) {
     'use strict';
-
+    'ngInject';
     this.init = function(name, hsmMachine) {
       var modal = $scope.modal;
       var contents = modal.contents;

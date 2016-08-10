@@ -4,6 +4,7 @@ angular.module('demo')
 .directiveAs("commandControl", ["^textControl"],
   function($log, $q, $timeout) {
     'use strict';
+    'ngInject';
     this.init = function(name, textControl) {
       return {
         post: function(what) {

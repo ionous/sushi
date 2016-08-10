@@ -6,6 +6,7 @@ angular.module('demo')
 .directiveAs('actionButtonControl',
   function($element, $log, $scope) {
     'use strict';
+    'ngInject';
     this.init = function(name) {
       //$log.info("action button", name);
       var bar = $scope.modal.contents;

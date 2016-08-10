@@ -1,22 +1,19 @@
-'use strict';
-
 var Calc = function(numCells) {
+  'use strict';
   this.numCells = numCells;
 };
 
 Calc.prototype.indexToCell = function(index) {
+  'use strict';
   var cellsWide = this.numCells.x;
   var cy = Math.floor(index / cellsWide);
   var cx = index % cellsWide;
   return pt(cx, cy);
 };
 
-
-/** @typedef {string} */
-var pointId;
-
 /*+ @return {pointId} */
 function mapId(x, y) {
+  'use strict';
   var id = angular.toJson([x, y]);
   return id;
 }
@@ -26,18 +23,21 @@ function mapId(x, y) {
  * @constructor
  */
 var Map = function() {
+  'use strict';
   /*  {Object<pointId, Object>} */
   this.data = {};
 };
 
 /** returns an element for the passed x,y position. */
 Map.prototype.get = function(x, y) {
+  'use strict';
   var id = mapId(x, y);
   return this.data[id];
 };
 
 /** returns an element for the passed x,y position, or create one if it doesnt exist. */
 Map.prototype.getOrCreate = function(x, y, cb) {
+  'use strict';
   var id = mapId(x, y);
   if (!(id in this.data)) {
     var map = cb(id, x, y);
@@ -52,6 +52,7 @@ Map.prototype.getOrCreate = function(x, y, cb) {
  * @param {Grid} grid
  */
 var Cell = function(grid, index) {
+  'use strict';
   if (!grid || angular.isUndefined(grid.raw)) {
     throw new Error("invalid grid");
   }
@@ -61,16 +62,19 @@ var Cell = function(grid, index) {
 
 /** linear index of this cell in its grid. */
 Cell.prototype.cellIndex = function() {
+  'use strict';
   return this._index;
 };
 
 /** coordinate of this cell within its grid. */
 Cell.prototype.cellOffset = function() {
+  'use strict';
   return this.grid.cellOffsetFromIndex(this._index);
 };
 
 /** pixel position of the upper-left corner of this cell. */
 Cell.prototype.cellPos = function() {
+  'use strict';
   var gridPos = this.grid.gridPos();
   var myPos = pt_mul(this.cellOffset(), this.grid.layer.cellSize);
   return pt_add(gridPos, myPos);
@@ -78,16 +82,19 @@ Cell.prototype.cellPos = function() {
 
 /** tile sheet id. */
 Cell.prototype.tileId = function() {
+  'use strict';
   return this.grid.raw[this._index][0];
 };
 
 /** linear index of a sprite within its tile sheet. */
 Cell.prototype.tileIndex = function() {
+  'use strict';
   return this.grid.raw[this._index][1];
 };
 
 /** rotation (0..3) in multiples of 90 degrees for displaying this cell. */
 Cell.prototype.tileRot = function() {
+  'use strict';
   return this.grid.raw[this._index][2];
 };
 
@@ -96,6 +103,7 @@ Cell.prototype.tileRot = function() {
  * @constructor
  */
 var Grid = function(layer, ofs, raw) {
+  'use strict';
   if (!layer) {
     throw new Error("invalid layer");
   }
@@ -106,12 +114,15 @@ var Grid = function(layer, ofs, raw) {
 
 /** Pixel position of the upper-left corner of this grid. */
 Grid.prototype.gridPos = function() {
+  'use strict';
+
   var pixels = pt_mul(this.layer.numCells, this.layer.cellSize);
   return pt_mul(pixels, this.ofs);
 };
 
 /** expand a linear cell index into a 2d cell coordinate. */
 Grid.prototype.cellOffsetFromIndex = function(index) {
+  'use strict';
   var cellsWide = this.layer.numCells.x;
   var cy = Math.floor(index / cellsWide);
   var cx = index % cellsWide;
@@ -120,6 +131,7 @@ Grid.prototype.cellOffsetFromIndex = function(index) {
 
 /** return cell x,y within a grid. */
 Grid.prototype.cellOffsetFromPos = function(pix) {
+  'use strict';
   var pixels = pt_mul(this.layer.numCells, this.layer.cellSize);
   // "wrap" the passed pixel into this grid
   var pt = pt_mod(pix, pixels);
@@ -141,6 +153,7 @@ Grid.prototype.cellOffsetFromPos = function(pix) {
  * @constructor
  */
 var Layer = function(broad, id, numCells, cellSize) {
+  'use strict';
   this.id = id;
   this.numCells = numCells; // number of cells wide,high
   this.cellSize = cellSize; // size in pixel of each cell
@@ -150,6 +163,7 @@ var Layer = function(broad, id, numCells, cellSize) {
 
 /* return grid based on position. */
 Layer.prototype.grid = function(pix) {
+  'use strict';
   var pixels = pt_mul(this.numCells, this.cellSize);
   var gofs = pt_divFloor(pix, pixels);
   var layer = this; // pin "this" for use in callback.
@@ -159,6 +173,7 @@ Layer.prototype.grid = function(pix) {
 };
 /* return a new cell object for the passed pixel position. */
 Layer.prototype.cellByPixel = function(pix) {
+  'use strict';
   var grid = this.grid(pix);
   var cell = grid.cellOffsetFromPos(pix);
   var index = cell.x + (cell.y * this.numCells.x);
@@ -167,8 +182,9 @@ Layer.prototype.cellByPixel = function(pix) {
 /** 
  * add the tile to the world at the passed pixel position with the passed rotation.
  * @param {Array<string,int,int>} data (tileId, tileIdx, rot) 
-*/
+ */
 Layer.prototype.place = function(pix, data) {
+  'use strict';
   // find the cell index on that grid.
   var cell = this.cellByPixel(pix);
   // store the data; FIX: sure is nice and object oriented :(

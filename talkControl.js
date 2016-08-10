@@ -3,8 +3,8 @@ angular.module('demo')
 .directiveAs('talkControl', ["^hsmMachine", "^modalControl"], function(
   ElementSlotService, ObjectDisplayService,
   $log, $q, $timeout) {
-  'use strict';
-
+    'use strict';
+    'ngInject';
   this.init = function(name, hsmMachine, modalControl) {
     // hmmm.... the images have different spacings in them... :(
     // should probably be part of a character/state description.

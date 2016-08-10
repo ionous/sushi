@@ -6,7 +6,7 @@ angular.module('demo')
 .directiveAs("windowControl",
   function(ElementSlotService, $log) {
     'use strict';
-
+    'ngInject';
     this.init = function(name) {
       var old;
       var scope = {

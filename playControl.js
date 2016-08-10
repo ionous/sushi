@@ -6,7 +6,7 @@ angular.module('demo')
 .directiveAs("playControl", ["^hsmMachine"],
   function($log, $q) {
     'use strict';
-
+    'ngInject';
     this.init = function(name, hsmMachine) {
       var started, paused = false;
       var go = function(run) {

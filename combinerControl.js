@@ -6,7 +6,7 @@ angular.module('demo')
 .directiveAs("combinerControl", ["^hsmMachine"],
   function($log, $q) {
     'use strict';
-
+    'ngInject';
     this.init = function(name, hsmMachine) {
       var source = null;
       this.item = function() {
