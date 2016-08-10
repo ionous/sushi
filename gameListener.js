@@ -24,7 +24,8 @@ angular.module('demo')
           data: data,
           name: evt,
           tgt: tgt,
-          ctx: raw.ctx,
+          // raw doesnt exist for all events ( ex. raise() on property changes )
+          ctx: raw && raw.ctx,
           start: !endEvent,
           end: !!endEvent,
           // returns the function to be called.
