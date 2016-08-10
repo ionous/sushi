@@ -4,10 +4,10 @@ angular.module('demo')
 .directiveAs("storageControl",
   function($log, $q, $window) {
     'use strict';
+    'ngInject';
     var storgeSingleton;
     var chrome = $window.chrome;
     var savePrefix = $window.sashimi ? "sashimi-" : "save-";
-
     this.init = function(name) {
       var NoStore = function() {
         var notImplemented = function() {
@@ -20,16 +20,9 @@ angular.module('demo')
         this.enumerate = notImplemented;
       }; // NoStore
       var LocalStore = function(ls) {
-        var lsget = function(k, unpack) {
-          var v = ls.getItem(k);
-          if (unpack) {
-            v = angular.fromJson(v);
-          }
-          return v;
-        };
-        this.getItem = function(k, unpack) {
+        this.getItem = function(k) {
           var defer = $q.defer();
-          var v = lsget(k, unpack);
+          var v = ls.getItem(k);
           if (!v) { // note: localStorage seems to return null, not undefined
             defer.reject("no such key");
           } else {
@@ -37,10 +30,8 @@ angular.module('demo')
           }
           return defer.promise;
         };
-        this.setItem = function(k, v, pack) {
+        this.setItem = function(k, v) {
           return $q.when().then(function() {
-            v = pack ? angular.toJson(v) : v;
-            $log.info("storageControl", name, "saving", k);
             ls.setItem(k, v);
           });
         };
@@ -49,13 +40,13 @@ angular.module('demo')
             return ls.length !== 0;
           });
         };
-        this.enumerate = function(cb, filter) {
+        this.enumerate = function(filter, cb) {
           return $q.when().then(function() {
             var l = ls.length;
             for (var i = 0; i < l; i++) {
               var k = ls.key(i);
               if (!filter || filter(k)) {
-                var v = lsget(k, !!filter);
+                var v = ls.getItem(k);
                 if (v) {
                   cb(k, v);
                 }
@@ -68,11 +59,13 @@ angular.module('demo')
         var getItem = function(key) {
           var defer = $q.defer();
           sa.get(key, function(items) {
-            var v = items && items[key];
-            if (!v) {
-              defer.reject("no such key");
-            } else {
+            var v = !!key ? items[key] : items;
+            var err = chrome.runtime.lastError || (!v && "no such key");
+            if (!err) {
               defer.resolve(v);
+            } else {
+              $log.error("chrome getItem", err);
+              defer.reject(err);
             }
           });
           return defer.promise;
@@ -80,10 +73,16 @@ angular.module('demo')
         this.getItem = getItem;
         this.setItem = function(k, v) {
           var defer = $q.defer();
-          sa.set({
-            k: v
-          }, function() {
-            defer.resolve();
+          var d = {};
+          d[k] = v;
+          sa.set(d, function() {
+            var err = chrome.runtime.lastError;
+            if (!err) {
+              defer.resolve();
+            } else {
+              $log.error("chrome setItem", err);
+              defer.reject(err);
+            }
           });
           return defer.promise;
         };
@@ -94,7 +93,7 @@ angular.module('demo')
           });
           return defer.promise;
         };
-        this.enumerate = function(cb, filter) {
+        this.enumerate = function(filter, cb) {
           return getItem(null).then(
             function(all) {
               for (var k in all) {
@@ -110,32 +109,38 @@ angular.module('demo')
       };
       // wrap a store with argument validation.
       var StoreWrapper = function(store) {
-        this.getItem = function(key, unpack) {
-          if (!angular.isString(key)) {
-            var e1 = ["expected string key", key].join(" ");
+        this.getItem = function(k, unpack) {
+          if (!angular.isString(k)) {
+            var e1 = ["expected string key", k].join(" ");
             throw new Error(e1);
           }
-          return store.getItem(key, unpack);
+          return store.getItem(k).then(function(v) {
+            return unpack ? angular.fromJson(v) : v;
+          });
         };
-        this.setItem = function(key, value, unpack) {
-          if (!angular.isString(key)) {
-            var e2 = ["expected string key", key].join(" ");
+        this.setItem = function(k, v, pack) {
+          if (!angular.isString(k)) {
+            var e2 = ["expected string key", k].join(" ");
             throw new Error(e2);
           }
-          return store.setItem(key, value, unpack);
+          var set = pack ? angular.toJson(v) : v;
+          return store.setItem(k, set);
         };
         this.checkItems = function() {
           return store.checkItems();
         };
         this.enumerate = function(f1, f2) {
-          var cb, filter;
+          var filter, cb;
           if (f2) {
             filter = f1;
             cb = f2;
           } else {
             cb = f1;
           }
-          return store.enumerate(cb, filter);
+          var unpack = !!filter;
+          return store.enumerate(filter, function(k, v) {
+            cb(k, unpack ? angular.fromJson(v) : v);
+          });
         };
         this.prefix = savePrefix;
       };
