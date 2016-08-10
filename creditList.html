@@ -3,11 +3,11 @@
   <h2 ng-if="!!credits.subsection">{{credits.subsection}}</h2>
   <h3 ng-if="!!credits.title">{{credits.title}}</h3>
   <div class="tag">{{credits.tag}}</div>
-  <div class="url" ng-if="!!credits.url"><a ng-href="{{credits.url}}">{{credits.url}}</a></div>
+  <div class="url" ng-if="!!credits.url"><a target="_blank" ng-href="{{credits.url}}">{{credits.url}}</a></div>
   <div class="author">{{credits.author}}</span>
   <div class="licenses">
     <div class="license" ng-repeat="l in credits.license">
-      <a ng-href="{{l.url}}">{{l.name}}</a>
+      <a target="_blank" ng-href="{{l.url}}">{{l.name}}</a>
   </div>
   </div>
   <ng-include src="'creditList.html'"></ng-include>

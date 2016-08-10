@@ -1,4 +1,5 @@
 <div class="ga-menus ga-credits" ng-if="!!creditsWin.credits">
+  <ng-include src="'homeButton.html'"></ng-include>
   <div ng-init="credits={items:creditsWin.credits}">
     <ng-include src="'creditList.html'"></ng-include>
   </div>
