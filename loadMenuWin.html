@@ -1,15 +1,15 @@
 <div class="ga-saved" ng-if="loadMenuWin.visible">
+  <ng-include src="'homeButton.html'"></ng-include>
   <h1>Load Game</h1>
-  <ul class="list-unstyled">
-    <li ng-repeat="game in loadMenuWin.games | orderBy: '-ikey' track by $index">
-      <ga-link ng-click="loadMenuWin.loadGame(game.ikey)">
-        <span class="idx">Save {{$index+1}}<span ng-if="game.slot == 'autosave'"> - Autosave</span></span>
-        <div class="dateTime">{{game.when}}</div>
-        <div class="location">where: {{game.where}}</div>
-      </ga-link>
-    </li>
-    <li>
-      <ga-link ga-dst="/">Return to menu</ga-link>
-    </li>
-  </ul>
+  <div class="ga-load-games">
+    <ul class="list-unstyled">
+      <li ng-repeat="game in loadMenuWin.games | orderBy: '-ikey' track by $index">
+        <ga-link ng-click="loadMenuWin.loadGame(game.ikey)">
+          <span class="idx">Save {{$index+1}}<span ng-if="game.slot == 'autosave'"> - Autosave</span></span>
+          <div class="dateTime">{{game.when}}</div>
+          <div class="location">where: {{game.where}}</div>
+        </ga-link>
+      </li>
+    </ul>
+  </div>
 </div>
