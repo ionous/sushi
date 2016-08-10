@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("changeControl",
   function(RequireSave, $log, $window) {
     'use strict';
+    'ngInject';
     this.init = function(name) {
       var chrome = $window.chrome;
       var appwin, win;
@@ -28,9 +29,6 @@ angular.module('demo')
       var promptBeforeExit = function(event) {
         event.returnValue = majorChange || minorChange;
       };
-      var saveBeforeExit = function() {
-        saveGame("auto-save");
-      };
 
       this.majorChange = function(yes) {
         if (yes) {
@@ -49,6 +47,7 @@ angular.module('demo')
 
       return {
         create: function(needInitalSave) {
+          majorChange = !!needInitalSave;
           var cw = chrome && chrome.app && chrome.app.window;
           if (!cw && RequireSave) {
             win = angular.element($window);
@@ -56,23 +55,12 @@ angular.module('demo')
               $log.info("changeControl", name, "initializing before exit prompt");
               win.on("beforeunload", promptBeforeExit);
             }
-          } else if (cw && RequireSave) {
-            appwin = cw.current();
-            if (appwin) {
-              $log.info("changeControl", name, "initializing autosave at exit");
-              appwin.onClose.addListener(saveBeforeExit);
-            }
           }
-          majorChange = !!needInitalSave;
         },
         destroy: function() {
           if (win) {
             win.off("beforeunload", promptBeforeExit);
             win = null;
-          }
-          if (appwin) {
-            appwin.onClose.removeListener(saveBeforeExit);
-            appwin = null;
           }
           majorChange = majorChange = false;
         },
