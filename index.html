@@ -26,12 +26,11 @@
   <script src="/script/request-frame/dist/request-frame.min.js"></script>
   <script src="/script/p2js/build/p2.min.js" type="text/javascript"></script>
   <!--  main, routes, etc. -->
-  <!-- <script src="/bin/game/alice.js"></script> -->
+  <script src="/bin/game/alice.js"></script>
   <script src="demo.js"></script>
   <script src="subject.js"></script>
   <!--  angular mods -->
   <script src="directiveAs.js"></script>
-  <!-- <script src="httpTrap.js"></script> -->
   <!--  services -->
   <script src="actionService.js"></script>
   <script src="actionListService.js"></script>
@@ -54,7 +53,6 @@
   <script src="mapService.js"></script>
   <script src="objectDisplayService.js"></script>
   <script src="positionService.js"></script>
-  <script src="mapService.js"></script>
   <script src="watcherService.js"></script>
   <script src="updateService.js"></script>
   <!-- directives -->
@@ -78,6 +76,7 @@
   <script src="commentBoxControl.js"></script>
   <script src="customActionsControl.js"></script>
   <script src="finiControl.js"></script>
+  <script src="focusedControl.js"></script>
   <script src="gameControl.js"></script>
   <script src="gameListener.js"></script>
   <script src="hoverControl.js"></script>
@@ -100,6 +99,7 @@
   <script src="processControl.js"></script>
   <script src="physicsControl.js"></script>
   <script src="resumeControl.js"></script>
+  <script src="returnToRoomControl.js"></script>
   <script src="saveControl.js"></script>
   <script src="savePopupControl.js"></script>
   <script src="serverControl.js"></script>
@@ -110,8 +110,7 @@
   <script src="textControl.js"></script>
   <script src="timeoutControl.js"></script>
   <script src="updateControl.js"></script>
-  <script src="viewControl.js"></script>
-  <script src="windowControl.js"></script>
+  <script src="visibilityControl.js"></script>
   <!-- menus -->
   <script src="aboutControl.js"></script>
   <script src="creditsControl.js"></script>
@@ -123,15 +122,21 @@
   <script src="itemSlideController.js"></script>
   <!--  -->
   <script src="mosaic/map.js"></script>
-  <script src="mosaic/mosaic.js"></script>
   <script src="mosaic/point.js"></script>
   <script src="mosaic/sprite.js"></script>
 </head>
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" location-control="path" constant-control="constant" hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)">
-  <header>
-    <div class="ga-status" element-slot="statusBar" ng-show="statusBar.visible">
-      <span class="ga-noselect whereabouts">{{statusBar.left}}</span>
-      <span class="ga-noselect story-title">{{statusBar.right}}</span>
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" location-control="path" constant-control="constant" hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)" focused-control="ga-active">
+  <header element-slot="headerEl">
+    <div title-bar-control="titlebar" class="titlebar">
+      <span class="titlebar-icon">
+        <span class="fa-stack">
+        <i class="fa fa-circle fa-stack-2x"></i>
+        <i class="fa fa-rocket fa-stack-1x fa-inverse"></i>
+        </span>
+      </span>
+      <span class="titlebar-text">Alice and the Galactic Traveller</span>
+      <span class="titlebar-close-button"></span>
+      <div class="titlebar-divider"></div>
     </div>
   </header>
   <main>
@@ -139,17 +144,17 @@
     </div>
     <div class="ga-menus" element-slot="menuWindow" ng-show="menuWindow.visible">
       <div element-slot="mainWin" ng-include="'mainWin.html'"></div>
-      <div element-slot="aboutWin" ng-include="'aboutWin.html'"></div>
+      <!-- <div element-slot="aboutWin" ng-include="'aboutWin.html'"></div> -->
       <div element-slot="creditsWin" ng-include="'creditsWin.html'"></div>
-      <div element-slot="loadMenuWin" ng-include="'loadMenuWin.html'">
-      </div>
+      <div element-slot="loadMenuWin" ng-include="'loadMenuWin.html'"></div>
     </div>
   </main>
-  <footer ng-init="hsmExpanded=false">
+  <footer ng-init="hsmExpanded=false" element-slot="footerEl">
     <div class="state-display" ng-show="constant('ShowHsm')">
       <a href="" ng-click="hsmExpanded=!hsmExpanded">states [{{hsmExpanded ? 'x' : 'o'}}]</a>
       <ng-include src="'main.html'" ng-show="hsmExpanded"></ng-include>
     </div>
   </footer>
 </body>
+
 </html>

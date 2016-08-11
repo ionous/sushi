@@ -1,10 +1,13 @@
-<div ng-hide="buttonBar.hidden">
-  <div class="ga-buttonbar ga-left" ng-show="!!clickReturn.msg" element-slot="clickReturn">
-    <a class="btn btn-primary btn-lg" uib-tooltip="{{clickReturn.msg}}" tooltip-placement="right" tooltip-class="ga-xtip">
-      <i class="fa fa-undo"></i>
-    </a>
+<div class="ga-buttonbar" ng-hide="buttonBar.hidden">
+  <div class="ga-left">
+    <span ng-show="!!clickReturn.msg" element-slot="clickReturn">
+     <a class="btn btn-primary btn-lg" uib-tooltip="{{clickReturn.msg}}" tooltip-placement="right" tooltip-class="ga-xtip">
+        <i class="fa fa-undo"></i>
+      </a>
+      </span>
+    <span class="ga-noselect whereabouts">{{buttonBar.statusText}}</span>
   </div>
-  <div class="ga-buttonbar ga-right">
+  <div class="ga-right">
     <a class="btn btn-primary btn-lg disabled" uib-tooltip="Console" tooltip-placement="auto bottom" tooltip-class="ga-xtip" element-slot="consoleButton" ng-click="consoleButton.click()">
       <i class="fa fa-terminal"></i>
     </a>

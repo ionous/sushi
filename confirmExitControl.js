@@ -3,6 +3,7 @@ angular.module('demo')
 .directiveAs("confirmExitControl", ["^changeControl", "^modalControl", "^hsmMachine"],
   function() {
     'use strict';
+    'ngInject';
     this.init = function(name, changeControl, modalControl, hsmMachine) {
       var modal;
       var settings = {
@@ -18,7 +19,7 @@ angular.module('demo')
             dismiss: function(reason) {
               mdl.dismiss(reason);
             },
-            saveMessage: changeControl.majorChange() ? "Your game isn't saved.": "",
+            saveMessage: changeControl.majorChange() ? "Your game isn't saved." : "",
             exitGame: function() {
               hsmMachine.emit(name, "exit", {});
             },

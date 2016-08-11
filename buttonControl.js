@@ -1,5 +1,7 @@
 /**
- * helper for using one item with another item:
+ * ButtonControl 
+ * When the named button is clicked, raise -clicked.
+ * Expose the ability to enable/disable, and pulse the button.
  */
 angular.module('demo')
 
@@ -10,7 +12,7 @@ angular.module('demo')
     this.init = function(name, hsmMachine) {
       var button;
       var scope = {
-        bindTo: function(slotName) {
+        bind: function(slotName) {
           if (slotName === false) {
             button.scope.click = null;
             button = null;

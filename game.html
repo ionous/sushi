@@ -1,6 +1,6 @@
 <hsm-state name="Game" hsm-exit="game.destroy()">
-  <hsm-state window-control="gameWin" hsm-enter="gameWin.show('gameWindow')" hsm-exit="gameWin.show(false)">
-    <hsm-state status-control="status" hsm-enter="status.bindTo('statusBar')" hsm-exit="status.destroy()">
+  <hsm-state visibility-control="gameWin" hsm-enter="gameWin.show('gameWindow')" hsm-exit="gameWin.show(false)">
+    <hsm-state status-control="status" hsm-enter="status.bindTo('buttonBar')">
       <hsm-state key-control="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
         <hsm-state map-control="map" hsm-enter="map.bindTo('gameMap')" hsm-exit="map.destroy()">
           <hsm-state player-control="player" hsm-exit="player.destroy()" hsm-init="'Startup'">
@@ -13,14 +13,15 @@
                 <hsm-state save-control="save" hsm-enter="save.create()" hsm-exit="save.destroy()">
                   <hsm-state change-control="track" hsm-enter="track.create($evt.newGame)" hsm-exit="track.destroy()">
                     <!-- startup goes here when done: -->
-                    <hsm-state name="GameStarted" parallel="true" command-control="commands" hsm-enter="status.updateStatus()">
+                    <hsm-state name="GameStarted" parallel="true" command-control="commands">
                       <hsm-event on="game-posting" run="commands.post($evt.what)"></hsm-event>
                       <hsm-event on="game-posting" run="track.majorChange(true)"></hsm-event>
                       <hsm-event on="map-loading" run="track.minorChange(true)"></hsm-event>
+                      <!-- watch for saving -->
                       <hsm-state>
                         <hsm-event on="save-saved" run="track.reset($evt.saveType)"></hsm-event>
                       </hsm-state>
-                      <!-- raises -processing and -empty -->
+                      <!-- handle server event processing, raises -processing and -empty -->
                       <hsm-state hsm-enter="stream.process()" hsm-exit="stream.process(false)">
                         <hsm-event on="game-posting" run="stream.processing(true)"></hsm-event>
                         <ng-include src="'processing.html'"></ng-include>
@@ -35,7 +36,7 @@
                         </hsm-state>
                         <!--  -->
                         <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
-                        <hsm-state name="PlaySpaceLoading">
+                        <hsm-state name="PlaySpaceLoading" hsm-enter="status.set()">
                           <hsm-event on="map-loaded" when="$evt.where.room=='fini'" goto="Fini"></hsm-event>
                           <hsm-event on="map-loaded" when="constant('SaveProgress') && track.majorChange()" run="save.saveGame('auto-save')" goto="Save-auto-save"></hsm-event>
                           <hsm-event on="map-loaded" goto="Playing"></hsm-event>
@@ -51,3 +52,4 @@
       </hsm-state>
     </hsm-state>
   </hsm-state>
+</hsm-state>

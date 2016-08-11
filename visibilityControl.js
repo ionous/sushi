@@ -1,9 +1,6 @@
-/**
- * helper for using one item with another item:
- */
 angular.module('demo')
 
-.directiveAs("windowControl",
+.directiveAs("visibilityControl",
   function(ElementSlotService, $log) {
     'use strict';
     'ngInject';
@@ -12,13 +9,13 @@ angular.module('demo')
       var scope = {
         show: function(windowName) {
           if (old) {
-            $log.info("windowControl", name, "hiding");
+            $log.info("visibilityControl", name, "hiding");
             old.visible = false;
             old = false;
           }
           if (windowName) {
             var scope = ElementSlotService.get(windowName).scope;
-            $log.info("windowControl", name, "showing", windowName);
+            $log.info("visibilityControl", name, "showing", windowName);
             scope.visible = true;
             old = scope;
           }

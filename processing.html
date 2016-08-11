@@ -36,11 +36,6 @@
   <hsm-state game-listener="boyOpenedDoor" hsm-enter="boyOpenedDoor.listen('alien-boy', 'yanking-open')" hsm-exit="boyOpenedDoor.silence()">
     <hsm-event on="boyOpenedDoor" when="$evt.tgt='automat-tunnel-door'" run="map.changeView('hatch').then($evt.resolve())"></hsm-event>
   </hsm-state>
-  <!--  -->
-  <!-- handle status text -->
-  <hsm-state game-listener="statusText" hsm-enter="statusText.listen(status.id, 'x-txt')" hsm-exit="statusText.silence()">
-    <hsm-event on="statusText" run="status.updateStatus($evt)"></hsm-event>
-  </hsm-state>
   <!-- handle title text -->
   <hsm-state game-listener="reading" hsm-enter="reading.listen('*', 'reporting-read', true)" hsm-exit="reading.silence()">
     <hsm-state name="Entitlement">

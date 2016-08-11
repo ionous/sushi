@@ -1,5 +1,5 @@
 <hsm-state name="Inventory" player-item-control="items" hsm-enter="items.collect()" hsm-exit="items.destroy()">
-  <hsm-state button-control="invButton" inventory-control="invWin" parallel="true" hsm-enter="invButton.bindTo(true)" hsm-exit="invButton.bindTo(false)">
+  <hsm-state button-control="invButton" inventory-control="invWin" parallel="true" hsm-enter="invButton.bind(true)" hsm-exit="invButton.bind(false)">
     <!-- pulses in parallel, because ( among other issues ) stream end will kill the pulse -->
     <hsm-state>
       <hsm-state name="InvNotPulsing">

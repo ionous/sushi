@@ -2,7 +2,7 @@
 // it seems all of the dependencies have to be listed in one place.
 // a new module call with paramters seems to act as a "reset".
 // it clears the contents of the app, resulting in many strange errors.
-angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'mosaic', 'hsm'], 
+angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'], 
   function($compileProvider) {
     //https://github.com/angular/angular.js/issues/3721
     // http://stackoverflow.com/questions/22754393
@@ -12,7 +12,7 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'mosaic', 'hsm'],
   .constant("ShowHsm", true) // state chart
   .constant("GameVersion", "0")
   .constant("SaveVersion", "01")
-  .constant("AutoStart", "Menus") //Begin,Resume,Menus
+  .constant("AutoStart", "Resume") //Begin,Resume,Menus
   .constant("Talk", true)
   .constant("Popups", true)
   .constant("GameServerUrl", "http://localhost:8080/game") 

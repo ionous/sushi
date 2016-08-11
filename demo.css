@@ -1,21 +1,38 @@
 /*canvas {
-  border-color: red;
-  border-style: solid;
-  border-width: 1px;
+border-color: red;
+border-style: solid;
+border-width: 1px;
 }
 */
 
 html,
-body {
+body,
+main,
+header,
+footer {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+main {
   height: 100%;
+  width: 100%;
 }
 
 body {
   /* light text on dark backgrounds; safari looks different than other browsers */
   -webkit-font-smoothing: subpixel-antialiased;
-  /* stops scroll bounce at the expense of having to drop height 100% everywhere:
-  ( and difficulty with getting menus to not push other elements off screen ).
-  overflow: hidden;*/
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  /*bootstrap puts a huge margin top, which pushes the menus down, and lets the body show through in a gap at the top of the screen */
+  text-align: center;
 }
 
 
@@ -31,6 +48,80 @@ body {
 * {
   font-size: 16px;
 }
+
+.ga-noselect,
+.ga-canvas {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  /*cursor: default;*/
+}
+
+main {
+  position: absolute;
+  top: 32px;
+}
+
+
+/* ----------------------------------------------
+ titlebars
+*/
+
+.titlebar {
+  position: fixed;
+  width: 100%;
+  height: 32px;
+  background-color: #7a7c7c;
+  -webkit-app-region: drag;
+}
+
+body.ga-active div.titlebar {
+  background-color: #3a3d3d;
+}
+
+.titlebar-icon {
+  color: #969696;
+}
+
+.titlebar-text {
+  margin-top: 6px;
+  margin-bottom: 6px;
+  font-style: Arial;
+  font-size: 11pt;
+  color: whitesmoke;
+}
+
+.titlebar-close-button {
+  position: absolute;
+  right: 11px;
+  width: 17px;
+  height: 17px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+  -webkit-app-region: no-drag;
+  background-image: url("/bin/chrome/button_close.png");
+}
+
+.titlebar-close-button:hover {
+  background-image: url("/bin/chrome/button_close_hover.png");
+}
+
+.titlebar-divider {
+  position: absolute;
+  left: 0px;
+  top: 31px;
+  width: 100%;
+  height: 1px;
+  background-color: #2a2c2c;
+}
+
+
+/* ----------------------------------------------
+ overgrey
+*/
 
 div.overgrey {
   width: 100%;
@@ -48,7 +139,7 @@ div.overgrey {
 
 .ga-greydismiss > div.overgrey {
   /*cursor: pointer;
-  its actually nice to see some change in the cursor i think*/
+its actually nice to see some change in the cursor i think*/
   cursor: default;
 }
 
@@ -57,20 +148,9 @@ div.overgrey {
   background-color: black;
 }
 
-.ga-noselect,
-.ga-canvas {
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-  /*cursor: default;*/
-}
-
 
 /* ----------------------------------------------
-   mouse cursor
+ mouse cursor
 */
 
 .ga-cursor {
@@ -117,31 +197,33 @@ div.overgrey {
 
 
 /* ----------------------------------------------
-   menu display
+ menu display
 */
 
 .ga-menus {
   background-color: #337AB7;
   color: white;
-  position: fixed;
   width: 100%;
   height: 100%;
-  overflow-y: scroll;
+  margin: 0;
+  padding: 0;
+  padding-top: 20px;
+}
+
+.ga-menus a {
+  cursor: pointer;
 }
 
 .ga-menus a.ga-link {
   text-transform: uppercase;
 }
 
-.ga-menus .btn {
-  margin-bottom: 10px;
+.ga-home {
+  position: fixed;
 }
 
-h1,
-h2,
-h3,
-h4 {
-  text-align: center;
+.ga-menus .btn {
+  margin-bottom: 10px;
 }
 
 .ga-options,
@@ -150,18 +232,15 @@ h4 {
   width: 25%;
 }
 
-.ga-saved {
-  position: absolute;
-  margin: 0 auto;
-  height: 100%;
+.ga-load-games {
+  height: 80vh;
   width: 100%;
+  overflow-y: scroll;
 }
 
 .ga-saved ul {
-  height: 80%;
   margin: 0 auto;
   width: 50%;
-  overflow-y: scroll;
 }
 
 .ga-saved .location {
@@ -170,16 +249,25 @@ h4 {
 
 
 /* ----------------------------------------------
-  credits
+credits
 */
 
 .ga-credits {
   text-align: center;
+  padding-top: 20px;
+  /*position: absolute;
+  top: 0px;*/
+  height: 90vh;
+  overflow-y: scroll;
+}
+
+.ga-credits h1 {
+  width: 100%;
+  background-color: #286090;
 }
 
 .ga-credits a {
   color: white;
-  cursor: auto;
   font-size: small;
 }
 
@@ -197,14 +285,11 @@ h4 {
 
 
 /* ----------------------------------------------
-  main display
+main display
 */
 
-main {
-  position: relative;
-}
-
 .ga-play {
+  /*relative for bottom edge popups */
   position: relative;
   width: 768px;
   /*24x32; hall, heart are larger.*/
@@ -213,9 +298,9 @@ main {
   border-radius: 20px;
   overflow: hidden;
   background-color: rgb(66, 81, 77);
-  top: 50%;
+  /*was 50%, but leaving some room after titlebar*/
+  top: 4px;
   left: 50%;
-  padding: 0;
   margin-left: -383px;
   /*https://bugs.chromium.org/p/chromium/issues/detail?id=157218*/
   z-index: 1;
@@ -238,33 +323,12 @@ main {
 
 
 /* ----------------------------------------------
-  status  bar
+status  bar
 */
-
-.ga-status {
-  position: relative;
-  width: 768px;
-  min-height: 1.8em;
-  left: 50%;
-  padding: 0;
-  margin-left: -383px;
-}
-
-.whereabouts {
-  font-weight: bold;
-  font-size: large;
-}
-
-.story-title {
-  font-weight: bold;
-  font-size: large;
-  float: right;
-}
 
 .state-display {
   position: absolute;
   left: 0;
-  /*overflow: scroll;*/
   top: 0;
   max-height: 600px;
   margin: 0 auto;
@@ -277,7 +341,7 @@ main {
 
 
 /* ----------------------------------------------
-  states debugging
+states debugging
 */
 
 hsm-state {
@@ -291,7 +355,7 @@ hsm-state {
 
 
 /* ----------------------------------------------
-  action  bar
+action  bar
 */
 
 .ga-actionbar {
@@ -327,7 +391,7 @@ hsm-state {
 
 
 /* ----------------------------------------------
-  button bar
+button bar
 */
 
 .ga-buttonbar .btn {
@@ -343,11 +407,15 @@ div.ga-xtip > div.tooltip-inner {
   text-transform: capitalize;
 }
 
-.ga-left {
+div.ga-left {
   position: absolute;
   left: 0;
   top: 0;
   width: 50%;
+}
+
+div.ga-left > span {
+  margin-right: -20px;
 }
 
 .ga-right {
@@ -355,9 +423,20 @@ div.ga-xtip > div.tooltip-inner {
   right: 0;
 }
 
+.whereabouts {
+  font-weight: bold;
+  font-size: large;
+  color: white;
+  text-shadow: 2px 2px black;
+  margin-top: 10px;
+  margin-left: 20px;
+  height: 50px;
+  text-transform: capitalize;
+}
+
 
 /* ----------------------------------------------
-  inventory 
+inventory 
 */
 
 .ga-invbar {
@@ -382,7 +461,7 @@ div.ga-picker {
   position: absolute;
   background-color: #337AB7;
   /*width: 60%;
-  left: 20%;*/
+left: 20%;*/
   left: 160px;
   width: 480px;
   border-bottom-right-radius: 20px;
@@ -416,7 +495,7 @@ div.ga-picker {
 
 
 /* ----------------------------------------------
-  console
+console
 */
 
 .ga-console {
@@ -472,7 +551,7 @@ div.ga-picker {
 
 
 /* ----------------------------------------------
- save popup
+save popup
 */
 
 .ga-save {
@@ -499,7 +578,6 @@ span.ga-super {
 .ga-save.error {
   background-color: red;
   padding: 20px;
-  padding-top: 0px;
 }
 
 .ga-save .btn {
@@ -513,7 +591,7 @@ p.ga-center {
 
 
 /* ----------------------------------------------
- autosave spinner
+autosave spinner
 */
 
 .ga-autosave {
@@ -524,14 +602,11 @@ p.ga-center {
   padding: 8px;
   bottom: 8px;
   right: 8px;
-  /*top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);*/
 }
 
 
 /* ----------------------------------------------
- comment ( and combine ) panels 
+comment ( and combine ) panels 
 */
 
 .ga-comment-box {
@@ -578,7 +653,7 @@ p.ga-center {
 
 
 /* ----------------------------------------------
-  combine box 
+combine box 
 */
 
 .ga-context-info {
@@ -591,7 +666,7 @@ p.ga-center {
 
 
 /* ----------------------------------------------
-  popup 
+popup 
 */
 
 .ga-notify {
@@ -630,7 +705,7 @@ div.ga-notify p {
 
 
 /* ----------------------------------------------
-  settings 
+settings 
 */
 
 .ga-settings {
@@ -653,8 +728,8 @@ div.ga-settings .btn {
 
 
 /* ----------------------------------------------
- talk bubbles, based on:
- http://nicolasgallagher.com/pure-css-speech-bubbles/demo/
+talk bubbles, based on:
+http://nicolasgallagher.com/pure-css-speech-bubbles/demo/
 */
 
 .ga-bubble {
@@ -697,7 +772,7 @@ div.ga-settings .btn {
 
 
 /* ----------------------------------------------
-  animations 
+animations 
 */
 
 .ga-pulse {

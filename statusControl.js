@@ -1,50 +1,25 @@
 /** 
  */
 angular.module('demo')
-  .directiveAs('statusControl', ["^gameControl"],
-    function(ElementSlotService, $q, $log) {
-    'use strict';
-    'ngInject';
-      // query via ObjectService for initial state to help with save game.
-      var statusInstance = {
-        id: 'status-bar',
-        type: 'status-bar-instances'
-      };
-      var statusSlot;
-
-      var update = function(obj) {
-        if (statusSlot) {
-          var scope = statusSlot.scope;
-          scope.left = obj.attr['status-bar-instances-left'];
-          scope.right = obj.attr['status-bar-instances-right'];
-        }
-      };
-      this.init = function(name, gameControl) {
-        var status = {
-          id: statusInstance.id,
-          //
-          bindTo: function(slotName) {
-            statusSlot = ElementSlotService.get(slotName);
-            var scope = statusSlot.scope;
-            scope.visible = true;
-            scope.left = " ";
-            scope.right = " ";
-          },
-          updateStatus: function() {
-            gameControl
-              .getGame()
-              .getObject(statusInstance)
-              .then(function(statusObj) {
-                update(statusObj);
-              });
-          },
-          destroy: function() {
+  .directiveAs('statusControl',
+    function(ElementSlotService, $log) {
+      'use strict';
+      'ngInject';
+      // 
+      this.init = function(name) {
+        var slotName;
+        return {
+          set: function(text) {
+            $log.warn("statusControl", name, "setting",text);
+            var statusSlot = ElementSlotService.get(slotName);
             if (statusSlot) {
-              statusSlot.scope.visible = false;
-              statusSlot = null;
+
+              statusSlot.scope.statusText = text;
             }
           },
+          bindTo: function(slotName_) {
+            slotName= slotName_;
+          },
         };
-        return status;
       };
     });

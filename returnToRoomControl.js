@@ -1,6 +1,6 @@
 angular.module('demo')
 
-.directiveAs("viewControl", ["^^mapControl"],
+.directiveAs("returnToRoomControl", ["^^mapControl"],
   function(ElementSlotService, LocationService, $log, $scope) {
     'use strict';
     'ngInject';
