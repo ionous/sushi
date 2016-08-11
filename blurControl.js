@@ -1,6 +1,6 @@
 angular.module('demo')
 
-.directiveAs("focusedControl",
+.directiveAs("blurControl",
   function($element, $window) {
     'use strict';
     'ngInject';

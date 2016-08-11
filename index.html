@@ -66,6 +66,7 @@
   <script src="avatarControl.js"></script>
   <script src="buttonControl.js"></script>
   <script src="changeControl.js"></script>
+  <script src="closerControl.js"></script>
   <script src="confirmExitControl.js"></script>
   <script src="consoleControl.js"></script>
   <script src="constantControl.js"></script>
@@ -76,7 +77,7 @@
   <script src="commentBoxControl.js"></script>
   <script src="customActionsControl.js"></script>
   <script src="finiControl.js"></script>
-  <script src="focusedControl.js"></script>
+  <script src="blurControl.js"></script>
   <script src="gameControl.js"></script>
   <script src="gameListener.js"></script>
   <script src="hoverControl.js"></script>
@@ -125,8 +126,9 @@
   <script src="mosaic/point.js"></script>
   <script src="mosaic/sprite.js"></script>
 </head>
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" location-control="path" constant-control="constant" hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)" focused-control="ga-active">
-  <header element-slot="headerEl">
+
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" location-control="path" constant-control="constant" hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)" blur-control="blur">
+  <header>
     <div title-bar-control="titlebar" class="titlebar">
       <span class="titlebar-icon">
         <span class="fa-stack">
@@ -135,7 +137,7 @@
         </span>
       </span>
       <span class="titlebar-text">Alice and the Galactic Traveller</span>
-      <span class="titlebar-close-button"></span>
+      <a class="titlebar-close-button" element-slot="closeButton" href="" ng-click="closeButton.click()"></a>
       <div class="titlebar-divider"></div>
     </div>
   </header>
@@ -149,7 +151,7 @@
       <div element-slot="loadMenuWin" ng-include="'loadMenuWin.html'"></div>
     </div>
   </main>
-  <footer ng-init="hsmExpanded=false" element-slot="footerEl">
+  <footer ng-init="hsmExpanded=false">
     <div class="state-display" ng-show="constant('ShowHsm')">
       <a href="" ng-click="hsmExpanded=!hsmExpanded">states [{{hsmExpanded ? 'x' : 'o'}}]</a>
       <ng-include src="'main.html'" ng-show="hsmExpanded"></ng-include>
