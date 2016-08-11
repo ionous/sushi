@@ -9,7 +9,7 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'],
     //aHrefSanitizationWhitelist ///^\s*(https?|ftp|mailto|tel|file|chrome-extension):/;
     $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|ftp|file|blob|chrome-extension):|data:image\/)/);
 })
-  .constant("ShowHsm", true) // state chart
+  .constant("ShowHsm", false) // state chart
   .constant("GameVersion", "0")
   .constant("SaveVersion", "01")
   .constant("AutoStart", "Resume") //Begin,Resume,Menus

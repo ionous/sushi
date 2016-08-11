@@ -1,17 +1,25 @@
 angular.module('demo')
 
 .directiveAs("focusedControl",
-  function($element) {
+  function($element, $window) {
     'use strict';
     'ngInject';
     this.init = function(name) {
-      var focused = true;
-      $element.on("focus", function() {
-        $element.addClass(name);
+      var overgrey= angular.element("<div class='ga-biggrey'></div>");
+      var focused;
+      var focus = function() {
+        overgrey.remove();
+        $element.addClass("ga-active");
+        $element.removeClass("ga-inactive");
         focused = true;
-      });
-      $element.on("blur", function() {
-        $element.removeClass(name);
+      };
+      focus();
+      var win = angular.element($window);
+      win.on("focus", focus);
+      win.on("blur", function() {
+        $element.prepend(overgrey);
+        $element.removeClass("ga-active");
+        $element.addClass("ga-inactive");
         focused = false;
       });
       this.hasFocus = function() {
