@@ -5,6 +5,7 @@
     <hsm-state name="GameExit">
       <hsm-event on="modal-opened" goto=""></hsm-event>
       <hsm-event on="confirm-exit-closed" goto="SharedPlay"></hsm-event>
+      <hsm-event on="confirm-exit" goto="Menus"></hsm-event>
     </hsm-state>
     <hsm-state name="AppExit">
       <hsm-event on="modal-opened" goto=""></hsm-event>

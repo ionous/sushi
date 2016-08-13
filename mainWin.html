@@ -1,25 +1,66 @@
-<div ng-if="mainWin.visible">
-  <h2>Alice and the Galactic Traveller</h2>
-  <h3>by Simon Travis and everMany Games</h3>
-  <h4>Demo Version {{constant('GameVersion')}}.{{constant('SaveVersion')}}</h4>
-  <div class="ga-options">
-    <ul class="list-unstyled">
-      <li ng-if="!mainWin.loadGame">
+<div class="ga-main" ng-if="mainWin.visible">
+  <div class="ga-main-fg">
+    <div class="ga-main-bg"></div>
+    <div class="ga-main-char">
+      <div class="ga-spark"></div>
+      <div class="ga-hole ga-alice">
+        <div></div>
+      </div>
+      <div class="ga-hole ga-daphne">
+        <div></div>
+      </div>
+      <div class="ga-hole ga-boy">
+        <div></div>
+      </div>
+    </div>
+    <div class="ga-title-all">
+      <div class="ga-title">
+        <div class="ga-title-x ga-title-g">Alice</div>
+        <div class="ga-title-y ga-title-c">
+          <div>and
+            <br/>the</div>
+        </div>
+        <div class="ga-title-z">
+          <div class="ga-title-g">Galactic</div>
+          <div class="ga-title-g">Traveller</div>
+          <span></span>
+        </div>
+      </div>
+      <div class="ga-shadow">
+        <div class="ga-title-x">Alice</div>
+        <div class="ga-title-y">
+          <div>and
+            <br/>the</div>
+        </div>
+        <div class="ga-title-z">
+          <div>Galactic</div>
+          <div>Traveller</div>
+        </div>
+      </div>
+    </div>
+    <ul class="ga-buttons list-unstyled">
+      <li ng-if="!mainWin.resumable">
         <ga-link ga-dst="/start" ng-click="mainWin.start()">Begin Game</ga-link>
       </li>
       <li ng-if="mainWin.resumable">
-        <ga-link ga-dst="/resume" ng-click="mainWin.resume()">Continue Playing</ga-link>
+        <ga-link ga-dst="/resume" ng-click="mainWin.resume()">Continue Game</ga-link>
       </li>
       <li>
         <ga-link ga-dst="/saved" ga-disabled="!mainWin.loadGame">Load Game</ga-link>
       </li>
-      <li ng-if="mainWin.loadGame">
+      <li ng-if="mainWin.resumable">
         <ga-link ga-dst="/start" ng-click="mainWin.start()">New Game</ga-link>
       </li>
       <li>
-         <ga-link ga-dst="/about/credits">Credits</ga-link> 
+        <ga-link ga-dst="/about/credits">Credits</ga-link>
       </li>
     </ul>
+    <div class="ga-tag-line">
+      A Point-and-Click Adventure Game
+      <br/>from Simon Travis and everMany Games.
+    </div>
+    <div class="ga-version">
+      Demo Version &mdash; {{constant('GameVersion')}}.{{constant('SaveVersion')}}
+    </div>
   </div>
 </div>
- 

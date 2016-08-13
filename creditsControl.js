@@ -32,6 +32,7 @@ angular.module('demo')
       title: "Alice and The Galactic Traveller",
       tag: "Written and Developed by Simon Travis",
       author: "© 2016 everMany, LLC",
+      class: "ga-credits-header"
     }, {
       section: "Art",
       items: [{
@@ -114,9 +115,15 @@ angular.module('demo')
           license: [mit],
           author: "Julien Etienne",
         }, {
-          title: "speech bubbles",
+          title: "css speech bubbles",
+          author: "Nicolas Gallagher",
           url: "http://nicolasgallagher.com/pure-css-speech-bubbles",
-        }], // js client items 
+        }, {
+          title: "css carbon",
+          url: "http://lea.verou.me/css3patterns",
+          license: [mit],
+          author: "Atle Mo (design), Sébastien Grosjean (code)",
+        },], // js client items 
       }, {
         subsection: "Golang Runtime",
         items: [{
@@ -160,7 +167,7 @@ angular.module('demo')
         }, {
           title: "go-runewidth",
           url: "https://github.com/mattn/go-runewidth",
-          tag: "Determine widths of characters and strings",
+          tag: "Measure character and string width",
           license: [mit],
           author: "Yasuhiro Matsumoto",
         }], // support items
@@ -170,34 +177,43 @@ angular.module('demo')
       items: [{
         title: "Inform7",
         url: "http://inform7.com",
+        tag: "Natural language interface fiction"
       }, {
         title: "Scrivner",
+        tag: "Software for writers",
         url: "https://www.literatureandlatte.com",
       }, {
         title: "TileEd",
         url: "http://www.mapeditor.org",
+        tag:"Flexible tile map editor"
       }, {
         title: "Sublime Text 3",
-        url: "https: //www.sublimetext.com",
+        tag: "Text editor for code, markup and prose",
+        url: "https://www.sublimetext.com",
       }, {
         title: "Google Docs",
+        tag: "Documents, spreadsheets and presentations, online and off",
         url: "https://drive.google.com",
       }, {
         title: "Node",
+        tag: "Browserless JavaScript runtime", 
         url: "https://nodejs.org/en",
       }, {
         title: "Gulp",
+        tag: "Streaming build system",
         url: "http://gulpjs.com",
       }, {
         title: "Bower",
+        tag: "Package manager for the web",
         url: "https://bower.io",
       }, {
         title: "Npm",
+        tag: "Package manager for JavaScript",
         url: "https://www.npmjs.com",
       }, {
         section: " ",
         title: "",
-        tag: "Developed on MacOSX with Firefox and Chrome.",
+        tag: "Developed on MacOSX with Firefox and Chrome",
       }], // tool items
     }];
 

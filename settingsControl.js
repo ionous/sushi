@@ -28,6 +28,9 @@ angular.module('demo')
             requestQuit: function() {
               hsmMachine.emit(name, "exit", {});
             },
+            continueGame: function() {
+              hsmMachine.emit(name, "play", {});
+            },
           });
           modal = mdl;
           return mdl;

@@ -226,8 +226,16 @@ its actually nice to see some change in the cursor i think*/
   height: 100%;
   margin: 0;
   padding: 0;
-  padding-top: 20px;
 }
+
+
+/* modal window element */
+
+
+/*.ga-menus >div {
+  height: 100%;
+}
+*/
 
 .ga-menus a {
   cursor: pointer;
@@ -237,7 +245,7 @@ its actually nice to see some change in the cursor i think*/
   text-transform: uppercase;
 }
 
-.ga-home {
+.ga-home-button {
   position: fixed;
 }
 
@@ -245,10 +253,289 @@ its actually nice to see some change in the cursor i think*/
   margin-bottom: 10px;
 }
 
-.ga-options,
-.ga-about {
+
+/*
+ lists of things.
+*/
+
+.ga-options {
   margin: 0 auto;
   width: 25%;
+}
+
+
+/* ----------------------------------------------
+main menu
+*/
+
+.ga-main {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+}
+
+.ga-main-fg {
+  /* center the menu horizontally */
+  left: 50%;
+  transform: translateX(-50%);
+  position: absolute;
+  background-color: #759980;
+  overflow: hidden;
+  height: 100%;
+  width: 820px;
+  margin: 0 auto;
+  border-style: solid;
+  border-width: 15px;
+  outline-style: none;
+  padding: 20px;
+  border-color: white;
+}
+
+.ga-main:after {
+  /* overwrite the bottom with a fake border; 
+the real borders expand outside the measured ga-main-fg 100% height */
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white;
+  height: 20px;
+}
+
+.ga-main .btn {
+  background-color: white;
+  box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.3);
+  /* cant seem to reset the width from the parent 100% */
+  width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  /*font-variant: small-caps;*/
+  text-transform: uppercase;
+  color: #f8d513;
+  background-color: #e6311d;
+  text-shadow: 2px 2px black;
+  border-style: none;
+  font-family: arial, sans-sarif;
+}
+
+.ga-main .btn ng-transclude > span {
+  font-size: 38px;
+  font-weight: bolder;
+  line-height: 38px;
+  padding: 20px;
+}
+
+.ga-main .btn:hover {
+  background-color: #dbb900;
+  color: whitesmoke;
+}
+
+
+/*http://lea.verou.me/css3patterns/#carbon*/
+
+.ga-main-bg {
+  background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, linear-gradient(90deg, #1b1b1b 10px, transparent 10px), linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);
+  background-color: #131313;
+  background-size: 20px 20px;
+  opacity: 0.25;
+}
+
+.ga-main-char {
+  position: absolute;
+  /*left: 50%;
+  transform: translateX(-50%);*/
+  /*overflow:hidden;*/
+  width: 100%;
+}
+
+.ga-alice {
+  right: 0px;
+  top: -30px;
+  width: 180px;
+  height: 180px;
+}
+
+.ga-alice > div {
+  width: 145px;
+  height: 145px;
+  margin: 0 auto;
+  margin-top: 15px;
+  background-image: url("/bin/images/alice.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: 0 0px;
+}
+
+.ga-boy {
+  width: 125px;
+  height: 125px;
+  right: 50px;
+  top: 300px;
+}
+
+.ga-boy > div {
+  background-image: url("/bin/images/alien-color.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  position: absolute;
+  left: 30px;
+  top: 50px;
+  width: 60px;
+  height: 60px;
+}
+
+.ga-daphne {
+  top: 350px;
+  left: 20px;
+  width: 90px;
+  height: 90px;
+}
+
+.ga-daphne > div {
+  /*width: 100px;
+  height: 100px;
+  padding: 50px;*/
+  position: absolute;
+  top: -10px;
+  left: -5px;
+  width: 90px;
+  height: 90px;
+  transform: scaleX(-1);
+  background-image: url("/bin/images/daphne.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.ga-spark {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  background-image: url("/bin/images/spark.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.ga-hole {
+  position: absolute;
+  border-radius: 50% !important;
+  border-color: #f8d513;
+  border-style: solid;
+  border-width: 4px;
+  outline: none !important;
+  background-color: black;
+  background-image: url("/bin/images/starfield3.png");
+  box-shadow: -1px 0px #6d6d32, 0px -1px #6d6d32, 1px 0px #6d6d32, 1px 1px #6d6d32, 0px 1px #6d6d32, 1px 1px #6d6d32;
+}
+
+.ga-version {
+  color: black;
+  font-family: monospace;
+  text-transform: lowercase;
+  text-align: center;
+  margin-top: 20px;
+  opacity: 0.8;
+  font-size: small;
+}
+
+.ga-tag-line {
+  text-align: center;
+  vertical-align: center;
+  /*font-variant: small-caps;*/
+  text-transform: uppercase;
+  color: #f4b256;
+  font-size: 26px;
+  line-height: 30px;
+  padding-top: 30px;
+  margin: 0;
+  font-stretch: ultra-condensed;
+  font-weight: lighter;
+  font-family: arial, sans-sarif;
+  /*text-shadow: 2px 2px black;*/
+}
+
+.ga-title-all {
+  position: relative;
+  z-index: 1;
+}
+
+.ga-title-all > div {
+  line-height: 80px;
+  font-family: arial, sans-sarif;
+}
+
+.ga-title-all div {
+  margin: 0;
+}
+
+.ga-title {
+  z-index: 6;
+  position: absolute;
+}
+
+.ga-shadow {
+  position: relative;
+  color: black;
+  left: 3px;
+  top: 3px;
+  z-index: 1;
+}
+
+.ga-title-x {
+  font-weight: bold;
+  font-size: 100px;
+  font-variant: small-caps;
+}
+
+.ga-title-y {
+  text-transform: uppercase;
+  padding-left: 60px;
+  padding-right: 20px;
+  display: inline-block;
+  -webkit-transform: scale(1, 2);
+}
+
+.ga-title-y div {
+  line-height: 28px;
+  font-size: 28px;
+  font-family: arial, sans-sarif;
+  /* why does it get pushed down so far? i dont know. */
+  margin-top: -80px;
+}
+
+.ga-title-z {
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.ga-title-z div:nth-child(2) {
+  line-height: 0.8em;
+}
+
+.ga-title-c {
+  color: #e6311d;
+}
+
+.ga-title-z div {
+  font-weight: bold;
+  font-size: 80px;
+}
+
+.ga-title-g {
+  background: -webkit-linear-gradient(#ffe144, #e6311d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+/* ----------------------------------------------
+saved games
+*/
+
+.ga-first-header {
+  /*avoid the white gap of body background*/
+  margin-top: 0;
 }
 
 .ga-load-games {
@@ -273,14 +560,28 @@ credits
 
 .ga-credits {
   text-align: center;
-  padding-top: 20px;
   height: 90vh;
   overflow-y: scroll;
+}
+
+.ga-credits-header > h3 {
+  /* dear css margins, please stop mucking with my page */
+  padding-top: 20px;
+  margin-top: 0;
 }
 
 .ga-credits h1 {
   width: 100%;
   background-color: #286090;
+}
+
+.ga-credits h2 {
+  text-decoration: underline;
+  color: whitesmoke;
+}
+
+.ga-credits h3 {
+  margin-bottom: 0;
 }
 
 .ga-credits a {
@@ -294,10 +595,6 @@ credits
 
 .ga-credits a.url {
   text-decoration: underline;
-}
-
-.ga-credits h3 {
-  margin-bottom: 0;
 }
 
 
@@ -325,6 +622,9 @@ main display
 
 .ga-map {
   cursor: none;
+}
+
+.ga-the-center {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -572,10 +872,6 @@ save popup
 .ga-save {
   color: white;
   background-color: #337ab7;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   cursor: pointer;
   border-radius: 20px;
   padding: 8px;
@@ -698,9 +994,6 @@ popup
   background-color: white;
   max-width: 500px;
   max-height: 400px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   box-shadow: 1px 10px 6px -6px black;
   border-radius: 20px;
   border-width: 3px;
@@ -728,16 +1021,13 @@ settings
   cursor: pointer;
   background-color: #337AB7;
   color: white;
-  top: 50%;
-  left: 50%;
-  width: 40%;
-  transform: translate(-50%, -50%);
   box-shadow: 1px 10px 6px -6px black;
   border-radius: 20px;
   border-width: 3px;
 }
 
 div.ga-settings .btn {
+  width: 200px;
   margin-bottom: 10px;
 }
 

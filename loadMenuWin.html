@@ -1,6 +1,6 @@
 <div class="ga-saved" ng-if="loadMenuWin.visible">
   <ng-include src="'homeButton.html'"></ng-include>
-  <h1>Load Game</h1>
+  <h1 class="ga-first-header">Load Game</h1>
   <div class="ga-load-games">
     <ul class="list-unstyled">
       <li ng-repeat="game in loadMenuWin.games | orderBy: '-ikey' track by $index">
