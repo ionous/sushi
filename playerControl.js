@@ -25,17 +25,21 @@ angular.module('demo')
           }
           currChara = null;
         },
-        // raises -located
-        locate: function(prevLoc) {
-          $log.info("playerControl", name, "locating with previous", prevLoc);
+        // raises -located after determining where the player is.
+        locate: function(currLoc) {
+          $log.info("playerControl", name, "locating player");
           gameControl
             .getGame()
             .getObjects(playerRef, "objects-whereabouts")
             .then(function(objects) {
-              var where = objects[0];
-              var loc = prevLoc;
-              if (!prevLoc || (where.id != prevLoc.room)) {
-                loc = LocationService.newLocation(where.id);
+              var room = objects[0]; // room entity
+              var loc = currLoc;
+              // if we know our desired location ( ex. from game-loaded )
+              // then use that location, otherwise use the one the server returned.
+              // ( unless for some reason, they dont match )
+              // noting that the the game-loaded location can include view or item.
+              if (!currLoc || (room.id != currLoc.room)) {
+                loc = LocationService.newLocation(room.id);
               }
               hsmMachine.emit(name, "located", {
                 where: loc
@@ -81,16 +85,11 @@ angular.module('demo')
           $log.info("playerControl", name, "direct");
           hsmMachine.emit(name, "direct", {});
         },
-        // target is of type "Subject"
-        // facePos: function(pos) {
-        //   currChara.face(src, pos);
-        // },
         // raises -creating, -created
-        create: function(where, imagePath, size) {
+        create: function(imagePath, size) {
           player.destroy();
           // uses a separate defered to reject on destroy.
           pending = $q.defer();
-          // XXX - hsmMachine.emit(name, "creating", {});
           CharaService.newChara(player.id(), imagePath, size)
             .then(pending.resolve, pending.reject);
           pending.promise.then(function(chara) {
@@ -98,13 +97,7 @@ angular.module('demo')
             //$log.info(name, "created!");
             currChara = chara;
             hsmMachine.emit(name, "created", {
-              player: chara,
-              // theres no where to store the load game event location during the player creation cycle:
-              // load->create->locate
-              // so we pass it into create, and pass it out in created
-              // the cycle might be better as: load->load->create, 
-              // or even: allow load and create to happen simultaneously: sync on both somehow.
-              where: where
+              player: chara
             });
           });
         }, // create

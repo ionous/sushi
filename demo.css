@@ -137,7 +137,7 @@ div.ga-biggrey {
   top: 0;
   left: 0;
   position: absolute;
-  opacity: 0.45;
+  opacity: 0.3;
   background-color: black;
   z-index: 100;
 }
@@ -434,9 +434,9 @@ the real borders expand outside the measured ga-main-fg 100% height */
   font-family: monospace;
   text-transform: lowercase;
   text-align: center;
-  margin-top: 20px;
+  margin-top: 10px;
   opacity: 0.8;
-  font-size: small;
+  font-size: smaller;
 }
 
 .ga-tag-line {
@@ -447,7 +447,7 @@ the real borders expand outside the measured ga-main-fg 100% height */
   color: #f4b256;
   font-size: 26px;
   line-height: 30px;
-  padding-top: 30px;
+  padding-top: 20px;
   margin: 0;
   font-stretch: ultra-condensed;
   font-weight: lighter;
@@ -862,6 +862,30 @@ console
 .ga-console .scroll-text {
   height: 500px;
   overflow-y: scroll;
+  -webkit-user-select: text;
+}
+
+.ga-console span.text {
+  cursor: text;
+}
+
+.scroll-text::-webkit-scrollbar {
+  width: 12px;
+}
+
+.scroll-text::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.scroll-text::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 

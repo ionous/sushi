@@ -2,38 +2,14 @@
   <hsm-state button-control="closeButton" hsm-enter="closeButton.bind()" hsm-exit="closeButton.bind(false)">
     <hsm-state storage-control="store" hsm-enter="store.create()" hsm-exit="store.destroy()">
       <hsm-state server-control="server" hsm-enter="server.create()" hsm-exit="server.destroy()">
-        <hsm-state game-control="game" process-control="stream" text-control="textHistory" load-game-control="games">
-          <hsm-state visibility-control="menus" hsm-enter="menus.show('menuWindow')" hsm-exit="menus.show(false)">
-            <hsm-state name="AutoStart" hsm-init="constant('AutoStart')">
-              <hsm-state name="Menus" hsm-init="path.titlecase()">
-                <hsm-event on="close-button-clicked" run="closeMe.exitApp()" goto="Menus">
-                  <hsm-event on="path-change" goto="Menus"></hsm-event>
-                  <hsm-state name="MainMenu" main-menu-control="main" hsm-enter="main.open('mainWin', '/')" hsm-exit="main.close()">
-                    <hsm-event on="main-start" run="game.newGame()" goto="Game"></hsm-event>
-                    <hsm-event on="main-resume" run="game.loadGame($evt.gameData)" goto="Game"></hsm-event>
-                  </hsm-state>
-                  <hsm-state name="About" about-control="about" hsm-enter="about.open('aboutWin', '/about')" hsm-exit="about.close()">
-                  </hsm-state>
-                  <hsm-state name="AboutCredits" credits-control="credits" hsm-enter="credits.open('creditsWin', '/about/credits')" hsm-exit="credits.close()">
-                    <hsm-event on="about-main" goto="Menu"></hsm-event>
-                  </hsm-state>
-                  <hsm-state name="Saved" load-menu-control="saved" hsm-enter="saved.open('loadMenuWin', '/saved')" hsm-exit="saved.close()">
-                    <hsm-event on="saved-resume" run="game.loadGame($evt.gameData)" goto="Game"></hsm-event>
-                  </hsm-state>
-              </hsm-state>
-              <hsm-state hsm-enter="menus.show(false)" hsm-exit="menus.show('menuWindow')">
-                <ng-include src="'game.html'"></ng-include>
-              </hsm-state>
-              <!-- auto start helpers: -->
-              <hsm-state name="Resume" resume-control="mostRecent" hsm-enter="mostRecent.load()">
-                <hsm-event on="most-recent-loaded" when="$evt.gameData" run="game.loadGame($evt.gameData)" goto="Game"></hsm-event>
-                <hsm-event on="most-recent-loaded" run="game.newGame()" goto="Game"></hsm-event>
-              </hsm-state>
-              <hsm-state name="Begin" resume-control="ignore" hsm-enter="ignore.load()">
-                <hsm-event on="ignore-loaded" run="game.newGame()" goto="Game"></hsm-event>
-              </hsm-state>
-            </hsm-state>
-          </hsm-state>
+        <hsm-state game-control="game" process-control="stream" load-game-control="games" client-data-control="serial" text-control="textHistory" position-control="positions" hsm-init="'AutoStart'">
+          <hsm-event on="serial-reset" run="positions.reset($evt)"></hsm-event>
+          <!-- AutoStart -->
+          <ng-include src="'autoStart.html'"></ng-include>
+          <!-- Menus -->
+          <ng-include src="'menus.html'"></ng-include>
+          <!-- Game -->
+          <ng-include src="'game.html'"></ng-include>
         </hsm-state>
       </hsm-state>
     </hsm-state>

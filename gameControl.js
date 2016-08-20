@@ -1,12 +1,12 @@
 angular.module('demo')
 
 // -created,-started,-loaded,-posting
-.directiveAs("gameControl", ["^serverControl", "^processControl", "^^hsmMachine"],
-  function(EntityService, EventService, PositionService,
+.directiveAs("gameControl", ["^^hsmMachine", "^processControl", "^clientDataControl", "^serverControl"],
+  function(EntityService, EventService,
     $log, $q) {
     'use strict';
     'ngInject';
-    this.init = function(name, serverControl, processControl, hsmMachine) {
+    this.init = function(name, hsmMachine, processControl, clientDataControl, serverControl) {
       var ClassInfo = function(data) {
         this.classInfo = data;
         this.classList = data.meta.classes;
@@ -18,10 +18,10 @@ angular.module('demo')
         return this.classInfo.attr.singular;
       };
       //
-      var Game = function(server, id) {
+      var Game = function(server, id, started) {
         this.server = server;
         this.id = id;
-        this.started = false;
+        this.started = !!started;
         this.promisedClasses = {};
       };
       Game.prototype.request = function(type, id) {
@@ -115,7 +115,6 @@ angular.module('demo')
 
       this.destroy = function() {
         currentGame = null;
-        PositionService.reset();
         EntityService.reset();
         EventService.reset();
       };
@@ -135,6 +134,7 @@ angular.module('demo')
             throw new Error("empty destination");
           }
           currentGame = new Game(server, gameId);
+          clientDataControl.reset();
           hsmMachine.emit(name, "created", {});
         });
       };
@@ -152,12 +152,11 @@ angular.module('demo')
           if (!angular.isString(gameId)) {
             throw new Error("empty destination");
           }
-
           var loc = saved.getLocation();
-          var pos = saved.getPosition();
-          PositionService.saveLoad(pos);
-          currentGame = new Game(server, gameId);
-          currentGame.started = true;
+
+          currentGame = new Game(server, gameId, true);
+          clientDataControl.reset(saved.data);
+          //
           hsmMachine.emit(name, "loaded", {
             game: currentGame,
             gameId: gameId,
@@ -166,6 +165,7 @@ angular.module('demo')
           });
         });
       };
+
       // NOTE: start happens after new game the first time only
       this.startGame = function() {
         var game = this.getGame();

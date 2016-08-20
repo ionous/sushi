@@ -5,9 +5,9 @@ angular.module('demo')
     'use strict';
     'ngInject';
     this.init = function(name, mapControl) {
-      var currentEl, currentScope, prevLoc;
+      var currentEl, currentScope, currLoc;
       var returnToRoom = function() {
-        var next = prevLoc.item ? prevLoc.nextItem() : prevLoc.nextView();
+        var next = currLoc.item ? currLoc.nextItem() : currLoc.nextView();
         $log.info("return to room", next);
         $scope.$apply(function() {
           mapControl.changeMap(next);
@@ -31,7 +31,7 @@ angular.module('demo')
 
           var loc = LocationService();
           var viewing = loc.view || loc.item;
-          prevLoc = loc;
+          currLoc = loc;
 
           if (viewing) {
             currentEl = slot.element;

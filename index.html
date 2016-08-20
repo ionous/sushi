@@ -26,7 +26,7 @@
   <script src="/script/request-frame/dist/request-frame.min.js"></script>
   <script src="/script/p2js/build/p2.min.js" type="text/javascript"></script>
   <!--  main, routes, etc. -->
-  <script src="/bin/game/alice.js"></script>
+  <!-- <script src="/bin/game/alice.js"></script> -->
   <script src="demo.js"></script>
   <script src="subject.js"></script>
   <!--  angular mods -->
@@ -36,6 +36,7 @@
   <script src="actionListService.js"></script>
   <script src="canvasService.js"></script>
   <script src="charaService.js"></script>
+  
   <script src="collisionService.js"></script>
   <script src="cursorService.js"></script>
   <script src="displayService.js"></script>
@@ -52,7 +53,6 @@
   <script src="locationService.js"></script>
   <script src="mapService.js"></script>
   <script src="objectDisplayService.js"></script>
-  <script src="positionService.js"></script>
   <script src="watcherService.js"></script>
   <script src="updateService.js"></script>
   <!-- directives -->
@@ -64,8 +64,10 @@
   <script src="actionBarControl.js"></script>
   <script src="actionButtonControl.js"></script>
   <script src="avatarControl.js"></script>
+  <script src="blurControl.js"></script>
   <script src="buttonControl.js"></script>
   <script src="changeControl.js"></script>
+  <script src="clientDataControl.js"></script>
   <script src="closerControl.js"></script>
   <script src="confirmExitControl.js"></script>
   <script src="consoleControl.js"></script>
@@ -76,8 +78,8 @@
   <script src="combinePanelControl.js"></script>
   <script src="commentBoxControl.js"></script>
   <script src="customActionsControl.js"></script>
+  <script src="doorDelayControl.js"></script>
   <script src="finiControl.js"></script>
-  <script src="blurControl.js"></script>
   <script src="gameControl.js"></script>
   <script src="gameListener.js"></script>
   <script src="hoverControl.js"></script>
@@ -96,6 +98,7 @@
   <script src="playerDialogControl.js"></script>
   <script src="playerItemControl.js"></script>
   <script src="popupControl.js"></script>
+  <script src="positionControl.js"></script>
   <script src="printControl.js"></script>
   <script src="processControl.js"></script>
   <script src="physicsControl.js"></script>
@@ -127,7 +130,7 @@
   <script src="mosaic/sprite.js"></script>
 </head>
 
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" location-control="path" constant-control="constant" hsm-transition="0 && log.warn('transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)" blur-control="blur">
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" location-control="path" constant-control="constant" hsm-transition="0 && log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)" blur-control="blur">
   <header>
     <div title-bar-control="titlebar" class="titlebar">
       <span class="titlebar-icon">

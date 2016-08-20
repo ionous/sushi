@@ -121,7 +121,6 @@ angular.module('demo')
           onDestroy();
         };
         this.object = null;
-        this.dynamicDepth = false;
         this.treeCount = 0;
         this.ofs = pt(0, 0);
       };
@@ -168,8 +167,6 @@ angular.module('demo')
           });
         next.object = this.object;
         next.ofs = abs;
-        // FIX: old, mostly for automat.
-        next.dynamicDepth = (opt && opt.dynamicDepth) || this.dynamicDepth;
         return next;
       };
       // create a new child node to represent an content free layer
@@ -180,22 +177,13 @@ angular.module('demo')
         if (!b) {
           zvalue = this.treeCount;
         } else {
-          if (next.dynamicDepth) {
-            zvalue = b.max.y;
-          } else {
-            var fix = opt.fixedDepth;
-            if (!angular.isUndefined(fix)) {
-              zvalue = b.max.y;
-              if (angular.isNumber(fix)) {
-                zvalue -= fix;
-              }
-            }
+          zvalue = b.max.y;
+          var fix = opt.fixedDepth;
+          if (angular.isNumber(fix)) {
+            zvalue -= fix;
           }
         }
-        next.displayGroup.el.css({
-          "position": "absolute",
-          "z-index": zvalue
-        });
+        next.displayGroup.setPos(false, zvalue);
         return new Child(next, mapLayer, true);
       };
       // create a new child node to represent an content free layer
@@ -314,16 +302,10 @@ angular.module('demo')
             // no child returned
             return this.addLandingData(subLayer);
           case "z":
-            return this.newZ(subLayer, {
-              // FIX: remove dynamic depth, only used for automat
-              dynamicDepth: subLayer.getProperty("dynamicDepth"),
-              fixedDepth: subLayer.getProperty("fixedDepth"),
-            });
           case "c":
             return this.newZ(subLayer, {
-              fixedDepth: true
+              fixedDepth: subLayer.getProperty("fixedDepth"),
             });
-
           default:
             return this.newChild(subLayer);
         }

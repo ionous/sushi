@@ -34,7 +34,7 @@ angular.module('demo')
         scope: scope,
       };
       element.on("$destroy", function() {
-        $log.warn("ElementSlotService", "destroying", name);
+        //$log.debug("ElementSlotService", "destroying", name);
         delete elements[name];
       });
     },

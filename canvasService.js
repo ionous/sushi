@@ -48,6 +48,7 @@ angular.module('demo')
       }
       //
       var el = this.el = angular.element('<canvas class="ga-canvas"></canvas>');
+      this.index = undefined;
       this.pos = pt(0, 0);
       if (opt) {
         var id = opt.id;
@@ -86,13 +87,23 @@ angular.module('demo')
       return this;
     };
     Canvi.prototype.setPos = function(pos, index) {
+      if (!pos) {
+        pos = this.pos;
+      }
+      if (angular.isUndefined(index)) {
+        index = this.index;
+      }
       var p = pt_floor(pos);
-      this.el.css({
-        "position": "absolute",
-        "left": p.x + "px",
-        "top": p.y + "px",
-        "z-index": index,
-      });
+      if ((p.x != this.pos.x) || (p.y != this.pos.y) || (index != this.index)) {
+        this.el.css({
+          "position": "absolute",
+          "left": p.x + "px",
+          "top": p.y + "px",
+          "z-index": index,
+        });
+        this.pos = p;
+        this.index = index;
+      }
       return this;
     };
     Canvi.prototype.getSize = function() {

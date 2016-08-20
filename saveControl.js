@@ -1,12 +1,12 @@
 angular.module('demo')
 
-.directiveAs("saveControl", ["^^gameControl", "^^mapControl", "^storageControl", "^textControl", "^hsmMachine"],
-  function(EventStreamService, LocationService, PositionService,
+.directiveAs("saveControl", ["^hsmMachine", "^^gameControl", "^^mapControl", "^clientDataControl", "^storageControl", "^textControl", ],
+  function(EventStreamService, LocationService,
     SaveVersion, $log, $q, $timeout) {
     'use strict';
     'ngInject';
     //
-    this.init = function(name, gameControl, mapControl, storageControl, textControl, hsmMachine) {
+    this.init = function(name, hsmMachine, gameControl, mapControl, clientDataControl, storageControl, textControl) {
       // passes the event resolution to whomever handles -saved, -error events
       // ( ie. the save popup )
       var SaveDefer = function(saveType) {
@@ -35,6 +35,8 @@ angular.module('demo')
       //
       var appwin, win, store;
 
+      // FIX: could connect this to an event instead.
+      // could hide storageControl behind clientDataControl for this and load game.
       var saveClientData = function(serverSlot) {
         var history;
         try {
@@ -48,7 +50,8 @@ angular.module('demo')
         var loc = LocationService();
         var map = mapControl.currentMap();
         var mapName = map.mapName;
-        var saveData = {
+        //
+        var saveData = clientDataControl.createSnapshot(serverSlot, {
           ikey: order,
           slot: serverSlot,
           where: mapName,
@@ -57,11 +60,10 @@ angular.module('demo')
           frame: EventStreamService.currentFrame(),
           // via map.get("location") instead?
           location: loc,
-          position: PositionService.saveLoad(),
           history: history
             // [screenshot]
             // current inventory item
-        }; // saveData
+        });
         $log.info("saveControl", name, "saving...");
         var itemKey = store.prefix + serverSlot;
 

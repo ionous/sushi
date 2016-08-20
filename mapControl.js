@@ -29,7 +29,7 @@ angular.module('demo')
     var loadMap = function(game, mapEl, next) {
       var mapName = next.mapName();
       return MapService.loadMap(mapName).then(function(map) {
-        $log.debug("MapControl: loading map content", mapName);
+        $log.debug("MapControl: loading map", mapName);
         var roomId = next.room;
         //
         return game.getById(roomId).then(function(room) {
@@ -76,7 +76,7 @@ angular.module('demo')
         }); // object service
       }); // get map
     };
-    var mapSlotName, loading, currentMap;
+    var mapSlotName, loading, currentMap, prevLoc;
 
     var destroyMap = function() {
       if (loading) {
@@ -105,8 +105,14 @@ angular.module('demo')
         if (currentMap && !next.changes(where)) {
           ret = $q.when(where);
         } else {
+          prevLoc = currentMap && where;
           destroyMap();
-          var show = next.item || next.view;
+          // first, hide the map
+          // without this, we see the map load, and then resize ( once we set the style )
+          // and, sometimes we see alice in a strange position.
+          // alice's teleport isnt fully understood, but this seems to work fine.
+          var slot = ElementSlotService.get(mapSlotName);
+          slot.scope.loaded = false;
 
           // use a defer so we can cancel if need be
           // note, cancel doesnt work well -- wed need to check for cancel at each stage... somehow
@@ -118,9 +124,8 @@ angular.module('demo')
           hsmMachine.emit(name, "loading", next);
 
           // load!
-          var slot = ElementSlotService.get(mapSlotName);
-          loadMap(gameControl.getGame(), slot.element, next).then(defer.resolve);
 
+          loadMap(gameControl.getGame(), slot.element, next).then(defer.resolve);
           // loaded! (and not rejected in the meantime)
           ret = defer.promise.then(function(map) {
             currentMap = map;
@@ -130,6 +135,7 @@ angular.module('demo')
               'width': map.bounds.x + 'px',
               'height': map.bounds.y + 'px',
             };
+            // show the map
             slot.scope.loaded = true;
             //
             $log.info("mapControl", name, "loaded", map.mapName);
@@ -158,6 +164,7 @@ angular.module('demo')
         destroy: function() {
           mapSlotName = "";
           destroyMap();
+          prevLoc = null;
         },
         loaded: function() {
           return !!currentMap;
@@ -183,6 +190,9 @@ angular.module('demo')
       this.changeView = scope.changeView;
       this.changeItem = scope.changeItem;
       this.changeRoom = scope.changeRoom;
+      this.prevLoc = function() {
+        return prevLoc;
+      };
       this.currentMap = function() {
         return currentMap;
       };

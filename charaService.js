@@ -35,9 +35,12 @@ angular.module('demo')
       // record current display info:
       this.group = group;
       this.canvas = canvas;
+    // FIX? in retrospect not sure its a good idea to be drawing into the existing canvas
+      var w = this.tilesize;
+      var h = this.tilesize;
       // calc current display offsets
-      var w = canvas.width;
-      var h = canvas.height;
+      canvas.width = w;
+      canvas.height = h;
       this.feetOfs = pt(0.5 * w, h);
       this.centerOfs = pt(0.5 * w, 0.5 * h);
     };

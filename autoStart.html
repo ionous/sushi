@@ -1,0 +1,15 @@
+<hsm-state name="AutoStart" hsm-init="constant('AutoStart')">
+  <!-- auto start helper: main menus -->
+  <hsm-state name="Menu" timeout-control="hup" hsm-enter="hup.timeout()">
+    <hsm-event on="hup-timeout" goto="Menus"></hsm-event>
+  </hsm-state>
+  <!-- auto start helper: resume -->
+  <hsm-state name="Resume" resume-control="mostRecent" hsm-enter="mostRecent.load()">
+    <hsm-event on="most-recent-loaded" when="$evt.gameData" run="game.loadGame($evt.gameData)" goto="LoadGame"></hsm-event>
+    <hsm-event on="most-recent-error" run="game.newGame()" goto="NewGame"></hsm-event>
+  </hsm-state>
+  <!-- auto start helper: begin -->
+  <hsm-state name="Begin" timeout-control="hup" hsm-enter="hup.timeout()">
+    <hsm-event on="hup-timeout" run="game.newGame()" goto="NewGame"></hsm-event>
+  </hsm-state>
+</hsm-state>

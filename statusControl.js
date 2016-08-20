@@ -10,7 +10,7 @@ angular.module('demo')
         var slotName;
         return {
           set: function(text) {
-            $log.warn("statusControl", name, "setting",text);
+            $log.log("statusControl", name, "setting", text);
             var statusSlot = ElementSlotService.get(slotName);
             if (statusSlot) {
 
@@ -18,7 +18,7 @@ angular.module('demo')
             }
           },
           bindTo: function(slotName_) {
-            slotName= slotName_;
+            slotName = slotName_;
           },
         };
       };

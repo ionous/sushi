@@ -41,13 +41,11 @@ angular.module('demo')
       };
       //
       var currLoc = new Location();
-      var prevLoc;
-
+      
       // returns a promise, resolved when the location has changed.
       var changeLocation = function(next) {
         if (next.changes(currLoc)) {
           // $log.info("LocationService: changing", currLoc.toString(), "to", next.toString());
-          prevLoc = currLoc;
           currLoc = next;
           next.sync();
         }
@@ -59,9 +57,6 @@ angular.module('demo')
           return changeLocation(next);
         }
         return new Location(currLoc.room, currLoc.view, currLoc.item);
-      };
-      locationService.prev = function() {
-        return prevLoc;
       };
       locationService.newLocation = function(r, v, i) {
         return new Location(r, v, i);

@@ -12,7 +12,7 @@ angular.module('demo')
               gameData: mostRecent
             });
           }, function(res) {
-            hsmMachine.emit(name, "loaded", {
+            hsmMachine.emit(name, "error", {
               error: res
             });
           });

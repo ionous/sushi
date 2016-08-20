@@ -1,20 +1,40 @@
-<!-- flow chart, default starts waiting for game-created, leaves via GameState -->
+<!-- flow chart for game startup -->
 <hsm-state name="Startup">
-  <hsm-state name="GamePending">
+  <!--  entry points -->
+  <hsm-state name="NewGame">
     <hsm-event on="game-created" run="textHistory.reset()" goto="StartingGame"></hsm-event>
+  </hsm-state>
+  <hsm-state name="LoadGame">
     <hsm-event on="game-loaded" run="textHistory.reset($evt.history)" goto="RestoringGame"></hsm-event>
   </hsm-state>
-  <hsm-state hsm-enter="player.create($evt.where, '/bin/images/princess.png', 64)">
-    <hsm-event on="player-created" run="player.locate($evt.where)"></hsm-event>
-    <hsm-event on="player-located" run="map.changeMap($evt.where)"></hsm-event>
+  <!--  -->
+  <hsm-state hsm-enter="player.create('/bin/images/princess.png', 64)">
     <!--  -->
     <hsm-state name="StartingGame">
-      <hsm-event on="map-loaded" run="game.startGame()"></hsm-event>
-      <hsm-event on="game-started" goto="GameStarted"></hsm-event>
+      <hsm-state>
+        <hsm-event on="player-created" run="player.locate()" goto="FoundPlayer"></hsm-event>
+      </hsm-state>
+      <hsm-state name="FoundPlayer">
+        <hsm-event on="player-located" run="map.changeMap($evt.where)" goto="FirstMap"></hsm-event>
+      </hsm-state>
+      <hsm-state name="FirstMap">
+        <hsm-event on="map-loaded" run="game.startGame()" goto="StartGame"></hsm-event>
+      </hsm-state>
+      <hsm-state name="StartGame">
+        <hsm-event on="game-started" goto="GameStarted"></hsm-event>
+      </hsm-state>
     </hsm-state>
     <!--  -->
-    <hsm-state name="RestoringGame">
-      <hsm-event on="map-loaded" run="$evt.where.sync()" goto="GameStarted"></hsm-event>
+    <hsm-state name="RestoringGame" ng-init="mem= {}" hsm-enter="mem.loadLoc=$evt.where">
+      <hsm-state>
+        <hsm-event on="player-created" run="player.locate(mem.loadLoc)" goto="RestoredPlayer"></hsm-event>
+      </hsm-state>
+      <hsm-state name="RestoredPlayer">
+        <hsm-event on="player-located" run="map.changeMap($evt.where)" goto="RestoreMap"></hsm-event>
+      </hsm-state>
+      <hsm-state name="RestoreMap">
+        <hsm-event on="map-loaded" run="$evt.where.sync()" goto="GameStarted"></hsm-event>
+      </hsm-state>
     </hsm-state>
   </hsm-state>
 </hsm-state>

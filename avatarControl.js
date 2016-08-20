@@ -1,69 +1,38 @@
 angular.module('demo')
 
-.directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl"],
-  function(LocationService, ObjectDisplayService, PositionService, $log) {
+.directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl", "^^mapControl", "^^positionControl"],
+  function(ObjectDisplayService, $log) {
     'use strict';
     'ngInject';
-    this.init = function(name, hsmMachine, keyControl) {
-      var currPlayer, currChara, currProp, currSkin, currLoc;
-      var defaultAngle = PositionService.defaultAngle;
-      var currPos = pt(0, 0);
-      var currAngle = defaultAngle;
-
+    this.init = function(name, hsmMachine, keyControl, mapControl, positionControl) {
+      var currPlayer, currChara, currProp, currPos;
       var reduce = function(val) {
         return val ? 1.0 : 0.0;
       };
-
       var avatar = {
-        create: function(player, physics, size) {
-          if (currPlayer) {
-            throw new Error("avatar already created");
-          }
-          return avatar.ensure(player, physics, size);
-        },
         // NOTE: we dont change state during play -- only on processing.
         // and we never wind up in a non-physical state in a a physical map.
         // i guess the thing is -- i dont want to destroy the physics prop simply because we are processing -- 
         ensure: function(player, physics, size) {
           if (!currPlayer) {
-            $log.info("avatarControl", name, "create");
+            //$log.info("avatarControl", name, "create");
             var display = ObjectDisplayService.getDisplay(player.id());
             currPlayer = player;
-            currPos = display.group.pos;
-            currAngle = defaultAngle;
             currChara = player.linkup(display);
-            currChara.setCorner(currPos);
-            currSkin = display.skin;
-            $log.info("avatarControl", name, "skin", typeof(currSkin), currSkin);
 
-            // via map.get("location") instead?
-            var loc = LocationService().toString();
-            currLoc = loc;
-            var mem = PositionService.fetch(loc);
-            if (!mem) {
-              $log.info("avatarControl", name, "no memory for", loc);
-            } else if (currSkin != mem.skin) {
-              $log.info("avatarControl", name, "mismatched skin for", loc, "was", mem.skin, "now", currSkin);
-            } else {
-              var prevLoc = LocationService.prev();
-              $log.info("avatarControl", name, "restoring", mem.toString(), "from", prevLoc);
-              currPos = mem.pos;
-              currAngle = mem.angle;
-              // spin ourselves around on return
-              // (unless we zoomed in on an item)
-              if (!prevLoc || !prevLoc.item) {
-                currAngle += 180;
-                if (currAngle >= 360) {
-                  currAngle -= 360;
-                }
-              }
+            var currLoc = mapControl.currentMap().where;
+            var prevLoc = mapControl.prevLoc();
+            currPos = positionControl.newPos(currLoc, display.skin, display.group.pos);
+            // spin ourselves around on return
+            // (unless we zoomed in on an item)
+            if (prevLoc && !prevLoc.item) {
+              currPos.spin(180);
             }
+            var corner = currPos.getPos();
+            currChara.setCorner(corner);
+            currChara.setAngle(currPos.getAngle(), true);
 
-            currChara.setAngle(currAngle, true);
-            currChara.setCorner(currPos);
-            PositionService.update(currPos, currAngle);
-
-            var feet = pt_add(currPos, currChara.feetOfs);
+            var feet = pt_add(corner, currChara.feetOfs);
             currProp = physics.addProp(feet, size || 12);
             if (!currProp) {
               throw new Error("prop not created");
@@ -71,13 +40,17 @@ angular.module('demo')
           }
         },
         destroy: function(reason) {
-          $log.info("avatarControl", name, "destroy", reason || '?');
-          if (currLoc) {
-            var mem = PositionService.memorize(currLoc, currSkin);
-            $log.info("avatarControl", name, "memorized", currLoc, mem.toString());
-            currLoc = null;
+          //$log.info("avatarControl", name, "destroy", reason || '?');
+          if (currPos) {
+            currPos.memorize("avatar destroy");
+            currPos = null;
           }
           if (currChara) {
+            // attempt to stop flashing character on map changes
+            var g = currChara.group;
+            if (g && g.el) {
+              g.el.remove();
+            }
             currChara.setSpeed(false);
             currChara = null;
           }
@@ -101,10 +74,10 @@ angular.module('demo')
           return touches;
         },
         getCenter: function() {
-          return pt_add(currPos, currChara.centerOfs);
+          return pt_add(currPos.getPos(), currChara.centerOfs);
         },
         getFeet: function() {
-          return pt_add(currPos, currChara.feetOfs);
+          return pt_add(currPos.getPos(), currChara.feetOfs);
         },
         lookAt: function(target) {
           var src = avatar.getFeet();
@@ -113,8 +86,7 @@ angular.module('demo')
             var angle = pad.getAngle();
             if (angular.isNumber(angle)) {
               currChara.setAngle(angle);
-              PositionService.update(currPos, angle);
-              currAngle = angle;
+              currPos.update(false, angle);
             }
           }
         },
@@ -146,7 +118,6 @@ angular.module('demo')
             // animation facing.
             var face = dir;
             var angle = currChara.setFacing(face.x, face.y);
-            currAngle = angle;
             // animation speed.
             currChara.setSpeed(walking ? 1 : 2);
             // physics speed.
@@ -156,9 +127,7 @@ angular.module('demo')
             var feet = currProp.getFeet();
             var pos = pt_sub(feet, currChara.feetOfs);
             currChara.setCorner(pos);
-            currPos = pos;
-            //
-            PositionService.update(pos, angle);
+            currPos.update(pos, angle);
           }
         },
       };

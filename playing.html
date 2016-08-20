@@ -9,7 +9,7 @@
               <ng-include src="'console.html'"></ng-include>
               <ng-include src="'inventory.html'"></ng-include>
               <!-- we run one of physics or not-physics -->
-              <hsm-state name="PlayOne" hsm-init="1 && map.get('physics') ? 'Physics' : 'Statics'">
+              <hsm-state name="PlayOne" hsm-init="constant('Physics') && map.get('physics') ? 'Physics' : 'Statics'">
                 <ng-include src="'statics.html'"></ng-include>
                 <ng-include src="'physics.html'"></ng-include>
               </hsm-state>
@@ -33,8 +33,8 @@
                   <hsm-event on="actions-run" when="customActions.handles($evt)" run="customActions.run($evt)" goto="SharedPlay"></hsm-event>
                   <hsm-event on="actions-run" run="game.post($evt.pack())" goto="SharedPlay"></hsm-event>
                   <!--  -->
+                  <hsm-event on="close-button-clicked" goto="AppExit"></hsm-event>
                   <hsm-state name="SharedPlay" hsm-enter="settingsButton.enable()" hsm-exit="settingsButton.enable(false)">
-                    <hsm-event on="close-button-clicked" goto="AppExit"></hsm-event>
                     <!-- keep updating the player (drawing) so that facing changes as we open the menu work; basically there's a one frame timing issue b/t requesting facing, and drawing the change -->
                     <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
                     <hsm-state></hsm-state>

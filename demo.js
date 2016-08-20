@@ -9,12 +9,13 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'],
     //aHrefSanitizationWhitelist ///^\s*(https?|ftp|mailto|tel|file|chrome-extension):/;
     $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|ftp|file|blob|chrome-extension):|data:image\/)/);
 })
-  .constant("ShowHsm", false) // state chart
   .constant("GameVersion", "0")
   .constant("SaveVersion", "01")
-  .constant("AutoStart", "Menus") //Begin,Resume,Menus
+  .constant("AutoStart", "Resume") // Main,Begin,Resume
+  .constant("ShowHsm", true) // state chart
+  .constant("Physics", true)
   .constant("Talk", true)
   .constant("Popups", true)
-  .constant("GameServerUrl", "http://localhost:8080/game") 
+  .constant("GameServerUrl", "http://localhost:8080/game")
   .constant("RequireSave", true)
-  .constant("SaveProgress", true);
+  .constant("SaveProgress", false);

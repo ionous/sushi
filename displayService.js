@@ -8,11 +8,17 @@ angular.module('demo')
   // contains either ".ga-canvas" canvases or ".ga-display" divs.
   // FIX: canvi are getting created too late to intermix as siblings, every layer needs a display group right now; leaf nodes shouldnt need this.
   var DisplayGroup = function(el) {
-    this.el = el;
+    this.el = el; // angular element
     this.pos = pt(0, 0);
     this.index = undefined;
   };
   DisplayGroup.prototype.setPos = function(pos, index) {
+    if (!pos) {
+      pos = this.pos;
+    }
+    if (angular.isUndefined(index)) {
+      index = this.index;
+    }
     var p = pt_floor(pos);
     if ((p.x != this.pos.x) || (p.y != this.pos.y) || (index != this.index)) {
       this.el.css({
@@ -35,7 +41,7 @@ angular.module('demo')
     var promise;
     var map = mapLayer.getMap();
     var bounds = mapLayer.getBounds();
-        
+
     // make sure the top layer never contributes the the canvas set
     // otherwise, it pushes all the canvases down -- maybe some css styling issues here.
     if (bounds && mapLayer !== map.topLayer) {

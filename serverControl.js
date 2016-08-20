@@ -11,7 +11,7 @@ angular.module('demo')
       var frame = 1;
 
       var saveDelay;
-      var localSave = function(values, autosave) {
+      var serverSave = function(values, autosave) {
         var slot;
         if (autosave) {
           slot = "autosave";
@@ -50,14 +50,14 @@ angular.module('demo')
       this.requestCreate = function(store) {
         $log.info("serverControl", name, "new");
         return $timeout().then(function() {
-          js = sashimi.New(localSave);
+          js = sashimi.New(serverSave);
           return $q.when(gameId);
         });
       };
       this.requestRestore = function(slot) {
         $log.info("serverControl", name, "loading", slot);
         return store.getItem("game-" + slot, true).then(function(values) {
-          js = sashimi.Restore(values, localSave);
+          js = sashimi.Restore(values, serverSave);
           return gameId;
         });
       };
