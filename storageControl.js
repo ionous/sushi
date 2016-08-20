@@ -5,7 +5,7 @@ angular.module('demo')
   function($log, $q, $window) {
     'use strict';
     'ngInject';
-    var storgeSingleton;
+    var storageSingleton;
     var chrome = $window.chrome;
     var savePrefix = $window.sashimi ? "sashimi-" : "save-";
     this.init = function(name) {
@@ -147,10 +147,10 @@ angular.module('demo')
 
       return {
         destroy: function() {
-          storgeSingleton = null;
+          storageSingleton = null;
         },
         create: function() {
-          if (storgeSingleton) {
+          if (storageSingleton) {
             throw new Error("storage already created");
           }
           var store;
@@ -168,16 +168,16 @@ angular.module('demo')
               store = NoStore();
             }
           }
-          storgeSingleton = new StoreWrapper(store);
-          return storgeSingleton;
+          storageSingleton = new StoreWrapper(store);
+          return storageSingleton;
         },
       };
     }; // init
 
     this.getStorage = function() {
-      if (!storgeSingleton) {
+      if (!storageSingleton) {
         throw new Error("storage not created");
       }
-      return storgeSingleton;
+      return storageSingleton;
     };
   });
