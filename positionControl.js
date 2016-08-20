@@ -1,7 +1,7 @@
 angular.module('demo')
 
 .directiveAs("positionControl",
-  function($log) {
+  function(LocationService, ObjectDisplayService, $log) {
     'use strict';
     'ngInject';
     this.init = function(name) {
@@ -73,14 +73,28 @@ angular.module('demo')
         return currPos;
       };
 
+      // hide the player if we are going to restore its position
+      // otherwise we see the player in the old position for a frame.
+      // ( and longer than a frame if autosave occurs. )
+      ObjectDisplayService.hack(function(player) {
+        var loc = LocationService().toString();
+        var mem = poshist.memory[loc];
+        if (mem && mem.skin === player.skin) {
+          $log.warn("hiding player", loc, mem.skin);
+          player.group.setPos(-9999, -9999);
+        }
+      });
+
       return {
         // called after new game or load game to retrieve saved data ( if any ) and register callbacks for save.
         reset: function(client) {
           var prev = client.exchange(name, function(slot) {
-            currPos.memorize(slot);
+            if (currPos) {
+              currPos.memorize(slot);
+            }
             return poshist.memory;
           });
-          $log.info("positionControl", name, "reset", prev);
+          $log.info("positionControl", name, "reset", !!prev);
           poshist = new PositionHistory(prev);
         },
       }; // returnscope

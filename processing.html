@@ -29,7 +29,7 @@
   when we are zoomed in to a sub-scene in the automat and sam opens the door, zoom out. -->
   <hsm-state game-listener="samOpenedDoor" hsm-enter="samOpenedDoor.listen('*', 'door-staging-two')" hsm-exit="samOpenedDoor.silence()">
     <hsm-state door-delay-control="doorDelay">
-      <hsm-event on="samOpenedDoor" when="map.which().room=='automat'" run="doorDelay.changeRoom('automat', 750).then($evt.resolve())"></hsm-event>
+      <hsm-event on="samOpenedDoor" when="map.currLoc().room=='automat'" run="doorDelay.changeRoom('automat', 750).then($evt.resolve())"></hsm-event>
     </hsm-state>
   </hsm-state>
   <!-- xxxx: move to story state file.

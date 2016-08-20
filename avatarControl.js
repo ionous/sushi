@@ -1,10 +1,10 @@
 angular.module('demo')
 
-.directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl", "^^mapControl", "^^positionControl"],
+.directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl", "^^positionControl"],
   function(ObjectDisplayService, $log) {
     'use strict';
     'ngInject';
-    this.init = function(name, hsmMachine, keyControl, mapControl, positionControl) {
+    this.init = function(name, hsmMachine, keyControl, positionControl) {
       var currPlayer, currChara, currProp, currPos;
       var reduce = function(val) {
         return val ? 1.0 : 0.0;
@@ -13,15 +13,15 @@ angular.module('demo')
         // NOTE: we dont change state during play -- only on processing.
         // and we never wind up in a non-physical state in a a physical map.
         // i guess the thing is -- i dont want to destroy the physics prop simply because we are processing -- 
-        ensure: function(player, physics, size) {
+        ensure: function(map, player, physics, size) {
           if (!currPlayer) {
             //$log.info("avatarControl", name, "create");
             var display = ObjectDisplayService.getDisplay(player.id());
             currPlayer = player;
             currChara = player.linkup(display);
 
-            var currLoc = mapControl.currentMap().where;
-            var prevLoc = mapControl.prevLoc();
+            var currLoc = map.currLoc();
+            var prevLoc = map.prevLoc();
             currPos = positionControl.newPos(currLoc, display.skin, display.group.pos);
             // spin ourselves around on return
             // (unless we zoomed in on an item)

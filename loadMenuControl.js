@@ -22,7 +22,7 @@ angular.module('demo')
           var lookup = {};
           loadGameControl.enumerate(function(saveGameData) {
             if (saveGameData.valid()) {
-              $log.info("adding", saveGameData.key);
+              //$log.debug("adding", saveGameData.key);
               var data = saveGameData.data;
               games.push(data);
               lookup[data.ikey] = saveGameData;

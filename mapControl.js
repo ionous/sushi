@@ -1,6 +1,6 @@
 angular.module('demo')
 
-// -loaded, -loading
+// -loading, -loaded
 .directiveAs("mapControl", ["^gameControl", "^^hsmMachine"],
   function(ElementSlotService, LayerService, LocationService, MapService, ObjectDisplayService, UpdateService,
     $log, $q, $rootScope) {
@@ -112,7 +112,7 @@ angular.module('demo')
           // and, sometimes we see alice in a strange position.
           // alice's teleport isnt fully understood, but this seems to work fine.
           var slot = ElementSlotService.get(mapSlotName);
-          slot.scope.loaded = false;
+          slot.scope.visible = false;
 
           // use a defer so we can cancel if need be
           // note, cancel doesnt work well -- wed need to check for cancel at each stage... somehow
@@ -124,7 +124,6 @@ angular.module('demo')
           hsmMachine.emit(name, "loading", next);
 
           // load!
-
           loadMap(gameControl.getGame(), slot.element, next).then(defer.resolve);
           // loaded! (and not rejected in the meantime)
           ret = defer.promise.then(function(map) {
@@ -136,8 +135,7 @@ angular.module('demo')
               'height': map.bounds.y + 'px',
             };
             // show the map
-            slot.scope.loaded = true;
-            //
+            slot.scope.visible = true;
             $log.info("mapControl", name, "loaded", map.mapName);
             hsmMachine.emit(name, "loaded", map);
             return map;
@@ -169,8 +167,11 @@ angular.module('demo')
         loaded: function() {
           return !!currentMap;
         },
-        which: function() {
-          return LocationService();
+        currLoc: function() {
+          return currentMap && currentMap.where;
+        },
+        prevLoc: function() {
+          return prevLoc;
         },
         changeMap: changeMap,
         changeRoom: function(room) {
@@ -190,9 +191,6 @@ angular.module('demo')
       this.changeView = scope.changeView;
       this.changeItem = scope.changeItem;
       this.changeRoom = scope.changeRoom;
-      this.prevLoc = function() {
-        return prevLoc;
-      };
       this.currentMap = function() {
         return currentMap;
       };
