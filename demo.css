@@ -614,7 +614,7 @@ credits
   border-radius: 20px;
   /*overflow: hidden;*/
   /*was 50%, but leaving some room after titlebar*/
-  top: 48px;
+  top: 8px;
   left: 50%;
   margin-left: -383px;
   /*https://bugs.chromium.org/p/chromium/issues/detail?id=157218*/
