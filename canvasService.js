@@ -90,7 +90,7 @@ angular.module('demo')
       if (!pos) {
         pos = this.pos;
       }
-      if (angular.isUndefined(index)) {
+      if (!index && index !== 0) {
         index = this.index;
       }
       var p = pt_floor(pos);

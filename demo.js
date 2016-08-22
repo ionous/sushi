@@ -11,7 +11,7 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'],
 })
   .constant("GameVersion", "0")
   .constant("SaveVersion", "01")
-  .constant("AutoStart", "Resume") // Menu,Begin,Resume
+  .constant("AutoStart", "Begin") // Menu,Begin,Resume
   .constant("MostRecentIn", "mostRecent") // false, "save-newbug"
   .constant("MostRecentOut", "mostRecent") // false, "save-newbug"
   .constant("ShowHsm", true) // state chart

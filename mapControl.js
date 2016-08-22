@@ -136,6 +136,7 @@ angular.module('demo')
               'width': map.bounds.x + 'px',
               'height': map.bounds.y + 'px',
             };
+
             // show the map
             $log.info("mapControl", name, "loaded", map.mapName);
             hsmMachine.emit(name, "loaded", map);

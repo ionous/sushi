@@ -8,7 +8,6 @@ angular.module('demo')
     this.init = function(name, hsmMachine) {
       var Fini = function() {
         this.map = ElementSlotService.get("gameMap");
-        this.bar = ElementSlotService.get("buttonBar");
         this.panel = ElementSlotService.get("finalExit");
         this.panel.scope.exit = function() {
           hsmMachine.emit(name, "exit", {});
@@ -16,7 +15,6 @@ angular.module('demo')
       };
       Fini.prototype.hide = function(hide) {
         this.panel.scope.visible = false;
-        this.bar.scope.hidden = hide;
         // override the normal cursor behavior
         this.map.element.css({
           "cursor": hide ? "auto" : ""

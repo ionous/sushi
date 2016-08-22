@@ -13,8 +13,7 @@ angular.module('demo')
             $log.log("statusControl", name, "setting", text);
             var statusSlot = ElementSlotService.get(slotName);
             if (statusSlot) {
-
-              statusSlot.scope.statusText = text;
+              statusSlot.scope.statusText = text ? text.replace("\\n", "\n") : "";
             }
           },
           bindTo: function(slotName_) {

@@ -43,8 +43,8 @@ angular.module('demo')
       this.feetOfs = pt(0.5 * w, h);
       this.centerOfs = pt(0.5 * w, 0.5 * h);
     };
-    Chara.prototype.setCorner = function(pos) {
-      var zindex = Math.floor(pos.y + this.feetOfs.y);
+    Chara.prototype.setCorner = function(pos, setZ) {
+      var zindex = setZ && Math.floor(pos.y + this.feetOfs.y);
       this.group.setPos(pos, zindex);
     };
     Chara.prototype.setAngle = function(angle, force) {

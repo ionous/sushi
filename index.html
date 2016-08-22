@@ -154,7 +154,7 @@
       <div element-slot="loadMenuWin" ng-include="'loadMenuWin.html'"></div>
     </div>
   </main>
-  <footer ng-init="hsmExpanded=true">
+  <footer ng-init="hsmExpanded=false">
     <div class="state-display" ng-show="constant('ShowHsm')">
       <a href="" ng-click="hsmExpanded=!hsmExpanded">states [{{hsmExpanded ? 'x' : 'o'}}]</a>
       <ng-include src="'main.html'" ng-show="hsmExpanded"></ng-include>

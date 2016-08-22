@@ -6,9 +6,9 @@ angular.module('demo')
     'use strict';
     'ngInject';
     // an animated character control
-    var Player = function(chara, xform) {
+    var Player = function(chara, xform, usez) {
       var corner = xform.getPos();
-      chara.setCorner(corner);
+      chara.setCorner(corner, !!usez);
       chara.setAngle(xform.getAngle(), true);
       chara.draw(0, true);
 
@@ -20,7 +20,7 @@ angular.module('demo')
       };
       this.setFeet = function(feet) {
         var pos = pt_sub(feet, chara.feetOfs);
-        chara.setCorner(pos);
+        chara.setCorner(pos, true);
         xform.update(pos);
       };
       this.setAngle = function(angle, facing) {
@@ -91,8 +91,9 @@ angular.module('demo')
           if (xform.fromMemory() && prevLoc.room && !prevLoc.item) {
             xform.spin(180);
           }
-          ret = new Player(chara, xform);
-          memorizeOnExit = !!map.get("physics") ? xform : null;
+          var physics= !!map.get("physics");
+          ret = new Player(chara, xform, physics);
+          memorizeOnExit = physics ? xform : null;
         }
         return ret;
       };

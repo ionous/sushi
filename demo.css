@@ -145,9 +145,10 @@ div.ga-biggrey {
 div.overgrey {
   width: 100%;
   height: 100%;
-  top: 0;
+  /* use "fixed" to pop out of the game window, use top to avoid the title bar*/
+  position: fixed;
+  top: 32px;
   left: 0;
-  position: absolute;
   /*background-color: yellow;*/
   opacity: 0;
 }
@@ -190,6 +191,7 @@ its actually nice to see some change in the cursor i think*/
 
 .ga-cursor .popover {
   background-color: black;
+  opacity: 0.8;
   color: white;
 }
 
@@ -599,7 +601,7 @@ credits
 
 
 /* ----------------------------------------------
-main display
+    main display
 */
 
 .ga-play {
@@ -610,18 +612,20 @@ main display
   height: 640px;
   /*20x32; no maps are larger.*/
   border-radius: 20px;
-  overflow: hidden;
-  background-color: rgb(66, 81, 77);
+  /*overflow: hidden;*/
   /*was 50%, but leaving some room after titlebar*/
-  top: 4px;
+  top: 48px;
   left: 50%;
   margin-left: -383px;
   /*https://bugs.chromium.org/p/chromium/issues/detail?id=157218*/
   z-index: 1;
+  background-color: rgb(66, 81, 77);
 }
 
 .ga-map {
   cursor: none;
+  border-radius: 20px;
+  overflow: hidden;
 }
 
 .ga-the-center {
@@ -711,12 +715,18 @@ action  bar
 button bar
 */
 
-.ga-buttonbar .btn {
+.ga-buttonbar .btn,
+.ga-invbar .btn {
   margin: 0.2em 0.3em;
   border-radius: 50% !important;
   outline: none !important;
   max-width: 50px;
   max-height: 50px;
+}
+
+.ga-buttonbar .btn {
+  border-color: white;
+  border-width: 2px;
 }
 
 div.ga-xtip > div.tooltip-inner {
@@ -729,15 +739,21 @@ div.ga-left {
   left: 0;
   top: 0;
   width: 50%;
+  z-index: 1000;
 }
 
 div.ga-left > span {
-  margin-right: -20px;
+  /*margin-right: -20px;*/
 }
 
 .ga-right {
   position: absolute;
+  z-index: 1000;
   right: 0;
+}
+
+.ga-left .btn {
+  margin-right: -10px;
 }
 
 .whereabouts {
@@ -746,9 +762,12 @@ div.ga-left > span {
   color: white;
   text-shadow: 2px 2px black;
   margin-top: 10px;
-  margin-left: 20px;
+  margin-left: 10px;
   height: 50px;
   text-transform: capitalize;
+  vertical-align: top;
+  display: inline-block;
+  white-space: pre-line;
 }
 
 
