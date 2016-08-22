@@ -4,70 +4,70 @@
     <hsm-event on="player-created" goto="PlayingParallel"></hsm-event>
   </hsm-state>
   <hsm-state visibility-control="showMap" hsm-enter="showMap.show('gameMap')" hsm-exit="showMap.show(false)">
-  <hsm-state mouse-control="mouse" hsm-enter="mouse.bindTo('gameMap', 'mouseDisplay')" hsm-exit="mouse.destroy()">
-    <hsm-state return-to-room-control="roomReturn" hsm-enter="roomReturn.bindTo(map, 'clickReturn')" hsm-exit="roomReturn.release()">
-    <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
-      <hsm-state action-bar-control="actionBar" hsm-enter="actionBar.bindTo(game.getGame(), 'gameMap')">
-        <hsm-state button-control="settingsButton" hsm-enter="settingsButton.bind(true)" hsm-exit="settingsButton.bind(false)">
-          <hsm-state hsm-enter="status.set(map.get('mapName'))">
-            <hsm-state name="PlayingParallel" parallel="true" combiner-control="combiner" turn-control="turn">
-              <ng-include src="'console.html'"></ng-include>
-              <ng-include src="'inventory.html'"></ng-include>
-              <!-- we run one of physics or not-physics -->
-              <hsm-state hsm-init="constant('Physics') && map.get('physics') ? 'Physics' : 'Statics'">
-                <ng-include src="'statics.html'"></ng-include>
-                <ng-include src="'physics.html'"></ng-include>
-              </hsm-state>
-              <!-- we always hover -->
-              <hsm-state name="Hovering" hsm-init="turn.paused() && 'HoverPause'">
-                <hsm-state>
-                  <ng-include src="'hover.html'"></ng-include>
-                </hsm-state>
-                <hsm-event on="turn-paused" goto="HoverPause"></hsm-event>
-                <hsm-state name="HoverPause" mouse-hide-control="mpause" hsm-enter="mpause.hide()" hsm-exit="mpause.show()">
-                  <hsm-event on="turn-playing" goto="Hovering"></hsm-event>
-                </hsm-state>
-              </hsm-state>
-              <!-- shared in both physics and non-physics -->
-              <hsm-state name="SharedGame" hsm-init="stream.processing() && 'SharedProcessing'">
-                <!-- any player input mode -->
-                <hsm-state name="SharedInput" hsm-init="!dialog.empty() && 'SharedDialog'">
-                  <!-- before each turn ( but, not dialog b/c we dont save/restore dialog choices ) 
-              if we have a major change, then save the game. -->
-                  <hsm-state hsm-init="track.saveBeforePlay() && 'JumpToSave'">
+    <hsm-state mouse-control="mouse" hsm-enter="mouse.bindTo('gameMap', 'mouseDisplay')" hsm-exit="mouse.destroy()">
+      <hsm-state return-to-room-control="roomReturn" hsm-enter="roomReturn.bindTo(map, 'clickReturn')" hsm-exit="roomReturn.release()">
+        <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
+          <hsm-state action-bar-control="actionBar" hsm-enter="actionBar.bindTo(game.getGame(), 'gameMap')">
+            <hsm-state button-control="settingsButton" hsm-enter="settingsButton.bind(true)" hsm-exit="settingsButton.bind(false)">
+              <hsm-state hsm-enter="status.set(map.get('mapName'))">
+                <hsm-state name="PlayingParallel" parallel="true" combiner-control="combiner" turn-control="turn">
+                  <ng-include src="'console.html'"></ng-include>
+                  <ng-include src="'inventory.html'"></ng-include>
+                  <!-- we run one of physics or not-physics -->
+                  <hsm-state hsm-init="constant('Physics') && map.get('physics') ? 'Physics' : 'Statics'">
+                    <ng-include src="'statics.html'"></ng-include>
+                    <ng-include src="'physics.html'"></ng-include>
+                  </hsm-state>
+                  <!-- we always hover -->
+                  <hsm-state name="Hovering" hsm-init="turn.paused() && 'HoverPause'">
                     <hsm-state>
-                      <ng-include src="'playTurn.html'"></ng-include>
+                      <ng-include src="'hover.html'"></ng-include>
                     </hsm-state>
-                    <hsm-state name="JumpToSave" timeout-control="jump" hsm-enter="jump.timeout()" hsm-exit="jump.cancel()">
-                      <hsm-event on="jump-timeout" run="save.saveGame('auto-save')" goto="Save-auto-save"></hsm-event>
-                    </hsm-state>
-                  </hsm-state>
-                  <!-- ^~PlayTurn save wrapper -->
-                  <hsm-state name="SharedDialog" hsm-enter="dialog.open()" hsm-exit="dialog.close()">
-                    <hsm-state mouse-hide-control="mdialog" hsm-enter="mdialog.hide()" hsm-exit="mdialog.show()">
-                      <hsm-event on="dialog-quip" run="game.post($evt.payload)" goto="SharedGame"></hsm-event>
+                    <hsm-event on="turn-paused" goto="HoverPause"></hsm-event>
+                    <hsm-state name="HoverPause" mouse-hide-control="mpause" hsm-enter="mpause.hide()" hsm-exit="mpause.show()">
+                      <hsm-event on="turn-playing" goto="Hovering"></hsm-event>
                     </hsm-state>
                   </hsm-state>
-                  <!-- ^~SharedDialog -->
+                  <!-- shared in both physics and non-physics -->
+                  <hsm-state name="SharedGame" hsm-init="stream.processing() && 'SharedProcessing'">
+                    <!-- any player input mode -->
+                    <hsm-state name="SharedInput" hsm-init="!dialog.empty() && 'SharedDialog'">
+                      <!-- before each turn ( but, not dialog b/c we dont save/restore dialog choices ) 
+              if we have a major change, then save the game. -->
+                      <hsm-state hsm-init="track.saveBeforePlay() && 'JumpToSave'">
+                        <hsm-state>
+                          <ng-include src="'playTurn.html'"></ng-include>
+                        </hsm-state>
+                        <hsm-state name="JumpToSave" timeout-control="jump" hsm-enter="jump.timeout()" hsm-exit="jump.cancel()">
+                          <hsm-event on="jump-timeout" run="save.saveGame('auto-save')" goto="Save-auto-save"></hsm-event>
+                        </hsm-state>
+                      </hsm-state>
+                      <!-- ^~PlayTurn save wrapper -->
+                      <hsm-state name="SharedDialog" hsm-enter="dialog.open()" hsm-exit="dialog.close()">
+                        <hsm-state mouse-hide-control="mdialog" hsm-enter="mdialog.hide()" hsm-exit="mdialog.show()">
+                          <hsm-event on="dialog-quip" run="game.post($evt.payload)" goto="SharedGame"></hsm-event>
+                        </hsm-state>
+                      </hsm-state>
+                      <!-- ^~SharedDialog -->
+                    </hsm-state>
+                    <!-- ^~SharedInput -->
+                    <!-- waiting for save -->
+                    <ng-include src="'saving.html'"></ng-include>
+                    <!-- waiting for processing -->
+                    <hsm-event on="stream-processing" goto="SharedProcessing"></hsm-event>
+                    <hsm-state name="SharedProcessing" mouse-hide-control="mproc" hsm-enter="mproc.hide()" hsm-exit="mproc.show()">
+                      <hsm-event on="stream-empty" goto="SharedGame"></hsm-event>
+                    </hsm-state>
+                    <!-- ^~SharedProcessing parent-->
+                  </hsm-state>
+                  <!-- ^~ play, dialog, or processing -->
                 </hsm-state>
-                <!-- ^~SharedInput -->
-                <!-- waiting for save -->
-                <ng-include src="'saving.html'"></ng-include>
-                <!-- waiting for processing -->
-                <hsm-event on="stream-processing" goto="SharedProcessing"></hsm-event>
-                <hsm-state name="SharedProcessing" mouse-hide-control="mproc" hsm-enter="mproc.hide()" hsm-exit="mproc.show()">
-                  <hsm-event on="stream-empty" goto="SharedGame"></hsm-event>
-                </hsm-state>
-                <!-- ^~SharedProcessing parent-->
+                <!-- ^~PlayingParallel -->
               </hsm-state>
-              <!-- ^~ play, dialog, or processing -->
             </hsm-state>
-            <!-- ^~PlayingParallel -->
           </hsm-state>
         </hsm-state>
       </hsm-state>
-      </hsm-state>
     </hsm-state>
-  </hsm-state>
   </hsm-state>
 </hsm-state>

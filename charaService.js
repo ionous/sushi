@@ -110,19 +110,22 @@ angular.module('demo')
     var service = {
       // the chara is a resusable sprite source
       // we blit it into the map element as needed
-      newChara: function(display, imageSrc, size) {
+      loadImage: function(imageSrc) {
         if (!imageSrc) {
           throw new Error("image not defined");
         }
         var defer = $q.defer();
         var img = new Image();
         img.onload = function() {
-          var res = new Chara(img, size || 64);
-          res.linkup(display.group, display.canvas);
-          defer.resolve(res);
+          defer.resolve(img);
         };
         img.src = imageSrc;
         return defer.promise;
+      },
+      newChara: function(display, img, size) {
+        var chara = new Chara(img, size || 64);
+        chara.linkup(display.group, display.canvas);
+        return chara;
       },
       imageAngle: function(path, re) {
         var ret;

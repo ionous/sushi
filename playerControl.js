@@ -5,7 +5,7 @@ angular.module('demo')
     $q, $log) {
     'use strict';
     'ngInject';
-    //
+    // an animated character control
     var Player = function(chara, xform) {
       var corner = xform.getPos();
       chara.setCorner(corner);
@@ -40,13 +40,13 @@ angular.module('demo')
       };
     };
 
-    var currPlayer;
+    var currPlayer, pending, memorizeOnExit;
     this.getPlayer = function() {
       return currPlayer;
     };
+
     //
     this.init = function(name, gameControl, hsmMachine, positionControl) {
-      var pending, memorizeOnExit;
       var destroy = function(reason) {
         if (pending) {
           pending.reject(reason || "destroyed");
@@ -57,46 +57,66 @@ angular.module('demo')
           memorizeOnExit = null;
         }
         currPlayer = null;
+        lastImage = null;
+      };
+      var lastImage, lastSize;
+      var createNow = function(map, img, size) {
+        img = img || lastImage;
+        lastImage = img;
+        if (!img) {
+          throw new Error("missing player sprite");
+        }
+        size = size || lastSize;
+        lastSize = size;
+        if (!size) {
+          throw new Error("invalid player size");
+        }
+        var display = ObjectDisplayService.getDisplay("player");
+        if (!display) {
+          throw new Error("missing player display");
+        }
+        // based on the image path from tiled, determine if its animatable.
+        var re = /alice(?:-(\w+))?.png/g;
+        var angle = CharaService.imageAngle(display.image, re);
+        var ret;
+        if (angular.isUndefined(angle)) {
+          $log.warn("no dynamic player image for", display.image);
+        } else {
+          var chara = CharaService.newChara(display, img, size);
+          var currLoc = map.currLoc();
+          var prevLoc = map.prevLoc();
+          var xform = positionControl.newPos(currLoc, display.skin, display.group.pos, angle);
+          // spin ourselves around on return
+          // (unless we zoomed in on an item)
+          if (xform.fromMemory() && prevLoc.room && !prevLoc.item) {
+            xform.spin(180);
+          }
+          ret = new Player(chara, xform);
+          memorizeOnExit = !!map.get("physics") ? xform : null;
+        }
+        return ret;
+      };
+      //
+      this.ensure = function(map) {
+        if (!currPlayer) {
+          currPlayer = createNow(map);
+        }
+        return currPlayer;
       };
       return {
         // raises -creating, -created
         create: function(map, imagePath, size) {
           destroy("creating player");
-          //
-          var display = ObjectDisplayService.getDisplay("player");
-          if (!display) {
-            throw new Error("missing player display");
-          }
-          var re = /alice(?:-(\w+))?.png/g;
-          var angle = CharaService.imageAngle(display.image, re);
-          if (angular.isUndefined(angle)) {
-            $log.warn("no dynamic player image for", display.image);
-            hsmMachine.emit(name, "created", {});
-          } else {
-            // uses a separate deferred to reject on destroy.
-            pending = $q.defer();
-            //
-            CharaService.newChara(display, imagePath, size)
-              .then(pending.resolve, pending.reject);
-            //
-            pending.promise.then(function(chara) {
-              pending = null;
-              var currLoc = map.currLoc();
-              var prevLoc = map.prevLoc();
-              var xform = positionControl.newPos(currLoc, display.skin, display.group.pos, angle);
-              // spin ourselves around on return
-              // (unless we zoomed in on an item)
-              if (xform.fromMemory() && prevLoc.room && !prevLoc.item) {
-                xform.spin(180);
-              }
-              currPlayer = new Player(chara, xform);
-              memorizeOnExit = !!map.get("physics") ? xform : null;
-
-              hsmMachine.emit(name, "created", {
-                player: currPlayer
-              });
+          // uses a separate deferred to reject on destroy.
+          pending = $q.defer();
+          CharaService.loadImage(imagePath).then(pending.resolve, pending.reject);
+          pending.promise.then(function(img) {
+            pending = null;
+            currPlayer = createNow(map, img, size);
+            hsmMachine.emit(name, "created", {
+              player: currPlayer, // can be null
             });
-          }
+          });
         }, // create
         destroy: destroy,
         update: function(dt) {

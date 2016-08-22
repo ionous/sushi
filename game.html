@@ -30,10 +30,7 @@
                       <!-- loading and playing the game -->
                       <hsm-state hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
                         <ng-include src="'playing.html'"></ng-include>
-                        <hsm-state name="Fini" fini-control="fini" hsm-enter="fini.enter()" hsm-exit="fini.exit()">
-                          <hsm-event on="stream-empty" run="fini.showExitPanel()"></hsm-event>
-                          <hsm-event on="fini-exit" goto="Menus"></hsm-event>
-                        </hsm-state>
+                        <ng-include src="'fini.html'"></ng-include>
                         <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
                         <hsm-state name="PlaySpaceLoading" hsm-enter="status.set()">
                           <hsm-event on="map-loaded" when="$evt.where.room=='fini'" goto="Fini"></hsm-event>

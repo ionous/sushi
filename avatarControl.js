@@ -14,9 +14,9 @@ angular.module('demo')
       };
       var avatar = {
         // NOTE: doesnt destroy the physics prop simply because we are processing -- 
-        ensure: function(physics, size) {
+        ensure: function(map, physics, size) {
           if (!currPlayer) {
-            currPlayer = playerControl.getPlayer();
+            currPlayer = playerControl.ensure(map);
             if (!currPlayer) {
               throw new Error("invalid player");
             }

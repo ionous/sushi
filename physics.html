@@ -1,6 +1,6 @@
 <hsm-state name="Physics" physics-control="physics" hsm-enter="physics.create(map.get('physics'))" hsm-exit="physics.destroy()">
   <hsm-state avatar-control="avatar" hsm-exit="avatar.destroy('exiting')" hsm-init="turn.paused() && 'PhysicsPause'">
-    <hsm-state name="PhysicsPlay" hsm-enter="avatar.ensure(physics, 12)">
+    <hsm-state name="PhysicsPlay" hsm-enter="avatar.ensure(map, physics, 12)">
       <hsm-state mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(map, avatar)" hsm-exit="mouseTarget.release()" hsm-init="modal.showing() && 'PhysicsModal'">
         <hsm-state name="PhysicsUpdating">
           <hsm-event on="player-interact" when="!avatar.touches($evt.target)" goto="Planning"></hsm-event>
