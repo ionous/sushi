@@ -15,13 +15,14 @@
                     <!-- startup goes here when done: -->
                     <hsm-state name="GameStarted" parallel="true" command-control="commands">
                       <hsm-event on="game-posting" run="commands.post($evt.what)"></hsm-event>
-                      <hsm-event on="game-posting" run="track.majorChange(true)"></hsm-event>
-                      <hsm-event on="map-loading" run="track.minorChange(true)"></hsm-event>
+                      <hsm-event on="game-posting" run="track.worldChange(true)"></hsm-event>
+                      <hsm-event on="map-loading" run="track.mapChange(true)"></hsm-event>
                       <!-- watch for saving -->
                       <hsm-state>
                         <hsm-event on="save-saved" run="track.reset($evt.saveType)"></hsm-event>
                       </hsm-state>
-                      <!-- handle server event processing, raises -processing and -empty -->
+                      <!-- handle server event processing, raises -processing and -empty;
+                      fix? this should probably be more exclusive with playing. -->
                       <hsm-state hsm-enter="stream.process()" hsm-exit="stream.process(false)">
                         <hsm-event on="game-posting" run="stream.processing(true)"></hsm-event>
                         <ng-include src="'processing.html'"></ng-include>
@@ -29,16 +30,13 @@
                       <!-- loading and playing the game -->
                       <hsm-state hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
                         <ng-include src="'playing.html'"></ng-include>
-                        <!--  -->
                         <hsm-state name="Fini" fini-control="fini" hsm-enter="fini.enter()" hsm-exit="fini.exit()">
                           <hsm-event on="stream-empty" run="fini.showExitPanel()"></hsm-event>
                           <hsm-event on="fini-exit" goto="Menus"></hsm-event>
                         </hsm-state>
-                        <!--  -->
                         <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
                         <hsm-state name="PlaySpaceLoading" hsm-enter="status.set()">
                           <hsm-event on="map-loaded" when="$evt.where.room=='fini'" goto="Fini"></hsm-event>
-                          <hsm-event on="map-loaded" when="constant('SaveProgress') && track.majorChange()" run="save.saveGame('auto-save')" goto="Save-auto-save"></hsm-event>
                           <hsm-event on="map-loaded" goto="Playing"></hsm-event>
                         </hsm-state>
                       </hsm-state>

@@ -20,7 +20,7 @@ angular.module('demo')
               mdl.dismiss(reason);
             },
             hasChanges: function() {
-              return changeControl.minorChange();
+              return changeControl.worldChange() || changeControl.mapChange();
             },
             requestSave: function() {
               hsmMachine.emit(name, "save", {});

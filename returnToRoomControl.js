@@ -1,18 +1,22 @@
 angular.module('demo')
 
-.directiveAs("returnToRoomControl", ["^^mapControl"],
-  function(ElementSlotService, LocationService, $log, $scope) {
+.directiveAs("returnToRoomControl",
+  function(ElementSlotService, $log, $scope) {
     'use strict';
     'ngInject';
-    this.init = function(name, mapControl) {
-      var currentEl, currentScope, currLoc;
+    this.init = function(name) {
+      var currMap, currentEl, currentScope;
       var returnToRoom = function() {
-        var next = currLoc.item ? currLoc.nextItem() : currLoc.nextView();
-        $log.info("return to room", next);
-        $scope.$apply(function() {
-          mapControl.changeMap(next);
-        });
-        release();
+        var map = currMap;
+        if (map) {
+          var loc = map.currLoc();
+          var next = loc.item ? loc.nextItem() : loc.nextView();
+          $log.info("return to room", next);
+          $scope.$apply(function() {
+            map.changeMap(next);
+          });
+          release();
+        }
       };
       var release = function() {
         if (currentEl) {
@@ -21,19 +25,19 @@ angular.module('demo')
         }
         if (currentScope) {
           currentScope.msg = false;
+          currentScope = null;
         }
+        currMap = null;
       };
       return {
         release: release,
-        bindTo: function(slotName) {
+        bindTo: function(map, slotName) {
           release();
           var slot = ElementSlotService.get(slotName);
-
-          var loc = LocationService();
+          var loc = map.currLoc();
           var viewing = loc.view || loc.item;
-          currLoc = loc;
-
           if (viewing) {
+            currMap = map;
             currentEl = slot.element;
             currentScope = slot.scope;
             currentEl.on("click", returnToRoom);

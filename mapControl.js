@@ -3,9 +3,10 @@ angular.module('demo')
 // -loading, -loaded
 .directiveAs("mapControl", ["^gameControl", "^^hsmMachine"],
   function(ElementSlotService, LayerService, LocationService, MapService, ObjectDisplayService, UpdateService,
-    $log, $q, $rootScope) {
+    $log, $q) {
     'use strict';
     'ngInject';
+    //
     var collectCollision = function(map) {
       var shapes = []; //
       var subShapes = function(mapLayer) {
@@ -26,22 +27,22 @@ angular.module('demo')
       return shapes;
     };
     // returns a promise:
-    var loadMap = function(game, mapEl, next) {
-      var mapName = next.mapName();
+    var loadMap = function(game, mapEl, nextLoc) {
+      var mapName = nextLoc.mapName();
       return MapService.loadMap(mapName).then(function(map) {
         $log.debug("MapControl: loading map", mapName);
-        var roomId = next.room;
+        var roomId = nextLoc.room;
         //
         return game.getById(roomId).then(function(room) {
           var enclosure;
-          if (!next.item) {
+          if (!nextLoc.item) {
             enclosure = room;
           } else {
             // FIX, FIX, FIX: fake an enclosure so that we can see the player and the zoomed item
             var contents = {
               player: true,
             };
-            contents[next.item] = true;
+            contents[nextLoc.item] = true;
             enclosure = {
               id: "_display_",
               contents: contents,
@@ -49,7 +50,7 @@ angular.module('demo')
           }
           // derive user friendly map name
           var friendlyName = map.properties.name;
-          if (!friendlyName && !next.view && !next.item) {
+          if (!friendlyName && !nextLoc.view && !nextLoc.item) {
             friendlyName = room.printedName();
           }
           if (!friendlyName) {
@@ -62,7 +63,7 @@ angular.module('demo')
             var collide = collectCollision(map);
             return {
               mapName: friendlyName,
-              where: next,
+              where: nextLoc,
               tree: tree,
               bounds: tree.bounds,
               hitGroups: tree.nodes.ctx.hitGroup,
@@ -76,7 +77,7 @@ angular.module('demo')
         }); // object service
       }); // get map
     };
-    var mapSlotName, loading, currentMap, prevLoc;
+    var mapSlotName, loading, currentMap;
 
     var destroyMap = function() {
       if (loading) {
@@ -96,38 +97,39 @@ angular.module('demo')
     };
 
     this.init = function(name, gameControl, hsmMachine) {
-      var changeMap = function(next) {
+      var prevLoc;
+      var currLoc = LocationService.newLocation();
+
+      var changeMap = function(nextLoc) {
         var ret; // promise
         if (loading) {
           throw new Error("already loading");
         }
-        var where = LocationService();
-        if (currentMap && !next.changes(where)) {
-          ret = $q.when(where);
+        if (currentMap && !nextLoc.changes(currLoc)) {
+          ret = $q.when(where).then(function() {
+            hsmMachine.emit("name", "unchanged", currentMap);
+          });
         } else {
-          prevLoc = currentMap && where;
           destroyMap();
-          // first, hide the map
-          // without this, we see the map load, and then resize ( once we set the style )
-          // and, sometimes we see alice in a strange position.
-          // alice's teleport isnt fully understood, but this seems to work fine.
           var slot = ElementSlotService.get(mapSlotName);
-          slot.scope.visible = false;
 
           // use a defer so we can cancel if need be
           // note, cancel doesnt work well -- wed need to check for cancel at each stage... somehow
           var defer = $q.defer();
           loading = defer;
 
-          $log.info("mapControl", name, "loading", next.toString());
-          LocationService(next);
-          hsmMachine.emit(name, "loading", next);
+          $log.info("mapControl", name, "loading", nextLoc.toString());
+          nextLoc.syncUrlBar();
+          hsmMachine.emit(name, "loading", nextLoc);
 
           // load!
-          loadMap(gameControl.getGame(), slot.element, next).then(defer.resolve);
+          loadMap(gameControl.getGame(), slot.element, nextLoc).then(defer.resolve);
           // loaded! (and not rejected in the meantime)
           ret = defer.promise.then(function(map) {
+            prevLoc = currLoc;
+            currLoc = nextLoc;
             currentMap = map;
+
             loading = null;
             // size the view
             slot.scope.style = {
@@ -135,7 +137,6 @@ angular.module('demo')
               'height': map.bounds.y + 'px',
             };
             // show the map
-            slot.scope.visible = true;
             $log.info("mapControl", name, "loaded", map.mapName);
             hsmMachine.emit(name, "loaded", map);
             return map;
@@ -164,11 +165,12 @@ angular.module('demo')
           destroyMap();
           prevLoc = null;
         },
+        show: function() {},
         loaded: function() {
           return !!currentMap;
         },
         currLoc: function() {
-          return currentMap && currentMap.where;
+          return currLoc;
         },
         prevLoc: function() {
           return prevLoc;
@@ -176,15 +178,15 @@ angular.module('demo')
         changeMap: changeMap,
         changeRoom: function(room) {
           // $log.info("mapControl", name, "changeRoom", room);
-          return changeMap(LocationService().nextRoom(room));
+          return changeMap(currLoc.nextRoom(room));
         },
         changeView: function(view) {
           // $log.info("mapControl", name, "changeView", view);
-          return changeMap(LocationService().nextView(view));
+          return changeMap(currLoc.nextView(view));
         },
         changeItem: function(item) {
           // $log.info("mapControl", name, "changeItem", item);
-          return changeMap(LocationService().nextItem(item));
+          return changeMap(currLoc.nextItem(item));
         },
       };
       this.changeMap = scope.changeMap;

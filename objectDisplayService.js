@@ -6,25 +6,18 @@ angular.module('demo')
   function($log, $q) {
     'use strict';
     var objectDisplay = {};
-    var hack;
     //
     var service = {
       clear: function() {
         objectDisplay = {};
-      },
-      // see position control
-      hack: function(hack_) {
-        hack = hack_;
       },
       newDisplay: function(id, skin, displayGroup, canvi) {
         var ret = {
           skin: skin,
           group: displayGroup,
           canvas: canvi && canvi.el && canvi.el[0],
+          image: canvi && canvi.img && canvi.img.src,
         };
-        if (id === "player") {
-          hack(ret);
-        }
         objectDisplay[id] = ret;
         return ret;
       },

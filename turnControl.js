@@ -2,7 +2,7 @@
  */
 angular.module('demo')
 
-.directiveAs("playControl", ["^hsmMachine"],
+.directiveAs("turnControl", ["^hsmMachine"],
   function($log, $q) {
     'use strict';
     'ngInject';
@@ -10,7 +10,7 @@ angular.module('demo')
       var started, paused = false;
       var go = function(run) {
         var emit = run ? "playing" : "paused";
-        $log.info("playControl", name, emit);
+        $log.info("turnControl", name, emit);
         hsmMachine.emit(name, emit, {});
       };
       var isPaused = function() {

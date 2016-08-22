@@ -15,11 +15,12 @@ angular.module('demo')
         },
         open: function(win) {
           settings.close();
+          var prompt = changeControl.worldChange() && !changeControl.manuallySaved();
           var mdl = modalControl.open(win, {
             dismiss: function(reason) {
               mdl.dismiss(reason);
             },
-            saveMessage: changeControl.majorChange() ? "Your game isn't saved." : "",
+            saveMessage: prompt ? "Your game isn't saved." : "",
             exitGame: function() {
               hsmMachine.emit(name, "exit", {});
             },

@@ -1,38 +1,26 @@
+/**
+ * physics controller for player movement
+ */
 angular.module('demo')
 
-.directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl", "^^positionControl"],
-  function(ObjectDisplayService, $log) {
+.directiveAs("avatarControl", ["^^hsmMachine", "^^keyControl", "^^playerControl"],
+  function($log) {
     'use strict';
     'ngInject';
-    this.init = function(name, hsmMachine, keyControl, positionControl) {
-      var currPlayer, currChara, currProp, currPos;
+    this.init = function(name, hsmMachine, keyControl, playerControl) {
+      var currPlayer, currProp;
       var reduce = function(val) {
         return val ? 1.0 : 0.0;
       };
       var avatar = {
-        // NOTE: we dont change state during play -- only on processing.
-        // and we never wind up in a non-physical state in a a physical map.
-        // i guess the thing is -- i dont want to destroy the physics prop simply because we are processing -- 
-        ensure: function(map, player, physics, size) {
+        // NOTE: doesnt destroy the physics prop simply because we are processing -- 
+        ensure: function(physics, size) {
           if (!currPlayer) {
-            //$log.info("avatarControl", name, "create");
-            var display = ObjectDisplayService.getDisplay(player.id());
-            currPlayer = player;
-            currChara = player.linkup(display);
-
-            var currLoc = map.currLoc();
-            var prevLoc = map.prevLoc();
-            currPos = positionControl.newPos(currLoc, display.skin, display.group.pos);
-            // spin ourselves around on return
-            // (unless we zoomed in on an item)
-            if (prevLoc && !prevLoc.item) {
-              currPos.spin(180);
+            currPlayer = playerControl.getPlayer();
+            if (!currPlayer) {
+              throw new Error("invalid player");
             }
-            var corner = currPos.getPos();
-            currChara.setCorner(corner);
-            currChara.setAngle(currPos.getAngle(), true);
-
-            var feet = pt_add(corner, currChara.feetOfs);
+            var feet = currPlayer.getFeet();
             currProp = physics.addProp(feet, size || 12);
             if (!currProp) {
               throw new Error("prop not created");
@@ -40,20 +28,6 @@ angular.module('demo')
           }
         },
         destroy: function(reason) {
-          //$log.info("avatarControl", name, "destroy", reason || '?');
-          if (currPos) {
-            currPos.memorize("avatar destroy");
-            currPos = null;
-          }
-          if (currChara) {
-            // attempt to stop flashing character on map changes
-            var g = currChara.group;
-            if (g && g.el) {
-              g.el.remove();
-            }
-            currChara.setSpeed(false);
-            currChara = null;
-          }
           if (currProp) {
             currProp.remove();
             currProp = null;
@@ -67,35 +41,34 @@ angular.module('demo')
             if (!target.pads) {
               touches = true;
             } else {
-              var feet = avatar.getFeet();
+              var feet = currPlayer.getFeet();
               touches = target.pads.getPadAt(feet);
             }
           }
           return touches;
         },
         getCenter: function() {
-          return pt_add(currPos.getPos(), currChara.centerOfs);
+          return currPlayer.getCenter();
         },
         getFeet: function() {
-          return pt_add(currPos.getPos(), currChara.feetOfs);
+          return currPlayer.getFeet();
         },
         lookAt: function(target) {
-          var src = avatar.getFeet();
+          var src = currPlayer.getFeet();
           var pad = target && target.pads && target.pads.getClosestPad(src);
           if (pad) {
             var angle = pad.getAngle();
             if (angular.isNumber(angle)) {
-              currChara.setAngle(angle);
-              currPos.update(false, angle);
+              currPlayer.setAngle(angle);
             }
           }
         },
         stop: function() {
+          if (currPlayer) {
+            currPlayer.setSpeed(false);
+          }
           if (currProp) {
             currProp.setVel(false);
-          }
-          if (currChara) {
-            currChara.setSpeed(false);
           }
         },
         // move in the normalized direction
@@ -117,17 +90,15 @@ angular.module('demo')
             var walking = keyControl.buttons('shift');
             // animation facing.
             var face = dir;
-            var angle = currChara.setFacing(face.x, face.y);
+            var angle = currPlayer.setAngle(face.x, face.y);
             // animation speed.
-            currChara.setSpeed(walking ? 1 : 2);
+            currPlayer.setSpeed(walking ? 1 : 2);
             // physics speed.
             var vel = pt_scale(dir, walking ? 1 : 3);
             currProp.setVel(vel);
             // position based on last physics.
             var feet = currProp.getFeet();
-            var pos = pt_sub(feet, currChara.feetOfs);
-            currChara.setCorner(pos);
-            currPos.update(pos, angle);
+            currPlayer.setFeet(feet);
           }
         },
       };

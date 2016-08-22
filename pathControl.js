@@ -1,6 +1,9 @@
-angular.module('demo')
+/**
+ * control the url bar
+ */
+ angular.module('demo')
 
-.directiveAs("locationControl", ["^hsmMachine"],
+.directiveAs("pathControl", ["^hsmMachine"],
   function($location, $log, $scope) {
     'use strict';
     'ngInject';
@@ -32,7 +35,7 @@ angular.module('demo')
       this.goto = function(dst) {
         if (!angular.isUndefined(dst)) {
           var path = $location.path();
-          $log.info("locationControl", name, "changing", path, dst);
+          $log.info("pathControl", name, "changing", path, dst);
           if (dst != path) {
             $location.path(dst);
           }
@@ -41,7 +44,7 @@ angular.module('demo')
       this.path = function() {
         return $location();
       };
-      var ctrl= this;
+      var ctrl = this;
       return {
         listen: listen,
         silence: silence,

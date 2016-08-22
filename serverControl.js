@@ -167,11 +167,17 @@ angular.module('demo')
           if (serverSingleton) {
             throw new Error("server already created");
           }
-          var sashimi = $window.sashimi;
-          var store = storageControl.getStorage();
-          var transport = !sashimi ?
-            new Http($http, name) :
-            new GopherJs(sashimi, store, name);
+          var transport;
+          if (GameServerUrl !== "gopherjs") {
+            transport = new Http($http, name);
+          } else {
+            var sashimi = $window.sashimi;
+            if (!sashimi) {
+              throw new Error("transport not found");
+            }
+            var store = storageControl.getStorage();
+            transport = new GopherJs(sashimi, store, name);
+          }
           $log.info("serverControl", name, "using transport", transport.constructor.name);
           serverSingleton = new Server(name, transport);
         }

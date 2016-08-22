@@ -16,8 +16,7 @@ angular.module('demo')
       270, 180, 90, 0,
     ];
     var speeds = [0, 8, 12];
-    var Chara = function(id, img, tilesize) {
-      this.id = id;
+    var Chara = function(img, tilesize) {
       this.img = img;
       this.nextface = dir.right;
       this.facing = -1;
@@ -35,7 +34,7 @@ angular.module('demo')
       // record current display info:
       this.group = group;
       this.canvas = canvas;
-    // FIX? in retrospect not sure its a good idea to be drawing into the existing canvas
+      // FIX? in retrospect not sure its a good idea to be drawing into the existing canvas
       var w = this.tilesize;
       var h = this.tilesize;
       // calc current display offsets
@@ -88,15 +87,6 @@ angular.module('demo')
     };
     Chara.prototype.draw = function(dt, force) {
       var canvas = this.canvas;
-      if (!canvas) {
-        if (!this.warned) {
-          this.warned = true;
-          var msg = "linkup not called";
-          $log.error(msg, this.obj.id);
-        }
-        return;
-      }
-
       var frame = 0;
       if (!this.speed) {
         this.time = 0;
@@ -120,19 +110,30 @@ angular.module('demo')
     var service = {
       // the chara is a resusable sprite source
       // we blit it into the map element as needed
-      newChara: function(id, imageSrc, size) {
+      newChara: function(display, imageSrc, size) {
         if (!imageSrc) {
           throw new Error("image not defined");
         }
         var defer = $q.defer();
         var img = new Image();
         img.onload = function() {
-          var res = new Chara(id, img, size || 64);
+          var res = new Chara(img, size || 64);
+          res.linkup(display.group, display.canvas);
           defer.resolve(res);
         };
         img.src = imageSrc;
         return defer.promise;
-      }
+      },
+      imageAngle: function(path, re) {
+        var ret;
+        var res = re.exec(path);
+        if (res) {
+          var name = res[1] || "right";
+          var idx = dir[name];
+          ret = angles[idx];
+        }
+        return ret;
+      },
     };
     return service;
   });

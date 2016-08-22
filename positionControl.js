@@ -1,7 +1,7 @@
 angular.module('demo')
 
 .directiveAs("positionControl",
-  function(LocationService, ObjectDisplayService, $log) {
+  function($log) {
     'use strict';
     'ngInject';
     this.init = function(name) {
@@ -23,9 +23,12 @@ angular.module('demo')
         this.memory[loc] = new Memory(skin, pos, angle);
       };
       //
-      var Position = function(hist, loc, skin, pos, angle) {
+      var Position = function(hist, loc, skin, pos, angle, fromMemory) {
         this.getPos = function() {
           return pos;
+        };
+        this.fromMemory= function() {
+          return fromMemory;
         };
         this.getAngle = function() {
           return angle;
@@ -53,6 +56,7 @@ angular.module('demo')
       this.newPos = function(loc_, skin, pos, angle) {
         var loc = loc_.toString();
         var mem = poshist.memory[loc];
+        var fromMemory;
         if (!mem) {
           $log.info("positionControl", name, "no memory for", loc);
         } else if (skin != mem.skin) {
@@ -61,6 +65,7 @@ angular.module('demo')
           $log.info("positionControl", name, "loaded", angular.toJson(mem), "for", loc, "skin", skin);
           pos = mem.pos;
           angle = mem.angle;
+          fromMemory= true;
         }
         if (angular.isUndefined(pos)) {
           pos = pt(0, 0);
@@ -69,21 +74,9 @@ angular.module('demo')
           angle = ZeroAngle;
         }
         //
-        currPos = new Position(poshist, loc, skin, pos, angle);
+        currPos = new Position(poshist, loc, skin, pos, angle, fromMemory);
         return currPos;
       };
-
-      // hide the player if we are going to restore its position
-      // otherwise we see the player in the old position for a frame.
-      // ( and longer than a frame if autosave occurs. )
-      ObjectDisplayService.hack(function(player) {
-        var loc = LocationService().toString();
-        var mem = poshist.memory[loc];
-        if (mem && mem.skin === player.skin) {
-          $log.warn("hiding player", loc, mem.skin);
-          player.group.setPos(-9999, -9999);
-        }
-      });
 
       return {
         // called after new game or load game to retrieve saved data ( if any ) and register callbacks for save.

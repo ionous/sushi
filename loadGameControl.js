@@ -1,10 +1,11 @@
 angular.module('demo')
-  
+
 .directiveAs("loadGameControl", ["^storageControl", "^hsmMachine"],
-  function(LocationService, SaveVersion, $log) {
+  function(LocationService,SaveVersion, MostRecentIn, $log, $q) {
     'use strict';
     'ngInject';
-    //
+    this.init = function(name, storageControl, hsmMachine) {
+      //
     var SaveData = function(key, data) {
       this.key = key;
       this.data = data;
@@ -24,11 +25,10 @@ angular.module('demo')
       return this.data.version === SaveVersion;
     };
     //
-    this.init = function(name, storageControl, hsmMachine) {
-      // PROMISE
+    
       this.mostRecent = function() {
         var store = storageControl.getStorage();
-        return store.getItem("mostRecent", false).then(function(key) {
+        return store.getItem(MostRecentIn, false).then(function(key) {
           $log.debug("loadGameControl", name, "retrieved most recent", key);
           return store.getItem(key, true).then(function(data) {
             $log.debug("loadGameControl", name, "retrieved data", !!data);

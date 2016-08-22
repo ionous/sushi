@@ -36,7 +36,7 @@ angular.module('demo')
     };
   })
 
-// provide an <a> with a consistent class that uses locationControl to follow links
+// provide an <a> with a consistent class that uses pathControl to follow links
 .directive('gaLink',
   function($log) {
     'use strict';
@@ -50,10 +50,10 @@ angular.module('demo')
         gaDst: "@?", // what to display, and where to go ( if no click provided )
         gaDisabled: "<?",
       },
-      require: ["^^locationControl"],
+      require: ["^^pathControl"],
       template: "<a ng-href='/{{appBase}}/#{{gaDst}}' class='btn btn-default btn-block' ng-class='{disabled:gaDisabled}' ng-click='clicked($event)' role='button'><ng-transclude></ng-transclude></a>",
       link: function(scope, el, attrs, controllers) {
-        var locationControl = controllers[0];
+        var pathControl = controllers[0];
         // there doesnt appeart to be a way to get this via angular
         // there also isnt any way of using location to format, without actually changing the url.
         scope.appBase = "demo";
@@ -65,7 +65,7 @@ angular.module('demo')
           if (click) {
             click();
           } else if (dst) {
-            locationControl.goto(dst);
+            pathControl.goto(dst);
           }
           evt.stopPropagation();
         };

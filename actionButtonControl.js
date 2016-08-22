@@ -16,7 +16,7 @@ angular.module('demo')
       var hid = false;
       var hide = function(yes) {
         if (hid != yes) {
-          mouse.hide(yes);
+          mouse.hide(yes, name);
           hid = yes;
         }
       };

@@ -59,7 +59,7 @@ angular.module('demo')
           }
         };
         // overrides show, must be paired
-        this.hide = function(yes) {
+        this.hide = function(yes, reason) {
           var hide = angular.isUndefined(yes) || yes;
           var wasHidden = this.hidden();
           hidden += hide ? 1 : -1;
@@ -74,7 +74,7 @@ angular.module('demo')
               cursor.show(!nowHidden);
             }
             var emit = nowHidden ? "hidden" : "shown";
-            // $log.debug("mouseControl", name, emit);
+            //$log.debug("mouseControl", name, emit, reason);
             hsmMachine.emit(name, emit, {
               mouse: this.mouse
             });
@@ -155,8 +155,8 @@ angular.module('demo')
       }; // Mouse
       var mouse = new Mouse();
       this.mouse = mouse;
-      this.hide = function(hide) {
-        return mouse.hide(hide);
+      this.hide = function(hide, reason) {
+        return mouse.hide(hide, reason);
       };
       return mouse;
     };

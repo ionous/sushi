@@ -1,6 +1,6 @@
 <!-- mouse input tweaks the cursor, and raises events which effect player control. -->
 <hsm-state name="Hover" hover-control="hover" hsm-init="mouse.inBounds() ? 'InBounds' : 'OutOfBounds'">
-  <hsm-state name="OutOfBounds" hsm-enter="mouse.hide(true)" hsm-exit="mouse.hide(false)">
+  <hsm-state name="OutOfBounds" mouse-hide-control="mbounds" hsm-enter="mbounds.hide()" hsm-exit="mbounds.show()">
     <hsm-event on="mouse-enter" goto="InBounds"></hsm-event>
     <!-- <hsm-event on="mouse-move" goto="InBounds"></hsm-event> -->
   </hsm-state>

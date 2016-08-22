@@ -1,71 +1,114 @@
 angular.module('demo')
 
-.directiveAs("playerControl", ["^gameControl", "^^hsmMachine"],
-  function(CharaService, LocationService,
+.directiveAs("playerControl", ["^gameControl", "^^hsmMachine", "^positionControl"],
+  function(CharaService, LocationService, ObjectDisplayService,
     $q, $log) {
     'use strict';
     'ngInject';
-    var playerRef = {
-      id: 'player',
-      type: 'actors'
+    //
+    var Player = function(chara, xform) {
+      var corner = xform.getPos();
+      chara.setCorner(corner);
+      chara.setAngle(xform.getAngle(), true);
+      chara.draw(0, true);
+
+      this.getCenter = function() {
+        return pt_add(xform.getPos(), chara.centerOfs);
+      };
+      this.getFeet = function() {
+        return pt_add(xform.getPos(), chara.feetOfs);
+      };
+      this.setFeet = function(feet) {
+        var pos = pt_sub(feet, chara.feetOfs);
+        chara.setCorner(pos);
+        xform.update(pos);
+      };
+      this.setAngle = function(angle, facing) {
+        if (!angular.isUndefined(facing)) {
+          angle = chara.setFacing(angle, facing);
+        } else {
+          chara.setAngle(angle);
+        }
+        xform.update(false, angle);
+        return angle;
+      };
+      this.setSpeed = function(speed) {
+        chara.setSpeed(speed);
+      };
+      this.draw = function(dt) {
+        chara.draw(dt);
+      };
+    };
+
+    var currPlayer;
+    this.getPlayer = function() {
+      return currPlayer;
     };
     //
-    var currChara, displaying, pending;
-    var memory = {};
-    //
-    this.init = function(name, gameControl, hsmMachine) {
-      var player = {
-        id: function() {
-          return playerRef.id;
-        },
-        destroy: function() {
-          if (pending) {
-            pending.reject("destroyed");
-            pending = null;
+    this.init = function(name, gameControl, hsmMachine, positionControl) {
+      var pending, memorizeOnExit;
+      var destroy = function(reason) {
+        if (pending) {
+          pending.reject(reason || "destroyed");
+          pending = null;
+        }
+        if (memorizeOnExit) {
+          memorizeOnExit.memorize();
+          memorizeOnExit = null;
+        }
+        currPlayer = null;
+      };
+      return {
+        // raises -creating, -created
+        create: function(map, imagePath, size) {
+          destroy("creating player");
+          //
+          var display = ObjectDisplayService.getDisplay("player");
+          if (!display) {
+            throw new Error("missing player display");
           }
-          currChara = null;
-        },
-        // raises -located after determining where the player is.
-        locate: function(currLoc) {
-          $log.info("playerControl", name, "locating player");
-          gameControl
-            .getGame()
-            .getObjects(playerRef, "objects-whereabouts")
-            .then(function(objects) {
-              var room = objects[0]; // room entity
-              var loc = currLoc;
-              // if we know our desired location ( ex. from game-loaded )
-              // then use that location, otherwise use the one the server returned.
-              // ( unless for some reason, they dont match )
-              // noting that the the game-loaded location can include view or item.
-              if (!currLoc || (room.id != currLoc.room)) {
-                loc = LocationService.newLocation(room.id);
+          var re = /alice(?:-(\w+))?.png/g;
+          var angle = CharaService.imageAngle(display.image, re);
+          if (angular.isUndefined(angle)) {
+            $log.warn("no dynamic player image for", display.image);
+            hsmMachine.emit(name, "created", {});
+          } else {
+            // uses a separate deferred to reject on destroy.
+            pending = $q.defer();
+            //
+            CharaService.newChara(display, imagePath, size)
+              .then(pending.resolve, pending.reject);
+            //
+            pending.promise.then(function(chara) {
+              pending = null;
+              var currLoc = map.currLoc();
+              var prevLoc = map.prevLoc();
+              var xform = positionControl.newPos(currLoc, display.skin, display.group.pos, angle);
+              // spin ourselves around on return
+              // (unless we zoomed in on an item)
+              if (xform.fromMemory() && prevLoc.room && !prevLoc.item) {
+                xform.spin(180);
               }
-              hsmMachine.emit(name, "located", {
-                where: loc
+              currPlayer = new Player(chara, xform);
+              memorizeOnExit = !!map.get("physics") ? xform : null;
+
+              hsmMachine.emit(name, "created", {
+                player: currPlayer
               });
             });
-        },
-        linkup: function(display) {
-          if (!currChara) {
-            throw new Error("currChara doesnt exist");
           }
-          //display = display || ObjectDisplayService.getDisplay(playerObj.id);
-          if (display) {
-            currChara.linkup(display.group, display.canvas);
-          }
-          // patch the static views which are rotating the player ... 
-          // ex. the lab-coat.
-          // when does static view need a chara? 
-          displaying = !!display;
-          return currChara;
-        },
+        }, // create
+        destroy: destroy,
         update: function(dt) {
-          // maybe a characters list in the map? then we could map.update() and the characters would too.
-          if (displaying) {
-            currChara.draw(dt);
+          // maybe a characters list in the map? 
+          // then we could map.update() and the characters would too.
+          if (currPlayer) {
+            currPlayer.draw(dt);
           }
         },
+        //
+        // FIX? revisit interact, approach, and direct?
+        //
         // target is of type "Subject"
         interact: function(target) {
           $log.info("playerControl", name, "interact");
@@ -85,23 +128,6 @@ angular.module('demo')
           $log.info("playerControl", name, "direct");
           hsmMachine.emit(name, "direct", {});
         },
-        // raises -creating, -created
-        create: function(imagePath, size) {
-          player.destroy();
-          // uses a separate defered to reject on destroy.
-          pending = $q.defer();
-          CharaService.newChara(player.id(), imagePath, size)
-            .then(pending.resolve, pending.reject);
-          pending.promise.then(function(chara) {
-            pending = null;
-            //$log.info(name, "created!");
-            currChara = chara;
-            hsmMachine.emit(name, "created", {
-              player: chara
-            });
-          });
-        }, // create
       }; // return
-      return player;
     }; //init
   });

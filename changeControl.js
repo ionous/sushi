@@ -1,13 +1,13 @@
 angular.module('demo')
 
 .directiveAs("changeControl",
-  function(RequireSave, $log, $window) {
+  function(RequireSave, SaveProgress, $log, $window) {
     'use strict';
     'ngInject';
     this.init = function(name) {
       var chrome = $window.chrome;
       var appwin, win;
-      var majorChange, minorChange;
+      var worldChange, mapChange, manuallySaved;
 
       // yuck. if event stream could be reused... we could do the recursive processing in our state.
       var getResponse = function(events) {
@@ -27,27 +27,30 @@ angular.module('demo')
       };
 
       var promptBeforeExit = function(event) {
-        event.returnValue = majorChange || minorChange;
+        event.returnValue = worldChange || mapChange;
       };
 
-      this.majorChange = function(yes) {
+      this.worldChange = function(yes) {
         if (yes) {
           $log.info("changeControl", name, "major change detected");
-          majorChange = true;
+          worldChange = true;
         }
-        return majorChange;
+        return worldChange;
       };
-      this.minorChange = function(yes) {
+      this.mapChange = function(yes) {
         if (yes) {
           $log.info("changeControl", name, "minor change detected");
-          minorChange = true;
+          mapChange = true;
         }
-        return majorChange || minorChange;
+        return mapChange;
+      };
+      this.manuallySaved = function() {
+        return manuallySaved;
       };
 
       return {
         create: function(needInitalSave) {
-          majorChange = !!needInitalSave;
+          worldChange = !!needInitalSave;
           var cw = chrome && chrome.app && chrome.app.window;
           if (!cw && RequireSave) {
             win = angular.element($window);
@@ -62,20 +65,23 @@ angular.module('demo')
             win.off("beforeunload", promptBeforeExit);
             win = null;
           }
-          majorChange = majorChange = false;
+          worldChange = worldChange = false;
         },
-        majorChange: this.majorChange,
-        minorChange: this.minorChange,
+        worldChange: this.worldChange,
+        mapChange: this.mapChange,
+        manuallySaved: function() {
+          return manuallySaved;
+        },
+        saveBeforePlay: function() {
+          return SaveProgress && worldChange && mapChange;
+        },
         reset: function(saveType) {
           $log.info("changeControl", name, "resetting", saveType);
           var autosave = saveType === "auto-save";
           if (!autosave) {
-            majorChange = minorChange = false;
-          } else {
-            // downgrade major changes after autosaving
-            minorChange = majorChange || minorChange;
-            majorChange = false;
+            manuallySaved = true;
           }
+          worldChange = mapChange = false;
         }
       }; // return 
     }; // init

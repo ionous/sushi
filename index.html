@@ -36,7 +36,6 @@
   <script src="actionListService.js"></script>
   <script src="canvasService.js"></script>
   <script src="charaService.js"></script>
-  
   <script src="collisionService.js"></script>
   <script src="cursorService.js"></script>
   <script src="displayService.js"></script>
@@ -87,13 +86,13 @@
   <script src="itemsControl.js"></script>
   <script src="keyControl.js"></script>
   <script src="loadGameControl.js"></script>
-  <script src="locationControl.js"></script>
+  <script src="pathControl.js"></script>
   <script src="mapControl.js"></script>
   <script src="modalControl.js"></script>
   <script src="mouseControl.js"></script>
+  <script src="mouseHideControl.js"></script>
   <script src="mouseTarget.js"></script>
   <script src="moveControl.js"></script>
-  <script src="playControl.js"></script>
   <script src="playerControl.js"></script>
   <script src="playerDialogControl.js"></script>
   <script src="playerItemControl.js"></script>
@@ -107,12 +106,14 @@
   <script src="saveControl.js"></script>
   <script src="savePopupControl.js"></script>
   <script src="serverControl.js"></script>
-  <script src="storageControl.js"></script>
   <script src="settingsControl.js"></script>
+  <script src="startupControl.js"></script>
   <script src="statusControl.js"></script>
+  <script src="storageControl.js"></script>
   <script src="talkControl.js"></script>
   <script src="textControl.js"></script>
   <script src="timeoutControl.js"></script>
+  <script src="turnControl.js"></script>
   <script src="updateControl.js"></script>
   <script src="visibilityControl.js"></script>
   <!-- menus -->
@@ -130,7 +131,7 @@
   <script src="mosaic/sprite.js"></script>
 </head>
 
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" location-control="path" constant-control="constant" hsm-transition="0 && log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)" blur-control="blur">
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" path-control="path" constant-control="constant" hsm-transition="0 && log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)" blur-control="blur">
   <header>
     <div title-bar-control="titlebar" class="titlebar">
       <span class="titlebar-icon">
@@ -153,7 +154,7 @@
       <div element-slot="loadMenuWin" ng-include="'loadMenuWin.html'"></div>
     </div>
   </main>
-  <footer ng-init="hsmExpanded=false">
+  <footer ng-init="hsmExpanded=true">
     <div class="state-display" ng-show="constant('ShowHsm')">
       <a href="" ng-click="hsmExpanded=!hsmExpanded">states [{{hsmExpanded ? 'x' : 'o'}}]</a>
       <ng-include src="'main.html'" ng-show="hsmExpanded"></ng-include>

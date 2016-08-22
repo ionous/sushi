@@ -1,16 +1,14 @@
 /**
- * Wraps angular's $location service, translating it into rooms and views.
- * by changing the location, the demo.js router re/renders play.html
+ * Factory for location objects
  */
 angular.module('demo')
-  .factory('LocationService',
+
+  .service("LocationService",
     function($location, $log) {
       'use strict';
       var Location = function(room, view, item) {
         if (room && (view == room)) {
-          var msg = "LocationService: invalid location";
-          $log.error(msg, room, view, item);
-          throw new Error(msg);
+          throw new Error(["LocationService: invalid location", room, view, item].join(" "));
         }
         this.room = room || null;
         this.view = view || null;
@@ -34,33 +32,17 @@ angular.module('demo')
       Location.prototype.nextItem = function(item) {
         return new Location(this.room, this.view, item);
       };
-      Location.prototype.sync = function() {
+      Location.prototype.syncUrlBar = function() {
         var p = ["", "r", this.room].concat(this.view ? ["v", this.view] : []);
         var path = p.join("/");
         $location.path(path).search('item', this.item);
       };
-      //
-      var currLoc = new Location();
       
-      // returns a promise, resolved when the location has changed.
-      var changeLocation = function(next) {
-        if (next.changes(currLoc)) {
-          // $log.info("LocationService: changing", currLoc.toString(), "to", next.toString());
-          currLoc = next;
-          next.sync();
-        }
-        return next;
+      //
+      return {
+        newLocation: function(r, v, i) {
+          return new Location(r, v, i);
+        },
       };
-
-      var locationService = function(next) {
-        if (!angular.isUndefined(next)) {
-          return changeLocation(next);
-        }
-        return new Location(currLoc.room, currLoc.view, currLoc.item);
-      };
-      locationService.newLocation = function(r, v, i) {
-        return new Location(r, v, i);
-      };
-      return locationService;
     }
   );

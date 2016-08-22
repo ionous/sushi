@@ -1,8 +1,8 @@
 angular.module('demo')
 
 .directiveAs("saveControl", ["^hsmMachine", "^^gameControl", "^^mapControl", "^clientDataControl", "^storageControl", "^textControl", ],
-  function(EventStreamService, LocationService,
-    SaveVersion, $log, $q, $timeout) {
+  function(EventStreamService,
+    SaveVersion, MostRecentOut, $log, $q, $timeout) {
     'use strict';
     'ngInject';
     //
@@ -47,7 +47,6 @@ angular.module('demo')
 
         var date = new Date();
         var order = date.getTime();
-        var loc = LocationService();
         var map = mapControl.currentMap();
         var mapName = map.mapName;
         //
@@ -59,7 +58,7 @@ angular.module('demo')
           version: SaveVersion,
           frame: EventStreamService.currentFrame(),
           // via map.get("location") instead?
-          location: loc,
+          location: map.where,
           history: history
             // [screenshot]
             // current inventory item
@@ -69,7 +68,7 @@ angular.module('demo')
 
         return store.setItem(itemKey, saveData, true)
           .then(function() {
-            return store.setItem("mostRecent", itemKey, false)
+            return store.setItem(MostRecentOut, itemKey, false)
               .then(function() {
                 return saveData;
               });

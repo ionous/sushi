@@ -76,7 +76,7 @@ angular.module('demo')
       LayerData.prototype.getGrid = function() {
         return this.data.grid;
       };
-      LayerData.prototype.getMapImage = function() {
+      LayerData.prototype.getImage = function() {
         var img = this.data.image;
         return img && img.source;
       };
