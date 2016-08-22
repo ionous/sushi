@@ -65,6 +65,11 @@ angular.module('demo')
           hidden += hide ? 1 : -1;
           var nowHidden = this.hidden();
           if (wasHidden != nowHidden) {
+            if (nowHidden) {
+              if (displaySlot) {
+                displaySlot.scope.tooltip = false;
+              }
+            }
             // patch:
             // we can get a hide after the cursor has been destroyed
             // ( ex. map change )
