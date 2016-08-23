@@ -1,5 +1,7 @@
 /**
  * fix: this is just data storage, ng. we should be calling whichever functions are reading directly, passing the data that we need.
+ * partially, this is because combiner isnt a state in field play:
+ * we should pause field play while collecting, and then go from there.
  */
 angular.module('demo')
 
