@@ -359,7 +359,7 @@ the real borders expand outside the measured ga-main-fg 100% height */
   height: 145px;
   margin: 0 auto;
   margin-top: 15px;
-  background-image: url("/bin/images/alice.png");
+  background-image: url("/bin/images/alice-down.png");
   background-repeat: no-repeat;
   background-size: contain;
   background-position: 0 0px;
@@ -778,8 +778,8 @@ div.ga-left {
   right: 0;
 }
 
-.ga-left .btn {
-  margin-right: -10px;
+.ga-return-active .whereabouts {
+  margin-left: 0;
 }
 
 .whereabouts {
@@ -794,6 +794,8 @@ div.ga-left {
   vertical-align: top;
   display: inline-block;
   white-space: pre-line;
+  cursor: default;
+  pointer-events: none;
 }
 
 
