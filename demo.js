@@ -18,6 +18,6 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'],
   .constant("Physics", true)
   .constant("Talk", true)
   .constant("Popups", true)
-  .constant("GameServerUrl", "http://localhost:8080/game") // gopherjs, http://localhost:8080/game
+  .constant("GameServerUrl", "gopherjs") // http://localhost:8080/game
   .constant("RequireSave", true)
   .constant("SaveProgress", true);
