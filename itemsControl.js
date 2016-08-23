@@ -83,13 +83,15 @@ angular.module('demo')
 
       $scope.$watch([name, "active"].join("."), function(newValue) {
         var slide = slides[newValue];
-        slide.activated().then(function(actions) {
-          if (scope.active == newValue) {
-            scope.actions = actions;
-          }
-        });
-        playerItems.setCurrent(slide.item);
-        scope.name = slide.item.printedName();
+        if (slide) {
+          slide.activated().then(function(actions) {
+            if (scope.active == newValue) {
+              scope.actions = actions;
+            }
+          });
+          playerItems.setCurrent(slide.item);
+          scope.name = slide.item.printedName();
+        }
       });
       return scope;
     };

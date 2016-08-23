@@ -1,5 +1,5 @@
 /** 
- * action bar template helper, for arranging action icons in a circle
+ * action bar template helper, to hide mouse when hovering over buttons.
  */
 angular.module('demo')
 

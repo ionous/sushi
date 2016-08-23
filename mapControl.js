@@ -190,12 +190,8 @@ angular.module('demo')
           return changeMap(currLoc.nextItem(item));
         },
       };
-      this.changeMap = scope.changeMap;
-      this.changeView = scope.changeView;
-      this.changeItem = scope.changeItem;
-      this.changeRoom = scope.changeRoom;
-      this.currentMap = function() {
-        return currentMap;
+      this.getMap= function() {
+        return scope;
       };
       return scope;
     };

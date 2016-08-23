@@ -1,17 +1,46 @@
 angular.module('demo')
 
 .directiveAs("playerControl", ["^gameControl", "^^hsmMachine", "^positionControl"],
-  function(CharaService, LocationService, ObjectDisplayService,
+  function(EntityService, CharaService, LocationService, ObjectDisplayService,
     $q, $log) {
     'use strict';
     'ngInject';
+    var PLAYER = "player";
+
+    // dynamic hit box
+    var PlayerHitShape = function(obj, chara, xform) {
+      this.name = PLAYER;
+      var size = pt(chara.tilesize);
+      // *yuck*
+      //  var hitSubject = hitShape && hitShape.group.subject;
+      // maybe it would be better for hit test to return subject?
+      this.group = {
+        subject: {
+          object: obj,
+          path: PLAYER,
+        }
+      };
+      var me= this;
+      this.hitTest = function(p) {
+        var min = xform.getPos();
+        var max = pt_add(min, size);
+        var hit = (p.x >= min.x) && (p.y >= min.y) && (p.x < max.x) && (p.y < max.y);
+        return hit && me;
+      };
+    };
+
     // an animated character control
-    var Player = function(chara, xform, usez) {
+    var Player = function(obj, chara, xform, groups, usez) {
       var corner = xform.getPos();
       chara.setCorner(corner, !!usez);
       chara.setAngle(xform.getAngle(), true);
       chara.draw(0, true);
 
+      var hit = new PlayerHitShape(obj, chara, xform);
+      groups.children.unshift(hit);
+      this.destroy = function() {
+        groups.remove(hit);
+      };
       this.getCenter = function() {
         return pt_add(xform.getPos(), chara.centerOfs);
       };
@@ -56,7 +85,10 @@ angular.module('demo')
           memorizeOnExit.memorize();
           memorizeOnExit = null;
         }
-        currPlayer = null;
+        if (currPlayer) {
+          currPlayer.destroy();
+          currPlayer = null;
+        }
         lastImage = null;
       };
       var lastImage, lastSize;
@@ -71,10 +103,12 @@ angular.module('demo')
         if (!size) {
           throw new Error("invalid player size");
         }
-        var display = ObjectDisplayService.getDisplay("player");
+        var display = ObjectDisplayService.getDisplay(PLAYER);
         if (!display) {
           throw new Error("missing player display");
         }
+        var obj = EntityService.getById(PLAYER);
+        
         // based on the image path from tiled, determine if its animatable.
         var re = /alice(?:-(\w+))?.png/g;
         var angle = CharaService.imageAngle(display.image, re);
@@ -91,8 +125,10 @@ angular.module('demo')
           if (xform.fromMemory() && prevLoc.room && !prevLoc.item) {
             xform.spin(180);
           }
-          var physics= !!map.get("physics");
-          ret = new Player(chara, xform, physics);
+          var groups = map.get('hitGroups');
+          var physics = !!map.get("physics");
+          ret = new Player(obj, chara, xform, groups, physics);
+          //
           memorizeOnExit = physics ? xform : null;
         }
         return ret;

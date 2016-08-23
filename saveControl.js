@@ -47,8 +47,8 @@ angular.module('demo')
 
         var date = new Date();
         var order = date.getTime();
-        var map = mapControl.currentMap();
-        var mapName = map.mapName;
+        var map = mapControl.getMap();
+        var mapName = map.get("mapName");
         //
         var saveData = clientDataControl.createSnapshot(serverSlot, {
           ikey: order,
@@ -58,7 +58,7 @@ angular.module('demo')
           version: SaveVersion,
           frame: EventStreamService.currentFrame(),
           // via map.get("location") instead?
-          location: map.where,
+          location: map.currLoc(),
           history: history
             // [screenshot]
             // current inventory item

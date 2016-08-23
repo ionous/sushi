@@ -11,10 +11,10 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'],
 })
   .constant("GameVersion", "0")
   .constant("SaveVersion", "01")
-  .constant("AutoStart", "Begin") // Menu,Begin,Resume
+  .constant("AutoStart", "Menu") // Menu,Begin,Resume
   .constant("MostRecentIn", "mostRecent") // false, "save-newbug"
   .constant("MostRecentOut", "mostRecent") // false, "save-newbug"
-  .constant("ShowHsm", true) // state chart
+  .constant("ShowHsm", false) // state chart
   .constant("Physics", true)
   .constant("Talk", true)
   .constant("Popups", true)

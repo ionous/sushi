@@ -18,10 +18,10 @@ angular.module('demo')
         run: function(actionEvent) {
           var prop = actionEvent.pobj;
           if (prop) {
-            mapControl.changeItem(prop.id);
+            mapControl.getMap().changeItem(prop.id);
             // convert search into examine --
             // could, but i dont think its necessary.
-            // var changedLoc = mapControl.changeItem(prop.id);
+            // var changedLoc = mapControl.getMap().changeItem(prop.id);
             // return changedLoc.then(function() {
             //   var gotAction = ActionService.getAction("examine-it");
             //   return gotAction.then(function(act) {

@@ -22,7 +22,7 @@ angular.module('demo')
           var allows = false;
           var wantNouns = (context == "player") ? 0 : 1;
           if (wantNouns == actionInfo.nounCount) {
-            if (classInfo.contains(actionInfo.tgt)) {
+            if (!wantNouns || classInfo.contains(actionInfo.tgt)) {
               var icon = IconService.getIcon(actionInfo.id);
               allows = icon.allows(obj, context);
             }

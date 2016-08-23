@@ -152,6 +152,7 @@ angular.module('demo')
 
         new Icon("$zoom", "search-plus"),
         new Icon("$use", "mouse-pointer"),
+        new Icon("$combine", "plus-circle"), // magic?
 
         // new Icon("look under it", "level-down")
         // .exclude("worn", "carried"),
@@ -183,7 +184,10 @@ angular.module('demo')
         new Icon("listen", listen),
         new Icon("smell", smell),
         new Icon("jump", "chevron-up"),
+        // hide actions:
         new Icon("report inventory", null),
+        new Icon("save-via-input", null),
+        new Icon("autosave-via-input", null),
         // debugging actions
         new Icon("debug direct parent", null),
         new Icon("debug room contents", null),

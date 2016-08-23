@@ -9,19 +9,19 @@ angular.module('demo')
       // });
       var itemService = {
         defaultImage: "/bin/images/gift-small.png",
-        getItemImage: function(name) {
+        getItemImage: function(id) {
           return promisedList.then(function(resp) {
             var ret;
             var itemList = resp.data;
             if (itemList) {
-              var item = itemList[name];
+              var item = itemList[id];
               if (item) {
                 var img = item.image;
                 if (img) {
                   var src = img.source;
                   if (src) {
                     ret = "/bin/" + src;
-                    //$log.info("ItemService:", name, "received", ret);
+                    //$log.info("ItemService:", id, "received", ret);
                   }
                 }
               }

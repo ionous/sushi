@@ -1,4 +1,5 @@
 /**
+ * fix: this is just data storage, ng. we should be calling whichever functions are reading directly, passing the data that we need.
  */
 angular.module('demo')
 
@@ -7,39 +8,24 @@ angular.module('demo')
     'use strict';
     'ngInject';
     this.init = function(name, hsmMachine) {
-      var source = null;
-      this.item = function() {
-        return source;
-      };
+      var item, context;
       var scope = {
         item: function() {
-          return source;
+          return item;
         },
         combining: function() {
-          return !!source;
+          return !!item;
         },
         reset: function() {
-          if (source) {
-            $log.info("combinerControl", name, "reset", source.toString());
-            hsmMachine.emit(name, "reset", {
-              item: source,
-            });
-            source = null;
-          }
+          item = null;
         },
-        startCombining: function(item) {
-          if (!item) {
-            var msg = "startCombining, item is null";
-            $log.error("combinerControl", name, msg);
-            throw new Error(msg);
-          }
-          source = item;
-          $log.info("combinerControl", name, "combining", source.toString());
-          hsmMachine.emit(name, "start", {
-            item: source,
-          });
+        startCombining: function(item_) {
+          item = item_;
         },
       }; // scope
+      this.getCombine = function() {
+        return scope;
+      };
       return scope;
     }; // init
   });

@@ -20,7 +20,15 @@ angular.module('demo')
         open: function(playerItems, combining, itemActions) {
           var game = gameControl.getGame();
 
-          $log.info("inventoryControl", name, "opening", combining ? "combining" : "not combining", itemActions ? "have actions" : "no actions");
+          var haveActions = itemActions && itemActions.length;
+          $log.info("inventoryControl", name, "opening", combining ? "combining" : "not combining", haveActions ? "have actions" : "no actions");
+
+          if (combining && !haveActions) {
+            hsmMachine.emit(name, "hack", {
+              msg: ["I don't have anything to combine with that."], 
+            });
+            return;
+          }
 
           var mdl = modalControl.open(invWin, {
             playerItems: function() {

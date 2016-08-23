@@ -8,10 +8,10 @@
       <hsm-state mouse-control="mouse" hsm-enter="mouse.bindTo('gameMap', 'mouseDisplay')" hsm-exit="mouse.destroy()">
         <hsm-state return-to-room-control="roomReturn" hsm-enter="roomReturn.bindTo(map, 'clickReturn')" hsm-exit="roomReturn.release()">
           <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
-            <hsm-state action-bar-control="actionBar" hsm-enter="actionBar.bindTo(game.getGame(), 'gameMap')">
+            <hsm-state action-bar-control="actionBar" combiner-control="combiner" hsm-enter="actionBar.bindTo(game.getGame(), 'gameMap')">
               <hsm-state button-control="settingsButton" hsm-enter="settingsButton.bind(true)" hsm-exit="settingsButton.bind(false)">
                 <hsm-state hsm-enter="status.set(map.get('mapName'))">
-                  <hsm-state name="PlayingParallel" parallel="true" combiner-control="combiner" turn-control="turn">
+                  <hsm-state name="PlayingParallel" parallel="true" turn-control="turn">
                     <ng-include src="'console.html'"></ng-include>
                     <ng-include src="'inventory.html'"></ng-include>
                     <!-- we run one of physics or not-physics -->

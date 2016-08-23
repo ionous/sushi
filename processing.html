@@ -21,6 +21,7 @@
       <hsm-state talk-control="speaker" hsm-exit="speaker.cleanup('exit')">
         <hsm-state>
           <hsm-event on="speech" goto="Speaking" run="speaker.say($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
+          <hsm-event on="invWin-hack" goto="Speaking" run="speaker.say('player', $evt.msg)"></hsm-event>
         </hsm-state>
         <hsm-state name="Speaking">
           <hsm-event on="talk-dismiss" when="!speaker.finished()" goto="" run="speaker.next()"></hsm-event>

@@ -4,7 +4,7 @@
       <hsm-state mouse-target="mouseTarget" hsm-enter="mouseTarget.bind(map, avatar)" hsm-exit="mouseTarget.release()" hsm-init="modal.showing() && 'PhysicsModal'">
         <hsm-state name="PhysicsUpdating">
           <hsm-event on="player-interact" when="!avatar.touches($evt.target)" goto="Planning"></hsm-event>
-          <hsm-event on="player-interact" run="actionBar.open($evt.target, combiner.item())"></hsm-event>
+          <hsm-event on="player-interact" run="actionBar.open($evt.target)"></hsm-event>
           <hsm-event on="keys" when="$evt.moveKey(true)" goto="KeyWalking"></hsm-event>
           <!-- disabled the keyboard action key. need a real location for every target to center the menu. -->
           <hsm-event on="update-game" run="mouseTarget.update(mouse.pos())"></hsm-event>

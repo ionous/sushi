@@ -24,10 +24,12 @@ angular.module('demo')
               hsmMachine.emit(name, "clicked", {});
             };
           }
+          return scope;
         },
         enable: function(yes) {
           var enable = angular.isUndefined(yes) || yes;
           scope.addClass('disabled', !enable);
+          return scope;
         },
         pulse: function(yes) {
           var pulse = angular.isUndefined(yes) || yes;

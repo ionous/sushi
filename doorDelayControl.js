@@ -7,7 +7,7 @@ angular.module('demo')
     this.init = function(name, hsmMachine, mapControl) {
       return {
         changeRoom: function(dest, delay) {
-          return mapControl.changeRoom(dest).then(function() {
+          return mapControl.getMap().changeRoom(dest).then(function() {
             return $timeout(delay);
           });
         },

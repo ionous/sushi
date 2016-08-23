@@ -1,5 +1,8 @@
 <div class="ga-picker" items-control="items" uib-collapse="!items.visible" expanded="items.expanded()" collapsing="items.collapsing()">
-  <div class="modal-body ga-carousel">
+  <div ng-if="!items.slides.length" class="ga-picker-empty ga-noselect">
+    Your inventory is empty.
+  </div>
+  <div class="modal-body ga-carousel" ng-if="items.slides.length">
     <uib-carousel active="items.active">
       <uib-slide ng-repeat="slide in items.slides track by slide.idx" index="slide.idx">
         <div class="ga-slide ga-noselect">
@@ -17,7 +20,9 @@
   <div class="ga-invbar" ng-if="items.actions" ng-show="items.barVisible">
     <a ng-repeat="act in items.actions track by act.id" class="btn btn-primary" uib-tooltip="{{act.name}}" ng-click="items.clicked(act)" tooltip-placement="bottom" tooltip-class="ga-xtip">
       <i ng-class="act.iconClass"></i>
-    </a><!--no space between tags--><a ng-if="!!items.combine" class="btn btn-primary" uib-tooltip="Use Item" ng-click="items.clicked()" tooltip-placement="bottom" tooltip-class="ga-xtip">
+    </a>
+    <!--no space between tags-->
+    <a ng-if="!!items.combine" class="btn btn-primary" uib-tooltip="Use Item" ng-click="items.clicked()" tooltip-placement="bottom" tooltip-class="ga-xtip">
       <i ng-class="items.combine.iconClass"></i>
     </a>
   </div>

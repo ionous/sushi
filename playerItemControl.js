@@ -2,48 +2,54 @@
  */
 angular.module('demo')
 
-.directiveAs("playerItemControl", ["^hsmMachine", "^playerControl", "^gameControl"],
+.directiveAs("playerItemControl", ["^clientDataControl", "^hsmMachine", "^playerControl", "^gameControl"],
   function(ActionListService, EntityService, $log, $q) {
     'use strict';
     'ngInject';
-    this.init = function(name, hsmMachine, playerControl, gameControl) {
-      var Record = function(item, context) {
-        this.id = item.id;
-        this.type = item.type;
-        this.printedName = function() {
-          return item.printedName();
-        };
-        this.context = context;
+    //
+    var ItemRecord = function(item, context) {
+      this.id = item.id;
+      this.type = item.type;
+      this.printedName = function() {
+        return item.printedName();
       };
-      var propContext = function(property) {
-        var context;
-        switch (property) {
-          case "clothing":
-            context = "worn";
-            break;
-          case "inventory":
-            context = "carried";
-            break;
-          default:
-            var msg = "unknown property";
-            $log.error(msg, property);
-            throw new Error(msg);
-        }
-        return context;
-      };
-
+      this.context = context;
+      this.entity = item;
+    };
+    var propContext = function(property) {
+      var context;
+      switch (property) {
+        case "clothing":
+          context = "worn";
+          break;
+        case "inventory":
+          context = "carried";
+          break;
+        default:
+          throw new Error(["unknown property", property].join(" "));
+      }
+      return context;
+    };
+    //
+    this.init = function(name, clientDataControl, hsmMachine, playerControl, gameControl) {
       var items, count, currentId;
-
+      var clientData = clientDataControl.getClientData();
       var playerItems = {
-        // build the initial list of server items
-        collect: function() {
+        destroy: function() {
           items = {};
           count = 0;
+          clientData.clear("recentItem");
+        },
+        // build the initial list of server items
+        create: function() {
+          items = {};
+          count = 0;
+          var lastItemId;
           var record = function(list, context) {
             for (var id in list) {
               var item = EntityService.getById(id);
-              var rec = items[id] = new Record(item, context);
-              currentId = id;
+              var rec = items[id] = new ItemRecord(item, context);
+              lastItemId = id;
               ++count;
             }
           };
@@ -51,7 +57,15 @@ angular.module('demo')
           // the prop lists record presence true/false
           record(p.clothing, propContext("clothing"));
           record(p.inventory, propContext("inventory"));
-          $log.info("playerItemControl: collected", count, "items");
+          $log.info("playerItemControl", name, "collected", count, "items");
+          //
+          var recentItem = clientData.exchange("recentItem", function() {
+            return currentId;
+          });
+          var restoreItem = items[recentItem];
+          // current id is set during record
+          currentId = restoreItem ? restoreItem.id : lastItemId;
+          $log.info("playerItemControl", name, "restored", !!restoreItem, currentId);
         },
         hasItem: function(item) {
           return !!items[item.id];
@@ -68,7 +82,7 @@ angular.module('demo')
           var had = playerItems.hasItem(item);
           // $log.info("playerItemControl", name, "addItem", item, had);
           // record to update context
-          items[item.id] = new Record(item, propContext(prop));
+          items[item.id] = new ItemRecord(item, propContext(prop));
           // update changes:
           if (!had) {
             currentId = item.id;
@@ -95,6 +109,12 @@ angular.module('demo')
         },
         setCurrent: function(item) {
           currentId = item && item.id;
+          hsmMachine.emit(name, "selected", {
+            id: currentId
+          });
+        },
+        getCurrent: function() {
+          return count && items[currentId];
         },
         getCombinations: function(item) {
           var waits = [];
@@ -118,6 +138,10 @@ angular.module('demo')
             return itemActions;
           });
         },
+      };
+
+      this.playerItems = function() {
+        return playerItems;
       };
       return playerItems;
     };

@@ -60,7 +60,7 @@ h4 {
   /*cursor: default;*/
 }
 
-.ga-inactive .ga-canvas {
+.ga-inactive main {
   -webkit-filter: blur(1.5px);
 }
 
@@ -80,10 +80,6 @@ main {
   height: 32px;
   background-color: #7a7c7c;
   -webkit-app-region: drag;
-}
-
-body.ga-inactive {
-  filter: blur(5px);
 }
 
 body.ga-active div.titlebar {
@@ -175,7 +171,6 @@ its actually nice to see some change in the cursor i think*/
 
 .ga-cursor {
   position: absolute;
-  /*z-index: 1000;*/
   color: lightsteelblue;
   pointer-events: none;
   text-shadow: 1px 0px #2e6da4, -1px 0px #2e6da4, 0px 1px #2e6da4, 0px -1px #2e6da4, 1px 1px 2px black;
@@ -720,13 +715,50 @@ button bar
   margin: 0.2em 0.3em;
   border-radius: 50% !important;
   outline: none !important;
-  max-width: 50px;
-  max-height: 50px;
+  width: 50px;
+  height: 50px;
+  /*display: inline-block;*/
 }
+
+.ga-recent-item {
+  position: relative;
+}
+
+.ga-recent-item img {
+  max-width: 36px;
+  max-height: 36px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+/*
+.ga-buttonbar a.btn:after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0.3));
+  border-radius: 50% !important;
+}*/
 
 .ga-buttonbar .btn {
   border-color: white;
   border-width: 2px;
+}
+
+i.fa-suitcase {
+  margin-left: -1.5px;
+}
+
+i.fa-gear {
+  margin-left: -0.5px;
+  margin-top: 3px;
 }
 
 div.ga-xtip > div.tooltip-inner {
@@ -739,16 +771,10 @@ div.ga-left {
   left: 0;
   top: 0;
   width: 50%;
-  z-index: 1000;
-}
-
-div.ga-left > span {
-  /*margin-right: -20px;*/
 }
 
 .ga-right {
   position: absolute;
-  z-index: 1000;
   right: 0;
 }
 
@@ -800,6 +826,20 @@ div.ga-picker {
   width: 480px;
   border-bottom-right-radius: 20px;
   border-bottom-left-radius: 20px;
+  border-width: 2px;
+  border-color: white;
+  border-style: solid;
+}
+
+div.ga-picker .ga-picker-empty {
+  cursor: pointer;
+  width: 100%;
+  height: 160px;
+  padding-top: 70px;
+  text-align: center;
+  color: white;
+  font-size: larger;
+  color: white;
 }
 
 .carousel-control {
