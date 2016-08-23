@@ -9,7 +9,7 @@ angular.module('demo')
     var reflectList = "mouseenter mouseleave mousemove mousedown mouseup";
     var ctrl = this;
     this.init = function(name, hsmMachine) {
-      var cursor, focusEl, displaySlot, hidden = 0;
+      var cursor, focusEl, displaySlot, tooltip, hidden = 0;
       var aliases = {};
       // exposed to scope
       var Mouse = function() {
@@ -49,6 +49,10 @@ angular.module('demo')
           focusEl.on(reflectList, reflect);
         };
         this.destroy = function() {
+          if (displaySlot) {
+            displaySlot.scope.tooltip = false;
+            tooltip = false;
+          }
           if (focusEl) {
             focusEl.off(reflectList, reflect);
             focusEl = null;
@@ -65,9 +69,11 @@ angular.module('demo')
           hidden += hide ? 1 : -1;
           var nowHidden = this.hidden();
           if (wasHidden != nowHidden) {
-            if (nowHidden) {
-              if (displaySlot) {
+            if (displaySlot) {
+              if (nowHidden) {
                 displaySlot.scope.tooltip = false;
+              } else {
+                displaySlot.scope.tooltip = tooltip;
               }
             }
             // patch:
@@ -131,7 +137,10 @@ angular.module('demo')
             }
           }
           //
-          displaySlot.scope.tooltip = tip;
+          tooltip = tip;
+          if (!this.hidden()) {
+            displaySlot.scope.tooltip = tip;
+          }
           this.show(sym);
         };
         this.show = function(yes) {

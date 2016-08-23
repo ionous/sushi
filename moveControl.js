@@ -146,7 +146,7 @@ angular.module('demo')
           arrival.setDest(dest);
         },
         adjustFacing: function() {
-          $log.info("attempting to face target", target);
+          $log.info("attempting to face target", target && target.toString());
           if (target) {
             mover.faceTarget(target);
           }
