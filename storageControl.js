@@ -64,7 +64,7 @@ angular.module('demo')
             if (!err) {
               defer.resolve(v);
             } else {
-              $log.error("chrome getItem", err);
+              $log.warn("chrome getItem", err);
               defer.reject(err);
             }
           });
