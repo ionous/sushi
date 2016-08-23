@@ -4,9 +4,12 @@ angular.module('demo')
   function() {
     'use strict';
     'ngInject';
-    this.init = function(name, hsmMachine, modalControl,  changeControl) {
+    this.init = function(name, hsmMachine, modalControl, changeControl) {
       var modal;
       var settings = {
+        hasChanges: function() {
+          return changeControl.worldChange() || changeControl.mapChange();
+        },
         close: function(reason) {
           if (modal) {
             modal.close(reason || "close called");
@@ -20,10 +23,12 @@ angular.module('demo')
               mdl.dismiss(reason);
             },
             hasChanges: function() {
-              return changeControl.worldChange() || changeControl.mapChange();
+              return settings.hasChanges();
             },
             requestSave: function() {
-              hsmMachine.emit(name, "save", {});
+              hsmMachine.emit(name, "save", {
+                hasChanges: settings.hasChanges(),
+              });
             },
             requestQuit: function() {
               hsmMachine.emit(name, "exit", {});
