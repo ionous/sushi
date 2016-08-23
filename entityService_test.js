@@ -39,9 +39,9 @@ describe("EntityService", function() {
 
   // disabled for now: see EntityService comments
   // it('wants two creates to fail.', function() {
-  //   var obj = EntityService.getRef(data).create(0, data);
+  //   var obj = EntityService.getRef(data).createEntity(0, data);
   //   expect(function() {
-  //     obj.create(0, data);
+  //     obj.createEntity(0, data);
   //   }).toThrow();
   // });
 
@@ -52,7 +52,7 @@ describe("EntityService", function() {
     }));
 
     it('should process some state changes', function() {
-      var obj = EntityService.getRef(data).create(0, data);
+      var obj = EntityService.getRef(data).createEntity(0, data);
       expect(obj.states).not.toContain("visited");
       EventService.raise("lab", "x-set", {
         'prop': "visited-property",

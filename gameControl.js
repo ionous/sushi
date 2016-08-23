@@ -101,7 +101,7 @@ angular.module('demo')
           var frame = doc.meta.frame;
           // create any associated objects
           doc.includes.map(function(obj) {
-            return EntityService.getRef(obj).create(frame, obj);
+            return EntityService.getRef(obj).createEntity(frame, obj);
           });
           // retrieve all the objects listed in the relation
           var objs = doc.data.map(function(ref) {

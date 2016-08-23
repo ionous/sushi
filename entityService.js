@@ -123,7 +123,7 @@ angular.module('demo')
           throw new Error("frame is not a number");
         }
         if (!this.created()) {
-          this.create(frame, data);
+          this.createEntity(frame, data);
         } else {
           this.updateData(frame, data);
         }
@@ -163,14 +163,12 @@ angular.module('demo')
        * @param {Object} data - jsonapi-ish data.
        * @returns {Entity} - itself.
        */
-      Entity.prototype.create = function(frame, data) {
+      Entity.prototype.createEntity = function(frame, data) {
         if (!angular.isNumber(frame)) {
           throw new Error("EntityService: frame is not a number");
         }
         if (this.created()) {
-          // throw new Error("multiple creates received for:" + this.id);
-          $log.error("EntityService: multiple creates received for:", this.id);
-          return;
+          throw new Error("multiple creates received for:" + this.id);
         }
 
         // setup data
@@ -207,7 +205,13 @@ angular.module('demo')
         });
         // finalize create
         this.frame = frame || 0;
-
+        return this._postCreate();
+      };
+      // when there is a bad relation -- lab coat supported by the coat rack, and owned by the player -- 
+      // then you might can about the item before its owner. if this cropped up in other situtations,
+      // we might, for instance, in gameControl getObjects delay postCreate till after creating all objects.
+      // for now, though: we implictly call postCreate and have this comment for posterity.
+      Entity.prototype._postCreate = function() {
         // tell parent about us.
         for (var k in containment) {
           var c = containment[k];
@@ -217,7 +221,7 @@ angular.module('demo')
           if (par) {
             var newParent = entityService.getById(par);
             if (!newParent) {
-              $log.error("EntityService:", this.id, "couldnt find parent", par);
+              throw new Error(["EntityService:", this.id, "couldnt find parent", par].join(" "));
             } else {
               newParent.addChild(this, shortName);
             }
