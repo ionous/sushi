@@ -1,10 +1,10 @@
 <!-- playing is re-entered everytime we load a map; most of its elements need to bind to the elements in a map. -->
 <hsm-state name="Playing" player-control="player" hsm-enter="player.create(map, '/bin/images/princess.png', 64)" hsm-exit="player.destroy()">
-  <hsm-state>
-    <hsm-event on="player-created" goto="PlayingParallel"></hsm-event>
+  <hsm-state>    
+    <hsm-event on="player-created" goto="PlayingStart"></hsm-event>
   </hsm-state>
-  <hsm-state visibility-control="showMap" hsm-enter="showMap.show('gameMap')" hsm-exit="showMap.show(false)">
-    <hsm-state visibility-control="showBar" hsm-enter="showBar.show('buttonBar')" hsm-exit="showBar.show(false)">
+  <hsm-state name="PlayingStart" visibility-control="mapvis" hsm-enter="mapvis.show('gameMap')" hsm-exit="mapvis.show(false)">
+    <hsm-state visibility-control="barvis" hsm-enter="barvis.show('buttonBar')" hsm-exit="barvis.show(false)">
       <hsm-state mouse-control="mouse" hsm-enter="mouse.bindTo('gameMap', 'mouseDisplay')" hsm-exit="mouse.destroy()">
         <hsm-state return-to-room-control="roomReturn" hsm-enter="roomReturn.bindTo(map, 'clickReturn')" hsm-exit="roomReturn.release()">
           <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">

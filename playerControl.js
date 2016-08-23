@@ -10,7 +10,10 @@ angular.module('demo')
     // dynamic hit box
     var PlayerHitShape = function(obj, chara, xform) {
       this.name = PLAYER;
-      var size = pt(chara.tilesize);
+      var xw = 16;
+      var yd = 30;
+      var ofs = pt(xw, yd);
+      var size = pt(chara.tilesize - 2 * xw, chara.tilesize - yd);
       // *yuck*
       //  var hitSubject = hitShape && hitShape.group.subject;
       // maybe it would be better for hit test to return subject?
@@ -20,9 +23,9 @@ angular.module('demo')
           path: PLAYER,
         }
       };
-      var me= this;
+      var me = this;
       this.hitTest = function(p) {
-        var min = xform.getPos();
+        var min = pt_add(ofs, xform.getPos());
         var max = pt_add(min, size);
         var hit = (p.x >= min.x) && (p.y >= min.y) && (p.x < max.x) && (p.y < max.y);
         return hit && me;
@@ -108,7 +111,7 @@ angular.module('demo')
           throw new Error("missing player display");
         }
         var obj = EntityService.getById(PLAYER);
-        
+
         // based on the image path from tiled, determine if its animatable.
         var re = /alice(?:-(\w+))?.png/g;
         var angle = CharaService.imageAngle(display.image, re);
@@ -143,17 +146,20 @@ angular.module('demo')
       return {
         // raises -creating, -created
         create: function(map, imagePath, size) {
-          destroy("creating player");
-          // uses a separate deferred to reject on destroy.
-          pending = $q.defer();
-          CharaService.loadImage(imagePath).then(pending.resolve, pending.reject);
-          pending.promise.then(function(img) {
-            pending = null;
-            currPlayer = createNow(map, img, size);
-            hsmMachine.emit(name, "created", {
-              player: currPlayer, // can be null
+          if (currPlayer) {
+            $log.warn("playerControl", name, "player already created");
+          } else {
+            // uses a separate deferred to reject on destroy.
+            pending = $q.defer();
+            CharaService.loadImage(imagePath).then(pending.resolve, pending.reject);
+            pending.promise.then(function(img) {
+              pending = null;
+              currPlayer = createNow(map, img, size);
+              hsmMachine.emit(name, "created", {
+                player: currPlayer, // can be null
+              });
             });
-          });
+          }
         }, // create
         destroy: destroy,
         update: function(dt) {

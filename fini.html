@@ -3,7 +3,7 @@
     <hsm-state>
       <hsm-event on="player-created" goto="Finishing"></hsm-event>
     </hsm-state>
-    <hsm-state name="Finishing" visibility-control="showMap" hsm-enter="showMap.show('gameMap')" hsm-exit="showMap.show(false)">
+    <hsm-state name="Finishing" visibility-control="mapvis" hsm-enter="mapvis.show('gameMap')" hsm-exit="mapvis.show(false)">
       <hsm-event on="stream-empty" run="fini.showExitPanel()"></hsm-event>
       <hsm-event on="fini-exit" goto="Menus"></hsm-event>
     </hsm-state>

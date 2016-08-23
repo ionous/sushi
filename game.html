@@ -1,5 +1,5 @@
 <hsm-state name="Game" hsm-exit="game.destroy()">
-  <hsm-state visibility-control="gameWin" hsm-enter="gameWin.show('gameWindow')" hsm-exit="gameWin.show(false)">
+  <hsm-state visibility-control="gamevis" hsm-enter="gamevis.show('gameWindow')" hsm-exit="gamevis.show(false)">
     <hsm-state status-control="status" hsm-enter="status.bindTo('buttonBar')">
       <hsm-state key-control="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
         <hsm-state map-control="map" hsm-enter="map.bindTo('gameMap')" hsm-exit="map.destroy()">
@@ -23,9 +23,16 @@
                       </hsm-state>
                       <!-- handle server event processing, raises -processing and -empty;
                       fix? this should probably be more exclusive with playing. -->
-                      <hsm-state hsm-enter="stream.process()" hsm-exit="stream.process(false)">
-                        <hsm-event on="game-posting" run="stream.processing(true)"></hsm-event>
-                        <ng-include src="'processing.html'"></ng-include>
+                      <hsm-state>
+                        <!-- before starting the stream, make sure we have our player;
+                        this is handled by the sibling playing state -->
+                        <hsm-state>
+                          <hsm-event on="player-created" goto="ProcessStart"></hsm-event>
+                        </hsm-state>
+                        <hsm-state name="ProcessStart" hsm-enter="stream.process()" hsm-exit="stream.process(false)">
+                          <hsm-event on="game-posting" run="stream.processing(true)"></hsm-event>
+                          <ng-include src="'processing.html'"></ng-include>
+                        </hsm-state>
                       </hsm-state>
                       <!-- loading and playing the game -->
                       <hsm-state hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
