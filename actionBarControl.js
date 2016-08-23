@@ -77,7 +77,7 @@ angular.module('demo')
             actions = itemActions.actions.slice();
           }
           if (view) {
-            actions.push(zoomView);
+            actions.push(zoomAction);
           }
           if (selfCombine) {
             actions.push(combineAction);
@@ -126,7 +126,7 @@ angular.module('demo')
               if (!act.sysAction) {
                 act.emitAction(obj, combineItem);
               } else {
-                $log.info("actionBarControl", name, "zoom", view);
+                $log.info("actionBarControl", name, act.id, view);
                 hsmMachine.emit(name, act.id, {
                   view: view,
                 });
