@@ -49,12 +49,12 @@ angular.module('demo')
             };
           }
           // derive user friendly map name
-          var friendlyName = map.properties.name;
-          if (!friendlyName && !nextLoc.view && !nextLoc.item) {
-            friendlyName = room.printedName();
+          var desc = map.properties.name;
+          if (!desc && !nextLoc.view && !nextLoc.item) {
+            desc = room.printedName();
           }
-          if (!friendlyName) {
-            friendlyName = mapName;
+          if (!desc) {
+            desc = mapName;
           }
 
           // tree contains: el, bounds, nodes
@@ -62,7 +62,7 @@ angular.module('demo')
           return LayerService.createLayers(game, mapEl, map, enclosure, allPads).then(function(tree) {
             var collide = collectCollision(map);
             return {
-              mapName: friendlyName,
+              desc: desc,
               where: nextLoc,
               tree: tree,
               bounds: tree.bounds,
@@ -106,8 +106,9 @@ angular.module('demo')
           throw new Error("already loading");
         }
         if (currentMap && !nextLoc.changes(currLoc)) {
-          ret = $q.when(where).then(function() {
-            hsmMachine.emit("name", "unchanged", currentMap);
+          ret = $q.when(currentMap).then(function(map) {
+            hsmMachine.emit("name", "unchanged", map);
+            return map;
           });
         } else {
           destroyMap();
@@ -138,7 +139,7 @@ angular.module('demo')
             };
 
             // show the map
-            $log.info("mapControl", name, "loaded", map.mapName);
+            $log.info("mapControl", name, "loaded", currLoc.mapName());
             hsmMachine.emit(name, "loaded", map);
             return map;
           }, function(reason) {
@@ -165,6 +166,7 @@ angular.module('demo')
           mapSlotName = "";
           destroyMap();
           prevLoc = null;
+          currLoc = null;
         },
         show: function() {},
         loaded: function() {
@@ -190,7 +192,7 @@ angular.module('demo')
           return changeMap(currLoc.nextItem(item));
         },
       };
-      this.getMap= function() {
+      this.getMap = function() {
         return scope;
       };
       return scope;

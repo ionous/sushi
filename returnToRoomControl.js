@@ -30,7 +30,7 @@ angular.module('demo')
           release();
           var slot = ElementSlotService.get(slotName);
           var loc = map.currLoc();
-          var viewing = true; //loc.view || loc.item;
+          var viewing = loc.view || loc.item;
           if (viewing) {
             currMap = map;
             currentScope = slot.scope;

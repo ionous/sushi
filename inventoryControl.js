@@ -31,6 +31,9 @@ angular.module('demo')
           }
 
           var mdl = modalControl.open(invWin, {
+            dismiss: function(reason) {
+              mdl.dismiss(reason);
+            },
             playerItems: function() {
               return playerItems;
             },

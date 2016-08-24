@@ -22,12 +22,12 @@ angular.module('demo')
         });
       };
       var active;
-      this.processing = function(force) {
+      this.startProcessing = function() {
         // hack? to allow our posting of messages to look like processing
-        if (force) {
-          prime();
-        }
-        return processing;
+        prime();
+      };
+      this.processing = function() {
+        return processing || EventStreamService.pendingEvents();
       };
       this.process = function(enable) {
         var enabled = angular.isUndefined(enabled) || enabled;

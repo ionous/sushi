@@ -1,5 +1,5 @@
 <div class="ga-picker" items-control="items" uib-collapse="!items.visible" expanded="items.expanded()" collapsing="items.collapsing()">
-  <div ng-if="!items.slides.length" class="ga-picker-empty ga-noselect">
+  <div ng-if="!items.slides.length" class="ga-picker-empty ga-noselect" ng-click="items.dismiss('clicked')">
     Your inventory is empty.
   </div>
   <div class="modal-body ga-carousel" ng-if="items.slides.length">

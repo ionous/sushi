@@ -63,7 +63,7 @@
           <hsm-state name="WindowCombining">
             <hsm-event on="modal-opened" goto=""></hsm-event>
             <hsm-event on="inv-win-closed" goto="PlayCombining"></hsm-event>
-            <hsm-event on="talk-closed" goto="PlayCombining"></hsm-event>
+            <hsm-event on="talk-closed" goto="PlayNormal"></hsm-event>
           </hsm-state>
           <!-- not currently combining; can start combine -->
           <hsm-state name="WindowSelecting">

@@ -209,7 +209,9 @@ angular.module('demo')
         currentFrame: function() {
           return Event.streamFrame;
         },
-
+        pendingEvents: function() {
+          return !!pending.length;
+        },
         /** 
          * @returns promise of future event handling completion
          */

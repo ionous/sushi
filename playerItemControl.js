@@ -38,7 +38,8 @@ angular.module('demo')
         destroy: function() {
           items = {};
           count = 0;
-          clientData.clear("recentItem");
+          clientData.reset("recentItem", currentId);
+          currentId = false;
         },
         // build the initial list of server items
         create: function() {

@@ -48,12 +48,12 @@ angular.module('demo')
         var date = new Date();
         var order = date.getTime();
         var map = mapControl.getMap();
-        var mapName = map.get("mapName");
+        var desc = map.get("desc");
         //
         var saveData = clientDataControl.createSnapshot(serverSlot, {
           ikey: order,
           slot: serverSlot,
-          where: mapName,
+          where: desc.replace("\\n", " "),
           when: date.toLocaleString(),
           version: SaveVersion,
           frame: EventStreamService.currentFrame(),

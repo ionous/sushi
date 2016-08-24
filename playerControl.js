@@ -32,6 +32,34 @@ angular.module('demo')
       };
     };
 
+    var SimpleShape = function(obj, min, max) {
+      this.name = PLAYER;
+      this.group = {
+        subject: {
+          object: obj,
+          path: PLAYER,
+        }
+      };
+      var me = this;
+      this.hitTest = function(p) {
+        var hit = (p.x >= min.x) && (p.y >= min.y) && (p.x < max.x) && (p.y < max.y);
+        return hit && me;
+      };
+    };
+
+    // an non-animated character control
+    var SimplePlayer = function(obj, display, groups) {
+      var min = display.group.pos;
+      var size = pt(display.canvas.width, display.canvas.height);
+      var max = pt_add(min, size);
+
+      var hit = new SimpleShape(obj, min, max);
+      groups.children.unshift(hit);
+      this.destroy = function() {
+        groups.remove(hit);
+      };
+    };
+
     // an animated character control
     var Player = function(obj, chara, xform, groups, usez) {
       var corner = xform.getPos();
@@ -95,10 +123,10 @@ angular.module('demo')
         lastImage = null;
       };
       var lastImage, lastSize;
-      var createNow = function(map, img, size) {
-        img = img || lastImage;
-        lastImage = img;
-        if (!img) {
+      var createNow = function(map, playerImg, size) {
+        playerImg = playerImg || lastImage;
+        lastImage = playerImg;
+        if (!playerImg) {
           throw new Error("missing player sprite");
         }
         size = size || lastSize;
@@ -113,24 +141,26 @@ angular.module('demo')
         var obj = EntityService.getById(PLAYER);
 
         // based on the image path from tiled, determine if its animatable.
-        var re = /alice(?:-(\w+))?.png/g;
-        var angle = CharaService.imageAngle(display.image, re);
         var ret;
+        var groups = map.get('hitGroups');
+        var physics = map.get("physics");
+        var re = /alice(?:-(\w+))?.png/g;
+        var originalImage = display.image;
+        var angle = CharaService.imageAngle(originalImage, re);
         if (angular.isUndefined(angle)) {
-          $log.warn("no dynamic player image for", display.image);
+          $log.warn("no dynamic player image for", originalImage.src);
+          currPlayer = new SimplePlayer(obj, display, groups);
         } else {
-          var chara = CharaService.newChara(display, img, size);
+          var chara = CharaService.newChara(display, playerImg, size);
           var currLoc = map.currLoc();
           var prevLoc = map.prevLoc();
           var xform = positionControl.newPos(currLoc, display.skin, display.group.pos, angle);
           // spin ourselves around on return
           // (unless we zoomed in on an item)
-          if (xform.fromMemory() && prevLoc.room && !prevLoc.item) {
+          if (!!physics && xform.fromMemory() && prevLoc && prevLoc.room && !prevLoc.item) {
             xform.spin(180);
           }
-          var groups = map.get('hitGroups');
-          var physics = !!map.get("physics");
-          ret = new Player(obj, chara, xform, groups, physics);
+          ret = new Player(obj, chara, xform, groups, !!physics);
           //
           memorizeOnExit = physics ? xform : null;
         }
@@ -165,7 +195,7 @@ angular.module('demo')
         update: function(dt) {
           // maybe a characters list in the map? 
           // then we could map.update() and the characters would too.
-          if (currPlayer) {
+          if (currPlayer && currPlayer.draw) {
             currPlayer.draw(dt);
           }
         },

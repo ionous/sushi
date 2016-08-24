@@ -30,7 +30,7 @@
                           <hsm-event on="player-created" goto="ProcessStart"></hsm-event>
                         </hsm-state>
                         <hsm-state name="ProcessStart" hsm-enter="stream.process()" hsm-exit="stream.process(false)">
-                          <hsm-event on="game-posting" run="stream.processing(true)"></hsm-event>
+                          <hsm-event on="game-posting" run="stream.startProcessing()"></hsm-event>
                           <ng-include src="'processing.html'"></ng-include>
                         </hsm-state>
                       </hsm-state>

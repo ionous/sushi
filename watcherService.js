@@ -21,7 +21,7 @@ angular.module('demo')
           };
           var cancel = EventService.listen(enclosure.id, "x-mod", function(data) {
             var child = data.child;
-            if (child.id == objId) {
+            if (child.id === objId) {
               return updateVis();
             }
           });

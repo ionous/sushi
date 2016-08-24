@@ -77,6 +77,11 @@ angular.module('demo')
         delete names[this.id];
         delete this.id;
       }
+      if (this.el.length) {
+        var canvas = this.el[0];
+        canvas.width = 0;
+        canvas.height = 0;
+      }
       this.el.remove();
       delete this.el;
       delete this.img;

@@ -79,6 +79,9 @@ angular.module('demo')
           var slide = slides[scope.active];
           inv.clicked(slide.item, act);
         },
+        dismiss: function(reason) {
+          inv.dismiss(reason);
+        },
       };
 
       $scope.$watch([name, "active"].join("."), function(newValue) {

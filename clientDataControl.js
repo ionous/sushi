@@ -33,10 +33,7 @@ angular.module('demo')
         serializers[line] = callback;
         return data[line];
       };
-      var clear = function(line) {
-        delete serializers[line];
-      };
-
+      
       // fix: why exactly did i use an event?
       this.reset = function(snapshot) {
         // reset existing serializer
@@ -52,11 +49,20 @@ angular.module('demo')
         });
       };
 
+      // not sure what would be better, a "collect" event
+      // that gathers data from the current state(s)
       var scope = {
         exchange: function(line, callback) {
           return exchange(line, callback, latestData);
         },
-        clear: clear,
+        // note: if dont update the snapshot,
+        // when we come back, we get the old saved value.
+        reset: function(line, value) {
+          if (latestData) {
+            latestData[line]= value;
+          }
+          delete serializers[line];
+        },
       };
       this.getClientData = function() {
         return scope;

@@ -1,16 +1,16 @@
 <!-- playing is re-entered everytime we load a map; most of its elements need to bind to the elements in a map. -->
 <hsm-state name="Playing" player-control="player" hsm-enter="player.create(map, '/bin/images/princess.png', 64)" hsm-exit="player.destroy()">
-  <hsm-state>    
+  <hsm-state>
     <hsm-event on="player-created" goto="PlayingStart"></hsm-event>
   </hsm-state>
   <hsm-state name="PlayingStart" visibility-control="mapvis" hsm-enter="mapvis.show('gameMap')" hsm-exit="mapvis.show(false)">
-    <hsm-state visibility-control="barvis" hsm-enter="barvis.show('buttonBar')" hsm-exit="barvis.show(false)">
+    <hsm-state visibility-control="barvis" hsm-exit="barvis.show(false)">
       <hsm-state mouse-control="mouse" hsm-enter="mouse.bindTo('gameMap', 'mouseDisplay')" hsm-exit="mouse.destroy()">
         <hsm-state return-to-room-control="roomReturn" hsm-enter="roomReturn.bindTo(map, 'clickReturn')" hsm-exit="roomReturn.release()">
           <hsm-state update-control="update" hsm-enter="update.start('game')" hsm-exit="update.end()">
             <hsm-state action-bar-control="actionBar" combiner-control="combiner" hsm-enter="actionBar.bindTo(game.getGame(), 'gameMap')">
               <hsm-state button-control="settingsButton" hsm-enter="settingsButton.bind(true)" hsm-exit="settingsButton.bind(false)">
-                <hsm-state hsm-enter="status.set(map.get('mapName'))">
+                <hsm-state hsm-enter="status.set(map.get('desc'))">
                   <hsm-state name="PlayingParallel" parallel="true" turn-control="turn">
                     <ng-include src="'console.html'"></ng-include>
                     <ng-include src="'inventory.html'"></ng-include>
@@ -34,7 +34,7 @@
                       <!-- any player input mode -->
                       <hsm-state name="SharedInput" hsm-init="!dialog.empty() && 'SharedDialog'">
                         <hsm-state hsm-init="track.saveBeforePlay() && 'JumpToSave'">
-                          <hsm-state>
+                          <hsm-state hsm-enter="barvis.show('buttonBar')" >
                             <ng-include src="'playTurn.html'"></ng-include>
                           </hsm-state>
                           <hsm-state name="JumpToSave" timeout-control="jump" hsm-enter="jump.timeout()" hsm-exit="jump.cancel()">
