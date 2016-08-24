@@ -43,32 +43,42 @@ angular.module('demo')
         }
         this.ctx = ctx;
         this.mapLayer = mapLayer;
-        this.promise = false;
+        this.promise = false; // all layers have a promise of "readiness". the return value is ignored(?).
         this.watcher = false; // a contents server watchers; it expands and collapses us.
-        this.expanded = null; // when the content serve expands us, it fill out this with a valid Node.
-        this.expanding = false;
+        this.expander = null; // when the content serve expands us, it fill out this with a valid Node.
+        this.expandedNode = false;
         // experimental(?)
         if (autoExpand) {
           this.promise = this.expand();
         }
       };
       Child.prototype.expand = function() {
-        // hack: state showing watcher code triggers twice...
-        // ex. especially automat-hall-door
-        if (!this.expanding) {
-          this.expanding = true;
+        var expander = this.expander;
+        if (!expander) {
+          expander = $q.defer();
           var pin = this;
-          return this.ctx.addSubLayers(this.mapLayer).then(function(node) {
-            pin.expanded = node;
-            return pin;
+          pin.expander = expander;
+          expander.promise.then(function(node) {
+            // we have no way of canceling the expansion, so, we let it play out. 
+            // we destroy the node if we had a collapse since, even a quick collapse, expand. (as sometimes happens with story bugs; re: fresh-food)
+            if (pin.expander === expander) {
+              pin.expandedNode = node;
+            } else {
+              $log.info("cleaning node collapsed after expansion", node.name);
+              node.destroyNode();
+            }
           });
+          this.ctx.addSubLayers(this.mapLayer).then(expander.resolve, expander.reject);
         }
+        return expander.promise;
       };
       Child.prototype.collapse = function() {
-        this.expanding = false;
-        if (this.expanded) {
-          this.expanded.destroyNode();
-          this.expanded = false;
+        if (this.expander) {
+          this.expander = false;
+        }
+        if (this.expandedNode) {
+          this.expandedNode.destroyNode();
+          this.expandedNode = false;
         }
         return this;
       };
@@ -311,7 +321,7 @@ angular.module('demo')
         }
       };
 
-      // returns the promise of a layer and its sub-layers.
+      // returns the promise of a node ( along with all its sub-nodes )
       Context.prototype.addSubLayers = function(mapLayer) {
         var ctx = this;
         var layerPath = mapLayer.path;

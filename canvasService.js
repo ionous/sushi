@@ -3,9 +3,7 @@
 angular.module('demo')
   .factory('CanvasService', function($log, $q) {
     'use strict';
-
-    var names = {};
-
+    var names = {}; // list of all canvases (for error detection)
     // FIX? loadImage can happen multiple times for the same imageSrc
     var loadImage = function(imageSrc) {
       if (!imageSrc) {
@@ -75,17 +73,12 @@ angular.module('demo')
     Canvi.prototype.destroyCanvas = function() {
       if (this.id) {
         delete names[this.id];
-        delete this.id;
+        this.id = false;
       }
-      if (this.el.length) {
-        var canvas = this.el[0];
-        canvas.width = 0;
-        canvas.height = 0;
+      if (this.el) {
+        this.el.remove();
+        this.el = null;
       }
-      this.el.remove();
-      delete this.el;
-      delete this.img;
-      delete this.grid;
     };
     Canvi.prototype.show = function(visible) {
       this.el.css("visibility", visible ? "" : "hidden");
