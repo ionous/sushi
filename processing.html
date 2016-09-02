@@ -5,8 +5,7 @@
       <hsm-event on="roomChange" when="$evt.data.prop=='objects-whereabouts'" run="map.changeRoom($evt.data.next.id)" goto="RoomLoading"></hsm-event>
     </hsm-state>
     <hsm-state name="RoomLoading" hsm-enter="mem.resolver= $evt.resolve()" ng-init="mem={}">
-      <hsm-event on="map-unchanged" run="mem.resolver()" goto="RoomWatching"></hsm-event>
-      <hsm-event on="player-created" run="mem.resolver()" goto="RoomWatching"></hsm-event>
+     <hsm-event on="player-created" run="mem.resolver()" goto="RoomWatching"></hsm-event>
     </hsm-state>
   </hsm-state>
   <!--  the default text handler, always active, stores the lines in global memory, primarily for the the sake of the console. FIX: rework to capture into the console directly.-->
@@ -21,7 +20,8 @@
       <hsm-state talk-control="speaker" hsm-exit="speaker.cleanup('exit')">
         <hsm-state>
           <hsm-event on="speech" goto="Speaking" run="speaker.say($evt.tgt, $evt.data).then($evt.resolve())"></hsm-event>
-          <hsm-event on="invWin-hack" goto="Speaking" run="speaker.say('player', $evt.msg)"></hsm-event>
+          <!-- FIXIXIXIX -->
+          <hsm-event on="item-browser-hack" goto="Speaking" run="speaker.say('player', $evt.msg)"></hsm-event>
         </hsm-state>
         <hsm-state name="Speaking">
           <hsm-event on="talk-dismiss" when="!speaker.finished()" goto="" run="speaker.next()"></hsm-event>

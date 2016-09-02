@@ -1,5 +1,5 @@
 <hsm-state name="Game" hsm-exit="game.destroy()">
-  <hsm-state visibility-control="gamevis" hsm-enter="gamevis.show('gameWindow')" hsm-exit="gamevis.show(false)">
+  <hsm-state visibility-state="gamevis" visibility-slot="gameWindow">
     <hsm-state status-control="status" hsm-enter="status.bindTo('buttonBar')">
       <hsm-state key-control="keys" hsm-enter="keys.listen()" hsm-exit="keys.silence()">
         <hsm-state map-control="map" hsm-enter="map.bindTo('gameMap')" hsm-exit="map.destroy()">
@@ -36,12 +36,13 @@
                       </hsm-state>
                       <!-- loading and playing the game -->
                       <hsm-state hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
-                        <ng-include src="'playing.html'"></ng-include>
+                        <ng-include src="'playing2.html'"></ng-include>
                         <ng-include src="'fini.html'"></ng-include>
                         <hsm-event on="map-loading" goto="PlaySpaceLoading"></hsm-event>
                         <hsm-state name="PlaySpaceLoading" hsm-enter="status.set()">
                           <hsm-event on="map-loaded" when="$evt.where.room=='fini'" goto="Fini"></hsm-event>
                           <hsm-event on="map-loaded" goto="Playing"></hsm-event>
+                          <hsm-event on="map-unchanged" goto="Playing"></hsm-event>
                         </hsm-state>
                       </hsm-state>
                     </hsm-state>

@@ -108,7 +108,7 @@ angular.module('demo')
       $scope.currentActions = [new Action("smell"), new Action("listen")];
       $scope.currentSlide;
       var scope = {
-        clicked: function(slide) {},
+        click: function(slide) {},
         visible: false,
         //currentActions && currentSlide
         barVisible: false,

@@ -54,6 +54,7 @@ angular.module('demo')
       var max = pt_add(min, size);
 
       var hit = new SimpleShape(obj, min, max);
+      this.hit= hit;
       groups.children.unshift(hit);
       this.destroy = function() {
         groups.remove(hit);
@@ -69,6 +70,7 @@ angular.module('demo')
 
       var hit = new PlayerHitShape(obj, chara, xform);
       groups.children.unshift(hit);
+      this.hit= hit;
       this.destroy = function() {
         groups.remove(hit);
       };
@@ -149,7 +151,7 @@ angular.module('demo')
         var angle = CharaService.imageAngle(originalImage, re);
         if (angular.isUndefined(angle)) {
           $log.warn("no dynamic player image for", originalImage.src);
-          currPlayer = new SimplePlayer(obj, display, groups);
+          ret = new SimplePlayer(obj, display, groups);
         } else {
           var chara = CharaService.newChara(display, playerImg, size);
           var currLoc = map.currLoc();
@@ -167,12 +169,6 @@ angular.module('demo')
         return ret;
       };
       //
-      this.ensure = function(map) {
-        if (!currPlayer) {
-          currPlayer = createNow(map);
-        }
-        return currPlayer;
-      };
       return {
         // raises -creating, -created
         create: function(map, imagePath, size) {
@@ -186,7 +182,7 @@ angular.module('demo')
               pending = null;
               currPlayer = createNow(map, img, size);
               hsmMachine.emit(name, "created", {
-                player: currPlayer, // can be null
+                player: currPlayer, 
               });
             });
           }
@@ -199,27 +195,8 @@ angular.module('demo')
             currPlayer.draw(dt);
           }
         },
-        //
-        // FIX? revisit interact, approach, and direct?
-        //
-        // target is of type "Subject"
-        interact: function(target) {
-          $log.info("playerControl", name, "interact");
-          hsmMachine.emit(name, "interact", {
-            target: target
-          });
-        },
-        // target is of type "Subject"
-        approach: function(target, pos) {
-          $log.info("playerControl", name, "approach", target, pos);
-          hsmMachine.emit(name, "approach", {
-            target: target,
-            pos: pos,
-          });
-        },
-        direct: function() {
-          $log.info("playerControl", name, "direct");
-          hsmMachine.emit(name, "direct", {});
+        subject: function() {
+          return currPlayer && currPlayer.hit.group.subject;
         },
       }; // return
     }; //init

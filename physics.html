@@ -51,9 +51,7 @@
     </hsm-state>
     <!-- ^~PhysicsPlay -->
     <hsm-event on="turn-paused" goto="PhysicsPause"></hsm-event>
-    <hsm-state name="PhysicsPause" game-listener="playerState" hsm-enter="playerState.listen('player', 'x-set')" hsm-exit="playerState.silence()">
-    <hsm-event on="player-state-changed" run="log.warn('player state change', $evt.data.prop, $evt.data.prev, $evt.data.next)"></hsm-event>
-      <hsm-event on="player-state-changed" run="avatar.destroy('state change')" goto=""></hsm-event>
+    <hsm-state name="PhysicsPause">
       <hsm-event on="turn-playing" goto="PhysicsPlay"></hsm-event>
     </hsm-state>
     <!-- ^~PhysicsPause -->

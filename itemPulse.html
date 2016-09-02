@@ -1,0 +1,10 @@
+<hsm-state name="ItemPluse">
+  <hsm-state name="InvNotPulsing">
+    <hsm-event on="player-items-added" goto="InvPulsing"></hsm-event>
+  </hsm-state>
+  <hsm-state name="InvPulsing" hsm-enter="invButton.pulse(true)" hsm-exit="invButton.pulse(false)">
+    <hsm-state timeout-control="pulse" hsm-enter="pulse.timeout(1250)" hsm-exit="pulse.cancel()">
+      <hsm-event on="pulse-timeout" goto="InvNotPulsing"></hsm-event>
+    </hsm-state>
+  </hsm-state>
+</hsm-state>

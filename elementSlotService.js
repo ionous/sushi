@@ -2,13 +2,13 @@ angular.module('demo')
 
 // expose an element to the slot service
 .directiveAs("elementSlot",
-  function(ElementSlotService, $element, $attrs) {
+  function(ElementSlotService, $attrs, $element, $scope) {
     'use strict';
     'ngInject';
-    var scope = {};
-    ElementSlotService.bind($attrs.elementSlot, $element, scope);
+    var isolate = {};
+    ElementSlotService.bind($attrs.elementSlot, $element, $scope, isolate);
     this.init = function() {
-      return scope;
+      return isolate;
     };
   })
 
@@ -20,8 +20,19 @@ angular.module('demo')
   'use strict';
   'ngInject';
   var elements = {};
+
+  var setVars = function(isolate, vars) {
+    for (var x in vars) {
+      isolate[x] = vars[x];
+    }
+  };
+  var clearVars = function(isolate) {
+    for (var x in isolate) {
+      isolate[x] = null;
+    }
+  };
   var service = {
-    bind: function(name, element, scope) {
+    bind: function(name, element, scope, isolate) {
       //$log.debug("ElementSlotService, binding", name);
       if (elements[name]) {
         var msg = "ElementSlotService, slot already bound";
@@ -31,7 +42,17 @@ angular.module('demo')
       elements[name] = {
         name: name,
         element: element,
-        scope: scope,
+        scope: isolate, // user code calls it scope, but really were exposing the isolate.
+        watch: function(field, fn) {
+          return scope.$watch([name, field].join("."), fn);
+        },
+        set: function(vars) {
+          if (!vars) {
+            clearVars(isolate);
+          } else {
+            setVars(isolate, vars);
+          }
+        },
       };
       element.on("$destroy", function() {
         //$log.debug("ElementSlotService", "destroying", name);

@@ -1,19 +1,6 @@
-<hsm-state name="Console" button-control="consoleButton" hsm-enter="consoleButton.bind(true)" hsm-exit="consoleButton.bind(false)">
-  <hsm-state name="ConsoleClosed" hsm-enter="consoleButton.enable()" hsm-exit="consoleButton.enable(false)">
-    <hsm-event on="console-button-clicked" goto="ConsoleOpen"></hsm-event>
-  </hsm-state>
-  <hsm-state name="ConsoleOpen" console-control="console" hsm-enter="console.open('consoleWindow')" hsm-init="stream.processing() ? 'ConsoleInputDisabled' : 'ConsoleInputEnabled'" hsm-exit="console.close('exit')">
-    <!--  -->
-    <hsm-event on="console-window-closed" goto="ConsoleClosed"></hsm-event>
-    <hsm-event on="console-window-dismiss" run="console.close($evt.reason)"></hsm-event>
-    <hsm-event on="keys" when="$evt.escapeKey()" run="console.close('escape')"></hsm-event>
-    <!--  -->
-    <hsm-state name="ConsoleInputDisabled" hsm-enter="console.allowInput(false)">
-      <hsm-event on="stream-empty" goto="ConsoleInputEnabled"></hsm-event>
-    </hsm-state>
-    <hsm-state name="ConsoleInputEnabled" hsm-enter="console.allowInput(true)">
-      <hsm-event on="stream-processing" goto="ConsoleInputDisabled"></hsm-event>
-      <!-- the console win submits user input to the console api -->
-    </hsm-state>
+<hsm-state name="Console" console-control="console" console-slot="consoleWin">
+    <hsm-event on="console-dismiss" run="console.close($evt.reason)" goto="Planning"></hsm-event>
+    <hsm-event on="keys" when="$evt.escapeKey()" run="console.close('escape')" goto="Planning"></hsm-event>
+    <hsm-event on="console-submit" run="game.post($evt.data)" goto="Processing"></hsm-event>
   </hsm-state>
 </hsm-state>

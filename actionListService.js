@@ -3,13 +3,16 @@ angular.module('demo')
     function(ActionService, EntityService, IconService, $log, $q) {
       'use strict';
 
+      // can we just use act???
       var makeAction = function(act) {
         var icon = IconService.getIcon(act.id);
         return {
+          act: act,
           id: act.id,
           name: act.name.split(' ', 1)[0],
           iconIndex: icon.index,
           iconClass: icon.iconClass,
+          // FIX: remove me.
           emitAction: function(p, c) {
             return act.emitAction(p, c);
           }

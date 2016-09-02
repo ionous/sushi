@@ -138,6 +138,16 @@ div.ga-biggrey {
   z-index: 100;
 }
 
+div.ga-grab {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  opacity: 0.0;
+  z-index: 99999;
+}
+
 div.overgrey {
   width: 100%;
   height: 100%;
@@ -182,32 +192,19 @@ its actually nice to see some change in the cursor i think*/
 .ga-cursor i {
   width: 36px;
   height: 42px;
+  position: relative;
 }
 
-.ga-cursor .popover {
-  background-color: black;
-  opacity: 0.8;
-  color: white;
+.ga-cursor i.fa-long-arrow-down {
+  /*margin-right: -10px;*/
 }
 
-.ga-cursor .popover.bottom .arrow:after {
-  border-bottom-color: black;
-}
-
-.ga-cursor .popover.left .arrow:after {
-  border-left-color: black;
-}
-
-.ga-cursor .popover.right .arrow:after {
-  border-right-color: black;
-}
-
-.ga-cursor .popover.top .arrow:after {
-  border-top-color: black;
-}
-
-.ga-cursor div.popover-content {
-  font-size: small;
+.ga-tooltip {
+  position: absolute;
+  left: 18px;
+  text-align: center;
+  /*font-size: small;*/
+  transform: translateX(-50%);
   text-transform: capitalize;
 }
 
@@ -617,8 +614,11 @@ credits
   background-color: rgb(66, 81, 77);
 }
 
-.ga-map {
+.ga-mouse-hide {
   cursor: none;
+}
+
+.ga-map {
   border-radius: 20px;
   overflow: hidden;
 }
@@ -766,6 +766,10 @@ div.ga-xtip > div.tooltip-inner {
   text-transform: capitalize;
 }
 
+.ga-left div.ga-xtip > div.tooltip-inner {
+  text-transform: none;
+}
+
 div.ga-left {
   position: absolute;
   left: 0;
@@ -826,6 +830,8 @@ div.ga-picker {
   background-color: #337AB7;
   left: 160px;
   width: 480px;
+  /* forcing a height stops collapse from over-expanding the first time */
+  max-height: 130px;
   border-bottom-right-radius: 20px;
   border-bottom-left-radius: 20px;
   border-width: 2px;
@@ -833,15 +839,17 @@ div.ga-picker {
   border-style: solid;
 }
 
-div.ga-picker .ga-picker-empty {
+div.ga-picker-empty {
   cursor: pointer;
-  width: 100%;
-  height: 160px;
-  padding-top: 70px;
-  text-align: center;
-  color: white;
+}
+
+.ga-picker-banner {
   font-size: larger;
   color: white;
+  text-align: center;
+  /* uib-collapse appears to muck with height enough to break automatic centering */
+  height: 130px;
+  padding-top: 50px;
 }
 
 .carousel-control {

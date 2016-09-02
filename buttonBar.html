@@ -1,6 +1,6 @@
 <div class="ga-buttonbar ga-noselect" ng-show="buttonBar.visible" element-slot="buttonBar">
   <div class="ga-left ga-noselect" element-slot="clickReturn" ng-class="clickReturn.msg && 'ga-return-active'">
-    <a ng-show="!!clickReturn.msg" class="btn btn-primary btn-lg" ng-click="clickReturn.click()"><i class="fa fa-undo"></i></a>
+    <a ng-show="!!clickReturn.msg" class="btn btn-primary btn-lg" ng-click="clickReturn.click()"  uib-tooltip="{{clickReturn.msg}}" tooltip-placement="right" tooltip-class="ga-xtip"><i class="fa fa-undo"></i></a>
     <div class="whereabouts">{{buttonBar.statusText}}</div>
   </div>
   <div class="ga-right ga-noselect">

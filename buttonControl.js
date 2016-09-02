@@ -1,6 +1,6 @@
 /**
  * ButtonControl 
- * When the named button is clicked, raise -clicked.
+ * When the named button is click, raise -click.
  * Expose the ability to enable/disable, and pulse the button.
  */
 angular.module('demo')
@@ -20,8 +20,8 @@ angular.module('demo')
             slotName = angular.isString(slotName) ? slotName : name;
             button = ElementSlotService.get(slotName);
             button.scope.click = function() {
-              //$log.debug("buttonControl", name, "clicked");
-              hsmMachine.emit(name, "clicked", {});
+              //$log.debug("buttonControl", name, "click");
+              hsmMachine.emit(name, "click", {});
             };
           }
           return scope;

@@ -1,0 +1,24 @@
+<hsm-state name="Interact" update-state="update" update-event="game" mouse-target-state="mouseTarget" move-state="move"parallel="true">
+  <ng-include src="'mouseBounds.html'"></ng-include>
+  <hsm-state button-state="consoleButton">
+    <hsm-event on="console-button-click" goto="Console"></hsm-event>
+    <hsm-state button-state="settingsButton">
+      <hsm-event on="settings-button-click" goto="Settings"></hsm-event>
+      <hsm-state button-state="invButton">
+        <hsm-event on="inv-button-click" run="invWin.open(inv)" goto="Browse"></hsm-event>
+        <hsm-state hsm-init="'Mousing'">
+          <hsm-event on="update-game" run="physics.step($evt.dt)"></hsm-event>
+          <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
+          <hsm-event on="update-game" run="mouseTarget.update()"></hsm-event>
+          <!-- pathing at the lca of Mousing,Pathing and Hover,FarPress -->
+          <hsm-event on="room-return-click" run="roomReturn.returnToRoom()"></hsm-event>
+          <ng-include src="'mousing.html'"></ng-include>
+          <ng-include src="'directing.html'"></ng-include>
+        </hsm-state>
+      </hsm-state>
+      <!-- ~inv button button -->
+    </hsm-state>
+    <!-- ~settings button -->
+  </hsm-state>
+  <!-- ~console button button -->
+</hsm-state>

@@ -2,7 +2,7 @@
  */
 angular.module('demo')
   .factory('CursorService',
-    function(UpdateService, $log, $rootElement) {
+    function(UpdateService, $log, $rootElement, $rootScope) {
       'use strict';
 
       var clientX = 0;
@@ -51,6 +51,11 @@ angular.module('demo')
           hotspot: center,
           size: width,
         },
+        combinealt: {
+          cls: 'fa-circle-o-notch',
+          hotspot: center,
+          size: width,
+        },
         noshape: {
           cls: 'noshape',
           hotspot: upperLeft,
@@ -72,7 +77,7 @@ angular.module('demo')
       };
       //var lights = [cursors.pointer, cursors.disk, cursors.bullseye];
       //<i class="fa fa-shield"></i>
-      var Cursor = function(focusEl, displayEl) {
+      var Cursor = function(focusEl, displayEl, scope) {
         var el = this.el = displayEl;
         var inner = this.inner = angular.element("<i class='fa noshape'></i>");
         if (!displayEl) {
@@ -81,7 +86,10 @@ angular.module('demo')
 
         this.shows = true;
         this.size = 0;
+        this.scope = scope;
         this.enabled = true;
+        this.nextTip = false;
+        this.tip = false;
         el.prepend(inner);
         var c = this;
         this.updater = UpdateService.update(function() {
@@ -99,13 +107,10 @@ angular.module('demo')
           size: 0,
         };
       };
-      Cursor.prototype.pointsTo = function(pos) {
-        this.state.dst = pos;
-      };
       var defaultCss = {
         "visibility": "",
         "font-size": "",
-        "line-height": "",
+        // "line-height": "",
         "transform": "",
         "left": "",
         "top": "",
@@ -149,6 +154,7 @@ angular.module('demo')
 
         var show = !!(this.shows && this.enabled && this.shape);
         var update, css = {};
+        var xform = {};
         if (show != last.show) {
           css["visibility"] = show ? "" : "hidden"; // jshint ignore:line
           last.show = show;
@@ -170,7 +176,7 @@ angular.module('demo')
             var size = shape.size;
             if (last.size != size) {
               css["font-size"] = size + "px"; // jshint ignore:line
-              css["line-height"] = size + "px"; // jshint ignore:line
+              // css["line-height"] = size + "px"; // jshint ignore:line
               last.size = size;
               update = true;
             }
@@ -181,7 +187,7 @@ angular.module('demo')
           var rad = calcRad(cp, this.state.dst);
           if (last.rad != rad) {
             var x = rad ? "rotate(" + rad + "rad)" : "";
-            css["transform"] = x; // jshint ignore:line
+            xform["transform"] = x; // jshint ignore:line
             last.rad = rad;
             update = true;
           }
@@ -202,24 +208,31 @@ angular.module('demo')
         if (update) {
           //$log.debug(css);
           this.el.css(css);
+          this.inner.css(xform);
         }
+        if (this.tip !== this.nextTip) {
+          var apply = this.nextTip;
+          var scope = this.scope;
+          this.tip = apply;
+          $rootScope.$apply(function() {
+            scope.tooltip = apply;
+          });
+        }
+
       };
-      Cursor.prototype.setCursor = function(name) {
+      Cursor.prototype.setCursor = function(name, tip, pointsTo) {
         var shape = cursors[name];
         if (!shape) {
-          var msg = "unknown cursor";
-          $log.error(msg, name);
-          throw new Error(msg);
+          throw new Error(["unknown cursor", name].join(" "));
         }
-        if (shape !== this.shape) {
-          this.shape = shape;
-          return true;
-        }
+        this.shape = shape;
+        this.state.dst = pointsTo;
+        this.nextTip = tip;
       };
       var cursorService = {
         // appends to el, uses mousemove over that element to listen for changes.
-        newCursor: function(focusEl, displayEl) {
-          return new Cursor(focusEl, displayEl);
+        newCursor: function(focusEl, displayEl, scope) {
+          return new Cursor(focusEl, displayEl, scope);
         }
       };
       return cursorService;

@@ -79,7 +79,7 @@ angular.module('demo')
           "top": y + "px",
         });
         bubble.one("click", function() {
-          mdl.dismiss("bubble clicked");
+          mdl.dismiss("bubble click");
         });
       };
     }; // Talker.

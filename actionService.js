@@ -59,6 +59,9 @@ angular.module('demo')
           ctx: ((act.nounCount > 1) && cobj) ? cobj.id : null,
         };
       };
+      ActionInfo.prototype.pack = function(pobj, cobj) {
+        return new ActionEvent(this, pobj, cobj).pack();
+      };
       ActionInfo.prototype.emitAction = function(pobj, cobj) {
         hsmMachine.emit(name, "run", new ActionEvent(this, pobj, cobj));
       };

@@ -5,7 +5,6 @@ angular.module('demo')
 
 .directive('gaMapColor', function($log) {
   'use strict';
-
   return {
     link: function(scope, el) {
       var rub = scope.$on("map ready", function(evt, map) {
@@ -23,7 +22,6 @@ angular.module('demo')
 .directive('gaAutoFocus',
   function($log, $timeout) {
     'use strict';
-
     return {
       link: function(scope, el, attrs) {
         var focus = function() {
@@ -51,7 +49,7 @@ angular.module('demo')
         gaDisabled: "<?",
       },
       require: ["^^pathControl"],
-      template: "<a ng-href='/{{appBase}}/#{{gaDst}}' class='btn btn-default btn-block' ng-class='{disabled:gaDisabled}' ng-click='clicked($event)' role='button'><ng-transclude></ng-transclude></a>",
+      template: "<a ng-href='/{{appBase}}/#{{gaDst}}' class='btn btn-default btn-block' ng-class='{disabled:gaDisabled}' ng-click='click($event)' role='button'><ng-transclude></ng-transclude></a>",
       link: function(scope, el, attrs, controllers) {
         var pathControl = controllers[0];
         // there doesnt appeart to be a way to get this via angular
@@ -59,7 +57,7 @@ angular.module('demo')
         scope.appBase = "demo";
         var dst = scope.gaDst;
         var click = scope.ngClick;
-        scope.clicked = function(evt) {
+        scope.click = function(evt) {
           // dont follow the href
           evt.preventDefault();
           if (click) {

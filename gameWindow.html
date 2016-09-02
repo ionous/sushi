@@ -1,17 +1,21 @@
 <div class="ga-play" ng-if="gameWindow.visible" ga-map-color>
   <div element-slot="gameMap" ng-show="gameMap.visible" ng-style="gameMap.style" class="ga-map ga-the-center ga-noselect"></div>
   <ng-include src="'buttonBar.html'"></ng-include>
-  <div element-slot="mouseDisplay" class="ga-cursor ga-noselect">
-    <div popover-placement="bottom" uib-popover="{{mouseDisplay.tooltip}}" popover-is-open="!!mouseDisplay.tooltip" popover-animation="false"></div>
+  <div element-slot="mouseDisplay" class="ga-cursor ga-noselect" ng-show="!!mouseDisplay.visible">
+    <div class="ga-tooltip" ng-if="!!mouseDisplay.tooltip">
+    {{mouseDisplay.tooltip}}
+    </div>
   </div>
   <div element-slot="combineBox" class="ga-noselect" ng-include="'combineBox.html'"></div>
   <div element-slot="finalExit" class="ga-noselect" ng-include="'finalExit.html'"></div>
+  <div element-slot="radialMenu" class="ga-noselect" ng-include="'radialMenu.html'"></div>
+  <div element-slot="consoleWin" class="ga-greyshow ga-greydismiss" ng-include="'consoleWin.html'"></div>
+  <div element-slot="settings" class="ga-greyshow ga-greydismiss ga-noselect" ng-include="'settingsBox.html'"></div>
+  <div element-slot="items" class="ga-greydismiss ga-noselect" ng-include="'invWin.html'"></div>
+  <!--  -->
   <modal-window name="commentBox" class="ga-greyignore" group="modal" src="'commentBox.html'"></modal-window>
-  <modal-window name="actionBar" class="ga-noselect" group="modal" src="'actionBar.html'" overgrey="false"></modal-window>
   <modal-window name="talk" class="ga-greydismiss ga-noselect" group="modal"></modal-window>
-  <modal-window name="invWin" class="ga-greydismiss ga-noselect" group="modal" src="'invWin.html'"></modal-window>
-  <modal-window name="consoleWindow" class="ga-greyshow ga-greydismiss" group="modal" src="'consoleWindow.html'"></modal-window>
-  <modal-window name="settings" class="ga-greyshow ga-greydismiss ga-noselect" group="modal" src="'settingsBox.html'"></modal-window>
+  
   <modal-window name="confirmExit" class="ga-greydismiss ga-noselect" group="modal" src="'confirmExitWin.html'"></modal-window>
   <modal-window name="popupBox" class="ga-greydismiss ga-noselect" group="modal" src="'popupBox.html'"></modal-window>
   <modal-window name="savePopup" class="ga-greyshow ga-noselect" group="modal" src="'savePopupWin.html'"></modal-window>

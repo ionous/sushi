@@ -1,0 +1,5 @@
+<hsm-state name="Browse" hsm-exit="itemBrowser.close('exiting')">
+  <hsm-event on="keys" when="$evt.escapeKey()" run="itemBrowser.close('escape')" goto="Planning"></hsm-event>
+  <hsm-event on="item-browser-dismiss" run="itemBrowser.close($evt.reason)" goto="Planning"></hsm-event>
+  <hsm-event on="item-browser-combine" run="invCombine.startCombining(playerItems.currentItem())" goto="CombineCheck"></hsm-event>
+</hsm-state>

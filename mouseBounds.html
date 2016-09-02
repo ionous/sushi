@@ -1,0 +1,16 @@
+<hsm-state name="MouseBounds">
+  <hsm-event on="mouse-reset" goto="Unbounded"></hsm-event>
+  <hsm-state name="Unbounded">
+    <!-- there's no way to get the mouse position till we get a mouse event -->
+    <hsm-event on="mouse-move" goto="InBounds"></hsm-event>
+    <hsm-event on="mouse-down" goto="InBounds"></hsm-event>
+    <hsm-event on="mouse-enter" goto="InBounds"></hsm-event>
+    <hsm-event on="mouse-leave" goto="OutOfBounds"></hsm-event>
+  </hsm-state>
+  <hsm-state name="InBounds" visibility-state visibility-slot="mouseDisplay" class-state class-target="gameMap" class-name="ga-mouse-hide">
+    <hsm-event on="mouse-leave" goto="OutOfBounds"> </hsm-event>
+  </hsm-state>
+  <hsm-state name="OutOfBounds">
+    <hsm-event on="mouse-enter" goto="InBounds"></hsm-event>
+  </hsm-state>
+</hsm-state>

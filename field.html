@@ -1,0 +1,31 @@
+<hsm-state name="Field" hsm-init="'Play'" near-far-state="nearFar" mouse-state="mouse" mouse-focus="gameMap" mouse-display="mouseDisplay" room-return-state="roomReturn" room-return-button="clickReturn" combine-check-state="invCombine" combine-panel-state="combinePanel" combine-panel-slot="combineBox" action-bar-factory-state="actionBar" inv-win-factory-state="invWin" item-browser-state="itemBrowser" item-browser-slot="items" radial-state="radial" radial-edge="gameMap" radial-menu="radialMenu">
+  <ng-include src="'console.html'"></ng-include>
+  <ng-include src="'settings.html'"></ng-include>
+  <hsm-state name="Saving"></hsm-state>
+  <hsm-state name="CombineCheck">
+    <hsm-event on="inv-combine-checked" when="$evt.okay" run="combinePanel.open($evt.item, !!$evt.actions.length); invWin.setCombine($evt.item, $evt.actions); actionBar.setCombine($evt.item)" goto="Combining"></hsm-event>
+    <hsm-event on="inv-combine-checked" run="log.warn('combine failed', $evt.reason)" goto="NotCombining"></hsm-event>
+  </hsm-state>
+  <hsm-state name="Play" parallel="true">
+    <ng-include src="'recentItem.html'"></ng-include>
+    <ng-include src="'itemPulse.html'"></ng-include>
+    <!-- -->
+    <hsm-state hsm-init="'Interact'">
+      <ng-include src="'interact.html'"></ng-include>
+      <ng-include src="'browse.html'"></ng-include>
+    </hsm-state>
+    <!-- ~InteractOrBrowse -->
+    <hsm-state name="Combinable">
+      <hsm-state name="NotCombining" hsm-enter="mouse.setSymbols({pointer:'pointer', near:'bullseye', far:'disk', arrow:'arrow'});invWin.setCombine(false); actionBar.setCombine(false)">
+        <hsm-event on="recent-button-click" goto="CombineCheck" run="invCombine.startCombining(playerItems.currentItem())"></hsm-event>
+      </hsm-state>
+      <hsm-state name="Combining" hsm-exit="combinePanel.close(); recentButton.enable(true)" hsm-enter="mouse.setSymbols({pointer:'pointer', near:'combine', far:'combinealt', arrow:'arrow'}); recentButton.enable(false)">
+        <hsm-event on="keys" when="$evt.escapeKey()" goto="Planning"></hsm-event>
+        <!-- i think i like the enable/disable button more. -->
+        <hsm-event on="recent-button-click" goto="NotCombining"></hsm-event>
+        <hsm-event on="talk-dismiss" goto="Planning"></hsm-event>
+      </hsm-state>
+    </hsm-state>
+    <!-- ~CombineWatch -->
+  </hsm-state>
+</hsm-state>

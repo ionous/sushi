@@ -2,57 +2,46 @@
  */
 angular.module('demo')
 
-.directiveAs('combineCheckControl', ["^hsmMachine"],
+.stateDirective('combineCheckState', ["^playerItemState"],
   function(ActionListService, EntityService, ItemService,
     $log, $q) {
     'use strict';
     'ngInject';
-    this.init = function(name, hsmMachine) {
-      var pending, combining, itemActions;
-      var scope = {
-        cancel: function() {
-          if (pending) {
-            pending.reject("cancelled");
-            pending = null;
-          }
-          combining = null;
-          itemActions = null;
-        },
-        item: function() {
-          return combining;
-        },
-        itemActions: function() {
-          return itemActions;
-        },
-        empty: function() {
-          if (!itemActions) {
-            throw new Error("a little early dont you think?");
-          }
-          return !itemActions.length;
-        },
-        start: function(item, items) {
-          if (!item) {
-            throw new Error("missing item");
-          }
-          if (!items) {
-            throw new Error("missing items");
-          }
-          scope.cancel();
+    this.init = function(ctrl, playerItemState) {
+      var playerItems, pending;
+
+      var cancel = function() {
+        if (pending) {
+          pending.reject("cancelled");
+          pending = null;
+        }
+      };
+      ctrl.onExit = function() {
+        cancel();
+        playerItems = null;
+      };
+      ctrl.onEnter = function() {
+        playerItems = playerItemState.getPlayerItems();
+      };
+      var combineCheck = {
+        startCombining: function(item) {
           pending = $q.defer();
-          hsmMachine.emit(name, "checking", {});
-          items.getCombinations(item).then(pending.resolve, pending.reject);
+
+          if (!item) {
+            pending.reject("invalid item");
+          } else {
+            playerItems.getCombinations(item).then(pending.resolve, pending.reject);
+          }
           //
           pending.promise.then(function(ia) {
-            combining = item;
-            itemActions = ia;
-            hsmMachine.emit(name, "checked", {
+            ctrl.emit("checked", {
               item: item,
-              itemActions: ia
+              // []{  item:ItemRecord, action:[] {act:makeAction()} }
+              actions: ia,
+              okay: true,
             });
           }, function(r) {
-            combining = null;
-            itemActions = null;
-            hsmMachine.emit(name, "failed", {
+            ctrl.emit("checked", {
               item: item,
               reason: r
             });
@@ -60,6 +49,6 @@ angular.module('demo')
           return pending.promise;
         }
       };
-      return scope;
+      return combineCheck;
     }; // init
   });

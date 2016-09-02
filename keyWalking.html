@@ -2,13 +2,14 @@
   <hsm-event on="keys" when="$evt.escapeKey()" goto="Planning"></hsm-event>
   <hsm-event on="keys" when="!keys.moving()" goto="Planning"></hsm-event>
   <hsm-event on="update-game" run="avatar.slide($evt.dt, keys.buttons())"></hsm-event>
-  <!-- FIX: was show('pointer'0 - but i dont like that much.
+  <hsm-event on="keys" when="$evt.moveKey(true)" goto=""></hsm-event>
+</hsm-state>
+<!-- FIX: was show('pointer'0 - but i dont like that much.
   may need to "restore" cursor... or use "hide" here with some work on mouse.hide -->
-  <hsm-state name="KeyWakingMouseVanish" mouse-hide-control="mkeys" hsm-enter="mkeys.hide()" hsm-exit="mkeys.show()">
+<!-- <hsm-state name="KeyWakingMouseVanish" mouse-hide-control="mkeys" hsm-enter="mkeys.hide()" hsm-exit="mkeys.show()">
     <hsm-event on="mouse-move" goto="KeyWakingMouseVisible"></hsm-event>
     <hsm-event on="keys" when="$evt.moveKey(true)" goto=""></hsm-event>
   </hsm-state>
   <hsm-state name="KeyWakingMouseVisible">
     <hsm-event on="keys" when="$evt.moveKey(true)" goto=""></hsm-event>
-  </hsm-state>
-</hsm-state>
+  </hsm-state> -->

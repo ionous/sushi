@@ -1,0 +1,7 @@
+<!-- radialMenu.style(index), .click(e) items: e.id, e.name, e.iconIndex, e.iconClass  -->
+<div class="ga-actionbar" ng-style="radialMenu.style()" ng-if="radialMenu.visible">
+  <a ng-repeat="e in radialMenu.items() | orderBy:'iconIndex' track by e.id" class="btn btn-primary" uib-tooltip="{{e.name}}" ng-click="radialMenu.click(e)" ng-style="radialMenu.style($index)" tooltip-placement="bottom" tooltip-class="ga-xtip">
+    <i ng-class="e.iconClass"></i>
+  </a>
+</div>
+	

@@ -4,7 +4,7 @@
   <hsm-event on="actions-run" when="customActions.handles($evt)" run="customActions.run($evt)" goto="SharedPlay"></hsm-event>
   <hsm-event on="actions-run" run="game.post($evt.pack())" goto="SharedPlay"></hsm-event>
   <!--  -->
-  <hsm-event on="close-button-clicked" goto="AppExit"></hsm-event>
+  <hsm-event on="close-button-click" goto="AppExit"></hsm-event>
   <hsm-state name="SharedPlay" hsm-enter="settingsButton.enable()" hsm-exit="settingsButton.enable(false)">
     <!-- keep updating the player (drawing) so that facing changes as we open the menu work; basically there's a one frame timing issue b/t requesting facing, and drawing the change -->
     <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>

@@ -1,15 +1,9 @@
-<!-- settings.html -->
-<hsm-event on="settings-button-clicked" goto="Settings"></hsm-event>
-<hsm-state name="Settings" mouse-hide-control="mset" hsm-enter="mset.hide()" hsm-exit="mset.show()">
-  <hsm-state settings-control="settings" hsm-enter="settings.open()" hsm-exit="settings.close('exited')">
-    <hsm-event on="modal-opened" goto=""></hsm-event>
-    <hsm-event on="keys" when="$evt.escapeKey()" run="settings.close('escape')"></hsm-event>
-    <!--  -->
-    <hsm-event on="settings-closed" goto="SharedPlay"></hsm-event>
-    <hsm-event on="settings-dismiss" run="settings.close($evt.reason)"></hsm-event>
-     <hsm-event on="settings-save" run="save.saveGame('normal-save')" goto="Save-normal-save"></hsm-event>
-    <hsm-event on="settings-exit" when="!track.manuallySaved()" goto="Exiting"></hsm-event>
-    <hsm-event on="settings-exit" goto="Menus"></hsm-event>
-    <hsm-event on="settings-play" run="settings.close('keep playing')"></hsm-event>
-  </hsm-state>
+<hsm-state name="Settings" settings-control="settings">
+  <hsm-event on="keys" when="$evt.escapeKey()" goto="Planning"></hsm-event>
+  <!--  -->
+  <hsm-event on="settings-dismiss" goto="Planning"></hsm-event>
+  <hsm-event on="settings-save" run="save.saveGame('normal-save')" goto="Save-normal-save"></hsm-event>
+  <hsm-event on="settings-exit" when="!track.manuallySaved()" goto="Exiting"></hsm-event>
+  <hsm-event on="settings-exit" goto="Menus"></hsm-event>
+  <hsm-event on="settings-play" goto="Planning"></hsm-event>
 </hsm-state>

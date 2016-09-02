@@ -1,39 +1,33 @@
-<!-- while directing, the cursor changes to a chevron (➢) for surface points, or a down arrow (↓) for subjects; note: even points on a collision surface are accepted. -->
-<hsm-state name="Directing" move-control="director" hsm-enter="director.start(avatar)" hsm-exit="director.stop()">
-  <hsm-state hsm-enter="mouseTarget.ghost(avatar.object)" hsm-exit="mouseTarget.ghost(false)">
-    <hsm-event on="keys" when="$evt.escapeKey()" goto="Planning"></hsm-event>
-    <!-- player directs evaluates the mouse target to change the cursor as needed. -->
-    <hsm-event on="mouse-target-changed" goto="PlayerDirects"></hsm-event>
-    <!-- FIX: i dont like this goto fall-through thing....  -->
-    <hsm-event on="mouse-up" when="avatar.touches(director.target())" run="player.interact(director.target())"></hsm-event>
-    <hsm-event on="mouse-up" goto="Planning"></hsm-event>
-    <hsm-state name="PlayerDirects" hsm-init="mouseTarget() ? 'DirectToTarget' : 'DirectToPos'">
-      <hsm-event on="update-game" run="director.updateMove($evt.dt)"></hsm-event>
-      <!-- <hsm-event on="director-blocked" run="log.info('blocked!')"></hsm-event> -->
-      <!-- move the player towards a specific position -->
-      <hsm-state name="DirectToPos" hsm-enter="director.moveTo(mouse.pos())">
-        <hsm-event on="director-arrived" goto="DirectorArrivedPos"></hsm-event>
-        <hsm-event on="mouse-move" run="director.moveTo(mouse.pos())"></hsm-event>
-        <hsm-state hsm-enter="mouse.show('chev')" hsm-exit="mouse.setAngle(false)">
-          <hsm-event on="update-game" run="mouse.setAngle(avatar.getCenter())"> </hsm-event>
-        </hsm-state>
+<!-- while directing, the cursor changes to a chevron (➢) for surface points, or a down arrow (↓) for subjects; note: even points on a collision surface are accepted.   -->
+<hsm-state name="Directing" hsm-enter="mouseTarget.ghost(player.subject())" hsm-exit="move.stop(); mouseTarget.reset()">
+  <!-- back to planning -->
+  <hsm-event on="mouse-up" goto="Planning"></hsm-event>
+  <hsm-event on="keys" when="$evt.escapeKey()" goto="Planning"></hsm-event>
+  <!--  -->
+  <hsm-event on="mouse-target-changed" run="move.setTarget($evt.pos, $evt.target)" goto="PlayerDirects"></hsm-event>
+  <hsm-state name="PlayerDirects" hsm-init="move.target() ? 'DirectToTarget' : 'DirectToPos'">
+    <hsm-event on="update-game" run="move.updateMove($evt.dt)"></hsm-event>
+    <!-- DirectToPos: move the player towards a specific position -->
+    <hsm-state name="DirectToPos">
+      <hsm-event on="move-stopped" when="$evt.arrived" run="move.stop()" goto="DirectorArrivedPos"></hsm-event>
+      <hsm-event on="mouse-move" run="move.moveTo(mouse.cursorPos())"></hsm-event>
+      <hsm-state>
+        <hsm-event on="update-game" run="mouse.setAngle(avatar.getCenter())"> </hsm-event>
       </hsm-state>
-      <!-- move the player towards a specific target -->
-      <hsm-state name="DirectToTarget" hsm-enter="director.setTarget(mouseTarget())">
-        <hsm-event on="director-arrived" goto="DirectorArrivedTarget" run="director.adjustFacing()"></hsm-event>
-        <hsm-state hsm-enter="mouse.show('arrow')">
-        </hsm-state>
-      </hsm-state>
-    </hsm-state>
-    <hsm-state name="DirectorArrivedTarget" hsm-enter="director.pause()">
-      <hsm-state hsm-enter="mouse.show('bullseye')">
-        <!-- we wait for mouse-target-changed to pull us out. -->
-      </hsm-state>
-    </hsm-state>
-    <hsm-state name="DirectorArrivedPos" hsm-enter="director.pause()">
-      <hsm-state hsm-enter="mouse.show('pointer')">
+      <hsm-state name="DirectorArrivedPos" hsm-enter="mouse.setCursor('pointer')">
         <hsm-event on="mouse-move" goto="PlayerDirects"></hsm-event>
       </hsm-state>
     </hsm-state>
+    <!-- ~DirectToPos -->
+    <!-- DirectToTarget: move the player towards a specific target -->
+    <hsm-state name="DirectToTarget"">
+      <hsm-state hsm-enter="mouse.indicate(move.target())">
+        <hsm-event on="move-stopped" when="$evt.arrived" goto="DirectorArrivedTarget"></hsm-event>
+      </hsm-state>
+      <hsm-state name="DirectorArrivedTarget" hsm-enter="move.stop(); move.adjustFacing(); mouse.highlight(move.target())">
+        <hsm-event on="mouse-up" when="nearFar.touches(move.target())" run="actionBar.open(mouse.cursorPos(), move.target())" goto="Radial"></hsm-event>
+      </hsm-state>
+    </hsm-state>
+    <!-- ~DirectToTarget -->
   </hsm-state>
 </hsm-state>

@@ -1,5 +1,5 @@
-<hsm-state name="Menus" hsm-init="path.titlecase()" visibility-control="menuvis" hsm-enter="menuvis.show('menuWindow')" hsm-exit="menuvis.show(false)">
-  <hsm-event on="close-button-clicked" run="closeMe.exitApp()" goto="Menus">
+<hsm-state name="Menus" hsm-init="path.titlecase()" visibility-state="menuvis" visibility-slot="menuWindow">
+  <hsm-event on="close-button-click" run="closeMe.exitApp()" goto="Menus">
     <hsm-event on="path-change" goto="Menus"></hsm-event>
     <hsm-state name="MainMenu" main-menu-control="main" hsm-enter="main.open('mainWin', '/')" hsm-exit="main.close()">
       <hsm-event on="main-start" run="game.newGame()" goto="NewGame"></hsm-event>

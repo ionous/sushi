@@ -128,6 +128,9 @@ angular.module('demo')
         return transport.requestRestore(slot);
       };
       this.get = function(id, what) {
+        if (!angular.isString(id)) {
+          throw new Error("empty endpoint");
+        }
         return transport.get(id, what).then(function(payload) {
           var multi = angular.isArray(payload.data);
           var doc = multi ?
@@ -138,7 +141,7 @@ angular.module('demo')
       };
       this.post = function(id, data) {
         if (!angular.isString(id)) {
-          throw new Error("empty destination");
+          throw new Error("empty endpoint");
         }
         if (!angular.isObject(data)) {
           throw new Error("empty post");
@@ -148,8 +151,6 @@ angular.module('demo')
         });
       };
     };
-
-
     //
     this.init = function(name, storageControl) {
       var serverSingleton;
