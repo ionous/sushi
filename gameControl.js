@@ -1,12 +1,14 @@
 angular.module('demo')
 
-// -created,-started,-loaded,-posting
-.directiveAs("gameControl", ["^^hsmMachine", "^processControl", "^clientDataControl", "^serverControl"],
+// -created,-started,-loaded,-posting,-posted
+.stateDirective("gameControl", ["^clientDataControl", "^serverControl"],
   function(EntityService, EventService,
     $log, $q) {
     'use strict';
     'ngInject';
-    this.init = function(name, hsmMachine, processControl, clientDataControl, serverControl) {
+    this.init = function(ctrl, clientDataControl, serverControl) {
+      ctrl.onEnter = function() {};
+      ctrl.onExit = function() {};
       var ClassInfo = function(data) {
         this.classInfo = data;
         this.classList = data.meta.classes;
@@ -38,9 +40,6 @@ angular.module('demo')
           });
       };
       Game.prototype.post = function(what) {
-        hsmMachine.emit(name, "posting", {
-          what: what
-        });
         return this.upost(what)
           .then(function(doc) {
               var frame = doc.meta.frame;
@@ -59,11 +58,18 @@ angular.module('demo')
               });
 
               var events = doc.data.attr.events;
-              processControl.queue(frame, events || []);
+              return ctrl.emit("posted", {
+                frame: frame,
+                events: events || [],
+              });
             },
             function(reason) {
               $log.error("gameControl post error:", reason);
-              processControl.queue(lastFrame, []);
+              return ctrl.emit("error", {
+                frame: lastFrame,
+                events: [],
+                err: reason,
+              });
             });
       };
       Game.prototype.getClass = function(classType) {
@@ -135,7 +141,7 @@ angular.module('demo')
           }
           currentGame = new Game(server, gameId);
           clientDataControl.reset();
-          hsmMachine.emit(name, "created", {});
+          return ctrl.emit("created", {});
         });
       };
       this.loadGame = function(saved) {
@@ -157,7 +163,7 @@ angular.module('demo')
           currentGame = new Game(server, gameId, true);
           clientDataControl.reset(saved.data);
           //
-          hsmMachine.emit(name, "loaded", {
+          return ctrl.emit("loaded", {
             game: currentGame,
             gameId: gameId,
             where: loc,
@@ -173,11 +179,11 @@ angular.module('demo')
           throw new Error("game already started");
         }
         game.started = true;
-        $log.info("gameControl", name, "starting new game");
+        $log.info("gameControl", ctrl.name(), "starting new game");
         game.post({
           'in': 'start'
         }).then(function() {
-          hsmMachine.emit(name, "started", {
+          return ctrl.emit("started", {
             newGame: true,
           });
         });

@@ -3,8 +3,10 @@
  */
 angular.module('demo')
   .factory('EntityService',
-    function(EventService, EventStreamService, $log, $timeout) {
+    function(EventService, $log) {
       'use strict';
+
+      var currentFrame;
 
       var containment = {
         "objects-wearer": "actors-clothing",
@@ -98,6 +100,10 @@ angular.module('demo')
           }
           return obj;
         },
+        // FIX? setFrame exists for backwards compat. may need a bit more thought.
+        setFrame: function(frame) {
+          currentFrame = frame;
+        },
       }; // entityService.
 
       Entity.prototype.is = function(state) {
@@ -184,9 +190,7 @@ angular.module('demo')
           var dat = args[0];
           var tgt = args[1];
           var evt = args[2];
-          var frame = EventStreamService.currentFrame();
-          //$log.debug("EntityService:", evt, tgt, frame, data);
-          f.call(that, frame, dat);
+          f.call(that, currentFrame, dat);
         };
 
         // subscribe to events; these callback member methods
@@ -204,7 +208,7 @@ angular.module('demo')
           call(that, that.x_val, arguments);
         });
         // finalize create
-        this.frame = frame || 0;
+        this.frame = frame;
         return this._postCreate();
       };
       // when there is a bad relation -- lab coat supported by the coat rack, and owned by the player -- 

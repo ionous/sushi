@@ -122,7 +122,7 @@ angular.module('demo')
         };
         // trigger unbounded.
         this.reset = function() {
-          ctrl.emit("reset", {});
+          return ctrl.emit("reset", {});
         };
       }; // Mouse
       var mouse = new Mouse();

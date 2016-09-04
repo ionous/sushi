@@ -110,7 +110,7 @@ angular.module('demo')
           destroy = e.toString();
         }
         if (destroy) {
-          hsmMachine.emit(name, "error", {
+          return hsmMachine.emit(name, "error", {
             reason: destroy,
           });
         }

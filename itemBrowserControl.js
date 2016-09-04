@@ -33,10 +33,9 @@ angular.module('demo')
           $log.info("inventoryControl", ctrl.name(), "opening", combining ? "combining" : "not combining", haveActions ? "have actions" : "no actions");
 
           if (combining && !haveActions) {
-            ctrl.emit("hack", {
+            return ctrl.emit("hack", {
               msg: ["I don't have anything to combine with that."],
             });
-            return;
           }
           //
           var getActions = function(item, context) {
@@ -122,7 +121,7 @@ angular.module('demo')
             active: activeIdx,
             // callback from uib-collapse
             collapsing: function() {
-              scope.barVisible= false;
+              scope.barVisible = false;
             },
             // callback from uib-collapse
             expanded: function() {
@@ -130,7 +129,7 @@ angular.module('demo')
             },
             //
             dismiss: function(reason) {
-              ctrl.emit("dismiss", {
+              return ctrl.emit("dismiss", {
                 reason: reason
               });
             },
@@ -147,14 +146,9 @@ angular.module('demo')
               var slide = slides[scope.active];
               var item = slide.item;
 
-              if (!act) {
-                // starting combining
-                ctrl.emit("combine", {
-                  item: item,
-                });
-              } else {
-                act.emitAction(item, combining);
-              }
+              return !act ? ctrl.emit("combine", {
+                item: item,
+              }) : act.emitAction(item, combining);
             },
           });
         }, // show inventory

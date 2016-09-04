@@ -8,11 +8,11 @@ angular.module('demo')
       var resume = {
         load: function() {
           loadGameControl.mostRecent().then(function(mostRecent) {
-            hsmMachine.emit(name, "loaded", {
+            return hsmMachine.emit(name, "loaded", {
               gameData: mostRecent
             });
           }, function(res) {
-            hsmMachine.emit(name, "error", {
+            return hsmMachine.emit(name, "error", {
               error: res
             });
           });

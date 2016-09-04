@@ -34,7 +34,7 @@ angular.module('demo')
           currMap = map;
           currentScope = slot.scope;
           currentScope.click = function() {
-            ctrl.emit("click", {});
+            return ctrl.emit("click", {});
           };
           currentScope.msg = loc.item ? "Return..." : "Return to room...";
         }

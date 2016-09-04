@@ -63,7 +63,7 @@ angular.module('demo')
         return new ActionEvent(this, pobj, cobj).pack();
       };
       ActionInfo.prototype.emitAction = function(pobj, cobj) {
-        hsmMachine.emit(name, "run", new ActionEvent(this, pobj, cobj));
+        return hsmMachine.emit(name, "run", new ActionEvent(this, pobj, cobj));
       };
 
       var scope = {

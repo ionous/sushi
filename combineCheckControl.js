@@ -34,16 +34,15 @@ angular.module('demo')
           }
           //
           pending.promise.then(function(ia) {
-            ctrl.emit("checked", {
+            return ctrl.emit("checked", {
               item: item,
               // []{  item:ItemRecord, action:[] {act:makeAction()} }
               actions: ia,
-              okay: true,
             });
-          }, function(r) {
-            ctrl.emit("checked", {
+          }, function(reason) {
+            return ctrl.emit("checked", {
               item: item,
-              reason: r
+              err: reason
             });
           });
           return pending.promise;

@@ -78,7 +78,7 @@ angular.module('demo')
               var quip = localsQuips[which];
               $log.info("playerDialogControl", name, "selected", which, quip, comment);
               if (quip) {
-                hsmMachine.emit(name, 'quip', {
+                return hsmMachine.emit(name, 'quip', {
                   'comment': comment,
                   'quip': quip,
                   'payload': {

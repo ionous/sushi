@@ -29,12 +29,12 @@ angular.module('demo')
             win.scope.loadGame = yes;
           });
           win.scope.start = function() {
-            hsmMachine.emit(name, "start", {
+            return hsmMachine.emit(name, "start", {
               //
             });
           };
           win.scope.resume = function() {
-            hsmMachine.emit(name, "resume", {
+            return hsmMachine.emit(name, "resume", {
               gameData: mostRecent,
             });
           };

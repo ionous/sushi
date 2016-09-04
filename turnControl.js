@@ -11,7 +11,7 @@ angular.module('demo')
       var go = function(run) {
         var emit = run ? "playing" : "paused";
         $log.info("turnControl", name, emit);
-        hsmMachine.emit(name, emit, {});
+        return hsmMachine.emit(name, emit, {});
       };
       var isPaused = function() {
         return !started || paused;

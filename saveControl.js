@@ -1,8 +1,7 @@
 angular.module('demo')
 
 .directiveAs("saveControl", ["^hsmMachine", "^^gameControl", "^^mapControl", "^clientDataControl", "^storageControl", "^textControl", ],
-  function(EventStreamService,
-    SaveVersion, MostRecentOut, $log, $q, $timeout) {
+  function(SaveVersion, MostRecentOut, $log, $q, $timeout) {
     'use strict';
     'ngInject';
     //
@@ -12,7 +11,7 @@ angular.module('demo')
       var SaveDefer = function(saveType) {
         var emit = function(saveData, saveError) {
           var defer;
-          hsmMachine.emit(name, "saved", {
+          return hsmMachine.emit(name, "saved", {
             data: saveData,
             saveType: saveType,
             error: saveError,
@@ -56,7 +55,6 @@ angular.module('demo')
           where: desc.replace("\\n", " "),
           when: date.toLocaleString(),
           version: SaveVersion,
-          frame: EventStreamService.currentFrame(),
           // via map.get("location") instead?
           location: map.currLoc(),
           history: history
@@ -128,8 +126,9 @@ angular.module('demo')
           $log.info("saveControl", name, "unexpected", saveType, response);
           hsmMachine.emit(name, "unexpected", {
             saveType: saveType
+          }).then(function() {
+            return completeSave(saveType, response);
           });
-          return completeSave(saveType, response);
         },
         saveGame: function(saveType) {
           var safeType = saveType || "normal-save";

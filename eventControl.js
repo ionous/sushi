@@ -1,26 +1,18 @@
 angular.module('demo')
 
-.directiveAs("gameListener", ["^^hsmMachine"],
+.stateDirective("eventControl",
   function($log, $q, EventService) {
     'use strict';
     'ngInject';
-    this.init = function(name, hsmMachine) {
+    this.init = function(ctrl) {
+      var targetName = ctrl.require("eventTarget");
+      var eventNames = ctrl.require("events");
+      var listenEnd = ctrl.optional("eventEnding") === "true";
       var listeners;
-      var silence = function() {
-        if (listeners) {
-          listeners();
-          listeners = null;
-        }
-      };
-      this.$onDestroy = function() {
-        if (listeners) {
-          $log.error("gameListener", name, "still active");
-          silence();
-        }
-      };
+
       var emit = function(data, tgt, evt, raw, endEvent) {
         var defer; // lazily created, so only used if accessed.
-        hsmMachine.emit(name, {
+        return ctrl.emit({
           data: data,
           name: evt,
           tgt: tgt,
@@ -35,8 +27,9 @@ angular.module('demo')
             }
             return defer.resolve;
           },
+        }).then(function() {
+          return defer && defer.promise;
         });
-        return defer && defer.promise;
       };
       // be a little explict so that if the event service wants to send us extra params...
       // we only pass the params we are expecting.
@@ -46,19 +39,24 @@ angular.module('demo')
       var sendEventEnd = function(d, t, e, x) {
         return emit(d, t, e, x, true);
       };
-      // exposed to scope:
-      return {
-        silence: silence,
-        listen: function(tgt, evts, startEnd) {
-          silence();
-          var handler = !startEnd ?
-            sendEventStart : {
-              start: sendEventStart,
-              end: sendEventEnd,
-            };
-          //$log.info("gameListener", name, tgt, evts, startEnd);
-          listeners = EventService.listen(tgt, evts, handler);
+
+      ctrl.onExit = function() {
+        if (listeners) {
+          listeners();
+          listeners = null;
         }
       };
+      ctrl.onEnter = function() {
+        var handler = !listenEnd ?
+          sendEventStart : {
+            start: sendEventStart,
+            end: sendEventEnd,
+          };
+        //$log.info("gameListener", name, tgt, evts, startEnd);
+        var events = eventNames.split(",");
+        listeners = EventService.listen(targetName, events, handler);
+      };
+
+      return null;
     }; // init
   });

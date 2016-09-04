@@ -54,7 +54,7 @@ angular.module('demo')
       var max = pt_add(min, size);
 
       var hit = new SimpleShape(obj, min, max);
-      this.hit= hit;
+      this.hit = hit;
       groups.children.unshift(hit);
       this.destroy = function() {
         groups.remove(hit);
@@ -70,7 +70,7 @@ angular.module('demo')
 
       var hit = new PlayerHitShape(obj, chara, xform);
       groups.children.unshift(hit);
-      this.hit= hit;
+      this.hit = hit;
       this.destroy = function() {
         groups.remove(hit);
       };
@@ -181,8 +181,8 @@ angular.module('demo')
             pending.promise.then(function(img) {
               pending = null;
               currPlayer = createNow(map, img, size);
-              hsmMachine.emit(name, "created", {
-                player: currPlayer, 
+              return hsmMachine.emit(name, "created", {
+                player: currPlayer,
               });
             });
           }

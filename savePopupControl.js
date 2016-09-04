@@ -47,11 +47,11 @@ angular.module('demo')
             errorMessage: null,
             exitGame: function() {
               $log.info("savePopupControl", "exit game");
-              hsmMachine.emit(name, "exit", {});
+              return hsmMachine.emit(name, "exit", {});
             },
             continueGame: function() {
               $log.info("savePopupControl", name, "continue game");
-              hsmMachine.emit(name, "continue", {});
+              return hsmMachine.emit(name, "continue", {});
             },
           };
           modal = modalControl.open(win, scope);

@@ -27,7 +27,7 @@ angular.module('demo')
               if (!currLoc || (room.id != currLoc.room)) {
                 loc = LocationService.newLocation(room.id);
               }
-              hsmMachine.emit(name, "located", {
+              return hsmMachine.emit(name, "located", {
                 where: loc
               });
             });

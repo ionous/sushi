@@ -11,16 +11,16 @@ angular.module('demo')
         slot.set({
           visible: true,
           dismiss: function(reason) {
-            ctrl.emit("dismiss", {});
+            return ctrl.emit("dismiss", {});
           },
           requestSave: function() {
-            ctrl.emit("save", {});
+            return ctrl.emit("save", {});
           },
           requestQuit: function() {
-            ctrl.emit("exit", {});
+            return ctrl.emit("exit", {});
           },
           continueGame: function() {
-            ctrl.emit("play", {});
+            return ctrl.emit("play", {});
           },
         });
       };

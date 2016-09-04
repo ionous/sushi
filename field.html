@@ -3,7 +3,7 @@
   <ng-include src="'settings.html'"></ng-include>
   <hsm-state name="Saving"></hsm-state>
   <hsm-state name="CombineCheck">
-    <hsm-event on="inv-combine-checked" when="$evt.okay" run="combinePanel.open($evt.item, !!$evt.actions.length); invWin.setCombine($evt.item, $evt.actions); actionBar.setCombine($evt.item)" goto="Combining"></hsm-event>
+    <hsm-event on="inv-combine-checked" when="!$evt.err" run="combinePanel.open($evt.item, !!$evt.actions.length); invWin.setCombine($evt.item, $evt.actions); actionBar.setCombine($evt.item)" goto="Combining"></hsm-event>
     <hsm-event on="inv-combine-checked" run="log.warn('combine failed', $evt.reason)" goto="NotCombining"></hsm-event>
   </hsm-state>
   <hsm-state name="Play" parallel="true">

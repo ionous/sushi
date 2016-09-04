@@ -13,27 +13,14 @@
                 <hsm-state save-control="save" hsm-enter="save.create()" hsm-exit="save.destroy()">
                   <hsm-state change-control="track" hsm-enter="track.create($evt.newGame)" hsm-exit="track.destroy()">
                     <!-- startup goes here when done: -->
-                    <hsm-state name="GameStarted" parallel="true" command-control="commands">
-                      <hsm-event on="game-posting" run="commands.post($evt.what)"></hsm-event>
-                      <hsm-event on="game-posting" run="track.worldChange(true)"></hsm-event>
-                      <hsm-event on="map-loading" run="track.mapChange(true)"></hsm-event>
+                    <hsm-state name="GameStarted" command-control="command">
+                      <!-- 
+                      <hsm-event on="game-posting" run="track.worldChange(true)"></hsm-event> <hsm-event on="map-loading" run="track.mapChange(true)"></hsm-event> -->
                       <!-- watch for saving -->
-                      <hsm-state>
+                      <!-- <hsm-state>
                         <hsm-event on="save-saved" run="track.reset($evt.saveType)"></hsm-event>
-                      </hsm-state>
-                      <!-- handle server event processing, raises -processing and -empty;
-                      fix? this should probably be more exclusive with playing. -->
-                      <hsm-state>
-                        <!-- before starting the stream, make sure we have our player;
-                        this is handled by the sibling playing state -->
-                        <hsm-state>
-                          <hsm-event on="player-created" goto="ProcessStart"></hsm-event>
-                        </hsm-state>
-                        <hsm-state name="ProcessStart" hsm-enter="stream.process()" hsm-exit="stream.process(false)">
-                          <hsm-event on="game-posting" run="stream.startProcessing()"></hsm-event>
-                          <ng-include src="'processing.html'"></ng-include>
-                        </hsm-state>
-                      </hsm-state>
+                      </hsm-state> -->
+                      
                       <!-- loading and playing the game -->
                       <hsm-state hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
                         <ng-include src="'playing2.html'"></ng-include>

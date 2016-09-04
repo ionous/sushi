@@ -1,6 +1,6 @@
 <hsm-state name="AutoStart" hsm-init="constant('AutoStart')">
   <!-- auto start helper: main menus -->
-  <hsm-state name="Menu" timeout-control="hup" hsm-enter="hup.timeout()">
+  <hsm-state name="Menu" timeout-state="hup" hsm-enter="hup.timeout()">
     <hsm-event on="hup-timeout" goto="Menus"></hsm-event>
   </hsm-state>
   <!-- auto start helper: resume -->
@@ -9,7 +9,7 @@
     <hsm-event on="most-recent-error" run="game.newGame()" goto="NewGame"></hsm-event>
   </hsm-state>
   <!-- auto start helper: begin -->
-  <hsm-state name="Begin" timeout-control="hup" hsm-enter="hup.timeout()">
+  <hsm-state name="Begin" timeout-state="hup" hsm-enter="hup.timeout()">
     <hsm-event on="hup-timeout" run="game.newGame()" goto="NewGame"></hsm-event>
   </hsm-state>
 </hsm-state>

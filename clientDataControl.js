@@ -42,7 +42,7 @@ angular.module('demo')
         var data = snapshot || {};
         latestData = data;
         // emit event to collect new serializers
-        hsmMachine.emit(name, "reset", {
+        return hsmMachine.emit(name, "reset", {
           exchange: function(line, callback) {
             return exchange(line, callback, data);
           }

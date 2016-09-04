@@ -8,7 +8,7 @@ angular.module('demo')
       var highlight;
       var emit = function(evt, pos) {
         if (!mouseControl.mouse.hidden()) {
-          hsmMachine.emit(name, evt, {
+          return hsmMachine.emit(name, evt, {
             pos: pos,
           });
         }

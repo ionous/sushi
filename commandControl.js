@@ -1,14 +1,20 @@
 angular.module('demo')
 
-// listen to server posting, and reflect those commands to the text/history control.
-.directiveAs("commandControl", ["^textControl"],
-  function($log, $q, $timeout) {
+// wrap game posting to reflect those commands to the text/history control.
+.stateDirective("commandControl", ["^gameControl", "^textControl"],
+  function() {
     'use strict';
     'ngInject';
-    this.init = function(name, textControl) {
+    this.init = function(ctrl, gameControl, textControl) {
+      var game;
+      ctrl.onEnter = function() {
+        game = gameControl.getGame();
+      };
+      ctrl.onExit = function() {
+        game = null;
+      };
       return {
         post: function(what) {
-          //$log.info("commandControl", name, "posting", what);
           var history = textControl.history();
           var userInput = what.in;
           if (userInput) {
@@ -16,6 +22,7 @@ angular.module('demo')
           } else {
             textControl.addInput(what.act, what.tgt, what.ctx);
           }
+          return game.post(what);
         },
       };
     }; // init

@@ -123,14 +123,10 @@ angular.module('demo')
               }
             },
             runAction: function(act) {
-              if (!act.sysAction) {
-                act.emitAction(obj, combineItem);
-              } else {
-                $log.info("actionBarControl", name, act.id, view);
+              return !act.sysAction ? act.emitAction(obj, combineItem) :
                 hsmMachine.emit(name, act.id, {
                   view: view,
                 });
-              }
             }, // runAction
           }; // return config
         });

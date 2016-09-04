@@ -38,7 +38,7 @@ angular.module('demo')
         ElementSlotService.bind(name, $element, $scope);
         //
         var useOg = angular.isUndefined(og) || og;
-        //$log.debug("modalWindow", $scope.name, "useOg", useOg, og);
+        $log.debug("modalWindow", $scope.name, "useOg", useOg, og);
         if (useOg) {
           var overgrey;
           $scope.$watch("modal.topWindow", function(newValue) {
@@ -78,13 +78,7 @@ angular.module('demo')
             hsmMachine.emit(which, "closed", {
               reason: reason,
             });
-            // common event:
-            hsmMachine.emit(name, "closed", {
-              name: name,
-              source: which,
-              reason: reason,
-            });
-            //$log.info("modalControl: closed", name, slot.name, reason);
+            $log.info("modalControl: closed", name, slot.name, reason);
             input.reject(reason);
             result.resolve(reason);
           }
@@ -121,22 +115,6 @@ angular.module('demo')
         var which = slotName;
         hsmMachine.emit(which, "opened", {
           modalInstance: modal,
-        });
-        // common event:
-        hsmMachine.emit(name, "opened", {
-          name: name, // ex. modal
-          source: which, // ex. actionBar
-          modalInstance: modal,
-          matches: function() {
-            var yes;
-            for (var i = 0; i < arguments.length; i += 1) {
-              if (arguments[i] == which) {
-                yes = true;
-                break;
-              }
-            }
-            return yes;
-          }
         });
         // wrap params in a defer so we can cancel on an early close.
         $q.when(params).then(input.resolve, input.reject);

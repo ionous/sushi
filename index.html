@@ -41,7 +41,6 @@
   <script src="elementSlotService.js"></script>
   <script src="entityService.js"></script>
   <script src="eventService.js"></script>
-  <script src="eventStreamService.js"></script>
   <script src="hitService.js"></script>
   <script src="iconService.js"></script>
   <script src="itemService.js"></script>
@@ -68,11 +67,9 @@
   <script src="moveState.js"></script>
   <script src="nearFarState.js"></script>
   <script src="physicsState.js"></script>
+  <script src="processorState.js"></script>
   <script src="radialState.js"></script>
   <script src="roomReturnState.js"></script>
-  <script src="timeoutState.js"></script>
-  <script src="updateState.js"></script>
-  <script src="visibilityState.js"></script>
   <!--  controls -->
   <script src="actionBarControl.js"></script>
   <script src="actionButtonControl.js"></script>
@@ -90,10 +87,10 @@
   <script src="combinePanelControl.js"></script>
   <script src="commentBoxControl.js"></script>
   <script src="customActionsControl.js"></script>
+  <script src="eventControl.js"></script>
   <script src="doorDelayControl.js"></script>
   <script src="finiControl.js"></script>
   <script src="gameControl.js"></script>
-  <script src="gameListener.js"></script>
   <script src="hoverControl.js"></script>
   <script src="itemBrowserControl.js"></script>
   <script src="keyControl.js"></script>
@@ -109,7 +106,6 @@
   <script src="popupControl.js"></script>
   <script src="positionControl.js"></script>
   <script src="printControl.js"></script>
-  <script src="processControl.js"></script>
   <script src="physicsControl.js"></script>
   <script src="recentItemControl.js"></script>
   <script src="resumeControl.js"></script>
@@ -142,7 +138,7 @@
   <script src="mosaic/sprite.js"></script>
 </head>
 
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" path-control="path" constant-control="constant" hsm-transition="0&& log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evt)" hsm-enter="0&& $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0&& log.exit($state)" blur-control="blur">
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" path-control="path" constant-control="constant" hsm-transition="0&& log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evtname)" hsm-enter="0&& $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0&& log.exit($state)" blur-control="blur">
   <header>
     <div title-bar-control="titlebar" class="titlebar">
       <span class="titlebar-icon">

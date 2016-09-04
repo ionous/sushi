@@ -1,25 +1,22 @@
 angular.module('demo')
 
-.directiveAs("updateControl", ["^^hsmMachine"],
+.stateDirective("updateState",
   function($log, UpdateService) {
     'use strict';
     'ngInject';
-    this.init = function(name, hsmMachine) {
-      var evt;
+    this.init = function(ctrl) {
+      var event = ctrl.require("updateEvent");
       var update = function(dt) {
-        // NOTE! doesnt call apply... hmmm...
-        hsmMachine.emit(name, evt, {
+        return ctrl.emit(event, {
           dt: dt
         });
       };
-      return {
-        start: function(sub) {
-          evt = sub;
-          UpdateService.update(update);
-        },
-        end: function() {
-          UpdateService.stop(update);
-        },
+      ctrl.onEnter = function() {
+        UpdateService.update(update);
       };
+      ctrl.onExit = function() {
+        UpdateService.stop(update);
+      };
+      return null; // nothing to export
     };
   });

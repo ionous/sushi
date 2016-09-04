@@ -22,7 +22,7 @@ angular.module('demo')
             },
             saveMessage: prompt ? "Your game isn't saved." : "",
             exitGame: function() {
-              hsmMachine.emit(name, "exit", {});
+              return hsmMachine.emit(name, "exit", {});
             },
           });
           modal = mdl;

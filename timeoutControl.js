@@ -1,26 +1,25 @@
 angular.module('demo')
 
-.directiveAs("timeoutControl", ["^^hsmMachine"],
+.stateDirective("timeoutState",
   function($log, $timeout) {
     'use strict';
     'ngInject';
-    var promise = null;
-    this.init = function(name, hsmMachine) {
+    this.init = function(ctrl) {
+      var promise;
+      ctrl.onExit = function() {
+        if (promise) {
+          $timeout.cancel(promise);
+          promise = null;
+        }
+      };
       return {
         timeout: function(ms) {
-          //$log.debug("timeoutControl", name, "start");
           promise = $timeout(function() {
-            //$log.debug("timeoutControl", name, "timeout");
-            hsmMachine.emit(name, "timeout", {
+            return ctrl.emit("timeout", {
               elapsed: ms
             });
           }, ms);
-        },
-        cancel: function() {
-          //$log.debug("timeoutControl", name, "cancel");
-          $timeout.cancel(promise);
-          promise = null;
-        },
+        }
       };
     };
   });

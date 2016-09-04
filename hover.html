@@ -11,7 +11,7 @@
       <hsm-event on="mouse-down" goto="MouseDown" run="hover.press(mouse.pos())"></hsm-event>
     </hsm-state>
     <!-- mouse -->
-    <hsm-state name="MouseDown" timeout-control="wait" hsm-enter="wait.timeout(150)" hsm-exit="wait.cancel()">
+    <hsm-state name="MouseDown" timeout-state="wait" hsm-enter="wait.timeout(150)">
       <!-- on mouse up within time - ie. something like a click.   -->
       <hsm-event on="mouse-up" run="hover.select(mouse.pos())" goto="MouseHighlight"></hsm-event>
       <!-- on timeout begin a directed move - ie. something like a drag. -->

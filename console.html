@@ -1,6 +1,6 @@
 <hsm-state name="Console" console-control="console" console-slot="consoleWin">
     <hsm-event on="console-dismiss" run="console.close($evt.reason)" goto="Planning"></hsm-event>
     <hsm-event on="keys" when="$evt.escapeKey()" run="console.close('escape')" goto="Planning"></hsm-event>
-    <hsm-event on="console-submit" run="game.post($evt.data)" goto="Processing"></hsm-event>
+    <hsm-event on="console-submit" run="command.post($evt.data)" goto="Post"></hsm-event>
   </hsm-state>
 </hsm-state>

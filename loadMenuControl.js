@@ -34,7 +34,7 @@ angular.module('demo')
           win.scope.loadGame = function(ikey) {
             var saveGameData = lookup[ikey];
             if (saveGameData) {
-              hsmMachine.emit(name, "resume", {
+              return hsmMachine.emit(name, "resume", {
                 gameData: saveGameData,
               });
             }

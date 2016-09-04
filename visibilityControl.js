@@ -1,38 +1,39 @@
 angular.module('demo')
 
-.directiveAs("visibilityControl", ["^hsmMachine"],
-  function(ElementSlotService, $log, $timeout) {
+.stateDirective("visibilityState",
+  function(ElementSlotService, $log) {
     'use strict';
     'ngInject';
-    this.init = function(name, hsmMachine) {
-      var change = function(windowName, visible) {
+    this.init = function(ctrl) {
+      var show = function(windowName, visible) {
         var ret, scope = ElementSlotService.get(windowName).scope;
         if (scope.visible !== visible) {
-          $log.info("visibilityControl", name, "show", windowName, visible);
           scope.visible = visible;
-          // using timeout b/c i'm paranoid about digest
-          // not actually showing the window before people try to use it.
-          $timeout(function() {
-            hsmMachine.emit(name, "show", {
-              windowName: windowName,
-              visible: visible,
-            });
+          return ctrl.emit("show", {
+            windowName: windowName,
+            visible: visible,
           });
           ret = true;
         }
         return ret;
       };
-      var oldWin;
-      var scope = {
-        show: function(windowName) {
-          if (windowName) {
-            change(windowName, true);
-            oldWin = windowName;
-          } else if (oldWin) {
-            change(oldWin, false);
-          }
+
+      var windowName = ctrl.require("visibilitySlot");
+      var autoShow = !ctrl.flag("visibilityAutoShow");
+      if (autoShow) {
+        ctrl.onEnter = function() {
+          show(windowName, true);
+        };
+      }
+      ctrl.onExit = function() {
+        show(windowName, false);
+      };
+
+      var visibility = {
+        show: function(yes) {
+          show(windowName, angular.isUndefined(yes) || yes);
         }
       };
-      return scope;
+      return visibility;
     };
   });

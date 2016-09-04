@@ -10,7 +10,7 @@ angular.module('demo')
         this.map = ElementSlotService.get("gameMap");
         this.panel = ElementSlotService.get("finalExit");
         this.panel.scope.exit = function() {
-          hsmMachine.emit(name, "exit", {});
+          return hsmMachine.emit(name, "exit", {});
         };
       };
       Fini.prototype.hide = function(hide) {

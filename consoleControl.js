@@ -16,13 +16,14 @@ angular.module('demo')
           inputEnabled: true,
           history: history,
           dismiss: function(reason) {
-            ctrl.emit("dismiss", {
+            return ctrl.emit("dismiss", {
               reason: reason
             });
           },
           submit: function(userInput) {
-            ctrl.emit("submit", {
-              data: { in : userInput
+            return ctrl.emit("submit", {
+              data: {
+                "in": userInput,
               }
             });
           }
