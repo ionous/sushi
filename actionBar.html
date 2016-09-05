@@ -1,5 +1,0 @@
-<div class="ga-actionbar" ng-style="actionBar.getStyle()">
-  <a ng-repeat="act in actionBar.actions | orderBy:'iconIndex' track by act.id" class="btn btn-primary" uib-tooltip="{{act.name}}" ng-click="actionBar.runAction(act)" ng-style="actionBar.getStyle($index)" tooltip-placement="bottom" tooltip-class="ga-xtip" action-button-control="{{act.id}}">
-    <i ng-class="act.iconClass"></i>
-  </a>
-</div>

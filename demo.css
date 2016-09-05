@@ -138,17 +138,7 @@ div.ga-biggrey {
   z-index: 100;
 }
 
-div.ga-grab {
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  position: absolute;
-  opacity: 0.0;
-  z-index: 99999;
-}
-
-div.overgrey {
+div.ga-overgrey {
   width: 100%;
   height: 100%;
   /* use "fixed" to pop out of the game window, use top to avoid the title bar*/
@@ -159,17 +149,17 @@ div.overgrey {
   opacity: 0;
 }
 
-.ga-greyignore > div.overgrey {
+.ga-overgrey.ga-greyignore {
   cursor: not-allowed;
 }
 
-.ga-greydismiss > div.overgrey {
+.ga-overgrey.ga-greydismiss {
   /*cursor: pointer;
 its actually nice to see some change in the cursor i think*/
   cursor: default;
 }
 
-.ga-greyshow > div.overgrey {
+.ga-overgrey.ga-greyshow {
   opacity: 0.45;
   background-color: black;
 }
@@ -221,15 +211,6 @@ its actually nice to see some change in the cursor i think*/
   margin: 0;
   padding: 0;
 }
-
-
-/* modal window element */
-
-
-/*.ga-menus >div {
-  height: 100%;
-}
-*/
 
 .ga-menus a {
   cursor: pointer;

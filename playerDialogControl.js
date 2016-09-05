@@ -1,27 +1,27 @@
 angular.module('demo')
 
-.directiveAs('playerDialogControl', ["^modalControl", "^hsmMachine"],
-  function(EntityService, $log) {
+.stateDirective('playerDialogControl',
+  function(ElementSlotService, EntityService, $log) {
     'use strict';
     'ngInject';
-    var comments, display, quips, modal, title;
-    var clear = function(where) {
-      quips = [];
+    var comments, quips, title;
+    var clear = function() {
       comments = [];
+      quips = [];
       title = null;
     };
-    this.init = function(name, modalControl, hsmMachine) {
-      return {
-        bindTo: function(where) {
-          //$log.info("playerDialog", name, "bound", where);
-          display = where;
-          clear(where);
-        },
-        destroy: function() {
-          //$log.info("playerDialog", name, "destroyed");
-          display = null;
-          clear();
-        },
+    this.init = function(ctrl) {
+      var currentSlot;
+      var slotName = ctrl.require("dialogSlot");
+      ctrl.onExit = function() {
+        currentSlot.set(null);
+        currentSlot = null;
+      };
+      ctrl.onEnter = function() {
+        currentSlot = ElementSlotService.get(slotName);
+        clear();
+      };
+      var playerDialog = {
         setTitle: function(tgt) {
           if (!tgt) {
             title = null;
@@ -29,40 +29,30 @@ angular.module('demo')
             var book = EntityService.getById(tgt);
             // patch: dont want titles on conversations with alien-boy, etc.
             // for instance: after reading matter converter.
-            // it might be better if "topic" had a title, and if we querried for it.
+            // it might be better if "topic" had a title, and we querried it.
             if (book.type == "books") {
               title = book.printedName();
             }
           }
-          $log.info("playerDialog", name, "set title", tgt, title);
         },
         addQuip: function(tgt) {
-          //$log.debug("playerDialog", name, "add quip", tgt);
           quips.push(tgt);
         },
         addChoice: function(lines) {
-          //$log.debug("playerDialog", name,"add choices", lines);
           comments.push(lines && lines.length ? lines[0] : "");
         },
         addFallback: function(quip, text) {
-          //$log.info("playerDialog", name",add fallback", quip, text);
           quips.push(quip);
           comments.push(text);
         },
         empty: function() {
-          return comments.length === 0;
+          return !comments || (comments.length === 0);
         },
         close: function(reason) {
-          if (modal) {
-            modal.close(reason);
-            modal = null;
-          }
+          currentSlot.set(null);
           clear();
         },
         open: function() {
-          if (!display) {
-            throw new Error("nowhere to comment");
-          }
           if (!comments.length) {
             throw new Error("nothing to comment");
           }
@@ -70,15 +60,16 @@ angular.module('demo')
           //$log.debug("playerDialog",name,"show choices", comments.length);
           var localComments = comments.slice();
           var localsQuips = quips.slice();
-          modal = modalControl.open(display, {
+          currentSlot.set({
             title: title,
-            comments: localComments,
+            choices: localComments,
+            visible: true,
             select: function(which) {
               var comment = localComments[which];
               var quip = localsQuips[which];
               $log.info("playerDialogControl", name, "selected", which, quip, comment);
               if (quip) {
-                return hsmMachine.emit(name, 'quip', {
+                return ctrl.emit('quip', {
                   'comment': comment,
                   'quip': quip,
                   'payload': {
@@ -91,5 +82,6 @@ angular.module('demo')
           });
         },
       }; // export
+      return playerDialog;
     }; // init
   });

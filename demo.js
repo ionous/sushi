@@ -19,6 +19,7 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'],
   .constant("Talk", true)
   .constant("Popups", true)
   //.constant("GameServerUrl", "gopherjs")
+  //blur control
   .constant("GameServerUrl", "http://localhost:8080/game")
   .constant("RequireSave", false)
   .constant("SaveProgress", false);

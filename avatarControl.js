@@ -3,12 +3,12 @@
  */
 angular.module('demo')
 
-.stateDirective("avatarState", ["^keyControl", "^^physicsState", "^playerControl"],
+.stateDirective("avatarState", ["^keyState", "^^physicsState", "^playerControl"],
   function($log) {
     'use strict';
     'ngInject';
-    this.init = function(ctrl, keyControl, physicsState, playerControl) {
-      var currPlayer, currProp;
+    this.init = function(ctrl, keyState, physicsState, playerControl) {
+      var currKeys, currPlayer, currProp;
       var reduce = function(val) {
         return val ? 1.0 : 0.0;
       };
@@ -18,9 +18,11 @@ angular.module('demo')
           currProp = null;
         }
         currPlayer = null;
+        currKeys = null;
       };
       var size = ctrl.optional("avatarSize", "12");
       ctrl.onEnter = function() {
+        currKeys = keyState.getKeys();
         currPlayer = playerControl.getPlayer();
         if (!currPlayer) {
           throw new Error("invalid player");
@@ -88,7 +90,7 @@ angular.module('demo')
           if (!dir || !dt) {
             avatar.stop();
           } else if (currProp) {
-            var walking = keyControl.buttons('shift');
+            var walking = currKeys.buttons('shift');
             // animation facing.
             var face = dir;
             var angle = currPlayer.setAngle(face.x, face.y);

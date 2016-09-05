@@ -1,6 +1,6 @@
 angular.module('demo')
 
-.directiveAs("keyControl", ["^^hsmMachine"],
+.stateDirective("keyState",
   function($log, $scope, $rootElement) {
     'use strict';
     'ngInject';
@@ -60,7 +60,7 @@ angular.module('demo')
     var shiftPressed, reflectList = [
       "keyup", "keydown"
     ];
-    this.init = function(name, hsmMachine) {
+    this.init = function(ctrl) {
       var el = $rootElement;
       var handleKey = function(e) {
         var which = e.which;
@@ -76,46 +76,45 @@ angular.module('demo')
             var val = (prev ^ mask);
             currentKeys[keyname] = val;
             var key = new KeyEvent(keyname, nowPressed);
-            //$log.info("keyControl", name, keyname, nowPressed);
+            //$log.info("keyState", name, keyname, nowPressed);
             $scope.$apply(function() {
-              hsmMachine.emit(name, key);
+              ctrl.emit(key);
             });
           }
         }
       }; // handleKey
-      this.buttons = function(name) {
-        if (angular.isUndefined(name)) {
-          return currentKeys;
-        } else {
-          return currentKeys[name];
+
+
+      ctrl.onEnter = function() {
+        currentKeys = {};
+        reflectList.forEach(function(r) {
+          el.on(r, handleKey);
+        });
+      };
+      ctrl.onExit = function() {
+        reflectList.forEach(function(r) {
+          el.off(r, handleKey);
+        });
+      };
+      var keys = {
+        buttons: function(name) {
+          if (angular.isUndefined(name)) {
+            return currentKeys;
+          } else {
+            return currentKeys[name];
+          }
+        },
+        moving: function(log) {
+          var val = 0;
+          moveKeys.forEach(function(key) {
+            val += (currentKeys[key] || 0);
+          });
+          return val > 0;
         }
       };
-      this.moving = function(log) {
-        var val = 0;
-        moveKeys.forEach(function(key) {
-          val += (currentKeys[key] || 0);
-        });
-        return val > 0;
+      this.getKeys = function() {
+        return keys;
       };
-      var ctrl = this;
-      return {
-        listen: function(log) {
-          currentKeys = {};
-          reflectList.forEach(function(r) {
-            el.on(r, handleKey);
-          });
-        },
-        silence: function() {
-          reflectList.forEach(function(r) {
-            el.off(r, handleKey);
-          });
-        },
-        buttons: function(b) {
-          return ctrl.buttons(b);
-        },
-        moving: function() {
-          return ctrl.moving();
-        },
-      };
+      return keys;
     };
   });

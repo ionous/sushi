@@ -71,8 +71,6 @@
   <script src="radialState.js"></script>
   <script src="roomReturnState.js"></script>
   <!--  controls -->
-  <script src="actionBarControl.js"></script>
-  <script src="actionButtonControl.js"></script>
   <script src="avatarControl.js"></script>
   <script src="blurControl.js"></script>
   <script src="buttonControl.js"></script>
@@ -85,8 +83,6 @@
   <script src="commandControl.js"></script>
   <script src="combineCheckControl.js"></script>
   <script src="combinePanelControl.js"></script>
-  <script src="commentBoxControl.js"></script>
-  <script src="customActionsControl.js"></script>
   <script src="eventControl.js"></script>
   <script src="doorDelayControl.js"></script>
   <script src="finiControl.js"></script>
@@ -97,7 +93,6 @@
   <script src="loadGameControl.js"></script>
   <script src="pathControl.js"></script>
   <script src="mapControl.js"></script>
-  <script src="modalControl.js"></script>
   <script src="mouseHideControl.js"></script>
   <script src="moveControl.js"></script>
   <script src="playerControl.js"></script>
@@ -138,7 +133,7 @@
   <script src="mosaic/sprite.js"></script>
 </head>
 
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" modal-control="modal" path-control="path" constant-control="constant" hsm-transition="0&& log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evtname)" hsm-enter="0&& $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0&& log.exit($state)" blur-control="blur">
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" path-control="path" constant-control="constant" hsm-transition="0&& log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evtname)" hsm-enter="0&& $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0&& log.exit($state)" xblur-control="blur">
   <header>
     <div title-bar-control="titlebar" class="titlebar">
       <span class="titlebar-icon">
@@ -155,16 +150,16 @@
   <main>
     <div element-slot="gameWindow" ng-include="'gameWindow.html'">
     </div>
-    <div class="ga-menus" element-slot="menuWindow" ng-show="menuWindow.visible">
+    <div class="ga-menus" element-slot="menuWindow" ng-show="!!menuWindow.visible">
       <div element-slot="mainWin" ng-include="'mainWin.html'"></div>
       <div element-slot="creditsWin" ng-include="'creditsWin.html'"></div>
       <div element-slot="loadMenuWin" ng-include="'loadMenuWin.html'"></div>
     </div>
   </main>
   <footer ng-init="hsmExpanded=true">
-    <div class="state-display" ng-show="constant('ShowHsm')">
+    <div class="state-display" ng-show="!!constant('ShowHsm')">
       <a href="" ng-click="hsmExpanded=!hsmExpanded">states [{{hsmExpanded ? 'x' : 'o'}}]</a>
-      <ng-include src="'main.html'" ng-show="hsmExpanded"></ng-include>
+      <ng-include src="'main.html'" ng-show="!!hsmExpanded"></ng-include>
     </div>
   </footer>
 </body>

@@ -1,23 +1,21 @@
-<div class="ga-play" ng-if="gameWindow.visible" ga-map-color>
-  <div element-slot="gameMap" ng-show="gameMap.visible" ng-style="gameMap.style" class="ga-map ga-the-center ga-noselect"></div>
-  <ng-include src="'buttonBar.html'"></ng-include>
-  <div element-slot="mouseDisplay" class="ga-cursor ga-noselect" ng-show="!!mouseDisplay.visible">
+<div class="ga-play" ng-if="!!gameWindow.visible" ga-map-color>
+  <div element-slot="gameMap" ng-show="!!gameMap.visible" ng-style="gameMap.style" class="ga-map ga-the-center "></div>
+  <div ng-include="'buttonBar.html'"></div>
+  <div element-slot="mouseDisplay" class="ga-cursor" ng-show="!!mouseDisplay.visible">
     <div class="ga-tooltip" ng-if="!!mouseDisplay.tooltip">
-    {{mouseDisplay.tooltip}}
+      {{mouseDisplay.tooltip}}
     </div>
   </div>
-  <div element-slot="combineBox" class="ga-noselect" ng-include="'combineBox.html'"></div>
-  <div element-slot="finalExit" class="ga-noselect" ng-include="'finalExit.html'"></div>
-  <div element-slot="radialMenu" class="ga-noselect" ng-include="'radialMenu.html'"></div>
-  <div element-slot="consoleWin" class="ga-greyshow ga-greydismiss" ng-include="'consoleWin.html'"></div>
-  <div element-slot="settings" class="ga-greyshow ga-greydismiss ga-noselect" ng-include="'settingsBox.html'"></div>
-  <div element-slot="items" class="ga-greydismiss ga-noselect" ng-include="'invWin.html'"></div>
-  <!--  -->
-  <modal-window name="commentBox" class="ga-greyignore" group="modal" src="'commentBox.html'"></modal-window>
-  <modal-window name="talk" class="ga-greydismiss ga-noselect" group="modal"></modal-window>
-  
-  <modal-window name="confirmExit" class="ga-greydismiss ga-noselect" group="modal" src="'confirmExitWin.html'"></modal-window>
-  <modal-window name="popupBox" class="ga-greydismiss ga-noselect" group="modal" src="'popupBox.html'"></modal-window>
-  <modal-window name="savePopup" class="ga-greyshow ga-noselect" group="modal" src="'savePopupWin.html'"></modal-window>
-  <modal-window name="autoSave" class="ga-noselect" group="modal" src="'autoSaveWin.html'"></modal-window>
+  <div element-slot="combineBox" ng-include="'combineBox.html'"></div>
+  <div element-slot="finalExit" ng-include="'finalExit.html'"></div>
+  <div element-slot="radialMenu" ng-include="'radialMenu.html'"></div>
+  <div element-slot="consoleWin" ng-include="'consoleWin.html'"></div>
+  <div element-slot="settings" ng-include="'settingsBox.html'"></div>
+  <div element-slot="items" ng-include="'invWin.html'"></div>
+  <div element-slot="popup" ng-include="'popupBox.html'"></div>
+  <div element-slot="commentBox" ng-include="'commentBox.html'"></div>
+  <div element-slot="talk" ng-include="'bubbleBox.html'"></div>
+  <div element-slot="confirmExit" ng-include="'confirmExitWin.html'"></div>
+  <div element-slot="saver" ng-include="'savePopupWin.html'"></div>
+  <div element-slot="autoSave" ng-include="'autoSaveWin.html'"></div>
 </div>

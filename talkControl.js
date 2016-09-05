@@ -1,11 +1,11 @@
 angular.module('demo')
 
-.directiveAs('talkControl', ["^hsmMachine", "^modalControl"], function(
+.stateDirective('talkControl', function(
   ElementSlotService, ObjectDisplayService,
   $log, $q, $timeout) {
-    'use strict';
-    'ngInject';
-  this.init = function(name, hsmMachine, modalControl) {
+  'use strict';
+  'ngInject';
+  this.init = function(ctrl) {
     // hmmm.... the images have different spacings in them... :(
     // should probably be part of a character/state description.
     var adjust = function(id) {
@@ -43,8 +43,8 @@ angular.module('demo')
       this.destroy = function() {
         removeBubble();
       };
-      this.displayText = function(mdl, text) {
-        var modalEl = mdl.slot.element;
+      this.displayText = function(slot, text) {
+        var displayEl = slot.element;
         var charRect = getCharRect();
         //$log.info("displayText", text);
 
@@ -57,7 +57,7 @@ angular.module('demo')
 
         // assign text, and measure:
         bubble.text(text);
-        modalEl.append(bubble);
+        displayEl.append(bubble);
 
         // modal and text rect are aligned
         // so textRect.left,.top gives us the corner of our window
@@ -78,12 +78,9 @@ angular.module('demo')
           "left": x + "px",
           "top": y + "px",
         });
-        bubble.one("click", function() {
-          mdl.dismiss("bubble click");
-        });
       };
     }; // Talker.
-    var currentTalker, currentModal, currentLines, currentDefer;
+    var currentTalker, currentSlot, currentLines, currentDefer;
     var nextUnsafe = function() {
       if (!currentTalker) {
         throw new Error("no ones talking");
@@ -91,12 +88,37 @@ angular.module('demo')
       if (!currentLines || !currentLines.length) {
         throw new Error("nothing to say");
       }
-      var mdl = modalControl.open("talk");
-      currentModal = mdl;
+      currentSlot = ElementSlotService.get("talk");
+      currentSlot.set({
+        visible: true,
+        dismiss: function(reason) {
+          ctrl.emit("dismiss", {
+            reason: reason
+          });
+        },
+      });
       var text = currentLines.shift();
-      currentTalker.displayText(mdl, text);
+      currentTalker.displayText(currentSlot, text);
     };
-    var scope = {
+
+    ctrl.onExit = function() {
+      //$log.info("talkControl", name, "cleanup", reason);
+      if (currentSlot) {
+        currentSlot.set(null);
+        currentSlot= null;
+      }
+      if (currentTalker) {
+        currentTalker.destroy();
+        currentTalker = null;
+      }
+      if (currentDefer) {
+        currentDefer.resolve();
+        currentDefer = null;
+      }
+      currentLines = null;
+    };
+    //
+    var talk = {
       finished: function() {
         var empty = !currentLines || !currentLines.length;
         return empty;
@@ -110,27 +132,17 @@ angular.module('demo')
           destroy = e.toString();
         }
         if (destroy) {
-          return hsmMachine.emit(name, "error", {
+          ctrl.emit("error", {
             reason: destroy,
           });
         }
       },
-      cleanup: function(reason) {
-        reason = reason || "talkControl cleanup";
-        //$log.info("talkControl", name, "cleanup", reason);
-        if (currentTalker) {
-          currentTalker.destroy();
-          currentTalker = null;
-        }
-        if (currentModal) {
-          currentModal.close(reason);
-          currentModal = null;
-        }
-        currentLines = null;
-        if (currentDefer) {
-          currentDefer.resolve(reason);
-          currentDefer = null;
-        }
+      dismiss: function(reason) {
+        currentSlot.set(null);
+        var defer = currentDefer;
+        ctrl.emit("dismiss", {
+          reason: reason
+        });
       },
       say: function(actorId, data) {
         if (!data || !data.length) {
@@ -140,13 +152,13 @@ angular.module('demo')
         currentDefer = defer;
         currentTalker = new Talker(actorId);
         currentLines = data.slice();
-        // needed to get the first line on map transitions
+        // need to wait to get the first line on map transitions
         $timeout(function() {
-          scope.next();
+          talk.next();
         });
         return defer.promise;
       }, //say
     }; // scope
-    return scope;
+    return talk;
   }; // init
 });

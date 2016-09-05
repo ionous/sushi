@@ -1,10 +1,10 @@
-<div class="overgrey" ng-click="consoleWin.dismiss()" ng-if="consoleWin.visible"></div>
+<div class="ga-overgrey" class="ga-greyshow ga-greydismiss" ng-click="consoleWin.dismiss()" ng-if="!!consoleWin.visible"></div>
 <div ng-controller="InputController as input" class="ga-console" uib-collapse="!consoleWin.visible">
   <div class="scroll-text" ga-scrolldown="consoleWin.history">
     <ul>
       <li ng-repeat="block in consoleWin.history track by $index">
         <ul ng-class="{ input : block.input }">
-          <li ng-if="block.speaker"><span class="speaker text">{{block.speaker}}</span></li>
+          <li ng-if="!!block.speaker"><span class="speaker text">{{block.speaker}}</span></li>
           <li ng-repeat="text in block.text track by $index"><span class="text">{{text}}</span></li>
         </ul>
       </li>

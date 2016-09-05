@@ -1,4 +1,4 @@
-<div class="ga-main" ng-if="mainWin.visible">
+<div class="ga-main" ng-if="!!mainWin.visible">
   <div class="ga-main-fg">
     <div class="ga-main-bg"></div>
     <div class="ga-main-char">
@@ -42,13 +42,13 @@
       <li ng-if="!mainWin.resumable">
         <ga-link ga-dst="/start" ng-click="mainWin.start()">New Game</ga-link>
       </li>
-      <li ng-if="mainWin.resumable">
+      <li ng-if="!!mainWin.resumable">
         <ga-link ga-dst="/resume" ng-click="mainWin.resume()">Continue Game</ga-link>
       </li>
       <li>
         <ga-link ga-dst="/saved" ga-disabled="!mainWin.loadGame">Load Game</ga-link>
       </li>
-      <li ng-if="mainWin.resumable">
+      <li ng-if="!!mainWin.resumable">
         <ga-link ga-dst="/start" ng-click="mainWin.start()">New Game</ga-link>
       </li>
       <li>

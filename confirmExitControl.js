@@ -1,34 +1,42 @@
 angular.module('demo')
 
-.directiveAs("confirmExitControl", ["^changeControl", "^modalControl", "^hsmMachine"],
-  function() {
+.stateDirective("confirmExitControl", ["^changeControl"],
+  function(ElementSlotService) {
     'use strict';
     'ngInject';
-    this.init = function(name, changeControl, modalControl, hsmMachine) {
-      var modal;
-      var settings = {
+    this.init = function(ctrl, changeControl) {
+      var currentSlot;
+      var slotName = ctrl.get("confirmSlot");
+      ctrl.onExit = function() {
+        currentSlot.set(null);
+        currentSlot = null;
+      };
+      ctrl.onEnter = function() {
+        currentSlot = ElementSlotService.get(slotName);
+      };
+      var confirmExit = {
         close: function(reason) {
-          if (modal) {
-            modal.close(reason || "close called");
-            modal = null;
-          }
+          ctrl.emit("closed", {
+            reason: reason
+          });
+          currentSlot.set(null);
         },
         open: function(win) {
-          settings.close();
           var prompt = changeControl.worldChange() && !changeControl.manuallySaved();
-          var mdl = modalControl.open(win, {
+          currentSlot.set({
+            visible: true,
             dismiss: function(reason) {
-              mdl.dismiss(reason);
+              ctrl.emit("dismiss", {
+                reason: reason
+              });
             },
             saveMessage: prompt ? "Your game isn't saved." : "",
             exitGame: function() {
-              return hsmMachine.emit(name, "exit", {});
+              return ctrl.emit("exit", {});
             },
           });
-          modal = mdl;
-          return mdl;
         },
       };
-      return settings;
+      return confirmExit;
     };
   });

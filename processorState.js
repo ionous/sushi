@@ -38,7 +38,9 @@ angular.module('demo')
             var start = handler.start || handler;
             var wait = start(e.data, e.tgt.id, e.evt, e);
             if (wait) {
-              return wait.then(function() {
+              $log.info("waiting on", e.evt);
+              return wait.finally(function() {
+                $log.info("finished", e.evt);
                 return handleStartEvent(e, hs);
               });
             }
@@ -77,7 +79,7 @@ angular.module('demo')
         next: function() {
           var x = queue.shift();
           var wait = next(x);
-          return $q.when(wait).then(function() {
+          return $q.when(wait).finally(function() {
             return ctrl.emit("finished", {});
           });
         },

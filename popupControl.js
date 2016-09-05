@@ -1,42 +1,46 @@
 angular.module('demo')
 
-.directiveAs('popupControl', ["^modalControl"],
-  function($log, $q) {
+.stateDirective('popupControl',
+  function(ElementSlotService, $log, $q) {
     'use strict';
     'ngInject';
-    this.init = function(name, modalControl) {
-      var modal;
-      return {
-        open: function(where, data) {
-          var defer = $q.defer();
-          var mdl = modalControl.open(where, data);
-          modal = mdl;
-          mdl.closed.finally(defer.resolve);
-          return defer.promise;
+    this.init = function(ctrl) {
+      var currentSlot, currentDefer;
+      var slotName = ctrl.optional("popupSlot", ctrl.name());
+      ctrl.onEnter = function() {
+        currentSlot = ElementSlotService.get(slotName);
+      };
+      ctrl.onExit = function() {
+        if (currentDefer) {
+          currentDefer.reject("exiting");
+          currentDefer = null;
+        }
+        currentSlot.set(null);
+        currentSlot = null;
+      };
+      var popup = {
+        open: function(data) {
+          if (currentDefer) {
+            throw new Error("already open");
+          }
+          var d = currentDefer = $q.defer();
+          currentSlot.set({
+            visible: true,
+            lines: data,
+            dismiss: function(reason) {
+              return ctrl.emit("dismiss", {
+                reason: reason
+              }).then(d.resolve, d.reject);
+            },
+          });
+          return d.promise;
         },
         close: function(reason) {
-          if (modal) {
-            var mdl = modal;
-            modal = null;
-            mdl.close(reason);
-          }
+          currentSlot.set(null);
+          currentDefer.resolve(reason || "close called");
+          currentDefer = null;
         },
       };
-    };
-  })
-
-.directiveAs('popupBoxControl',
-  function($log, $scope) {
-    'use strict';
-    'ngInject';
-    this.init = function(name) {
-      var modal = $scope.modal;
-      var lines = modal.contents;
-      return {
-        lines: lines,
-        dismiss: function(reason) {
-          modal.dismiss(reason);
-        },
-      };
-    };
+      return popup;
+    }; // niit
   });

@@ -1,4 +1,4 @@
-<div class="ga-buttonbar ga-noselect" ng-show="buttonBar.visible" element-slot="buttonBar">
+<div class="ga-buttonbar ga-noselect" ng-show="!!buttonBar.visible" element-slot="buttonBar">
   <div class="ga-left ga-noselect" element-slot="clickReturn" ng-class="clickReturn.msg && 'ga-return-active'">
     <a ng-show="!!clickReturn.msg" class="btn btn-primary btn-lg" ng-click="clickReturn.click()"  uib-tooltip="{{clickReturn.msg}}" tooltip-placement="right" tooltip-class="ga-xtip"><i class="fa fa-undo"></i></a>
     <div class="whereabouts">{{buttonBar.statusText}}</div>
@@ -9,7 +9,7 @@
     <div class="ga-right">
       <div><a class="btn btn-primary btn-lg disabled" element-slot="invButton" ng-click="invButton.click()" uib-tooltip="Items" tooltip-placement="bottom" tooltip-class="ga-xtip"><i class="fa fa-suitcase"></i></a></div>
       <div class="ga-recent-item">
-        <a class="btn btn-primary btn-lg" ng-show="itemButton.visible" element-slot="itemButton" ng-click="itemButton.click()" uib-tooltip="{{itemButton.name}}" tooltip-placement="bottom" tooltip-class="ga-xtip"><img ng-src="{{itemButton.image}}"></a>
+        <a class="btn btn-primary btn-lg" ng-show="!!itemButton.visible" element-slot="itemButton" ng-click="itemButton.click()" uib-tooltip="{{itemButton.name}}" tooltip-placement="bottom" tooltip-class="ga-xtip"><img ng-src="{{itemButton.image}}"></a>
       </div>
     </div>
   </div>

@@ -1,12 +1,15 @@
-<div class="ga-notify ga-the-center" modal-content="confirm" ng-click="confirm.dismiss('popup click')">
-  <div class="ga-notify-box">
-    <b>Are you sure you want to stop playing?</b>
-    <div ng-if="!!confirm.saveMessage">
-      {{confirm.saveMessage}}
-    </div>
-    <div>
-      <ga-link ng-click="confirm.dismiss('keep playing')">Continue playing...</ga-link>
-      <ga-link ng-click="confirm.exitGame()">Quit game</ga-link>
+<div ng-if="!!confirmExit.visible" ng-click="confirmExit.dismiss('grey')">
+  <div class="ga-overgrey ga-greydismiss"></div>
+  <div class="ga-notify ga-the-center ga-noselect">
+    <div class="ga-notify-box">
+      <b>Are you sure you want to stop playing?</b>
+      <div ng-if="!!confirmExit.saveMessage">
+        {{confirmExit.saveMessage}}
+      </div>
+      <div>
+        <ga-link ng-click="confirmExit.dismiss('keep playing')">Continue playing...</ga-link>
+        <ga-link ng-click="confirmExit.exitGame()">Quit game</ga-link>
+      </div>
     </div>
   </div>
 </div>

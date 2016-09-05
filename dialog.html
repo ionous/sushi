@@ -1,1 +1,3 @@
-<hsm-state name="Dialog"></hsm-state>
+<hsm-state name="Dialog" hsm-enter="dialog.open()" hsm-exit="dialog.close()">
+  <hsm-event on="dialog-quip" run="command.post($evt.payload)" goto="Post"></hsm-event>
+</hsm-state>

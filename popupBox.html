@@ -1,9 +1,12 @@
-<div class="ga-notify ga-the-center" popup-box-control="popup">
-  <div ng-if="popup.lines" ng-click="popup.dismiss('popup click')">
+<div ng-if="!!popup.visible" ng-click="popup.dismiss('popup click')">
+  <div class="ga-overgrey ga-greydismiss"></div>
+  <div class="ga-notify ga-the-center ga-noselect">
+    <!-- <div> -->
     <div class="ga-notify-box">
       <p class="ga-noselect" ng-repeat="l in popup.lines track by $index">
         {{l}}
       </p>
     </div>
+    <!-- </div> -->
   </div>
 </div>

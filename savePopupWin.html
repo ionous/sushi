@@ -1,21 +1,24 @@
-<div class="ga-save ga-the-center" ng-class="saver.state" modal-content="saver">
-  <div ng-switch on="saver.state">
-    <div ng-switch-when="saved">
-      <h3>Game Saved!</h3>
-      <ga-link ng-click="saver.continueGame()">Continue playing...</ga-link>
-      <ga-link ng-click="saver.exitGame()">Quit game</ga-link>
-      <p>
-      </p>
-      <p>
-      </p>
-    </div>
-    <div ng-switch-when="error">
-      <h1>Save Game Error</h1>
-      <p class="ga-center"> {{saver.errorMessage}}</p>
-      <ga-link ng-click="saver.continueGame()">Continue playing...</ga-link>
-    </div>
-    <div ng-switch-default>
-      <span class="ga-super">Saving...</span> <i class="fa fa-cog fa-spin fa-2x fa-fw"></i>
+<div ng-if="!!saver.visible">
+  <div class="ga-overgrey ga-greyshow"></div>
+  <div class="ga-save ga-the-center ga-noselect" ng-class="saver.state">
+    <div ng-switch on="saver.state">
+      <div ng-switch-when="saved">
+        <h3>Game Saved!</h3>
+        <ga-link ng-click="saver.continueGame()">Continue playing...</ga-link>
+        <ga-link ng-click="saver.exitGame()">Quit game</ga-link>
+        <p>
+        </p>
+        <p>
+        </p>
+      </div>
+      <div ng-switch-when="error">
+        <h1>Save Game Error</h1>
+        <p class="ga-center"> {{saver.errorMessage}}</p>
+        <ga-link ng-click="saver.continueGame()">Continue playing...</ga-link>
+      </div>
+      <div ng-switch-default>
+        <span class="ga-super">Saving...</span> <i class="fa fa-cog fa-spin fa-2x fa-fw"></i>
+      </div>
     </div>
   </div>
 </div>

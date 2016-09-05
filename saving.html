@@ -1,20 +1,18 @@
-<hsm-event on="save-unexpected" goto="Saving"></hsm-event>
-<hsm-state name="Saving" save-popup-control="savepop" hsm-init="'Save-' + $evt.saveType" hsm-exit="savepop.close()">
-  <hsm-state name="Save-normal-save" hsm-enter="savepop.open('savePopup')">
+<hsm-event on="save-unexpected" when="$evt.saveType == 'auto-save'" goto="AutoSave"></hsm-event>
+<hsm-event on="save-unexpected" goto="NormalSave"></hsm-event>
+<hsm-state name="Saving">
+  <hsm-state name="NormalSave" save-popup-control="savepop" popup-slot="saver">
     <hsm-state name="SaveWaiting">
-      <hsm-event on="modal-opened" goto=""></hsm-event>
       <hsm-event on="save-saved" run="savepop.saved($evt)" goto="SaveEnd"></hsm-event>
     </hsm-state>
     <hsm-state name="SaveEnd">
-      <hsm-event on="savepop-continue" run="savepop.close()" goto="SharedGame"></hsm-event>
-      <!-- capital letter because its coming from the modal window element, not our control. -->
-      <hsm-event on="savePopup-dismiss" run="savepop.close()" goto="SharedGame"></hsm-event>
+      <hsm-event on="savepop-continue" goto="FieldDialog"></hsm-event>
+      <hsm-event on="save-popup-dismiss" goto="FieldDialog"></hsm-event>
       <hsm-event on="savepop-exit" goto="Menus"></hsm-event>
     </hsm-state>
   </hsm-state>
   <!-- note: id rather track listen for -saved, but  -->
-  <hsm-state name="Save-auto-save" hsm-enter="savepop.open('autoSave')">
-    <hsm-event on="modal-opened" goto=""></hsm-event>
-    <hsm-event on="save-saved" run="savepop.close('finished saving')" goto="SharedGame"></hsm-event>
+  <hsm-state name="AutoSave" save-popup-control="savepop" popup-slot="autoSave">
+    <hsm-event on="save-saved" goto="FieldDialog"></hsm-event>
   </hsm-state>
 </hsm-state>

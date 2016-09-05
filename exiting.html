@@ -1,14 +1,12 @@
 <hsm-state name="Exiting" mouse-hide-control="mexit" hsm-enter="mexit.hide()" hsm-exit="mexit.show()">
-  <hsm-state confirm-exit-control="confirm" hsm-enter="confirm.open('confirmExit')" hsm-exit="confirm.close()">
+  <hsm-state confirm-exit-control="confirm" confirm-slot="confirmExit">
     <hsm-event on="keys" when="$evt.escapeKey()" run="confirm.close('escape')"></hsm-event>
     <hsm-event on="confirm-exit-dismiss" run="confirm.close($evt.reason)"></hsm-event>
     <hsm-event on="confirm-exit-closed" goto="SharedPlay"></hsm-event>
     <hsm-state name="GameExit">
-      <hsm-event on="modal-opened" goto=""></hsm-event>
       <hsm-event on="confirm-exit" goto="Menus"></hsm-event>
     </hsm-state>
     <hsm-state name="AppExit">
-      <hsm-event on="modal-opened" goto=""></hsm-event>
       <hsm-event on="confirm-exit" run="closeMe.exitApp()" goto="Menus"></hsm-event>
     </hsm-state>
   </hsm-state>

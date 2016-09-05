@@ -1,8 +1,9 @@
+<div class="ga-overgrey" class="ga-greyshow ga-greydismiss" ng-click="setings.dismiss()" ng-if="!!settings.visible"></div>
 <hsm-state name="Settings" settings-control="settings">
   <hsm-event on="keys" when="$evt.escapeKey()" goto="Planning"></hsm-event>
   <!--  -->
   <hsm-event on="settings-dismiss" goto="Planning"></hsm-event>
-  <hsm-event on="settings-save" run="save.saveGame('normal-save')" goto="Save-normal-save"></hsm-event>
+  <hsm-event on="settings-save" run="save.saveGame('normal-save')" goto="NormalSave"></hsm-event>
   <hsm-event on="settings-exit" when="!track.manuallySaved()" goto="Exiting"></hsm-event>
   <hsm-event on="settings-exit" goto="Menus"></hsm-event>
   <hsm-event on="settings-play" goto="Planning"></hsm-event>

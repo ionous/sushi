@@ -17,7 +17,7 @@ angular.module('demo')
         // copy the texrt
         var text = lines.slice();
         // no speaker? add the block immediately:
-        if (speaker == display.id) {
+        if (speaker === display.id) {
           textControl.addText(text);
           defer.resolve();
         } else {
@@ -28,8 +28,7 @@ angular.module('demo')
             .then(function(s) {
               var speakerName = s.attr['kinds-printed-name'] || s.name;
               textControl.addSpeech(speakerName, text);
-              defer.resolve();
-            });
+            }).then(defer.resolve, defer.reject);
         }
         return defer.promise;
       };
