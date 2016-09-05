@@ -14,16 +14,19 @@ angular.module('demo')
         currItem = null;
       };
       ctrl.onExit = function() {
+        //currSlot.set(null);
         currSlot = currItem = null;
       };
       return {
         update: function(item) {
           currItem = item;
           if (!currItem) {
-            currSlot.scope.visible = false;
+            currSlot.set(null);
           } else {
-            currSlot.scope.name = currItem.printedName();
-            currSlot.scope.visible = true;
+            currSlot.set({
+              name: currItem.printedName(),
+              visible: true
+            });
             ItemService.getItemImage(currItem.id).then(function(src) {
               currSlot.scope.image = src;
             });

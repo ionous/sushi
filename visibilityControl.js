@@ -19,7 +19,7 @@ angular.module('demo')
       };
 
       var windowName = ctrl.require("visibilitySlot");
-      var autoShow = !ctrl.flag("visibilityAutoShow");
+      var autoShow = ctrl.optional("visibilityAutoShow", "true") === "true";
       if (autoShow) {
         ctrl.onEnter = function() {
           show(windowName, true);

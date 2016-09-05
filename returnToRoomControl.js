@@ -1,11 +1,12 @@
 angular.module('demo')
 
-.directiveAs("returnToRoomControl",
+.stateDirective("roomReturnState", ["^mapControl"],
   function(ElementSlotService, $log) {
     'use strict';
     'ngInject';
-    this.init = function(name) {
-      var currMap, currentScope;
+    this.init = function(ctrl, mapControl) {
+      var slotName = ctrl.require("roomReturnButton");
+      var currMap, currentSlot;
       var returnToRoom = function() {
         var map = currMap;
         if (map) {
@@ -13,31 +14,33 @@ angular.module('demo')
           var next = loc.item ? loc.nextItem() : loc.nextView();
           $log.info("return to room", next);
           map.changeMap(next);
-          release();
         }
       };
-      var release = function() {
-        if (currentScope) {
-          currentScope.click = false;
-          currentScope.msg = false;
-          currentScope = null;
+      ctrl.onExit = function() {
+        if (currentSlot) {
+          currentSlot.set(null);
         }
-        currMap = null;
+        currentSlot = null;
+      };
+      ctrl.onEnter = function() {
+        var map = mapControl.getMap();
+        var slot = ElementSlotService.get(slotName);
+        var loc = map.currLoc();
+        var viewing = loc.view || loc.item;
+        if (viewing) {
+          currMap = map;
+          currentSlot = slot;
+          slot.set({
+            visible: true,
+            click: function() {
+              return ctrl.emit("click", {});
+            },
+            msg: loc.item ? "Return..." : "Return to room..."
+          });
+        }
       };
       return {
-        release: release,
-        bindTo: function(map, slotName) {
-          release();
-          var slot = ElementSlotService.get(slotName);
-          var loc = map.currLoc();
-          var viewing = loc.view || loc.item;
-          if (viewing) {
-            currMap = map;
-            currentScope = slot.scope;
-            currentScope.click = returnToRoom;
-            currentScope.msg = loc.item ? "Return..." : "Return to room...";
-          }
-        },
-      }; //return: export to scope
+        returnToRoom: returnToRoom,
+      };
     }; //init
   });

@@ -20,6 +20,7 @@
         <hsm-event on="map-loaded" run="game.startGame()" goto="StartingGame"></hsm-event>
       </hsm-state>
       <hsm-state name="StartingGame">
+        <hsm-event on="game-posted" run="stream.queue($evt.frame, $evt.events)"></hsm-event>
         <hsm-event on="game-started" goto="GameStarted"></hsm-event>
       </hsm-state>
     </hsm-state>

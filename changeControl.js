@@ -1,88 +1,56 @@
 angular.module('demo')
 
-.directiveAs("changeControl",
+.stateDirective("changeControl",
   function(RequireSave, SaveProgress, $log, $window) {
     'use strict';
     'ngInject';
-    this.init = function(name) {
+    this.init = function(ctrl) {
       var chrome = $window.chrome;
       var appwin, win;
-      var worldChange, mapChange, manuallySaved;
-
-      // yuck. if event stream could be reused... we could do the recursive processing in our state.
-      var getResponse = function(events) {
-        var response = "";
-        var saves = events.filter(function(x) {
-          return x.evt === "saving-it";
-        });
-        if (saves.length) {
-          var datas = saves[0].events.filter(function(x) {
-            return x.evt === "print" && x.tgt.id === "_display_";
-          });
-          if (datas.length) {
-            response = datas[0].data;
-          }
-        }
-        return response;
-      };
-
+      var fieldSave, manuallySaved;
       var promptBeforeExit = function(event) {
-        event.returnValue = worldChange || mapChange;
+        event.returnValue = !manuallySaved;
       };
-
-      this.worldChange = function(yes) {
-        if (yes) {
-          $log.info("changeControl", name, "major change detected");
-          worldChange = true;
+      ctrl.onExit = function() {
+        if (win) {
+          win.off("beforeunload", promptBeforeExit);
+          win = null;
         }
-        return worldChange;
+        fieldSave= manuallySaved= false;
       };
-      this.mapChange = function(yes) {
-        if (yes) {
-          $log.info("changeControl", name, "minor change detected");
-          mapChange = true;
-        }
-        return mapChange;
-      };
-      this.manuallySaved = function() {
-        return manuallySaved;
-      };
-
-      return {
-        create: function(needInitalSave) {
-          worldChange = !!needInitalSave;
-          var cw = chrome && chrome.app && chrome.app.window;
-          if (!cw && RequireSave) {
-            win = angular.element($window);
-            if (win) {
-              $log.info("changeControl", name, "initializing before exit prompt");
-              win.on("beforeunload", promptBeforeExit);
-            }
-          }
-        },
-        destroy: function() {
+      ctrl.onEnter = function() {
+        var cw = chrome && chrome.app && chrome.app.window;
+        if (!cw && RequireSave) {
+          win = angular.element($window);
           if (win) {
-            win.off("beforeunload", promptBeforeExit);
-            win = null;
+            $log.info("changeControl", ctrl.name(), "initializing before exit prompt");
+            win.on("beforeunload", promptBeforeExit);
           }
-          worldChange = worldChange = false;
+        }
+      };
+      var changes = {
+        reset: function(isNewGame) {
+          manuallySaved = !isNewGame;
+          fieldSave = !!isNewGame;
         },
-        worldChange: this.worldChange,
-        mapChange: this.mapChange,
-        manuallySaved: function() {
+        // should we save once we enter field mode?
+        fieldSave: function(change) {
+          if (!angular.isUndefined(change)) {
+            fieldSave = change;
+          }
+          return SaveProgress && fieldSave;
+        },
+        // has the user manually saved this game
+        manuallySaved: function(change) {
+          if (!angular.isUndefined(change)) {
+            manuallySaved = change;
+          }
           return manuallySaved;
         },
-        saveBeforePlay: function() {
-          return SaveProgress && worldChange && mapChange;
-        },
-        reset: function(saveType) {
-          $log.info("changeControl", name, "resetting", saveType);
-          var autosave = saveType === "auto-save";
-          if (!autosave) {
-            manuallySaved = true;
-          }
-          worldChange = mapChange = false;
-        }
       }; // return 
+      this.getChanges = function() {
+        return changes;
+      };
+      return changes;
     }; // init
   });

@@ -5,24 +5,25 @@ angular.module('demo')
     'use strict';
     'ngInject';
     this.init = function(ctrl, changeControl) {
-      var currentSlot;
-      var slotName = ctrl.get("confirmSlot");
+      var currentSlot, changes;
+      var slotName = ctrl.require("confirmSlot");
       ctrl.onExit = function() {
         currentSlot.set(null);
         currentSlot = null;
       };
       ctrl.onEnter = function() {
         currentSlot = ElementSlotService.get(slotName);
+        changes= changeControl.getChanges();
       };
       var confirmExit = {
         close: function(reason) {
-          ctrl.emit("closed", {
+          currentSlot.set(null);
+          return ctrl.emit("closed", {
             reason: reason
           });
-          currentSlot.set(null);
         },
-        open: function(win) {
-          var prompt = changeControl.worldChange() && !changeControl.manuallySaved();
+        open: function() {
+          var prompt = !changes.manuallySaved();
           currentSlot.set({
             visible: true,
             dismiss: function(reason) {
@@ -30,7 +31,7 @@ angular.module('demo')
                 reason: reason
               });
             },
-            saveMessage: prompt ? "Your game isn't saved." : "",
+            saveMessage: prompt ? "You haven't saved your game." : "",
             exitGame: function() {
               return ctrl.emit("exit", {});
             },

@@ -1,14 +1,14 @@
 angular.module('demo')
 
 // normalize chrome StorageArea and the normal browser localStorage
-.directiveAs("storageControl",
+.stateDirective("storageControl",
   function($log, $q, $window) {
     'use strict';
     'ngInject';
     var storageSingleton;
     var chrome = $window.chrome;
     var savePrefix = $window.sashimi ? "sashimi-" : "save-";
-    this.init = function(name) {
+    this.init = function(ctrl) {
       var NoStore = function() {
         var notImplemented = function() {
           var defer = $q.defer();
@@ -145,33 +145,32 @@ angular.module('demo')
         this.prefix = savePrefix;
       };
 
-      return {
-        destroy: function() {
-          storageSingleton = null;
-        },
-        create: function() {
-          if (storageSingleton) {
-            throw new Error("storage already created");
-          }
-          var store;
-          var sa = chrome && chrome.storage && chrome.storage.local;
-          if (!!sa) {
-            $log.info("storageControl", name, "initializing chrome storage");
-            store = new ChromeStore(sa);
-          } else {
-            var ls = $window.localStorage;
-            if (!!ls) {
-              $log.info("storageControl", name, "initializing local storage");
-              store = new LocalStore(ls);
-            } else {
-              $log.warn("storageControl", name, "no storage");
-              store = NoStore();
-            }
-          }
-          storageSingleton = new StoreWrapper(store);
-          return storageSingleton;
-        },
+      ctrl.onExit = function() {
+        storageSingleton = null;
       };
+      ctrl.onEnter = function() {
+        if (storageSingleton) {
+          throw new Error("storage already created");
+        }
+        var store;
+        var sa = chrome && chrome.storage && chrome.storage.local;
+        if (!!sa) {
+          $log.info("storageControl", ctrl.name(), "initializing chrome storage");
+          store = new ChromeStore(sa);
+        } else {
+          var ls = $window.localStorage;
+          if (!!ls) {
+            $log.info("storageControl", ctrl.name(), "initializing local storage");
+            store = new LocalStore(ls);
+          } else {
+            $log.warn("storageControl", ctrl.name(), "no storage");
+            store = NoStore();
+          }
+        }
+        storageSingleton = new StoreWrapper(store);
+        return storageSingleton;
+      };
+      return null;
     }; // init
 
     this.getStorage = function() {

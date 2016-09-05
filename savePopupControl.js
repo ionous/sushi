@@ -25,7 +25,8 @@ angular.module('demo')
       // the popup automatically opens on enter.
       ctrl.onEnter = function() {
         currentSlot = ElementSlotService.get(slotName);
-        currenSlot.set({
+        currentSlot.set({
+          visible:true,
           dismiss: function(reason) {
             if (saved) {
               ctrl.emit("dismiss", {

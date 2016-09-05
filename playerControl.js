@@ -1,6 +1,6 @@
 angular.module('demo')
 
-.directiveAs("playerControl", ["^gameControl", "^^hsmMachine", "^positionControl"],
+.stateDirective("playerControl", ["^gameControl", "^positionControl"],
   function(EntityService, CharaService, LocationService, ObjectDisplayService,
     $q, $log) {
     'use strict';
@@ -108,8 +108,8 @@ angular.module('demo')
     };
 
     //
-    this.init = function(name, gameControl, hsmMachine, positionControl) {
-      var destroy = function(reason) {
+    this.init = function(ctrl, gameControl, positionControl) {
+      ctrl.onExit = function(reason) {
         if (pending) {
           pending.reject(reason || "destroyed");
           pending = null;
@@ -173,7 +173,7 @@ angular.module('demo')
         // raises -creating, -created
         create: function(map, imagePath, size) {
           if (currPlayer) {
-            $log.warn("playerControl", name, "player already created");
+            $log.warn("playerControl", ctrl.name(), "player already created");
           } else {
             // uses a separate deferred to reject on destroy.
             pending = $q.defer();
@@ -181,13 +181,12 @@ angular.module('demo')
             pending.promise.then(function(img) {
               pending = null;
               currPlayer = createNow(map, img, size);
-              return hsmMachine.emit(name, "created", {
+              return ctrl.emit("created", {
                 player: currPlayer,
               });
             });
           }
         }, // create
-        destroy: destroy,
         update: function(dt) {
           // maybe a characters list in the map? 
           // then we could map.update() and the characters would too.

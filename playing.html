@@ -1,31 +1,28 @@
 <hsm-state name="Playing" player-control="player" hsm-enter="player.create(map, '/bin/images/princess.png', 64)" hsm-exit="player.destroy()" physics-state="physics">
-  <hsm-state>
-    <hsm-event on="player-created" goto="PlayingStart"></hsm-event>
+  <hsm-state name="PlayingWait">
+    <hsm-event on="player-created" goto="PlayingGame"></hsm-event>
   </hsm-state>
-  <hsm-state name="PlayingStart" avatar-state="avatar" player-item-state="playerItems" hsm-init="'Process'" processor-state="stream">
-    <div visibility-state="mapvis" visibility-slot="gameMap">
-      <div button-state="recentButton" button-name="itemButton" button-enable="false">
-        <div visibility-state="barvis" visibility-slot="buttonBar">
-          <!-- fix: remove this generic catch with gotos -->
-          <hsm-event on="game-posting" goto="Post"></hsm-event>
-          <hsm-state name="FieldDialog" hsm-init="dialog.empty()?'Field':'Dialog'">
-            <ng-include src="'field.html'"></ng-include>
-            <ng-include src="'dialog.html'"></ng-include>
-          </hsm-state>
-          <hsm-state name="Process" parallel="true">
-            <hsm-state name="Next" timeout-state="hup" hsm-enter="hup.timeout()">
-              <hsm-event on="hup-timeout" run="stream.next()" goto=""></hsm-event>
-              <hsm-event on="stream-finished" when="!stream.empty()" goto="Next"></hsm-event>
-              <hsm-event on="stream-finished" goto="FieldDialog"></hsm-event>
-            </hsm-state>
-            <ng-include src="'processing.html'"></ng-include>
-          </hsm-state>
-          <hsm-state name="Post">
-            <hsm-event on="game-posted" run="stream.queue($evt.frame, $evt.events)" goto="Process"></hsm-event>
-            <hsm-event on="game-error" goto="FieldDialog"></hsm-event>
-          </hsm-state>
-        </div>
-      </div>
+  <hsm-state name="PlayingGame" avatar-state="avatar" player-item-state="playerItems" hsm-init="'Process'" visibility-state="mapvis" visibility-slot="gameMap" hsm-enter="status.set(map.get('desc'))">
+    <div visibility-state="barvis" visibility-slot="buttonBar" visibility-auto-show="false">
+      <!-- fix: remove this generic catch with gotos -->
+      <hsm-event on="game-posting" goto="Post"></hsm-event>
+      <hsm-state name="FieldDialog" hsm-init="dialog.empty()?'Field':'Dialog'">
+        <ng-include src="'field.html'"></ng-include>
+        <ng-include src="'dialog.html'"></ng-include>
+      </hsm-state>
+      <hsm-state name="Process" parallel="true">
+        <hsm-state name="Next" timeout-state="hup" hsm-enter="hup.timeout()">
+          <hsm-event on="hup-timeout" run="stream.next()" goto=""></hsm-event>
+          <hsm-event on="stream-finished" when="!stream.empty()" goto="Next"></hsm-event>
+          <hsm-event on="stream-finished" goto="FieldDialog"></hsm-event>
+        </hsm-state>
+        <ng-include src="'processing.html'"></ng-include>
+        <ng-include src="'itemPulse.html'"></ng-include>
+      </hsm-state>
+      <hsm-state name="Post">
+        <hsm-event on="game-posted" run="dialog.clear(); stream.queue($evt.frame, $evt.events)" goto="Process"></hsm-event>
+        <hsm-event on="game-error" goto="FieldDialog"></hsm-event>
+      </hsm-state>
     </div>
   </hsm-state>
 </hsm-state>

@@ -54,6 +54,11 @@ angular.module('demo')
         bubble.css({
           "visibility": "hidden"
         });
+        bubble.one("click", function() {
+          ctrl.emit("dismiss", {
+            reason: "bubble-click",
+          });
+        });
 
         // assign text, and measure:
         bubble.text(text);
@@ -105,7 +110,7 @@ angular.module('demo')
       //$log.info("talkControl", name, "cleanup", reason);
       if (currentSlot) {
         currentSlot.set(null);
-        currentSlot= null;
+        currentSlot = null;
       }
       if (currentTalker) {
         currentTalker.destroy();

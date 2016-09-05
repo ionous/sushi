@@ -6,13 +6,13 @@
       <hsm-event on="save-saved" run="savepop.saved($evt)" goto="SaveEnd"></hsm-event>
     </hsm-state>
     <hsm-state name="SaveEnd">
-      <hsm-event on="savepop-continue" goto="FieldDialog"></hsm-event>
-      <hsm-event on="save-popup-dismiss" goto="FieldDialog"></hsm-event>
+      <hsm-event on="savepop-continue" goto="Field"></hsm-event>
+      <hsm-event on="savepop-dismiss" goto="Field"></hsm-event>
       <hsm-event on="savepop-exit" goto="Menus"></hsm-event>
     </hsm-state>
   </hsm-state>
   <!-- note: id rather track listen for -saved, but  -->
   <hsm-state name="AutoSave" save-popup-control="savepop" popup-slot="autoSave">
-    <hsm-event on="save-saved" goto="FieldDialog"></hsm-event>
+    <hsm-event on="save-saved" goto="Field"></hsm-event>
   </hsm-state>
 </hsm-state>

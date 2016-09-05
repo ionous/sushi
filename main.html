@@ -1,17 +1,9 @@
-<hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()" closer-control="closeMe">
-  <hsm-state button-control="closeButton" hsm-enter="closeButton.bind()" hsm-exit="closeButton.bind(false)">
-    <hsm-state storage-control="store" hsm-enter="store.create()" hsm-exit="store.destroy()">
-      <hsm-state server-control="server" hsm-enter="server.create()" hsm-exit="server.destroy()">
-        <hsm-state game-control="game" load-game-control="games" client-data-control="serial" text-control="textHistory" position-control="positions" hsm-init="'AutoStart'">
-          <hsm-event on="serial-reset" run="positions.reset($evt)"></hsm-event>
-          <!-- AutoStart -->
-          <ng-include src="'autoStart.html'"></ng-include>
-          <!-- Menus -->
-          <ng-include src="'menus.html'"></ng-include>
-          <!-- Game -->
-          <ng-include src="'game.html'"></ng-include>
-        </hsm-state>
-      </hsm-state>
-    </hsm-state>
-  </hsm-state>
+<hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()" closer-control="closeMe" button-state="closeButton" storage-control="store" server-control="server" game-control="game" load-game-control="games" client-data-control="serial" text-control="textHistory" position-control="positions" hsm-init="'AutoStart'">
+  <hsm-event on="serial-reset" run="positions.reset($evt)"></hsm-event>
+  <!-- AutoStart -->
+  <ng-include src="'autoStart.html'"></ng-include>
+  <!-- Menus -->
+  <ng-include src="'menus.html'"></ng-include>
+  <!-- Game -->
+  <ng-include src="'game.html'"></ng-include>
 </hsm-state>

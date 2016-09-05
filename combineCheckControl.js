@@ -24,6 +24,7 @@ angular.module('demo')
         playerItems = playerItemState.getPlayerItems();
       };
       var combineCheck = {
+        cancel: cancel,
         startCombining: function(item) {
           pending = $q.defer();
 
@@ -36,13 +37,12 @@ angular.module('demo')
           pending.promise.then(function(ia) {
             return ctrl.emit("checked", {
               item: item,
-              // []{  item:ItemRecord, action:[] {act:makeAction()} }
-              actions: ia,
+              actions: ia, // []{  item:ItemRecord, action:[] {act:makeAction()} }
             });
           }, function(reason) {
-            return ctrl.emit("checked", {
+            return ctrl.emit("cancelled", {
               item: item,
-              err: reason
+              reason: reason
             });
           });
           return pending.promise;

@@ -1,20 +1,22 @@
-<div class="ga-overgrey" ng-click="settings.dismiss()" ng-if="!!settings.visible"></div>
-<div class="ga-settings ga-the-center ga-noselect" ng-if="!!settings.visible">
-  <h3>Settings</h3>
-  <div class="ga-notify-box">
-    <ul class="list-unstyled">
-      <li>
-        <ga-link ng-click="settings.requestSave()">Save Game</ga-link>
-      </li>
-      <li>
-        <ga-link ng-click="settings.requestQuit()">Quit Game</ga-link>
-      </li>
-      <li>
-        <ga-link ga-disabled="true">Help</ga-link>
-      </li>
-      <li>
-        <ga-link ng-click="settings.continueGame()">Continue Playing...</ga-link>
-      </li>
-    </ul>
+<div ng-if="!!settings.visible">
+  <div class="ga-overgrey ga-greyshow" ng-click="settings.dismiss()"></div>
+  <div class="ga-settings ga-the-center ga-noselect">
+    <h3>Settings</h3>
+    <div class="ga-notify-box">
+      <ul class="list-unstyled">
+        <li>
+          <ga-link ng-click="settings.requestSave()">Save Game</ga-link>
+        </li>
+        <li>
+          <ga-link ng-click="settings.requestQuit()">Quit Game</ga-link>
+        </li>
+        <li>
+          <ga-link ga-disabled="true">Help</ga-link>
+        </li>
+        <li>
+          <ga-link ng-click="settings.continueGame()">Continue Playing...</ga-link>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>

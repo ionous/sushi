@@ -1,6 +1,6 @@
 angular.module('demo')
 
-.directiveAs("serverControl", ["^storageControl"],
+.stateDirective("serverControl", ["^storageControl"],
   function(GameServerUrl, JsonService,
     $http, $log, $q, $timeout, $window) {
     'use strict';
@@ -152,7 +152,7 @@ angular.module('demo')
       };
     };
     //
-    this.init = function(name, storageControl) {
+    this.init = function(ctrl, storageControl) {
       var serverSingleton;
       this.getServer = function() {
         if (!serverSingleton) {
@@ -160,29 +160,29 @@ angular.module('demo')
         }
         return serverSingleton;
       };
-      return {
-        destroy: function() {
-          serverSingleton = null;
-        },
-        create: function() {
-          if (serverSingleton) {
-            throw new Error("server already created");
-          }
-          var transport;
-          if (GameServerUrl !== "gopherjs") {
-            transport = new Http($http, name);
-          } else {
-            var sashimi = $window.sashimi;
-            if (!sashimi) {
-              throw new Error("transport not found");
-            }
-            var store = storageControl.getStorage();
-            transport = new GopherJs(sashimi, store, name);
-          }
-          $log.info("serverControl", name, "using transport", transport.constructor.name);
-          serverSingleton = new Server(name, transport);
-        }
-      };
 
+      ctrl.onExit = function() {
+        serverSingleton = null;
+      };
+      ctrl.onEnter = function() {
+        var name = ctrl.name();
+        if (serverSingleton) {
+          throw new Error("server already created");
+        }
+        var transport;
+        if (GameServerUrl !== "gopherjs") {
+          transport = new Http($http, name);
+        } else {
+          var sashimi = $window.sashimi;
+          if (!sashimi) {
+            throw new Error("transport not found");
+          }
+          var store = storageControl.getStorage();
+          transport = new GopherJs(sashimi, store, name);
+        }
+        $log.info("serverControl", name, "using transport", transport.constructor.name);
+        serverSingleton = new Server(name, transport);
+      };
+      return null;
     }; // init
   });

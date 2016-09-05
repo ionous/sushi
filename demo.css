@@ -1054,6 +1054,21 @@ combine box
 popup 
 */
 
+.ga-exit-prompt {
+  padding-top: 10px;
+  font-weight: bold;
+}
+
+.ga-exit-msg {
+  width: 100%;
+  text-align: center;
+}
+
+
+/* ----------------------------------------------
+story popup 
+*/
+
 .ga-notify {
   cursor: pointer;
 }
@@ -1102,7 +1117,7 @@ settings
 
 div.ga-settings .btn {
   width: 200px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 

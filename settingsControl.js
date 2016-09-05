@@ -25,7 +25,8 @@ angular.module('demo')
         });
       };
       ctrl.onExit = function() {
-        slot.scope.visible = false;
+        slot.set(null);
+        slot= null;
       };
       return null;
     };

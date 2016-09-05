@@ -1,14 +1,21 @@
-<hsm-state name="Field" hsm-init="'Play'" near-far-state="nearFar" mouse-state="mouse" mouse-focus="gameMap" mouse-display="mouseDisplay" room-return-state="roomReturn" room-return-button="clickReturn" combine-check-state="invCombine" combine-panel-state="combinePanel" combine-panel-slot="combineBox" action-bar-factory-state="actionBar" inv-win-factory-state="invWin" item-browser-state="itemBrowser" item-browser-slot="items" radial-state="radial" radial-edge="gameMap" radial-menu="radialMenu">
+<hsm-state name="Field" hsm-init="track.fieldSave() ? 'FieldSave':'Play'" near-far-state="nearFar" mouse-state="mouse" mouse-focus="gameMap" mouse-display="mouseDisplay" room-return-state="roomReturn" room-return-button="clickReturn" combine-check-state="invCombine" combine-panel-state="combinePanel" combine-panel-slot="combineBox" action-bar-factory-state="actionBar" inv-win-factory-state="invWin" item-browser-state="itemBrowser" item-browser-slot="items" radial-state="radial" radial-edge="gameMap" radial-menu="radialMenu" button-state="recentButton" button-name="itemButton"  hsm-enter="barvis.show()">
+  <!--  -->
+  <hsm-state name="FieldSave" timeout-state="jump" hsm-enter="jump.timeout()">
+    <hsm-event on="jump-timeout" run="save.saveGame('auto-save')" goto="AutoSave"></hsm-event>
+  </hsm-state>
+  <!--  -->
   <ng-include src="'console.html'"></ng-include>
   <ng-include src="'settings.html'"></ng-include>
-  <hsm-state name="Saving"></hsm-state>
-  <hsm-state name="CombineCheck">
-    <hsm-event on="inv-combine-checked" when="!$evt.err" run="combinePanel.open($evt.item, !!$evt.actions.length); invWin.setCombine($evt.item, $evt.actions); actionBar.setCombine($evt.item)" goto="Combining"></hsm-event>
-    <hsm-event on="inv-combine-checked" run="log.warn('combine failed', $evt.reason)" goto="NotCombining"></hsm-event>
+  <ng-include src="'confirmExit.html'"></ng-include>
+  <ng-include src="'saving.html'"></ng-include>
+  <!--  -->
+  <hsm-state name="CombineCheck" hsm-exit="invCombine.cancel('exiting')">
+    <hsm-event on="inv-combine-checked" run="combinePanel.open($evt.item, !!$evt.actions.length); invWin.setCombine($evt.item, $evt.actions); actionBar.setCombine($evt.item)" goto="Combining"></hsm-event>
+    <hsm-event on="inv-combine-cancelled" run="log.warn('combine failed', $evt.reason)" goto="NotCombining"></hsm-event>
   </hsm-state>
   <hsm-state name="Play" parallel="true">
+    <!-- and recent item changes too  -->
     <ng-include src="'recentItem.html'"></ng-include>
-    <ng-include src="'itemPulse.html'"></ng-include>
     <!-- -->
     <hsm-state hsm-init="'Interact'">
       <ng-include src="'interact.html'"></ng-include>

@@ -4,12 +4,10 @@ angular.module('demo')
   function(ElementSlotService, EntityService, $log) {
     'use strict';
     'ngInject';
-    var comments, quips, title;
-    var clear = function() {
-      comments = [];
-      quips = [];
-      title = null;
-    };
+    var comments = [];
+    var quips = [];
+    var title = null;
+
     this.init = function(ctrl) {
       var currentSlot;
       var slotName = ctrl.require("dialogSlot");
@@ -19,7 +17,6 @@ angular.module('demo')
       };
       ctrl.onEnter = function() {
         currentSlot = ElementSlotService.get(slotName);
-        clear();
       };
       var playerDialog = {
         setTitle: function(tgt) {
@@ -50,7 +47,11 @@ angular.module('demo')
         },
         close: function(reason) {
           currentSlot.set(null);
-          clear();
+        },
+        clear: function() {
+          comments = [];
+          quips = [];
+          title = null;
         },
         open: function() {
           if (!comments.length) {

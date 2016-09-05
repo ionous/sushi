@@ -1,0 +1,18 @@
+<!-- good result-> map change-> now playing-> *save -> AutoSaveCheck -->
+<hsm-state name="AutoSaveCheck">
+  <!--  -->
+  <hsm-state name="DataCheck">
+    <hsm-event on="game-posted" goto="MapCheck"></hsm-event>
+    <hsm-event on="game-posted" run="track.manuallySaved(false)" goto="MapCheck"></hsm-event>
+  </hsm-state>
+  <!--  -->
+  <hsm-state name="MapCheck">
+    <hsm-event on="player-created" run="track.fieldSave(true)" goto="FieldCheck"></hsm-event>
+  </hsm-state>
+  <!--  -->
+  <hsm-state name="FieldCheck">
+  </hsm-state>
+  <!--  -->
+  <hsm-event on="map-loading" run="track.manuallySaved(false)"></hsm-event>
+  <hsm-event on="save-saved" run="track.fieldSave(false); track.manuallySaved($evt.saveType == 'normal-save')" goto="AutoSaveCheck"></hsm-event>
+</hsm-state>

@@ -35,10 +35,6 @@ angular.module('demo')
             optional: function(n, def) {
               return attrs[n] || def;
             },
-            flag: function(n) {
-              var r = attrs[n];
-              return !angular.isUndefined(r);
-            },
             name: function() {
               return directiveAttr;
             },

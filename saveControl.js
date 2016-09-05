@@ -1,17 +1,17 @@
 angular.module('demo')
 
-.directiveAs("saveControl", ["^hsmMachine", "^^gameControl", "^^mapControl", "^clientDataControl", "^storageControl", "^textControl", ],
+.stateDirective("saveControl", ["^^gameControl", "^^mapControl", "^clientDataControl", "^storageControl", "^textControl", ],
   function(SaveVersion, MostRecentOut, $log, $q, $timeout) {
     'use strict';
     'ngInject';
     //
-    this.init = function(name, hsmMachine, gameControl, mapControl, clientDataControl, storageControl, textControl) {
+    this.init = function(ctrl, gameControl, mapControl, clientDataControl, storageControl, textControl) {
       // passes the event resolution to whomever handles -saved, -error events
       // ( ie. the save popup )
       var SaveDefer = function(saveType) {
         var emit = function(saveData, saveError) {
           var defer;
-          return hsmMachine.emit(name, "saved", {
+          return ctrl.emit("saved", {
             data: saveData,
             saveType: saveType,
             error: saveError,
@@ -61,7 +61,7 @@ angular.module('demo')
             // [screenshot]
             // current inventory item
         });
-        $log.info("saveControl", name, "saving...");
+        $log.info("saveControl", ctrl.name(), "saving...");
         var itemKey = store.prefix + serverSlot;
 
         return store.setItem(itemKey, saveData, true)
@@ -77,7 +77,7 @@ angular.module('demo')
       var completeSave = function(saveType, response) {
         var saveDefer = new SaveDefer(saveType);
         var text = (response && response.length == 1) ? response[0] : "";
-        $log.info("saveControl", name, "parsing", text);
+        $log.info("saveControl", ctrl.name(), "parsing", text);
         var saved = text.split(" ");
         var slot = saved.length == 2 ? saved[1] : null;
         var promise;
@@ -109,22 +109,22 @@ angular.module('demo')
         return response;
       };
 
+      ctrl.onEnter = function() {
+        store = storageControl.getStorage();
+        if (!store) {
+          throw new Error("no storage");
+        }
+      };
+      ctrl.onExit = function() {
+        store = null;
+      };
       return {
-        create: function() {
-          store = storageControl.getStorage();
-          if (!store) {
-            throw new Error("no storage");
-          }
-        },
-        destroy: function() {
-          store = null;
-        },
         // given the passed server response, begin to finish the client save
         // returns a promise for event stream completion
         // the decouple nature of save allows the console to work
         unexpected: function(saveType, response) {
-          $log.info("saveControl", name, "unexpected", saveType, response);
-          hsmMachine.emit(name, "unexpected", {
+          $log.info("saveControl", ctrl.name(), "unexpected", saveType, response);
+          return ctrl.emit("unexpected", {
             saveType: saveType
           }).then(function() {
             return completeSave(saveType, response);
@@ -132,7 +132,7 @@ angular.module('demo')
         },
         saveGame: function(saveType) {
           var safeType = saveType || "normal-save";
-          $log.info("saveControl", name, "saving", safeType);
+          $log.info("saveControl", ctrl.name(), "saving", safeType);
           return gameControl.upost({
             act: 'save-it',
             tgt: safeType,

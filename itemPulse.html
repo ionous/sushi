@@ -1,10 +1,8 @@
-<hsm-state name="ItemPluse">
+<hsm-state name="ItemPulse" button-state="invButton" button-enable="false">
   <hsm-state name="InvNotPulsing">
-    <hsm-event on="player-items-added" goto="InvPulsing"></hsm-event>
+    <hsm-event on="player-items-added" goto="PulseOnce"></hsm-event>
   </hsm-state>
-  <hsm-state name="InvPulsing" hsm-enter="invButton.pulse(true)" hsm-exit="invButton.pulse(false)">
-    <hsm-state timeout-state="pulse" hsm-enter="pulse.timeout(1250)">
-      <hsm-event on="pulse-timeout" goto="InvNotPulsing"></hsm-event>
-    </hsm-state>
+  <!--  use the timeout promise to clear the pulse. using state exit causes termination too early ( at the end of a stream of server commands. ) -->
+  <hsm-state name="PulseOnce" timeout-state="pulse" hsm-enter="invButton.pulse(); pulse.timeout(1250).then(invButton.stopPulse)">
   </hsm-state>
 </hsm-state>

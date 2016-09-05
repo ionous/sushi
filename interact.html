@@ -1,4 +1,4 @@
-<hsm-state name="Interact" update-state="update" update-event="game" mouse-target-state="mouseTarget" move-state="move"parallel="true">
+<hsm-state name="Interact" update-state="update" update-event="game" mouse-target-state="mouseTarget" move-state="move" parallel="true">
   <ng-include src="'mouseBounds.html'"></ng-include>
   <hsm-state button-state="consoleButton">
     <hsm-event on="console-button-click" goto="Console"></hsm-event>

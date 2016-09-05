@@ -38,9 +38,9 @@ angular.module('demo')
             var start = handler.start || handler;
             var wait = start(e.data, e.tgt.id, e.evt, e);
             if (wait) {
-              $log.info("waiting on", e.evt);
-              return wait.finally(function() {
-                $log.info("finished", e.evt);
+              // $log.debug("waiting on", e.evt);
+              return $q.when(wait).finally(function() {
+                // $log.debug("finished", e.evt);
                 return handleStartEvent(e, hs);
               });
             }

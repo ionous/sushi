@@ -1,14 +1,20 @@
-<div ng-if="!!confirmExit.visible" ng-click="confirmExit.dismiss('grey')">
-  <div class="ga-overgrey ga-greydismiss"></div>
-  <div class="ga-notify ga-the-center ga-noselect">
+<div ng-if="!!confirmExit.visible" ng-click="confirmExit.dismiss()">
+  <div class="ga-overgrey ga-greydismiss ga-greyshow"></div>
+  <div class="ga-settings ga-the-center ga-noselect">
     <div class="ga-notify-box">
-      <b>Are you sure you want to stop playing?</b>
-      <div ng-if="!!confirmExit.saveMessage">
+      <div class="ga-exit-prompt">Are you sure you want to exit?</div>
+      <div ng-if="!!confirmExit.saveMessage" class="ga-exit-msg">
         {{confirmExit.saveMessage}}
       </div>
-      <div>
-        <ga-link ng-click="confirmExit.dismiss('keep playing')">Continue playing...</ga-link>
-        <ga-link ng-click="confirmExit.exitGame()">Quit game</ga-link>
+      <div class="ga-notify-box">
+        <ul class="list-unstyled">
+          <li>
+            <ga-link ng-click="confirmExit.dismiss('keep playing')">Continue playing...</ga-link>
+          </li>
+          <li>
+            <ga-link ng-click="confirmExit.exitGame()">Quit game</ga-link>
+          </li>
+        </ul>
       </div>
     </div>
   </div>

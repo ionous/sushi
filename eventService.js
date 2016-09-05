@@ -23,23 +23,22 @@ angular.module('demo')
     var handlers = {};
     var innerRemove = function(tgt, cb, evts) {
       var handler = handlers[tgt];
-      if (!handler) {
-        throw new Error("EventService.remove: (" + tgt + ") not found.");
+      if (handler) {
+        var events = angular.isArray(evts) ? evts : [evts];
+        events.forEach(function(evt) {
+          var list = handler[evt];
+          if (!list) {
+            throw new Error("EventService.remove:" + evt + "not found　for (" + tgt + ").");
+          }
+          var up = list.filter(function(value) {
+            return value != cb;
+          });
+          if (up.length == list.length) {
+            throw new Error("EventService.remove: callback not found for (" + tgt + ") on " + evt + ".");
+          }
+          handler[evt] = up;
+        }); // for each
       }
-      var events = angular.isArray(evts) ? evts : [evts];
-      events.forEach(function(evt) {
-        var list = handler[evt];
-        if (!list) {
-          throw new Error("EventService.remove:" + evt + "not found　for (" + tgt + ").");
-        }
-        var up = list.filter(function(value) {
-          return value != cb;
-        });
-        if (up.length == list.length) {
-          throw new Error("EventService.remove: callback not found for (" + tgt + ") on " + evt + ".");
-        }
-        handler[evt] = up;
-      }); // for each
     };
     var cat = function(ret, evt, handler) {
       // all events for this handler's target

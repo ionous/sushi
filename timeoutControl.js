@@ -19,6 +19,7 @@ angular.module('demo')
               elapsed: ms
             });
           }, ms);
+          return promise;
         }
       };
     };

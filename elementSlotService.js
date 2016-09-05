@@ -5,10 +5,10 @@ angular.module('demo')
   function(ElementSlotService, $attrs, $element, $scope) {
     'use strict';
     'ngInject';
-    var isolate = {};
-    ElementSlotService.bind($attrs.elementSlot, $element, $scope, isolate);
+    var locals = {};
+    ElementSlotService.bind($attrs.elementSlot, $element, $scope, locals);
     this.init = function() {
-      return isolate;
+      return locals;
     };
   })
 
@@ -21,18 +21,18 @@ angular.module('demo')
   'ngInject';
   var elements = {};
 
-  var setVars = function(isolate, vars) {
+  var setVars = function(locals, vars) {
     for (var x in vars) {
-      isolate[x] = vars[x];
+      locals[x] = vars[x];
     }
   };
-  var clearVars = function(isolate) {
-    for (var x in isolate) {
-      isolate[x] = null;
+  var clearVars = function(locals) {
+    for (var x in locals) {
+      locals[x] = null;
     }
   };
   var service = {
-    bind: function(name, element, scope, isolate) {
+    bind: function(name, element, scope, locals) {
       //$log.debug("ElementSlotService, binding", name);
       if (elements[name]) {
         var msg = "ElementSlotService, slot already bound";
@@ -42,15 +42,15 @@ angular.module('demo')
       elements[name] = {
         name: name,
         element: element,
-        scope: isolate, // user code calls it scope, but really were exposing the isolate.
+        scope: locals, // user code calls it scope, but really were exposing the locals.
         watch: function(field, fn) {
           return scope.$watch([name, field].join("."), fn);
         },
         set: function(vars) {
           if (!vars) {
-            clearVars(isolate);
+            clearVars(locals);
           } else {
-            setVars(isolate, vars);
+            setVars(locals, vars);
           }
         },
       };
@@ -60,7 +60,9 @@ angular.module('demo')
       });
     },
     // hrm, maybe this should be the other way:
-    // rather than returning scope, allow us to assign it
+    // rather than returning locals, allow us to assign it
+    // then instead of mystical variables like visible,
+    // templates could test for the presence of its locals object.
     // ( dynamically re-apply $scope[slot]= data )
     get: function(name) {
       var el = elements[name];
