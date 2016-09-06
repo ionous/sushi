@@ -1,8 +1,8 @@
-<hsm-state name="Radial" visibility-state="radvis" visibility-slot="radialMenu" hsm-enter="mouse.reset()" hsm-exit="radial.closeRadial()">
+<hsm-state name="Radial" visibility-state="radvis" visibility-slot="radialMenu" hsm-enter="mouse.reset()" hsm-exit="radial.closeRadial()" custom-action-control="custom">
   <hsm-state hsm-enter="mouseTarget.ghost(radial.target)" hsm-exit="mouseTarget.ghost(false)">
     <hsm-event on="radial-click" when="$evt.id == '$zoom'" run="map.changeView($evt.view)" goto="PlaySpaceLoading"></hsm-event>
     <hsm-event on="radial-click" when="$evt.id == '$combine'" run="invWin.open(inv)" goto="Browse"></hsm-event>
-    <hsm-event on="radial-click" when="$evt.id == 'search-it' && $evt.data.tgt=='lab-coat'" run="map.changeItem($evt.data.tgt)" goto="PlaySpaceLoading"></hsm-event>
+    <hsm-event on="radial-click" when="custom.changeItem($evt.data)" run="map.changeItem($evt.data.tgt)" goto="PlaySpaceLoading"></hsm-event>
     <hsm-event on="radial-click" run="command.post($evt.data)" goto="Post"></hsm-event>
     <!--  -->
     <hsm-event on="keys" when="$evt.escapeKey()" goto="Planning"></hsm-event>

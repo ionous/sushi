@@ -12,10 +12,6 @@ angular.module('demo')
           name: act.name.split(' ', 1)[0],
           iconIndex: icon.index,
           iconClass: icon.iconClass,
-          // FIX: remove me.
-          emitAction: function(p, c) {
-            return act.emitAction(p, c);
-          }
         };
       };
       // creates a filter for actions requiring one object

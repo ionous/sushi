@@ -1,9 +1,5 @@
-<hsm-state name="RecentItem" hsm-init="map.currLoc.item ? 'RecentItemHidden' : 'RecentItemVisible'">
-  <hsm-state name="RecentItemHidden">
-  </hsm-state>
-  <hsm-state name="RecentItemVisible" recent-item-state="recentItem" button-name="itemButton" hsm-enter="recentItem.update( playerItems.currentItem() )">
-    <hsm-event on="player-items-added" run="recentItem.update($evt.item)"></hsm-event>
-    <hsm-event on="player-items-removed" run="recentItem.update(playerItems.currentItem())"></hsm-event>
-    <hsm-event on="player-items-selected" run="recentItem.update($evt.item)"></hsm-event>
-  </hsm-state>
+<hsm-state name="RecentItem" recent-item-state="recentItem" button-name="itemButton" visibility-state="itemvis" visibility-slot="itemButton" visibility-auto-show="false" hsm-enter="itemvis.show(!playerItems.empty() && !map.currLoc.item)">
+  <hsm-event on="player-items-added" run="recentItem.added($evt.item)"></hsm-event>
+  <hsm-event on="player-items-removed" run="recentItem.removed($evt.item)"></hsm-event>
+  <hsm-event on="player-items-selected" run="recentItem.selected($evt.item)"></hsm-event>
 </hsm-state>

@@ -1,5 +1,7 @@
-<hsm-state name="Browse" hsm-exit="itemBrowser.close('exiting')">
+<hsm-state name="Browse" hsm-exit="itemBrowser.close('exiting')" custom-action-control="custom">
   <hsm-event on="keys" when="$evt.escapeKey()" run="itemBrowser.close('escape')" goto="Interact"></hsm-event>
   <hsm-event on="item-browser-dismiss" run="itemBrowser.close($evt.reason)" goto="Interact"></hsm-event>
   <hsm-event on="item-browser-combine" run="invCombine.startCombining(playerItems.currentItem())" goto="CombineCheck"></hsm-event>
+  <hsm-event on="item-browser-action" when="custom.changeItem($evt.data)" run="map.changeItem($evt.data.tgt)" goto="PlaySpaceLoading"></hsm-event>
+  <hsm-event on="item-browser-action" run="command.post($evt.data)" goto="Post"></hsm-event>
 </hsm-state>

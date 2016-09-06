@@ -52,7 +52,8 @@ angular.module('demo')
           size: width,
         },
         combinealt: {
-          cls: 'fa-circle-o-notch',
+          //cls: 'fa-circle-o-notch',
+          cls: 'fa-sun-o',
           hotspot: center,
           size: width,
         },

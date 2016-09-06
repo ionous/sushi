@@ -137,18 +137,21 @@ angular.module('demo')
             combinable: function() {
               return !combining && IconService.getIcon("$use");
             },
-            currentItem: function() {
+            current: function() {
               var slide = slides[scope.active];
               return slide.item;
             },
             // action icon clicked
-            click: function(act) {
-              var slide = slides[scope.active];
-              var item = slide.item;
-
-              return !act ? ctrl.emit("combine", {
-                item: item,
-              }) : act.emitAction(item, combining);
+            use: function(item) {
+              return ctrl.emit("combine", {
+                item: item
+              });
+            },
+            run: function(item, action) {
+              var pack = action.act.pack(item, combining);
+              return ctrl.emit("action", {
+                data: pack
+              });
             },
           });
         }, // show inventory

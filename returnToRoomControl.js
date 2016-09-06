@@ -22,7 +22,8 @@ angular.module('demo')
             click: function() {
               return ctrl.emit("click", {});
             },
-            msg: currLoc.item ? "Return..." : "Return to room..."
+            //msg: currLoc.item ? "Return..." : "Return to room..."
+            msg: "Return to room..."
           });
         }
       };

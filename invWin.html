@@ -19,11 +19,11 @@
     </div>
   </div>
   <div class="ga-invbar" ng-if="!!items.actions" ng-show="!!items.barVisible">
-    <a ng-repeat="act in items.actions track by act.id" class="btn btn-primary" uib-tooltip="{{act.name}}" ng-click="items.click(act)" tooltip-placement="bottom" tooltip-class="ga-xtip">
-      <i ng-class="act.iconClass"></i>
+    <a ng-repeat="action in items.actions track by action.id" class="btn btn-primary" uib-tooltip="{{action.name}}" ng-click="items.run(items.current(), action)" tooltip-placement="bottom" tooltip-class="ga-xtip">
+      <i ng-class="action.iconClass"></i>
     </a>
     <!--no space between tags-->
-    <a ng-if="!!items.combinable()" class="btn btn-primary" uib-tooltip="Use Item" ng-click="items.click()" tooltip-placement="bottom" tooltip-class="ga-xtip">
+    <a ng-if="!!items.combinable()" class="btn btn-primary" uib-tooltip="Use Item" ng-click="items.use(items.current())" tooltip-placement="bottom" tooltip-class="ga-xtip">
       <i ng-class="items.combinable().iconClass"></i>
     </a>
   </div>

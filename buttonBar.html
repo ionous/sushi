@@ -9,7 +9,7 @@
     <div class="ga-right">
       <div><a class="btn btn-primary btn-lg disabled" element-slot="invButton" ng-click="invButton.click()" uib-tooltip="Items" tooltip-placement="bottom" tooltip-class="ga-xtip"><i class="fa fa-suitcase"></i></a></div>
       <div class="ga-recent-item">
-        <a class="btn btn-primary btn-lg" ng-show="!!itemButton.visible" element-slot="itemButton" ng-click="itemButton.click()" uib-tooltip="{{itemButton.name}}" tooltip-placement="bottom" tooltip-class="ga-xtip"><img ng-src="{{itemButton.image}}"></a>
+        <a class="btn btn-primary btn-lg" ng-show="itemButton.visible && itemButton.item" element-slot="itemButton" ng-click="itemButton.click()" uib-tooltip="{{itemButton.item}}" tooltip-placement="bottom" tooltip-class="ga-xtip"><img ng-src="{{itemButton.image}}"></a>
       </div>
     </div>
   </div>

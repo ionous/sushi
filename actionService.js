@@ -60,9 +60,6 @@ angular.module('demo')
       ActionInfo.prototype.pack = function(pobj, cobj) {
         return new ActionEvent(this, pobj, cobj).pack();
       };
-      ActionInfo.prototype.emitAction = function(pobj, cobj) {
-        return ctrl.emit("run", new ActionEvent(this, pobj, cobj));
-      };
       var actionService = {
         getActions: function() {
           var ret;
