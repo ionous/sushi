@@ -23,22 +23,31 @@ angular.module('demo')
           if (currentDefer) {
             throw new Error("already open");
           }
-          var d = currentDefer = $q.defer();
+          var d = $q.defer();
+          currentDefer = d;
           currentSlot.set({
             visible: true,
             lines: data,
+            close: function() {
+              popup.close();
+            },
             dismiss: function(reason) {
               return ctrl.emit("dismiss", {
                 reason: reason
-              }).then(d.resolve, d.reject);
+              });
             },
           });
           return d.promise;
         },
         close: function(reason) {
-          currentSlot.set(null);
-          currentDefer.resolve(reason || "close called");
-          currentDefer = null;
+          if (currentDefer) {
+            var d = currentDefer;
+            currentDefer = null;
+            currentSlot.set(null);
+            ctrl.emit("closed", {
+              reason: reason || "close called"
+            }).then(d.resolve, d.reject);
+          }
         },
       };
       return popup;

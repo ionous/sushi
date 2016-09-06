@@ -6,41 +6,29 @@ angular.module('demo')
     'ngInject';
     this.init = function(ctrl, mapControl) {
       var slotName = ctrl.require("roomReturnButton");
-      var currMap, currentSlot;
-      var returnToRoom = function() {
-        var map = currMap;
-        if (map) {
-          var loc = map.currLoc();
-          var next = loc.item ? loc.nextItem() : loc.nextView();
-          $log.info("return to room", next);
-          map.changeMap(next);
-        }
-      };
+      var currSlot, currLoc;
       ctrl.onExit = function() {
-        if (currentSlot) {
-          currentSlot.set(null);
-        }
-        currentSlot = null;
+        currSlot.set(null);
+        currSlot = null;
       };
       ctrl.onEnter = function() {
-        var map = mapControl.getMap();
-        var slot = ElementSlotService.get(slotName);
-        var loc = map.currLoc();
-        var viewing = loc.view || loc.item;
+        currSlot = ElementSlotService.get(slotName);
+        currLoc = mapControl.getMap().currLoc();
+
+        var viewing = currLoc.view || currLoc.item;
         if (viewing) {
-          currMap = map;
-          currentSlot = slot;
-          slot.set({
+          currSlot.set({
             visible: true,
             click: function() {
               return ctrl.emit("click", {});
             },
-            msg: loc.item ? "Return..." : "Return to room..."
+            msg: currLoc.item ? "Return..." : "Return to room..."
           });
         }
       };
-      return {
-        returnToRoom: returnToRoom,
+      // returns a function that can be used to the best location to return to 
+      return function() {
+        return currLoc.item ? currLoc.nextItem() : currLoc.nextView();
       };
     }; //init
   });

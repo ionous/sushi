@@ -10,19 +10,11 @@ angular.module('demo')
       // ( ie. the save popup )
       var SaveDefer = function(saveType) {
         var emit = function(saveData, saveError) {
-          var defer;
-          return ctrl.emit("saved", {
+          ctrl.emit("saved", {
             data: saveData,
             saveType: saveType,
-            error: saveError,
-            resolver: function() {
-              if (!defer) {
-                defer = $q.defer();
-              }
-              return defer;
-            },
+            error: saveError
           });
-          return $q.when(defer && defer.promise);
         };
         this.resolve = function(saveData) {
           return emit(saveData, null);

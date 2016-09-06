@@ -103,9 +103,12 @@ angular.module('demo')
       var currLoc = LocationService.newLocation();
 
       var changeMap = function(nextLoc) {
-        var ret; // promise
+        var ret;
         if (loading) {
           throw new Error("already loading");
+        }
+        if (!nextLoc) {
+          throw new Error("no location specified");
         }
         if (currentMap && !nextLoc.changes(currLoc)) {
           ret = $q.when(currentMap).then(function(map) {
@@ -118,38 +121,37 @@ angular.module('demo')
           var slot = ElementSlotService.get(mapSlotName);
 
           // use a defer so we can cancel if need be
-          // note, cancel doesnt work well -- wed need to check for cancel at each stage... somehow
           var defer = $q.defer();
           loading = defer;
 
           $log.info("mapControl", ctrl.name(), "loading", nextLoc.toString());
           nextLoc.syncUrlBar();
-          ret = ctrl.emit("loading", nextLoc).then(function() {
-              // load!
-              loadMap(gameControl.getGame(), slot.element, nextLoc).then(defer.resolve);
-              // loaded! (and not rejected in the meantime)
-              defer.promise.then(function(map) {
-                prevLoc = currLoc;
-                currLoc = nextLoc;
-                currentMap = map;
 
-                loading = null;
-                // size the view
-                slot.scope.style = {
-                  'width': map.bounds.x + 'px',
-                  'height': map.bounds.y + 'px',
-                };
+          // load!
+          loadMap(gameControl.getGame(), slot.element, nextLoc).then(defer.resolve, defer.reject);
+          // loaded! (and not rejected in the meantime)
+          defer.promise.catch(function(reason) {
+            $log.error("mapControl", ctrl.name(), "map failed to load", reason);
+          });
+          defer.promise.then(function(map) {
+            prevLoc = currLoc;
+            currLoc = nextLoc;
+            currentMap = map;
 
-                // show the map
-                $log.info("mapControl", ctrl.name(), "loaded", currLoc.mapName());
-                return ctrl.emit("loaded", map).then(function() {
-                  return map;
-                });
-              })
-            },
-            function(reason) {
-              $log.error("mapControl", ctrl.name(), "map failed to load", reason);
-            }); // return
+            loading = null;
+            // size the view
+            slot.scope.style = {
+              'width': map.bounds.x + 'px',
+              'height': map.bounds.y + 'px',
+            };
+
+            // show the map
+            $log.info("mapControl", ctrl.name(), "loaded", currLoc.mapName());
+            return ctrl.emit("loaded", map).then(function() {
+              return map;
+            });
+          });
+          ret = defer.promise;
         }
         return ret;
       }; // changeMap

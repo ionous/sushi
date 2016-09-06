@@ -135,7 +135,7 @@ angular.module('demo')
             },
             // allow combining when we are not currently combining
             combinable: function() {
-              return !combining && IconService.getIcon("$use")
+              return !combining && IconService.getIcon("$use");
             },
             currentItem: function() {
               var slide = slides[scope.active];

@@ -11,7 +11,7 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'],
 })
   .constant("GameVersion", "0")
   .constant("SaveVersion", "01")
-  .constant("AutoStart", "Begin") // Menu,Begin,Resume
+  .constant("AutoStart", "Resume") // Menu,Begin,Resume
   .constant("MostRecentIn", "mostRecent") // false, "save-newbug"
   .constant("MostRecentOut", "mostRecent") // false, "save-newbug"
   .constant("ShowHsm", true) // state chart
@@ -22,4 +22,4 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'],
   //blur control
   .constant("GameServerUrl", "http://localhost:8080/game")
   .constant("RequireSave", false)
-  .constant("SaveProgress", true);
+  .constant("SaveProgress", false);

@@ -5,10 +5,8 @@ angular.module('demo')
     'use strict';
     'ngInject';
     this.init = function(ctrl) {
-      var btnName = ctrl.require("buttonName")
+      var btnName = ctrl.require("buttonName");
       var currSlot, currItem;
-
-      var currSlot;
       ctrl.onEnter = function() {
         currSlot = ElementSlotService.get(btnName);
         currItem = null;

@@ -13,6 +13,6 @@
   <hsm-state name="FieldCheck">
   </hsm-state>
   <!--  -->
-  <hsm-event on="map-loading" run="track.manuallySaved(false)"></hsm-event>
+  <hsm-event on="map-loaded" run="track.manuallySaved(false)"></hsm-event>
   <hsm-event on="save-saved" run="track.fieldSave(false); track.manuallySaved($evt.saveType == 'normal-save')" goto="AutoSaveCheck"></hsm-event>
 </hsm-state>

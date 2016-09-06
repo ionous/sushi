@@ -11,24 +11,28 @@ angular.module('demo')
       var listeners;
 
       var emit = function(data, tgt, evt, raw, endEvent) {
-        var defer; // lazily created, so only used if accessed.
-        return ctrl.emit({
-          data: data,
-          name: evt,
-          tgt: tgt,
-          // raw doesnt exist for all events ( ex. raise() on property changes )
-          ctx: raw && raw.ctx,
-          start: !endEvent,
-          end: !!endEvent,
-          // returns the function to be called.
-          resolve: function() {
-            if (!defer) {
-              defer = $q.defer();
-            }
-            return defer.resolve;
-          },
-        }).then(function() {
-          return defer && defer.promise;
+        return $q(function(resolve, reject) {
+          var promises = [];
+          var afterEmit = ctrl.emit({
+            data: data,
+            name: evt,
+            tgt: tgt,
+            // raw doesnt exist for all events ( ex. raise() on property changes )
+            ctx: raw && raw.ctx,
+            start: !endEvent,
+            end: !!endEvent,
+            // returns the function to be called.
+            wait: function(promise) {
+              if (!promise) {
+                throw new Error("wait called with no promise");
+              }
+              promises.push(promise);
+            },
+          });
+          afterEmit.then(function() {
+            $q.all(promises).then(resolve, reject);
+          });
+          afterEmit.catch(reject);
         });
       };
       // be a little explict so that if the event service wants to send us extra params...

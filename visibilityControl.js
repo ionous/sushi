@@ -9,10 +9,6 @@ angular.module('demo')
         var ret, scope = ElementSlotService.get(windowName).scope;
         if (scope.visible !== visible) {
           scope.visible = visible;
-          return ctrl.emit("show", {
-            windowName: windowName,
-            visible: visible,
-          });
           ret = true;
         }
         return ret;
@@ -31,7 +27,7 @@ angular.module('demo')
 
       var visibility = {
         show: function(yes) {
-          show(windowName, angular.isUndefined(yes) || yes);
+          return show(windowName, angular.isUndefined(yes) || yes);
         }
       };
       return visibility;

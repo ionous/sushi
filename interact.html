@@ -11,7 +11,7 @@
           <hsm-event on="update-game" run="player.update($evt.dt)"></hsm-event>
           <hsm-event on="update-game" run="mouseTarget.update()"></hsm-event>
           <!-- pathing at the lca of Mousing,Pathing and Hover,FarPress -->
-          <hsm-event on="room-return-click" run="roomReturn.returnToRoom()"></hsm-event>
+          <hsm-event on="room-return-click" run="map.changeMap(roomReturn())" goto="PlaySpaceLoading"></hsm-event>
           <ng-include src="'mousing.html'"></ng-include>
           <ng-include src="'directing.html'"></ng-include>
         </hsm-state>

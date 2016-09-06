@@ -14,7 +14,9 @@ angular.module('demo')
           start: true,
         });
         var kids = e.events;
-        kids && expand(out, frame, kids);
+        if (kids) {
+          expand(out, frame, kids);
+        }
         out.push({
           evt: e,
           frame: frame,
@@ -32,20 +34,21 @@ angular.module('demo')
         queue = null;
       };
       var handleStartEvent = function(e, hs) {
-        while (hs.length) {
-          var handler = hs.pop();
-          if (handler) {
-            var start = handler.start || handler;
-            var wait = start(e.data, e.tgt.id, e.evt, e);
-            if (wait) {
-              // $log.debug("waiting on", e.evt);
-              return $q.when(wait).finally(function() {
-                // $log.debug("finished", e.evt);
-                return handleStartEvent(e, hs);
-              });
+        var loop = function() {
+          while (hs.length) {
+            var handler = hs.shift();
+            if (handler) {
+              var start = handler.start || handler;
+              //$log.info(e.tgt.id, e.evt, handler.name);
+              var wait = start(e.data, e.tgt.id, e.evt, e);
+              if (wait) {
+                // $log.debug("waiting on", e.evt);
+                return $q.when(wait).finally(loop);
+              }
             }
           }
-        }
+        };
+        return loop();
       };
       var handleEndEvent = function(e, hs) {
         hs.forEach(function(handler) {
@@ -55,16 +58,26 @@ angular.module('demo')
           }
         });
       };
-      var next = function(x) {
-        if (x) {
-          var e = x.evt;
+      var process = function(next) {
+        if (next) {
+          var e = next.evt;
           var handlers = EventService.getHandlers(e.tgt.id, e.evt);
           if (handlers.length) {
-            EntityService.setFrame(x.frame);
-            var fn = x.start ? handleStartEvent : handleEndEvent;
+            EntityService.setFrame(next.frame);
+            var fn = next.start ? handleStartEvent : handleEndEvent;
             return fn(e, handlers);
           }
         }
+      };
+      var toString = function(next) {
+        var ret = "";
+        if (next) {
+          var name = next.evt.evt;
+          var tgt = next.evt.tgt.id;
+          var which = next.end ? "end" : "start";
+          ret = [name, which, "to", tgt].join(" ");
+        }
+        return ret;
       };
       var processor = {
         queue: function(frame, events) {
@@ -77,9 +90,13 @@ angular.module('demo')
         },
         // trigger event handlers for the next (dequeued) event
         next: function() {
-          var x = queue.shift();
-          var wait = next(x);
-          return $q.when(wait).finally(function() {
+          var next = queue.shift();
+          //$log.debug("sending", toString(next));
+          var wait = $q.when(process(next));
+          wait.catch(function(reason) {
+            $log.error(toString(next), reason || "unknown error");
+          });
+          wait.finally(function() {
             return ctrl.emit("finished", {});
           });
         },

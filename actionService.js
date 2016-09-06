@@ -94,7 +94,8 @@ angular.module('demo')
         }
       };
       ctrl.onEnter = function() {
-        var game = currentGame = gameControl.getGame();
+        var game = gameControl.getGame();
+        currentGame = game;
         ActionService.bind(actionService);
 
         pendingActions = $q.defer();

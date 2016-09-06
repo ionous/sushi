@@ -35,7 +35,9 @@ angular.module('demo')
         btn.scope.click = function() {
           ctrl.emit("click", {});
         };
-        autoEnable && enable();
+        if (autoEnable) {
+          enable();
+        }
       };
       ctrl.onExit = function() {
         enable(false);

@@ -23,7 +23,7 @@ angular.module('demo')
       return pt(x, y);
     };
 
-    var Talker = function(id) {
+    var Talker = function(id, lines) {
       var bubble;
       var removeBubble = function() {
         if (bubble) {
@@ -40,10 +40,16 @@ angular.module('demo')
         }
         return display.canvas.getBoundingClientRect();
       };
-      this.destroy = function() {
+      var defer = $q.defer();
+      this.promise = defer.promise;
+      this.destroy = function(reason) {
         removeBubble();
+        defer.resolve(reason);
       };
-      this.displayText = function(slot, text) {
+      this.speechless = function() {
+        return lines.length === 0;
+      };
+      var displayText = function(slot, text) {
         var displayEl = slot.element;
         var charRect = getCharRect();
         //$log.info("displayText", text);
@@ -84,26 +90,20 @@ angular.module('demo')
           "top": y + "px",
         });
       };
+      this.displayNext = function(slot) {
+        var text = lines.shift();
+        displayText(slot, text);
+      };
     }; // Talker.
-    var currentTalker, currentSlot, currentLines, currentDefer;
+    var currentSlot, currentTalker;
     var nextUnsafe = function() {
       if (!currentTalker) {
         throw new Error("no ones talking");
       }
-      if (!currentLines || !currentLines.length) {
-        throw new Error("nothing to say");
-      }
+      currentTalker.displayNext(currentSlot);
+    };
+    ctrl.onEnter = function() {
       currentSlot = ElementSlotService.get("talk");
-      currentSlot.set({
-        visible: true,
-        dismiss: function(reason) {
-          ctrl.emit("dismiss", {
-            reason: reason
-          });
-        },
-      });
-      var text = currentLines.shift();
-      currentTalker.displayText(currentSlot, text);
     };
 
     ctrl.onExit = function() {
@@ -113,56 +113,61 @@ angular.module('demo')
         currentSlot = null;
       }
       if (currentTalker) {
-        currentTalker.destroy();
+        currentTalker.destroy('exit');
         currentTalker = null;
       }
-      if (currentDefer) {
-        currentDefer.resolve();
-        currentDefer = null;
-      }
-      currentLines = null;
     };
     //
     var talk = {
-      finished: function() {
-        var empty = !currentLines || !currentLines.length;
-        return empty;
-      },
-      next: function() {
-        var destroy = false;
-        try {
-          nextUnsafe();
-        } catch (e) {
-          $log.warn(e);
-          destroy = e.toString();
-        }
-        if (destroy) {
-          ctrl.emit("error", {
-            reason: destroy,
-          });
-        }
-      },
-      dismiss: function(reason) {
-        currentSlot.set(null);
-        var defer = currentDefer;
-        ctrl.emit("dismiss", {
-          reason: reason
-        });
-      },
       say: function(actorId, data) {
-        if (!data || !data.length) {
+        var lines = data;
+        if (!lines || !lines.length) {
           return $q.when();
         }
-        var defer = $q.defer();
-        currentDefer = defer;
-        currentTalker = new Talker(actorId);
-        currentLines = data.slice();
+        currentTalker = new Talker(actorId, lines.slice());
+        currentSlot.set({
+          visible: true,
+          dismiss: function(reason) {
+            ctrl.emit("dismiss", {
+              reason: reason
+            });
+          },
+        });
         // need to wait to get the first line on map transitions
         $timeout(function() {
           talk.next();
         });
-        return defer.promise;
+        return currentTalker.promise;
       }, //say
+      finished: function() {
+        return !currentTalker || currentTalker.speechless();
+      },
+      next: function() {
+        var error;
+        try {
+          nextUnsafe();
+        } catch (e) {
+          $log.warn(e);
+          error = e.toString();
+        }
+        if (error) {
+          ctrl.emit("error", {
+            reason: error,
+          });
+        }
+      },
+      dismiss: function(reason) {
+        ctrl.emit("dismiss", {
+          reason: reason
+        });
+      },
+      close: function(reason) {
+        currentSlot.set(null);
+        if (currentTalker) {
+          currentTalker.destroy(reason || 'close');
+          currentTalker = null;
+        }
+      },
     }; // scope
     return talk;
   }; // init

@@ -5,18 +5,10 @@ angular.module('demo')
     'use strict';
     'ngInject';
     this.init = function(ctrl) {
-      var currentSlot, scope, data, error, resolver;
+      var currentSlot, scope, data, error;
       var slotName = ctrl.require("popupSlot");
 
       ctrl.onExit = function() {
-        if (resolver) {
-          if (data) {
-            resolver.resolve(data);
-          } else {
-            resolver.reject(error || reason);
-          }
-          resolver = null;
-        }
         currentSlot.set(null);
         currentSlot = null;
         data = null;
@@ -52,7 +44,6 @@ angular.module('demo')
         saved: function(evt) {
           data = evt.data;
           error = evt.error;
-          resolver = evt.resolver();
           var scope = currentSlot.scope;
           if (scope) {
             scope.state = !!data ? "saved" : "error";

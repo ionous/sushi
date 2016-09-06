@@ -12,7 +12,7 @@
       </hsm-state>
       <hsm-state name="Process" parallel="true">
         <hsm-state name="Next" timeout-state="hup" hsm-enter="hup.timeout()">
-          <hsm-event on="hup-timeout" run="stream.next()" goto=""></hsm-event>
+          <hsm-event on="hup-timeout" run="stream.next()"></hsm-event>
           <hsm-event on="stream-finished" when="!stream.empty()" goto="Next"></hsm-event>
           <hsm-event on="stream-finished" goto="FieldDialog"></hsm-event>
         </hsm-state>
