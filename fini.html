@@ -1,4 +1,3 @@
-<hsm-state name="Fini" fini-control="fini" fini-display-slot="gameMap" fini-panel-slot="finalExit" player-control="player" hsm-enter="player.create(playerSprite)">
-  <hsm-event on="stream-empty" run="fini.showExitPanel()"></hsm-event>
+<hsm-state name="Fini" fini-control="fini" fini-display-slot="gameMap" fini-panel-slot="finalExit"">
   <hsm-event on="fini-exit" goto="Menus"></hsm-event>
 </hsm-state>

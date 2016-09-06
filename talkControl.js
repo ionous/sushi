@@ -127,11 +127,7 @@ angular.module('demo')
         currentTalker = new Talker(actorId, lines.slice());
         currentSlot.set({
           visible: true,
-          dismiss: function(reason) {
-            ctrl.emit("dismiss", {
-              reason: reason
-            });
-          },
+          dismiss: talk.dismiss,
         });
         // need to wait to get the first line on map transitions
         $timeout(function() {

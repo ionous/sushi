@@ -130,8 +130,8 @@ angular.module('demo')
           ret = new StaticSprite(obj, display, groups);
         } else {
           var chara = CharaService.newChara(display, sprite.image(), sprite.size());
-          var currLoc = map.currLoc();
-          var prevLoc = map.prevLoc();
+          var currLoc = map.currLoc;
+          var prevLoc = map.prevLoc;
           var xform = positionControl.newPos(currLoc, display.skin, display.group.pos, angle);
           // spin ourselves around on return
           // (unless we zoomed in on an item)

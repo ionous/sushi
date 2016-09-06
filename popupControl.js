@@ -28,16 +28,14 @@ angular.module('demo')
           currentSlot.set({
             visible: true,
             lines: data,
-            close: function() {
-              popup.close();
-            },
-            dismiss: function(reason) {
-              return ctrl.emit("dismiss", {
-                reason: reason
-              });
-            },
+            dismiss: popup.dismiss,
           });
           return d.promise;
+        },
+        dismiss: function(reason) {
+          return ctrl.emit("dismiss", {
+            reason: reason
+          });
         },
         close: function(reason) {
           if (deferClose) {

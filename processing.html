@@ -31,7 +31,7 @@
   </hsm-state>
   <!-- xxxx: move to story state file.
   when we are zoomed in to a sub-scene in the automat and sam opens the door, zoom out. -->
-  <hsm-event event-control="exitStageTwo" event-target="*" events="door-staging-two" on="exitStageTwo" when="map.currLoc().nextRoom('automat').changes(map.currLoc())" run="map.changeRoom('automat')" goto="PlaySpaceLoading"></hsm-event>
+  <hsm-event event-control="exitStageTwo" event-target="*" events="door-staging-two" on="exitStageTwo" when="map.currLoc.nextRoom('automat').changes(map.currLoc)" run="map.changeRoom('automat')" goto="PlaySpaceLoading"></hsm-event>
   <!--  -->
   <hsm-state timeout-state="doorDelay">
     <hsm-event event-control="exitStageFour" event-target="*" events="door-staging-four" on="exitStageFour" run="$evt.wait(doorDelay.timeout(300))"></hsm-event>

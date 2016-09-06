@@ -17,11 +17,11 @@ angular.module('demo')
       Location.prototype.toString = function() {
         return this.room + (this.view ? " " + this.view : "") + (this.item ? " " + this.item : "");
       };
-      Location.prototype.mapName = function() {
+      Location.prototype.name = function() {
         return this.item || this.view || this.room;
       };
       Location.prototype.changes = function(next) {
-        return (this.room != next.room) || (this.view != next.view) || (this.item != next.item);
+        return !next || ((this.room != next.room) || (this.view != next.view) || (this.item != next.item));
       };
       Location.prototype.nextRoom = function(room) {
         return new Location(room || this.room);

@@ -1,4 +1,4 @@
-<hsm-state name="RecentItem" hsm-init="map.currLoc().item ? 'RecentItemHidden' : 'RecentItemVisible'">
+<hsm-state name="RecentItem" hsm-init="map.currLoc.item ? 'RecentItemHidden' : 'RecentItemVisible'">
   <hsm-state name="RecentItemHidden">
   </hsm-state>
   <hsm-state name="RecentItemVisible" recent-item-state="recentItem" button-name="itemButton" hsm-enter="recentItem.update( playerItems.currentItem() )">

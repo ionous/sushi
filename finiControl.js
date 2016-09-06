@@ -6,24 +6,26 @@ angular.module('demo')
     'use strict';
     'ngInject';
     this.init = function(ctrl) {
-      var displaySlot = ctrl.require("finiDisplaySlot");
-      var panelSlot = ctrl.require("finiPanelSlot");
+      var displaySlotName = ctrl.require("finiDisplaySlot");
+      var panelSlotName = ctrl.require("finiPanelSlot");
 
       var Fini = function() {
-        var displaySlot = ElementSlotService.get(displaySlot);
-        var panel = ElementSlotService.get(panelSlot);
-        panel.scope.exit = function() {
-          return ctrl.emit("exit", {});
-        };
+        var panelSlot = ElementSlotService.get(panelSlotName);
+        var displaySlot = ElementSlotService.get(displaySlotName);
+        //
+        panelSlot.set({
+          visible: true,
+          exit: function() {
+            return ctrl.emit("exit", {});
+          },
+        });
+        //
         displaySlot.scope.visible = true;
         displaySlot.element.css({
           "cursor": "auto"
         });
-        this.showPanel = function() {
-          panel.scope.visible = true;
-        };
         this.destroy = function() {
-          panel.scope.set(null);
+          panelSlot.set(null);
           displaySlot.element.css({
             "cursor": ""
           });

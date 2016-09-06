@@ -1,8 +1,7 @@
 angular.module('demo')
 
-// -loading, -loaded
 .stateDirective("mapControl", ["^gameControl"],
-  function(ElementSlotService, LayerService, LocationService, MapService, ObjectDisplayService, UpdateService,
+  function(ElementSlotService, LayerService, MapService, ObjectDisplayService,
     $log, $q) {
     'use strict';
     'ngInject';
@@ -28,7 +27,7 @@ angular.module('demo')
     };
     // returns a promise:
     var loadMap = function(game, mapEl, nextLoc) {
-      var mapName = nextLoc.mapName();
+      var mapName = nextLoc.name();
       return MapService.loadMap(mapName).then(function(map) {
         $log.debug("MapControl: loading map", mapName);
         var roomId = nextLoc.room;
@@ -77,94 +76,83 @@ angular.module('demo')
         }); // object service
       }); // get map
     };
-    var mapSlotName, loading, currentMap;
-
-    var destroyMap = function() {
-      if (loading) {
-        loading.reject("destroyed");
-        loading = null;
-      }
-      if (currentMap) {
-        var tree = currentMap.tree;
-        if (tree) {
-          tree.nodes.destroyNode();
-          // this el is mapSlot, gameMap
-          tree.el.empty();
-        }
-        currentMap = null;
-      }
-      ObjectDisplayService.clear();
-    };
 
     this.init = function(ctrl, gameControl) {
       var mapSlotName = ctrl.require("mapSlot");
+      var pendingMap, currentMap;
 
-      var prevLoc;
-      var currLoc = LocationService.newLocation();
-
-      var changeMap = function(nextLoc) {
-        var ret;
-        if (loading) {
-          throw new Error("already loading");
+      var destroyMap = function() {
+        if (pendingMap) {
+          pendingMap.reject("destroyed");
+          pendingMap = null;
         }
-        if (!nextLoc) {
-          throw new Error("no location specified");
+        if (currentMap) {
+          var tree = currentMap.tree;
+          if (tree) {
+            tree.nodes.destroyNode();
+            // this el is mapSlot, gameMap
+            tree.el.empty();
+          }
+          currentMap = null;
         }
-        if (currentMap && !nextLoc.changes(currLoc)) {
-          ret = $q.when(currentMap).then(function(map) {
-            return ctrl.emit("unchanged", map).then(function() {
-              return map;
-            });
-          });
-        } else {
-          destroyMap();
-          var slot = ElementSlotService.get(mapSlotName);
+        ObjectDisplayService.clear();
+      };
 
-          // use a defer so we can cancel if need be
-          var defer = $q.defer();
-          loading = defer;
-
-          $log.info("mapControl", ctrl.name(), "loading", nextLoc.toString());
-          nextLoc.syncUrlBar();
-
-          // load!
-          loadMap(gameControl.getGame(), slot.element, nextLoc).then(defer.resolve, defer.reject);
-          // loaded! (and not rejected in the meantime)
-          defer.promise.catch(function(reason) {
-            $log.error("mapControl", ctrl.name(), "map failed to load", reason);
-          });
-          defer.promise.then(function(map) {
-            prevLoc = currLoc;
-            currLoc = nextLoc;
-            currentMap = map;
-
-            loading = null;
-            // size the view
-            slot.scope.style = {
-              'width': map.bounds.x + 'px',
-              'height': map.bounds.y + 'px',
-            };
-
-            // show the map
-            $log.info("mapControl", ctrl.name(), "loaded", currLoc.mapName());
-            return ctrl.emit("loaded", map).then(function() {
-              return map;
-            });
-          });
-          ret = defer.promise;
-        }
-        return ret;
-      }; // changeMap
       ctrl.onEnter = function() {
 
       };
       ctrl.onExit = function() {
         destroyMap();
-        prevLoc = null;
-        currLoc = null;
       };
 
-      var scope = {
+      var changeMap = function(nextLoc) {
+        var ret;
+        if (pendingMap) {
+          throw new Error("already loading");
+        }
+        if (!nextLoc) {
+          throw new Error("no location specified");
+        }
+        if (currentMap && !nextLoc.changes(currentMap.where)) {
+          return $q.when(currentMap).then(function(map) {
+            return ctrl.emit("unchanged", map).then(function() {
+              return map;
+            });
+          });
+        }
+        destroyMap();
+        var slot = ElementSlotService.get(mapSlotName);
+        var currentGame = gameControl.getGame();
+        // use a defer so we can cancel if need be
+        pendingMap = $q.defer();
+
+        $log.info("mapControl", ctrl.name(), "loading", nextLoc.toString());
+        nextLoc.syncUrlBar();
+
+        // load!
+        loadMap(currentGame, slot.element, nextLoc).then(pendingMap.resolve, pendingMap.reject);
+        // loaded! (and not rejected in the meantime)
+        pendingMap.promise.catch(function(reason) {
+          $log.error("mapControl", ctrl.name(), "map failed to load", reason);
+        });
+        pendingMap.promise.then(function(map) {
+          currentMap = map;
+          pendingMap = null;
+          // size the view
+          slot.scope.style = {
+            'width': map.bounds.x + 'px',
+            'height': map.bounds.y + 'px',
+          };
+          // show the map
+          $log.info("mapControl", ctrl.name(), "loaded", map.where.name());
+          return map;
+        }).then(function(map) {
+          return ctrl.emit("loaded", map);
+        });
+        return pendingMap.promise;
+      }; // changeMap
+
+      var map = {
         // suspicious of exposing resources object directly to scope watchers
         get: function(key) {
           var ret = currentMap && currentMap[key];
@@ -174,30 +162,32 @@ angular.module('demo')
           }
           return ret;
         },
-        show: function() {},
         loaded: function() {
           return !!currentMap;
         },
-        currLoc: function() {
-          return currLoc;
+        currLoc: null,
+        prevLoc: null,
+        changeMap: function(loc) {
+          return changeMap(loc).then(function(now) {
+            if (now.where.changes(map.currLoc)) {
+              map.prevLoc = map.currLoc;
+              map.currLoc = now.where;
+            }
+          });
         },
-        prevLoc: function() {
-          return prevLoc;
-        },
-        changeMap: changeMap,
         changeRoom: function(room) {
-          return changeMap(currLoc.nextRoom(room));
+          return map.changeMap(map.currLoc.nextRoom(room));
         },
         changeView: function(view) {
-          return changeMap(currLoc.nextView(view));
+          return map.changeMap(map.currLoc.nextView(view));
         },
         changeItem: function(item) {
-          return changeMap(currLoc.nextItem(item));
+          return map.changeMap(map.currLoc.nextItem(item));
         },
       };
       this.getMap = function() {
-        return scope;
+        return map;
       };
-      return scope;
+      return map;
     };
   });

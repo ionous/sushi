@@ -48,7 +48,7 @@ angular.module('demo')
           when: date.toLocaleString(),
           version: SaveVersion,
           // via map.get("location") instead?
-          location: map.currLoc(),
+          location: map.currLoc,
           history: history
             // [screenshot]
             // current inventory item

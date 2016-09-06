@@ -6,9 +6,7 @@
     <!-- startup goes here when done: -->
     <hsm-state name="GameStarted" action-service="actions" player-dialog-control="dialog" dialog-slot="commentBox" save-control="save" command-control="command" hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
       <ng-include src="'playing.html'"></ng-include>
-      <ng-include src="'fini.html'"></ng-include>
       <hsm-state name="PlaySpaceLoading" hsm-enter="status.set()">
-        <hsm-event on="map-loaded" when="$evt.where.room=='fini'" goto="Fini"></hsm-event>
         <hsm-event on="map-loaded" goto="Playing"></hsm-event>
         <hsm-event on="map-unchanged" goto="Playing"></hsm-event>
       </hsm-state>

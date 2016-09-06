@@ -13,7 +13,7 @@ angular.module('demo')
       };
       ctrl.onEnter = function() {
         currSlot = ElementSlotService.get(slotName);
-        currLoc = mapControl.getMap().currLoc();
+        currLoc = mapControl.getMap().currLoc;
 
         var viewing = currLoc.view || currLoc.item;
         if (viewing) {

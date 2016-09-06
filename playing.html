@@ -3,9 +3,10 @@
     <div visibility-state="barvis" visibility-slot="buttonBar" visibility-auto-show="false">
       <!-- fix: remove this generic catch with gotos -->
       <hsm-event on="game-posting" goto="Post"></hsm-event>
-      <hsm-state name="FieldDialog" hsm-init="dialog.empty()?'Field':'Dialog'">
+      <hsm-state name="FieldDialog" hsm-init="map.currLoc.room=='fini'?'Fini' : dialog.empty()?'Field':'Dialog'">
         <ng-include src="'field.html'"></ng-include>
         <ng-include src="'dialog.html'"></ng-include>
+        <ng-include src="'fini.html'"></ng-include>
       </hsm-state>
       <hsm-state name="Process" parallel="true">
         <hsm-state name="Next" timeout-state="hup" hsm-enter="hup.timeout()">
