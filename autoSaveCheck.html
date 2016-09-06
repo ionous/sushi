@@ -1,18 +1,23 @@
 <!-- good result-> map change-> now playing-> *save -> AutoSaveCheck -->
 <hsm-state name="AutoSaveCheck">
+  <div style="font-size:smaller;font-weight:bold">{{ track.manuallySaved() ? "saved" : "not saved" }}</div>
+  <hsm-state name="StartCheck">
+    <hsm-event on="game-created" run="track.reset(true)"></hsm-event>
+    <hsm-event on="game-loaded" run="track.reset(false)"></hsm-event>
+    <hsm-event on="map-loaded" goto="DataCheck"></hsm-event>
+  </hsm-state>
   <!--  -->
   <hsm-state name="DataCheck">
-    <hsm-event on="game-posted" goto="MapCheck"></hsm-event>
     <hsm-event on="game-posted" run="track.manuallySaved(false)" goto="MapCheck"></hsm-event>
+    <hsm-event on="map-loaded" run="track.manuallySaved(false)" goto="DataCheck"></hsm-event>
   </hsm-state>
   <!--  -->
   <hsm-state name="MapCheck">
-    <hsm-event on="player-created" run="track.fieldSave(true)" goto="FieldCheck"></hsm-event>
+    <hsm-event on="map-loaded" run="track.fieldSave(true)" goto="FieldCheck"></hsm-event>
   </hsm-state>
   <!--  -->
   <hsm-state name="FieldCheck">
   </hsm-state>
   <!--  -->
-  <hsm-event on="map-loaded" run="track.manuallySaved(false)"></hsm-event>
-  <hsm-event on="save-saved" run="track.fieldSave(false); track.manuallySaved($evt.saveType == 'normal-save')" goto="AutoSaveCheck"></hsm-event>
+  <hsm-event on="save-saved" run="track.fieldSave(false); track.manuallySaved($evt.saveType == 'normal-save')" goto="DataCheck"></hsm-event>
 </hsm-state>

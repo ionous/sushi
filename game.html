@@ -1,14 +1,12 @@
-<hsm-state name="Game" hsm-exit="game.destroy()" visibility-state="gamevis" visibility-slot="gameWindow" status-state="status" status-slot="buttonBar" key-state="keys" map-control="map" map-slot="gameMap" player-control="player" processor-state="stream" hsm-init="'Startup'">
-  <!-- startup sequence to create the player graphics, locate the player object in the world, and loading the first map. -->
-  <ng-include src="'startup.html'"></ng-include>
-  <!-- startup goes here when done: -->
-  <hsm-state name="GameStarted" action-service="actions" player-dialog-control="dialog" dialog-slot="commentBox" save-control="save" command-control="command" change-control="track" hsm-enter="track.reset($evt.newGame)" parallel="true">
-    <ng-include src="'autoSaveCheck.html'"></ng-include>
-    <hsm-state hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
-      
+<hsm-state name="Game" hsm-exit="game.destroy()" visibility-state="gamevis" visibility-slot="gameWindow" status-state="status" status-slot="buttonBar" key-state="keys" map-control="map" map-slot="gameMap" processor-state="stream" image-loader-control="playerSprite" change-control="track" parallel="true">
+  <ng-include src="'autoSaveCheck.html'"></ng-include>
+  <hsm-state hsm-init="'Startup'">
+    <!-- startup sequence to create the player graphics, locate the player object in the world, and loading the first map. -->
+    <ng-include src="'startup.html'"></ng-include>
+    <!-- startup goes here when done: -->
+    <hsm-state name="GameStarted" action-service="actions" player-dialog-control="dialog" dialog-slot="commentBox" save-control="save" command-control="command" hsm-init="map.loaded() ? 'Playing' : 'PlaySpaceLoading'">
       <ng-include src="'playing.html'"></ng-include>
       <ng-include src="'fini.html'"></ng-include>
-
       <hsm-state name="PlaySpaceLoading" hsm-enter="status.set()">
         <hsm-event on="map-loaded" when="$evt.where.room=='fini'" goto="Fini"></hsm-event>
         <hsm-event on="map-loaded" goto="Playing"></hsm-event>

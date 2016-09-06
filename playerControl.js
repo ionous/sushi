@@ -1,15 +1,14 @@
 angular.module('demo')
 
-.stateDirective("playerControl", ["^gameControl", "^positionControl"],
+.stateDirective("playerControl", ["^mapControl", "^positionControl"],
   function(EntityService, CharaService, LocationService, ObjectDisplayService,
     $q, $log) {
     'use strict';
     'ngInject';
-    var PLAYER = "player";
 
     // dynamic hit box
-    var PlayerHitShape = function(obj, chara, xform) {
-      this.name = PLAYER;
+    var DynamicHitShape = function(obj, chara, xform) {
+      this.name = obj.id;
       var xw = 16;
       var yd = 30;
       var ofs = pt(xw, yd);
@@ -20,7 +19,7 @@ angular.module('demo')
       this.group = {
         subject: {
           object: obj,
-          path: PLAYER,
+          path: obj.id,
         }
       };
       var me = this;
@@ -32,12 +31,12 @@ angular.module('demo')
       };
     };
 
-    var SimpleShape = function(obj, min, max) {
-      this.name = PLAYER;
+    var StaticHitShape = function(obj, min, max) {
+      this.name = obj.id;
       this.group = {
         subject: {
           object: obj,
-          path: PLAYER,
+          path: obj.id,
         }
       };
       var me = this;
@@ -48,12 +47,12 @@ angular.module('demo')
     };
 
     // an non-animated character control
-    var SimplePlayer = function(obj, display, groups) {
+    var StaticSprite = function(obj, display, groups) {
       var min = display.group.pos;
       var size = pt(display.canvas.width, display.canvas.height);
       var max = pt_add(min, size);
 
-      var hit = new SimpleShape(obj, min, max);
+      var hit = new StaticHitShape(obj, min, max);
       this.hit = hit;
       groups.children.unshift(hit);
       this.destroy = function() {
@@ -62,13 +61,13 @@ angular.module('demo')
     };
 
     // an animated character control
-    var Player = function(obj, chara, xform, groups, usez) {
+    var DynamicSprite = function(obj, chara, xform, groups, usez) {
       var corner = xform.getPos();
       chara.setCorner(corner, !!usez);
       chara.setAngle(xform.getAngle(), true);
       chara.draw(0, true);
 
-      var hit = new PlayerHitShape(obj, chara, xform);
+      var hit = new DynamicHitShape(obj, chara, xform);
       groups.children.unshift(hit);
       this.hit = hit;
       this.destroy = function() {
@@ -102,18 +101,13 @@ angular.module('demo')
       };
     };
 
-    var currPlayer, pending, memorizeOnExit;
-    this.getPlayer = function() {
-      return currPlayer;
-    };
-
     //
-    this.init = function(ctrl, gameControl, positionControl) {
-      ctrl.onExit = function(reason) {
-        if (pending) {
-          pending.reject(reason || "destroyed");
-          pending = null;
-        }
+    this.init = function(ctrl, mapControl, positionControl) {
+      var map, currPlayer, memorizeOnExit;
+      ctrl.onEnter = function() {
+        map = mapControl.getMap();
+      };
+      ctrl.onExit = function() {
         if (memorizeOnExit) {
           memorizeOnExit.memorize();
           memorizeOnExit = null;
@@ -122,26 +116,8 @@ angular.module('demo')
           currPlayer.destroy();
           currPlayer = null;
         }
-        lastImage = null;
       };
-      var lastImage, lastSize;
-      var createNow = function(map, playerImg, size) {
-        playerImg = playerImg || lastImage;
-        lastImage = playerImg;
-        if (!playerImg) {
-          throw new Error("missing player sprite");
-        }
-        size = size || lastSize;
-        lastSize = size;
-        if (!size) {
-          throw new Error("invalid player size");
-        }
-        var display = ObjectDisplayService.getDisplay(PLAYER);
-        if (!display) {
-          throw new Error("missing player display");
-        }
-        var obj = EntityService.getById(PLAYER);
-
+      var createNow = function(obj, display, sprite) {
         // based on the image path from tiled, determine if its animatable.
         var ret;
         var groups = map.get('hitGroups');
@@ -150,10 +126,10 @@ angular.module('demo')
         var originalImage = display.image;
         var angle = CharaService.imageAngle(originalImage, re);
         if (angular.isUndefined(angle)) {
-          $log.warn("no dynamic player image for", originalImage.src);
-          ret = new SimplePlayer(obj, display, groups);
+          $log.warn("no dynamic image for", originalImage.src);
+          ret = new StaticSprite(obj, display, groups);
         } else {
-          var chara = CharaService.newChara(display, playerImg, size);
+          var chara = CharaService.newChara(display, sprite.image(), sprite.size());
           var currLoc = map.currLoc();
           var prevLoc = map.prevLoc();
           var xform = positionControl.newPos(currLoc, display.skin, display.group.pos, angle);
@@ -162,29 +138,36 @@ angular.module('demo')
           if (!!physics && xform.fromMemory() && prevLoc && prevLoc.room && !prevLoc.item) {
             xform.spin(180);
           }
-          ret = new Player(obj, chara, xform, groups, !!physics);
+          ret = new DynamicSprite(obj, chara, xform, groups, !!physics);
           //
           memorizeOnExit = physics ? xform : null;
         }
         return ret;
       };
       //
-      return {
-        // raises -creating, -created
-        create: function(map, imagePath, size) {
+      var lastSprite, lastDisplay;
+
+      var player = {
+        ensure: function() {
+          var obj = EntityService.getById("player");
+          var display = ObjectDisplayService.getDisplay(obj.id);
+          if (lastDisplay !== display) {
+            currPlayer.destroy();
+            currPlayer = createNow(obj, display, lastSprite);
+            lastDisplay = display;
+          }
+          return currPlayer;
+        },
+        create: function(sprite) {
           if (currPlayer) {
             $log.warn("playerControl", ctrl.name(), "player already created");
           } else {
-            // uses a separate deferred to reject on destroy.
-            pending = $q.defer();
-            CharaService.loadImage(imagePath).then(pending.resolve, pending.reject);
-            pending.promise.then(function(img) {
-              pending = null;
-              currPlayer = createNow(map, img, size);
-              return ctrl.emit("created", {
-                player: currPlayer,
-              });
-            });
+            var obj = EntityService.getById("player");
+            var display = ObjectDisplayService.getDisplay(obj.id);
+            currPlayer = createNow(obj, display, sprite);
+
+            lastSprite = sprite;
+            lastDisplay = display;
           }
         }, // create
         update: function(dt) {
@@ -197,6 +180,10 @@ angular.module('demo')
         subject: function() {
           return currPlayer && currPlayer.hit.group.subject;
         },
-      }; // return
+      };
+      this.getPlayer = function() {
+        return player;
+      };
+      return player;
     }; //init
   });

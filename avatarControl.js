@@ -8,7 +8,8 @@ angular.module('demo')
     'use strict';
     'ngInject';
     this.init = function(ctrl, keyState, physicsState, playerControl) {
-      var currKeys, currPlayer, currProp;
+      var keysApi, playerApi;
+      var currPlayer, currProp;
       var reduce = function(val) {
         return val ? 1.0 : 0.0;
       };
@@ -17,26 +18,35 @@ angular.module('demo')
           currProp.remove();
           currProp = null;
         }
-        currPlayer = null;
-        currKeys = null;
+        playerApi = null;
+        keysApi = null;
       };
       var size = ctrl.optional("avatarSize", "12");
       ctrl.onEnter = function() {
-        currKeys = keyState.getKeys();
-        currPlayer = playerControl.getPlayer();
-        if (!currPlayer) {
-          throw new Error("invalid player");
-        }
-        var physics = physicsState.getPhysics();
-        if (physics.exists()) {
-          var feet = currPlayer.getFeet();
-          currProp = physics.addProp(feet, parseInt(size, 10));
-          if (!currProp) {
-            throw new Error("prop not created");
-          }
-        }
+        keysApi = keyState.getKeys();
+        playerApi = playerControl.getPlayer();
       };
       var avatar = {
+        exists: function() {
+          return !!currProp;
+        },
+        create: function() {
+          if (currProp) {
+            throw new Error("avatar already exists");
+          }
+          currPlayer = playerApi.ensure();
+          if (!currPlayer) {
+            throw new Error("failed to create player");
+          }
+          var physics = physicsState.getPhysics();
+          if (physics.exists()) {
+            var feet = currPlayer.getFeet();
+            currProp = physics.addProp(feet, parseInt(size, 10));
+            if (!currProp) {
+              throw new Error("prop not created");
+            }
+          }
+        },
         // true when avatar is over the landing pads of the target.
         touches: function(target) {
           var touches;
@@ -48,7 +58,7 @@ angular.module('demo')
               touches = target.pads.getPadAt(feet);
             }
           }
-          return touches;
+          return !!touches;
         },
         getCenter: function() {
           return currPlayer.getCenter();
@@ -90,7 +100,7 @@ angular.module('demo')
           if (!dir || !dt) {
             avatar.stop();
           } else if (currProp) {
-            var walking = currKeys.buttons('shift');
+            var walking = keysApi.buttons('shift');
             // animation facing.
             var face = dir;
             var angle = currPlayer.setAngle(face.x, face.y);

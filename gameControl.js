@@ -188,6 +188,10 @@ angular.module('demo')
           });
         });
       };
+      this.started = function() {
+        var game = this.getGame();
+        return game.started;
+      };
       this.post = function(what) {
         var game = this.getGame();
         return game.post(what);

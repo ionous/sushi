@@ -1,14 +1,14 @@
 angular.module('demo')
 
-.stateDirective("mouseTargetState", ["^mapControl", "^mouseState", "^nearFarState"],
+.stateDirective("mouseTargetState", ["^mapControl", "^mouseState", "^avatarState"],
   function(UpdateService, $log, $scope) {
     'use strict';
     'ngInject';
-    this.init = function(ctrl, mapControl, mouseState, nearFarState) {
-      var subject, touches, ghost, mouse, nearFar, hitGroups;
+    this.init = function(ctrl, mapControl, mouseState, avatarState) {
+      var subject, touches, ghost, mouse, avatar, hitGroups;
       ctrl.onEnter = function() {
         mouse = mouseState.getMouse();
-        nearFar = nearFarState.getNearFar();
+        avatar = avatarState.getAvatar();
         touches = "invalid";
 
         var map = mapControl.getMap();
@@ -29,7 +29,7 @@ angular.module('demo')
       };
       var uptouches = function(next) {
         var changed;
-        var now = !!(next && nearFar.touches(next));
+        var now = !avatar.exists() || avatar.touches(next);
         if (now !== touches) {
           touches = now;
           changed = true;

@@ -1,7 +1,4 @@
-<hsm-state name="Playing" player-control="player" hsm-enter="player.create(map, '/bin/images/princess.png', 64)" hsm-exit="player.destroy()" physics-state="physics">
-  <hsm-state name="PlayingWait">
-    <hsm-event on="player-created" goto="PlayingGame"></hsm-event>
-  </hsm-state>
+<hsm-state name="Playing" player-control="player" hsm-enter="player.create(playerSprite)" physics-state="physics">
   <hsm-state name="PlayingGame" avatar-state="avatar" player-item-state="playerItems" hsm-init="'Process'" visibility-state="mapvis" visibility-slot="gameMap" hsm-enter="status.set(map.get('desc'))">
     <div visibility-state="barvis" visibility-slot="buttonBar" visibility-auto-show="false">
       <!-- fix: remove this generic catch with gotos -->

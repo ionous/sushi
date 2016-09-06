@@ -64,7 +64,6 @@
   <script src="mouseState.js"></script>
   <script src="mouseTargetState.js"></script>
   <script src="moveState.js"></script>
-  <script src="nearFarState.js"></script>
   <script src="physicsState.js"></script>
   <script src="processorState.js"></script>
   <script src="radialState.js"></script>
@@ -84,12 +83,12 @@
   <script src="eventControl.js"></script>
   <script src="finiControl.js"></script>
   <script src="gameControl.js"></script>
+  <script src="imageLoaderControl.js"></script>
   <script src="itemBrowserControl.js"></script>
   <script src="keyControl.js"></script>
   <script src="loadGameControl.js"></script>
   <script src="pathControl.js"></script>
   <script src="mapControl.js"></script>
-  <script src="moveControl.js"></script>
   <script src="playerControl.js"></script>
   <script src="playerDialogControl.js"></script>
   <script src="playerItemControl.js"></script>
@@ -126,7 +125,7 @@
   <script src="mosaic/sprite.js"></script>
 </head>
 
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" path-control="path" constant-control="constant" hsm-transition="0&& log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evtname)" hsm-enter="0&& $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0&& log.exit($state)" xblur-control="blur">
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" path-control="path" constant-control="constant" hsm-transition="0&& log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evtname)" hsm-enter="0&& $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0&& log.exit($state)" blur-control="blur">
   <header>
     <div title-bar-control="titlebar" class="titlebar">
       <span class="titlebar-icon">

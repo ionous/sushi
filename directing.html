@@ -25,7 +25,7 @@
         <hsm-event on="move-stopped" when="$evt.arrived" goto="DirectorArrivedTarget"></hsm-event>
       </hsm-state>
       <hsm-state name="DirectorArrivedTarget" hsm-enter="move.stop(); move.adjustFacing(); mouse.highlight(move.target())">
-        <hsm-event on="mouse-up" when="nearFar.touches(move.target())" run="actionBar.open(mouse.cursorPos(), move.target())" goto="Radial"></hsm-event>
+        <hsm-event on="mouse-up" when="!avatar.exists() || avatar.touches(move.target())" run="actionBar.open(mouse.cursorPos(), move.target())" goto="Radial"></hsm-event>
       </hsm-state>
     </hsm-state>
     <!-- ~DirectToTarget -->

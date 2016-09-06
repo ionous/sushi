@@ -1,4 +1,4 @@
-<hsm-state name="Field" hsm-init="track.fieldSave() ? 'FieldSave':'Play'" near-far-state="nearFar" mouse-state="mouse" mouse-focus="gameMap" mouse-display="mouseDisplay" room-return-state="roomReturn" room-return-button="clickReturn" combine-check-state="invCombine" combine-panel-state="combinePanel" combine-panel-slot="combineBox" action-bar-factory-state="actionBar" inv-win-factory-state="invWin" item-browser-state="itemBrowser" item-browser-slot="items" radial-state="radial" radial-edge="gameMap" radial-menu="radialMenu" button-state="recentButton" button-name="itemButton"  hsm-enter="barvis.show()">
+<hsm-state name="Field" hsm-init="track.fieldSave() ? 'FieldSave':'Play'" mouse-state="mouse" mouse-focus="gameMap" mouse-display="mouseDisplay" room-return-state="roomReturn" room-return-button="clickReturn" combine-check-state="invCombine" combine-panel-state="combinePanel" combine-panel-slot="combineBox" action-bar-factory-state="actionBar" inv-win-factory-state="invWin" item-browser-state="itemBrowser" item-browser-slot="items" radial-state="radial" radial-edge="gameMap" radial-menu="radialMenu" button-state="recentButton" button-name="itemButton" hsm-enter="barvis.show()">
   <!--  -->
   <hsm-state name="FieldSave" timeout-state="jump" hsm-enter="jump.timeout()">
     <hsm-event on="jump-timeout" run="save.saveGame('auto-save')" goto="AutoSave"></hsm-event>
@@ -17,7 +17,7 @@
     <!-- and recent item changes too  -->
     <ng-include src="'recentItem.html'"></ng-include>
     <!-- -->
-    <hsm-state hsm-init="'Interact'">
+    <hsm-state hsm-init="'Interact'" hsm-enter="avatar.exists() || avatar.create()">
       <ng-include src="'interact.html'"></ng-include>
       <ng-include src="'browse.html'"></ng-include>
     </hsm-state>

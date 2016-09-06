@@ -5,26 +5,26 @@ angular.module('demo')
     'use strict';
     'ngInject';
     this.init = function(ctrl) {
-      var currentSlot, currentDefer;
+      var currentSlot, deferClose;
       var slotName = ctrl.optional("popupSlot", ctrl.name());
       ctrl.onEnter = function() {
         currentSlot = ElementSlotService.get(slotName);
       };
       ctrl.onExit = function() {
-        if (currentDefer) {
-          currentDefer.reject("exiting");
-          currentDefer = null;
+        if (deferClose) {
+          deferClose.reject("exiting");
+          deferClose = null;
         }
         currentSlot.set(null);
         currentSlot = null;
       };
       var popup = {
         open: function(data) {
-          if (currentDefer) {
+          if (deferClose) {
             throw new Error("already open");
           }
           var d = $q.defer();
-          currentDefer = d;
+          deferClose = d;
           currentSlot.set({
             visible: true,
             lines: data,
@@ -40,9 +40,9 @@ angular.module('demo')
           return d.promise;
         },
         close: function(reason) {
-          if (currentDefer) {
-            var d = currentDefer;
-            currentDefer = null;
+          if (deferClose) {
+            var d = deferClose;
+            deferClose = null;
             currentSlot.set(null);
             ctrl.emit("closed", {
               reason: reason || "close called"

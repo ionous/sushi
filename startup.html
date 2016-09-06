@@ -10,7 +10,7 @@
     <hsm-event on="game-loaded" run="startup.locatePlayer($evt.where)" goto="RestoringGame"></hsm-event>
   </hsm-state>
   <!--  -->
-  <hsm-state>
+  <hsm-state hsm-enter="playerSprite.load(constant('PlayerSprite'), constant('PlayerSpriteSize'))">
     <!--  -->
     <hsm-state name="CreatingGame">
       <hsm-state>
@@ -21,7 +21,8 @@
       </hsm-state>
       <hsm-state name="StartingGame">
         <hsm-event on="game-posted" run="stream.queue($evt.frame, $evt.events)"></hsm-event>
-        <hsm-event on="game-started" goto="GameStarted"></hsm-event>
+        <hsm-event on="game-started" when="playerSprite.loaded()" run="log.info('waited for game start')" goto="GameStarted"></hsm-event>
+        <hsm-event on="player-sprite-loaded" when="game.started()" run="log.info('waited for sprite load')" goto="GameStarted"></hsm-event>
       </hsm-state>
     </hsm-state>
     <hsm-state name="RestoringGame">
@@ -29,7 +30,8 @@
         <hsm-event on="startup-located" run="map.changeMap($evt.where)" goto="RestoringMap"></hsm-event>
       </hsm-state>
       <hsm-state name="RestoringMap">
-        <hsm-event on="map-loaded" goto="GameStarted"></hsm-event>
+        <hsm-event on="map-loaded" when="playerSprite.loaded()"  run="log.info('waited for map load')" goto="GameStarted"></hsm-event>
+        <hsm-event on="player-sprite-loaded" when="map.loaded()" run="log.info('waited for sprite load')" goto="GameStarted"></hsm-event>
       </hsm-state>
     </hsm-state>
   </hsm-state>

@@ -1,11 +1,4 @@
-<hsm-state name="Fini" fini-control="fini" hsm-enter="fini.enter()" hsm-exit="fini.exit()">
-  <hsm-state player-control="player" hsm-enter="player.create(map, '/bin/images/princess.png', 64)" hsm-exit="player.destroy()">
-    <hsm-state>
-      <hsm-event on="player-created" goto="Finishing"></hsm-event>
-    </hsm-state>
-    <hsm-state name="Finishing" visibility-state="finivis" visibility-slot="gameMap">
-      <hsm-event on="stream-empty" run="fini.showExitPanel()"></hsm-event>
-      <hsm-event on="fini-exit" goto="Menus"></hsm-event>
-    </hsm-state>
-  </hsm-state>
+<hsm-state name="Fini" fini-control="fini" fini-display-slot="gameMap" fini-panel-slot="finalExit" player-control="player" hsm-enter="player.create(playerSprite)">
+  <hsm-event on="stream-empty" run="fini.showExitPanel()"></hsm-event>
+  <hsm-event on="fini-exit" goto="Menus"></hsm-event>
 </hsm-state>

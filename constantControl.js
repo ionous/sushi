@@ -5,15 +5,15 @@ angular.module('demo')
     'use strict';
     'ngInject';
     this.init = function(name) {
-      return function(key) {
+      this.get = function(key) {
         var val;
         try {
           val = $injector.get(key);
         } catch (e) {
           //
         }
-        //$log.info("constantControl", name, "got", key, "=", val);
         return val;
       };
+      return this.get;
     };
   });

@@ -1,46 +1,49 @@
 angular.module('demo')
 
 // expose an element to the slot service
-.directiveAs("finiControl", ["^hsmMachine"],
+.stateDirective("finiControl",
   function(ElementSlotService, $scope) {
     'use strict';
     'ngInject';
-    this.init = function(name, hsmMachine) {
+    this.init = function(ctrl) {
+      var displaySlot = ctrl.require("finiDisplaySlot");
+      var panelSlot = ctrl.require("finiPanelSlot");
+
       var Fini = function() {
-        this.map = ElementSlotService.get("gameMap");
-        this.panel = ElementSlotService.get("finalExit");
-        this.panel.scope.exit = function() {
-          return hsmMachine.emit(name, "exit", {});
+        var displaySlot = ElementSlotService.get(displaySlot);
+        var panel = ElementSlotService.get(panelSlot);
+        panel.scope.exit = function() {
+          return ctrl.emit("exit", {});
+        };
+        displaySlot.scope.visible = true;
+        displaySlot.element.css({
+          "cursor": "auto"
+        });
+        this.showPanel = function() {
+          panel.scope.visible = true;
+        };
+        this.destroy = function() {
+          panel.scope.set(null);
+          displaySlot.element.css({
+            "cursor": ""
+          });
+          displaySlot.scope.visible = false;
         };
       };
-      Fini.prototype.hide = function(hide) {
-        this.panel.scope.visible = false;
-        // override the normal cursor behavior
-        this.map.element.css({
-          "cursor": hide ? "auto" : ""
-        });
+      var fini;
+      ctrl.onEnter = function() {
+        fini = new Fini();
       };
-      Fini.prototype.showPanel = function() {
-        this.panel.scope.visible = true;
+      ctrl.onExit = function() {
+        fini.destroy();
+        fini = null;
       };
-      var state;
-      var scope = {
-        enter: function() {
-          state = new Fini();
-          state.hide(true);
-        },
-        exit: function() {
-          if (state) {
-            state.hide(false);
-            state = null;
-          }
-        },
+      return {
         showExitPanel: function() {
-          if (state) {
-            state.showPanel();
+          if (fini) {
+            fini.showPanel();
           }
         },
       };
-      return scope;
     };
   });
