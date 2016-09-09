@@ -23,6 +23,9 @@ angular.module('demo')
           click: function(item) {
             ctrl.emit("click", item);
           },
+          dismiss:function() {
+            ctrl.emit("dismiss", {});
+          },
           // return the list of all items
           items: function() {
             return items;
