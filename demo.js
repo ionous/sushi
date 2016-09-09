@@ -19,9 +19,10 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'],
   .constant("Talk", true)
   .constant("Popups", true)
   //.constant("GameServerUrl", "gopherjs")
-  .constant("FocusBlur", "blur")
+  .constant("FocusBlur", true)
   .constant("GameServerUrl", "http://localhost:8080/game")
   .constant("PlayerSprite", "/bin/images/princess.png")
   .constant("PlayerSpriteSize", 64)
+  .constant("ClickTime", 250)
   .constant("RequireSave", false)
   .constant("SaveProgress", false);

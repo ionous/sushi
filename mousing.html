@@ -19,7 +19,7 @@
       <!--  -->
       <hsm-state name="NoTarget">
         <hsm-state>
-          <hsm-event on="mouse-down" when="physics.exists()" goto="EmptyPress" run="press.timeout(150)"></hsm-event>
+          <hsm-event on="mouse-down" when="physics.exists()" goto="EmptyPress" run="press.timeout(constant('ClickTime'))"></hsm-event>
         </hsm-state>
         <hsm-state name="EmptyPress">
           <hsm-event on="mouse-up" run="move.startMove(mouse.cursorPos())" goto="PathToPos"></hsm-event>
@@ -27,7 +27,7 @@
       </hsm-state>
       <hsm-state name="NearTarget">
         <hsm-state>
-          <hsm-event on="mouse-down" goto="NearPress" run="press.timeout(150)"></hsm-event>
+          <hsm-event on="mouse-down" goto="NearPress" run="press.timeout(constant('ClickTime'))"></hsm-event>
         </hsm-state>
         <hsm-state name="NearPress">
           <hsm-event on="mouse-up" run="actionBar.open(mouse.cursorPos(), mouseTarget())" goto="Radial"></hsm-event>
@@ -35,7 +35,7 @@
       </hsm-state>
       <hsm-state name="FarTarget">
         <hsm-state>
-          <hsm-event on="mouse-down" when="physics.exists()" goto="FarPress" run="press.timeout(150)"></hsm-event>
+          <hsm-event on="mouse-down" when="physics.exists()" goto="FarPress" run="press.timeout(constant('ClickTime'))"></hsm-event>
         </hsm-state>
         <hsm-state name="FarPress">
           <hsm-event on="mouse-up" run="move.startMove(mouse.cursorPos(),mouseTarget())" goto="PathToTarget"></hsm-event>

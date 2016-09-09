@@ -20,7 +20,7 @@
     </hsm-state>
     <!-- ~DirectToPos -->
     <!-- DirectToTarget: move the player towards a specific target -->
-    <hsm-state name="DirectToTarget"">
+    <hsm-state name="DirectToTarget">
       <hsm-state hsm-enter="mouse.indicate(move.target())">
         <hsm-event on="move-stopped" when="$evt.arrived" goto="DirectorArrivedTarget"></hsm-event>
       </hsm-state>
