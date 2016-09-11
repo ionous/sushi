@@ -89,7 +89,7 @@ angular.module('demo')
     };
     Mover.prototype.faceTarget = function(target) {
       // a little odd - avatar duplicates the feet test.
-      this.avatar.lookAt(target);
+      this.avatar.faceTarget(target);
     };
 
     this.init = function(ctrl, avatarState, mouseTargetState) {

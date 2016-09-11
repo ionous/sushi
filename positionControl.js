@@ -27,7 +27,7 @@ angular.module('demo')
         this.getPos = function() {
           return pos;
         };
-        this.fromMemory= function() {
+        this.fromMemory = function() {
           return fromMemory;
         };
         this.getAngle = function() {
@@ -65,7 +65,7 @@ angular.module('demo')
           $log.info("positionControl", name, "loaded", angular.toJson(mem), "for", loc, "skin", skin);
           pos = mem.pos;
           angle = mem.angle;
-          fromMemory= true;
+          fromMemory = true;
         }
         if (angular.isUndefined(pos)) {
           pos = pt(0, 0);

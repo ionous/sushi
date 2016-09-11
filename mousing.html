@@ -21,7 +21,7 @@
         <hsm-state>
           <hsm-event on="mouse-down" when="physics.exists()" goto="EmptyPress" run="press.timeout(constant('ClickTime'))"></hsm-event>
         </hsm-state>
-        <hsm-state name="EmptyPress">
+        <hsm-state name="EmptyPress" hsm-enter="avatar.lookAt(mouse.cursorPos())">
           <hsm-event on="mouse-up" run="move.startMove(mouse.cursorPos())" goto="PathToPos"></hsm-event>
         </hsm-state>
       </hsm-state>
@@ -29,7 +29,7 @@
         <hsm-state>
           <hsm-event on="mouse-down" goto="NearPress" run="press.timeout(constant('ClickTime'))"></hsm-event>
         </hsm-state>
-        <hsm-state name="NearPress">
+        <hsm-state name="NearPress" hsm-enter="avatar.faceTarget(mouseTarget())">
           <hsm-event on="mouse-up" run="actionBar.open(mouse.cursorPos(), mouseTarget())" goto="Radial"></hsm-event>
         </hsm-state>
       </hsm-state>
@@ -37,7 +37,7 @@
         <hsm-state>
           <hsm-event on="mouse-down" when="physics.exists()" goto="FarPress" run="press.timeout(constant('ClickTime'))"></hsm-event>
         </hsm-state>
-        <hsm-state name="FarPress">
+        <hsm-state name="FarPress" hsm-enter="avatar.faceTarget(mouseTarget())">
           <hsm-event on="mouse-up" run="move.startMove(mouse.cursorPos(),mouseTarget())" goto="PathToTarget"></hsm-event>
         </hsm-state>
       </hsm-state>
