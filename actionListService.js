@@ -30,13 +30,13 @@ angular.module('demo')
         };
       };
       // creates a filter for actions requires two objects
-      var newMultiFilter = function(c1, c2) {
+      var newMultiFilter = function(o2, c1, c2) {
         return function(actionInfo) {
           if (actionInfo.nounCount >= 2) {
             // $log.info(actionInfo.id, "c1.contains(actionInfo.tgt)", c1, actionInfo.tgt, c1.contains(actionInfo.tgt) );
             // $log.info(actionInfo.id, "c2.contains(actionInfo.ctx)", c2, actionInfo.ctx, c2.contains(actionInfo.ctx) );
             var icon = IconService.getIcon(actionInfo.id);
-            return icon.iconClass && c1.contains(actionInfo.tgt) && c2.contains(actionInfo.ctx);
+            return icon.allows(o2) && c1.contains(actionInfo.tgt) && c2.contains(actionInfo.ctx);
           }
         };
       };
@@ -56,7 +56,7 @@ angular.module('demo')
 
       var getMultiActions = function(o2, c2, c1) {
         return ActionService.getActions().then(function(allActions) {
-          var filter = newMultiFilter(c2, c1);
+          var filter = newMultiFilter(o2, c2, c1);
           var actions = allActions.filter(filter).map(makeAction);
           return {
             item: o2,

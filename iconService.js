@@ -106,7 +106,9 @@ angular.module('demo')
         //
         new Icon("show it to", "hand-paper-o"),
 
-        new Icon("give it to", "hand-rock-o fa-rotate-180"),
+        new Icon("give it to", "hand-rock-o fa-rotate-180").
+        requires("items-receiver"),
+        
         // ( put page on button )
         new Icon("insert it into", "hand-pointer-o"),
         new Icon("insert card into", "credit-card"),
