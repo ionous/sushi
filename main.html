@@ -1,4 +1,4 @@
-<hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()" closer-control="closeMe" button-state="closeButton" storage-control="store" server-control="server" game-control="game" load-game-control="games" client-data-control="serial" text-control="textHistory" position-control="positions" hsm-init="'AutoStart'">
+<hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()" closer-control="closeMe" button-state="closeButton" storage-control="store" server-control="server" game-control="game" load-game-control="games" client-data-control="serial" text-control="textHistory" position-control="positions" key-state="keys" hsm-init="'AutoStart'">
   <hsm-event on="serial-reset" run="positions.reset($evt)"></hsm-event>
   <!-- AutoStart -->
   <ng-include src="'autoStart.html'"></ng-include>
