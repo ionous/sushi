@@ -58,6 +58,9 @@ angular.module('demo')
       this.destroy = function() {
         groups.remove(hit);
       };
+      this.okay = function() {
+        return true;
+      };
     };
 
     // an animated character control
@@ -66,6 +69,10 @@ angular.module('demo')
       chara.setCorner(corner, !!usez);
       chara.setAngle(xform.getAngle(), true);
       chara.draw(0, true);
+
+      this.okay= function() {
+        return !!chara.group.el;
+      };
 
       var hit = new DynamicHitShape(obj, chara, xform);
       groups.children.unshift(hit);

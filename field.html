@@ -21,6 +21,7 @@
     <!-- ~InteractOrBrowse -->
     <hsm-state name="Combinable">
       <hsm-state name="NotCombining" hsm-enter="mouse.setSymbols({pointer:'pointer', near:'bullseye', far:'disk', arrow:'arrow'});invWin.setCombine(false); actionBar.setCombine(false)">
+        <hsm-event on="keys" when="$evt.actionKey(true)" goto="CombineCheck" run="invCombine.startCombining(playerItems.currentItem())"></hsm-event>
         <hsm-event on="recent-button-click" goto="CombineCheck" run="invCombine.startCombining(playerItems.currentItem())"></hsm-event>
       </hsm-state>
       <hsm-state name="Combining" hsm-exit="combinePanel.close(); recentButton.enable(true)" hsm-enter="mouse.setSymbols({pointer:'pointer', near:'combine', far:'combinealt', arrow:'arrow'}); recentButton.enable(false)">

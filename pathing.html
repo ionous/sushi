@@ -2,13 +2,13 @@
   <hsm-event on="keys" when="$evt.escapeKey()" goto="Planning"></hsm-event>
   <hsm-event on="mouse-down" goto="Planning"></hsm-event>
   <hsm-event on="update-game" run="move.updateMove($evt.dt)"></hsm-event>
+  <hsm-event on="move-stopped" goto="Planning"></hsm-event>
   <!-- while pathing, the player can freely use the mouse; 
   we change the cursor temporarily, basically until the player moves the mouse and we get a mouse-target-changed. all other things being equal, it sticks to its special look. -->
   <hsm-state name="PathToTarget" hsm-enter="mouse.highlight(move.target(),true)">
     <hsm-event on="move-stopped" when="!avatar.exists() || avatar.touches(move.target())" run="actionBar.open(move.menuPos(), move.target())" goto="Radial"></hsm-event>
   </hsm-state>
   <hsm-state name="PathToPos" hsm-enter="mouse.indicate()">
-    <hsm-event on="move-stopped" goto="Planning"></hsm-event>
     <hsm-state hsm-exit="mouseTarget.reset()">
       <hsm-event on="mouse-move" goto="PathMouseMoved"></hsm-event>
     </hsm-state>

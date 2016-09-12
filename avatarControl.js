@@ -106,6 +106,13 @@ angular.module('demo')
           }
         },
         update: function(dt, dir) {
+          // patch: in wellspring, alice changes states while physicallized
+          // we need to destroy and re/create her physics
+          if (currProp && !currPlayer.okay()) {
+            currProp.remove();
+            currPlayer = currProp = null;
+            avatar.create();
+          }
           if (!dir || !dt) {
             avatar.stop();
           } else if (currProp) {
