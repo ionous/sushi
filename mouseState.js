@@ -15,34 +15,15 @@ angular.module('demo')
       var getTooltip = function(target) {
         var tip;
         if (target) {
-          var obj = target.object;
-          if (obj) {
-            var ref = EntityService.getById(obj.id);
-            tip = ref.printedName();
-          } else if (target.view) {
-            // FIX, FIX, FIX
-            switch (target.view) {
-              case "blast":
-                tip = "blast doors";
-                break;
-              case "bookcase":
-                tip = "bookcase";
-                break;
-              case "converter":
-                tip = "strange machine";
-                break;
-              case "hatch":
-                tip = "maintenance hatch";
-                break;
-              case "terrarium":
-                tip = "terrarium";
-                break;
-              case "vending":
-                tip = "vending machine";
-                break;
-              default:
-                $log.error("unknown view", target.view);
-                break;
+          if (target.tooltip) {
+            tip = target.tooltip
+          } else {
+            var obj = target.object;
+            if (obj) {
+              var ref = EntityService.getById(obj.id);
+              tip = ref.printedName();
+            } else {
+              tip = target.view;
             }
           }
         }

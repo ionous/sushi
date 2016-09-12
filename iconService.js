@@ -58,7 +58,8 @@ angular.module('demo')
           } else {
             for (var i = 0; i < this._requireStates.length; i++) {
               var state = this._requireStates[i];
-              allows = obj.is(state);
+              // PATCH: unfortunately, ItemRecords and Entities flow through here.
+              allows = !obj.is || obj.is(state);
               if (!allows) {
                 break;
               }

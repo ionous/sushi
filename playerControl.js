@@ -61,6 +61,9 @@ angular.module('demo')
       this.okay = function() {
         return true;
       };
+      // patch for avatar control
+      // probably should implement the whole dynamic sprite interface for static sprites.
+      this.static = true;
     };
 
     // an animated character control
@@ -69,8 +72,8 @@ angular.module('demo')
       chara.setCorner(corner, !!usez);
       chara.setAngle(xform.getAngle(), true);
       chara.draw(0, true);
-
-      this.okay= function() {
+      this.dynamic = true; // patch for avatar control
+      this.okay = function() {
         return !!chara.group.el;
       };
 

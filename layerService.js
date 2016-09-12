@@ -289,7 +289,9 @@ angular.module('demo')
           object = null;
         }
 
-        var subject = new Subject(object, viewName, mapLayer.path);
+        var path = mapLayer.path;
+        var tooltip = mapLayer.data.properties && mapLayer.data.properties.tooltip;
+        var subject = new Subject(object, viewName, path, tooltip);
         var next = this.newContext(mapLayer, {
           hitGroup: this.hitGroup.newHitGroup(viewName, subject),
         });

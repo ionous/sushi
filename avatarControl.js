@@ -67,21 +67,24 @@ angular.module('demo')
           return currPlayer.getFeet();
         },
         lookAt: function(pos) {
-          var diff = pt_sub(pos, avatar.getFeet());
-          var len = pt_dot(diff, diff);
-          if (len >= 1e-3) {
-            var face = pt_scale(diff, 1.0 / Math.sqrt(len));
-            currPlayer.setAngle(face.x, face.y);
+          if (currPlayer.dynamic) {
+            var diff = pt_sub(pos, currPlayer.getFeet());
+            var len = pt_dot(diff, diff);
+            if (len >= 1e-3) {
+              var face = pt_scale(diff, 1.0 / Math.sqrt(len));
+              currPlayer.setAngle(face.x, face.y);
+            }
           }
-
         },
         faceTarget: function(target) {
-          var src = currPlayer.getFeet();
-          var pad = target && target.pads && target.pads.getClosestPad(src);
-          if (pad) {
-            var angle = pad.getAngle();
-            if (angular.isNumber(angle)) {
-              currPlayer.setAngle(angle);
+          if (currPlayer.dynamic) {
+            var src = currPlayer.getFeet();
+            var pad = target && target.pads && target.pads.getClosestPad(src);
+            if (pad) {
+              var angle = pad.getAngle();
+              if (angular.isNumber(angle)) {
+                currPlayer.setAngle(angle);
+              }
             }
           }
         },
