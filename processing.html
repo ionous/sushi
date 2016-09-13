@@ -36,6 +36,8 @@
   <hsm-state timeout-state="doorDelay">
     <hsm-event event-control="exitStageFour" event-target="*" events="door-staging-four" on="exitStageFour" run="$evt.wait(doorDelay.timeout(300))"></hsm-event>
   </hsm-state>
+  <!--  -->
+  <hsm-event event-control="dontLeave" event-target="dont-leave" events="following-up-with" on="dontLeave" run="avatar.setAngle(0,1)"></hsm-event>
   <!-- xxxx: move to story state file.
    zoom to the hatch door. -->
   <hsm-event event-control="boyOpenedDoor" event-target="alien-boy" events="yanking-open" on="boyOpenedDoor" when="$evt.tgt=='automat-tunnel-door'" run="map.changeView('hatch')" goto="PlaySpaceLoading"></hsm-event>

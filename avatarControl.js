@@ -66,6 +66,12 @@ angular.module('demo')
         getFeet: function() {
           return currPlayer.getFeet();
         },
+        setAngle: function(x, y) {
+          if (currPlayer.dynamic) {
+            currPlayer.setAngle(x, y);
+            currPlayer.draw(0);
+          }
+        },
         lookAt: function(pos) {
           if (currPlayer.dynamic) {
             var diff = pt_sub(pos, currPlayer.getFeet());

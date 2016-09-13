@@ -153,6 +153,9 @@ angular.module('demo')
         new Icon("search it", "search").
         requires("searchable"),
 
+        new Icon("search alien", "search").
+        requires("allowing-search"),
+
         new Icon("$zoom", "search-plus"),
         new Icon("$use", "mouse-pointer"),
         new Icon("$combine", "plus-circle"), // magic?
