@@ -187,9 +187,10 @@ angular.module('demo')
 
         // self actions
         new Icon("look", null),
+        
+        new Icon("jump", "chevron-up"),
         new Icon("listen", listen),
         new Icon("smell", smell),
-        new Icon("jump", "chevron-up"),
         // hide actions:
         new Icon("report inventory", null),
         new Icon("save-via-input", null),
