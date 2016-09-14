@@ -38,7 +38,10 @@ angular.module('demo')
               combineBox.set({
                 image: image,
                 item: itemName,
-                visible: true
+                visible: true,
+                dismiss: function() {
+                  ctrl.emit("dismiss", {});
+                },
               });
               defer = null;
             });

@@ -26,9 +26,8 @@
       </hsm-state>
       <hsm-state name="Combining" hsm-exit="combinePanel.close(); recentButton.enable(true)" hsm-enter="mouse.setSymbols({pointer:'pointer', near:'combine', far:'combinealt', arrow:'arrow'}); recentButton.enable(false)">
         <hsm-event on="keys" when="$evt.escapeKey()" goto="Planning"></hsm-event>
-        <!-- i think i like the enable/disable button more. -->
-        <hsm-event on="recent-button-click" goto="NotCombining"></hsm-event>
         <hsm-event on="talk-dismiss" goto="Planning"></hsm-event>
+        <hsm-event on="combine-panel-dismiss" goto="Planning"></hsm-event>
       </hsm-state>
     </hsm-state>
     <!-- ~CombineWatch -->
