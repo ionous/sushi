@@ -182,8 +182,7 @@ angular.module('demo')
         new Icon("eat it", "cutlery").
         requires("edible"),
 
-        new Icon("scoop it with", "spoon").
-        requires("edible"),
+        new Icon("scoop it with", "spoon"),
 
         // self actions
         new Icon("look", null),
