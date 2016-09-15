@@ -35,6 +35,8 @@ angular.module('demo')
       class: "ga-credits-header"
     }, {
       section: "Art",
+      tag: "All art copyright its respective owners",
+      author: "( See below for individual authors, links, and licenses. )",
       items: [{
         title: "Liberated Pixel Cup",
         url: "http://lpc.opengameart.org",
@@ -123,7 +125,7 @@ angular.module('demo')
           url: "http://lea.verou.me/css3patterns",
           license: [mit],
           author: "Atle Mo (design), Sébastien Grosjean (code)",
-        },], // js client items 
+        }, ], // js client items 
       }, {
         subsection: "Golang Runtime",
         items: [{
@@ -185,7 +187,7 @@ angular.module('demo')
       }, {
         title: "TileEd",
         url: "http://www.mapeditor.org",
-        tag:"Flexible tile map editor"
+        tag: "Flexible tile map editor"
       }, {
         title: "Sublime Text 3",
         tag: "Text editor for code, markup and prose",
@@ -196,7 +198,7 @@ angular.module('demo')
         url: "https://drive.google.com",
       }, {
         title: "Node",
-        tag: "Browserless JavaScript runtime", 
+        tag: "Browserless JavaScript runtime",
         url: "https://nodejs.org/en",
       }, {
         title: "Gulp",
