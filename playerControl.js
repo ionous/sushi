@@ -9,8 +9,10 @@ angular.module('demo')
     // dynamic hit box
     var DynamicHitShape = function(obj, chara, xform) {
       this.name = obj.id;
+      // shrink the hit shape a bit to account for alice's shape
+      // and to allow clicking through her head a bit.
       var xw = 16;
-      var yd = 30;
+      var yd = 32;
       var ofs = pt(xw, yd);
       var size = pt(chara.tilesize - 2 * xw, chara.tilesize - yd);
       // *yuck*
