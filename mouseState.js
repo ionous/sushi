@@ -16,7 +16,7 @@ angular.module('demo')
         var tip;
         if (target) {
           if (target.tooltip) {
-            tip = target.tooltip
+            tip = target.tooltip;
           } else {
             var obj = target.object;
             if (obj) {

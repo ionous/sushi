@@ -21,7 +21,7 @@ angular.module('demo')
       win.on("focus", focus);
       win.on("blur", function() {
         if (blur) {
-          overgrey = angular.element("<div class='ga-biggrey'></div>")
+          overgrey = angular.element("<div class='ga-biggrey'></div>");
           $element.prepend(overgrey);
           $element.removeClass("ga-active");
           $element.addClass("ga-inactive");
