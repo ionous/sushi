@@ -1,6 +1,6 @@
 <hsm-state name="Playing" player-control="player" hsm-enter="player.create(playerSprite)" physics-state="physics" player-item-state="playerItems" parallel="true">
   <ng-include src="'recentItem.html'"></ng-include>
-  <hsm-state name="PlayingGame" avatar-state="avatar" hsm-init="'Process'" visibility-state="mapvis" visibility-slot="gameMap" hsm-enter="status.set(map.get('desc'))">
+  <hsm-state name="PlayingGame" avatar-state="avatar" hsm-init="'Process'" visibility-state="mapvis" visibility-slot="gameMap" hsm-enter="status.set(map.get('desc'))" button-state="invButton" button-enable="false" hsm-exit="invButton.stopPulse()">
     <div room-return-state="roomReturn" room-return-button="clickReturn">
       <div visibility-state="barvis" visibility-slot="buttonBar" visibility-auto-show="false">
         <!-- fix: remove this generic catch with gotos -->
