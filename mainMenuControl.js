@@ -1,15 +1,16 @@
 angular.module('demo')
 
-.directiveAs("mainMenuControl", ["^loadGameControl", "^^hsmMachine"],
-  function(ElementSlotService, $location, $log) {
+.stateDirective("mainMenuControl", ["^loadGameControl", "^constantControl"],
+  function(ElementSlotService, $location, $log, $window) {
     'use strict';
     'ngInject';
     var win;
-    this.init = function(name, loadGameControl, hsmMachine) {
+    this.init = function(ctrl, loadGameControl, constantControl) {
+      //constantControl
       var menu = {
         close: function() {
           if (win) {
-            win.scope.visible = false;
+            win.set(null);
             win = null;
           }
         },
@@ -17,7 +18,6 @@ angular.module('demo')
           $log.info("opening", windowSlot, "at", path);
           $location.path(path).search("");
           win = ElementSlotService.get(windowSlot);
-          win.scope.visible = true;
           // speed, move over many frames?
           // or, maybe save "most recent" key.
           var mostRecent;
@@ -28,16 +28,26 @@ angular.module('demo')
           loadGameControl.checkData().then(function(yes) {
             win.scope.loadGame = yes;
           });
-          win.scope.start = function() {
-            return hsmMachine.emit(name, "start", {
-              //
-            });
-          };
-          win.scope.resume = function() {
-            return hsmMachine.emit(name, "resume", {
-              gameData: mostRecent,
-            });
-          };
+
+          var ver = "Test Version " + constantControl.get('GameVersion') + "." + constantControl.get('SaveVersion');
+          var chrome = $window.chrome;
+          if (chrome && chrome.runtime && chrome.runtime.getManifest) {
+            var manifest = chrome.runtime.getManifest();
+            ver = manifest.version_name;
+          }
+          //
+          win.set({
+            visible: true,
+            gameVersion: ver,
+            start: function() {
+              return ctrl.emit("start", {});
+            },
+            resume: function() {
+              return ctrl.emit("resume", {
+                gameData: mostRecent,
+              });
+            },
+          });
         }
       };
       return menu;
