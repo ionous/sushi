@@ -28,6 +28,59 @@ angular.module('demo')
       name: "SIL Open Font",
       url: "http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
     };
+
+    var editList = [{
+      title: "Inform7",
+      url: "http://inform7.com",
+      tag: "Natural language interface fiction"
+    }, {
+      title: "Scrivner",
+      tag: "Software for writers",
+      url: "https://www.literatureandlatte.com",
+    }, {
+      title: "Sublime Text 3",
+      tag: "Text editor for code, markup and prose",
+      url: "https://www.sublimetext.com",
+    }, {
+      title: "TileEd",
+      url: "http://www.mapeditor.org",
+      tag: "Flexible tile map editor"
+    }, {
+      title: "Google Docs",
+      tag: "Documents, spreadsheets and presentations, online and off",
+      url: "https://drive.google.com",
+    }];
+
+    var buildList = [{
+      title: "Electron Boilerplate",
+      tag: "Boilerplate application for Electron runtime",
+      url: "https://github.com/szwacz/electron-boilerplate",
+    }, {
+      title: "Electron Builder",
+      tag: "Package and build Electron apps",
+      url: "https://github.com/electron-userland/electron-builder",
+    }, {
+      title: "appdmg",
+      tag: "Generate app dmgs",
+      url: "https://github.com/LinusU/node-appdmg",
+    }, {
+      title: "Node",
+      tag: "Browserless JavaScript runtime",
+      url: "https://nodejs.org/en",
+    }, {
+      title: "Gulp",
+      tag: "Streaming build system",
+      url: "http://gulpjs.com",
+    }, {
+      title: "Bower",
+      tag: "Package manager for the web",
+      url: "https://bower.io",
+    }, {
+      title: "Npm",
+      tag: "Package manager for JavaScript",
+      url: "https://www.npmjs.com",
+    }];
+
     var credits = [{
       title: "Alice and The Galactic Traveller",
       tag: "Written and Developed by Simon Travis",
@@ -79,6 +132,15 @@ angular.module('demo')
     }, {
       section: "Tech",
       items: [{
+        subsection: "Application Engine",
+        items: [{
+          title: "Electron",
+          url: "http://electron.atom.io",
+          tag: "Cross platform apps using Node, Chromium, and V8",
+          author: "GitHub, Inc.",
+          license: [mit],
+        }, ], // js client items 
+      }, {
         subsection: "Javascript Client",
         items: [{
           title: "AngularJs",
@@ -177,48 +239,17 @@ angular.module('demo')
     }, {
       section: "Tools",
       items: [{
-        title: "Inform7",
-        url: "http://inform7.com",
-        tag: "Natural language interface fiction"
+        subsection: "Editing",
+        items: editList
       }, {
-        title: "Scrivner",
-        tag: "Software for writers",
-        url: "https://www.literatureandlatte.com",
-      }, {
-        title: "TileEd",
-        url: "http://www.mapeditor.org",
-        tag: "Flexible tile map editor"
-      }, {
-        title: "Sublime Text 3",
-        tag: "Text editor for code, markup and prose",
-        url: "https://www.sublimetext.com",
-      }, {
-        title: "Google Docs",
-        tag: "Documents, spreadsheets and presentations, online and off",
-        url: "https://drive.google.com",
-      }, {
-        title: "Node",
-        tag: "Browserless JavaScript runtime",
-        url: "https://nodejs.org/en",
-      }, {
-        title: "Gulp",
-        tag: "Streaming build system",
-        url: "http://gulpjs.com",
-      }, {
-        title: "Bower",
-        tag: "Package manager for the web",
-        url: "https://bower.io",
-      }, {
-        title: "Npm",
-        tag: "Package manager for JavaScript",
-        url: "https://www.npmjs.com",
-      }, {
+        subsection: "Build",
+        items: buildList
+      },{
         section: " ",
         title: "",
         tag: "Developed on MacOSX with Firefox and Chrome",
-      }], // tool items
+      }]
     }];
-
 
     var win;
     this.init = function(name, hsmMachine) {

@@ -22,27 +22,34 @@ angular.module('demo')
       //
       var btn;
       var enable = function(yes) {
-        var enable = angular.isUndefined(yes) || yes;
-        changeClass(btn.element, 'disabled', !enable);
-        return scope;
+        if (btn) {
+          var enable = angular.isUndefined(yes) || yes;
+          changeClass(btn.element, 'disabled', !enable);
+        }
       };
       var pulse = function(yes) {
-        var pulse = angular.isUndefined(yes) || yes;
-        changeClass(btn.element, 'ga-pulse', pulse);
+        if (btn) {
+          var pulse = angular.isUndefined(yes) || yes;
+          changeClass(btn.element, 'ga-pulse', pulse);
+        }
       };
       ctrl.onEnter = function() {
-        btn = ElementSlotService.get(slotName);
-        btn.scope.click = function() {
-          ctrl.emit("click", {});
-        };
+        btn = ElementSlotService.get(slotName, true);
+        if (btn) {
+          btn.scope.click = function() {
+            ctrl.emit("click", {});
+          };
+        }
         if (autoEnable) {
           enable();
         }
       };
       ctrl.onExit = function() {
         enable(false);
-        btn.scope.click = null;
-        btn = null;
+        if (btn) {
+          btn.scope.click = null;
+          btn = null;
+        }
       };
       var scope = {
         enable: enable,

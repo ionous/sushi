@@ -11,18 +11,19 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'],
     })
   .constant("GameVersion", "0")
   .constant("SaveVersion", "01")
-  .constant("AutoStart", "Resume") // Menu,Begin,Resume
+  .constant("AutoStart", "Menu") // Menu,Begin,Resume
   .constant("MostRecentIn", "mostRecent") // false, "save-newbug"
   .constant("MostRecentOut", "mostRecent") // false, "save-newbug"
-  .constant("ShowHsm", true) // state chart
+  .constant("ShowHsm", false) // state chart
   .constant("Physics", true)
   .constant("Talk", true)
   .constant("Popups", true)
-  //.constant("GameServerUrl", "gopherjs")
   .constant("FocusBlur", true)
-  .constant("GameServerUrl", "http://localhost:8080/game")
+  .constant("GameServerUrl", "gopherjs")
+  // .constant("GameServerUrl", "http://localhost:8080/game")
   .constant("PlayerSprite", "/bin/images/princess.png")
   .constant("PlayerSpriteSize", 64)
   .constant("ClickTime", 250)
-  .constant("RequireSave", false)
-  .constant("SaveProgress", false);
+  .constant("RequireSave", true)
+  .constant("SaveProgress", true)
+  .constant("TitleBar", false);

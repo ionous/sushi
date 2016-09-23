@@ -64,64 +64,6 @@ h4 {
   -webkit-filter: blur(1.5px);
 }
 
-main {
-  position: absolute;
-  top: 32px;
-}
-
-
-/* ----------------------------------------------
- titlebars
-*/
-
-.titlebar {
-  position: fixed;
-  width: 100%;
-  height: 32px;
-  background-color: #7a7c7c;
-  -webkit-app-region: drag;
-}
-
-body.ga-active div.titlebar {
-  background-color: #3a3d3d;
-}
-
-.titlebar-icon {
-  color: #969696;
-}
-
-.titlebar-text {
-  margin-top: 6px;
-  margin-bottom: 6px;
-  font-style: Arial;
-  font-size: 11pt;
-  color: whitesmoke;
-}
-
-.titlebar-close-button {
-  position: absolute;
-  right: 11px;
-  width: 17px;
-  height: 17px;
-  margin-top: 6px;
-  margin-bottom: 6px;
-  -webkit-app-region: no-drag;
-  background-image: url("/bin/chrome/button_close.png");
-}
-
-.titlebar-close-button:hover {
-  background-image: url("/bin/chrome/button_close_hover.png");
-}
-
-.titlebar-divider {
-  position: absolute;
-  left: 0px;
-  top: 31px;
-  width: 100%;
-  height: 1px;
-  background-color: #2a2c2c;
-}
-
 
 /* ----------------------------------------------
  overgrey
@@ -141,9 +83,9 @@ div.ga-biggrey {
 div.ga-overgrey {
   width: 100%;
   height: 100%;
-  /* use "fixed" to pop out of the game window, use top to avoid the title bar*/
+  /* use "fixed" to pop out of the game window*/
   position: fixed;
-  top: 32px;
+  top: 0;
   left: 0;
   /*background-color: yellow;*/
   opacity: 0;
@@ -586,7 +528,7 @@ credits
   /*20x32; no maps are larger.*/
   border-radius: 20px;
   /*overflow: hidden;*/
-  /*was 50%, but leaving some room after titlebar*/
+  /* override the normal centering, leave just a litle room after the title */
   top: 8px;
   left: 50%;
   margin-left: -383px;

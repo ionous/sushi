@@ -64,12 +64,15 @@ angular.module('demo')
     // then instead of mystical variables like visible,
     // templates could test for the presence of its locals object.
     // ( dynamically re-apply $scope[slot]= data )
-    get: function(name) {
+    get: function(name, unsafe) {
       var el = elements[name];
       if (!el) {
-        var msg = "ElementSlotService, slot not bound";
-        $log.error(msg, name);
-        throw new Error(msg);
+        var msg = ["ElementSlotService", name, "slot not bound"].join(" ");
+        if (unsafe) {
+          $log.error(msg);
+        } else {
+          throw new Error(msg);
+        }
       }
       return el;
     }
