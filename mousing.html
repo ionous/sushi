@@ -13,7 +13,7 @@
     <hsm-event on="mouse-target-changed" when="!$evt.target" goto="NoTarget"></hsm-event>
     <hsm-event on="mouse-target-changed" when="$evt.touches" goto="NearTarget"></hsm-event>
     <hsm-event on="mouse-target-changed" when="!$evt.touches" goto="FarTarget"></hsm-event>
-    <hsm-state timeout-state="press">
+    <hsm-state timeout-control="press">
       <hsm-event on="press-timeout" when="physics.exists()" run="move.startMove(mouse.cursorPos(), mouseTarget())" goto="Directing"></hsm-event>
       <hsm-event on="mouse-up" goto="Planning"></hsm-event>
       <!--  -->

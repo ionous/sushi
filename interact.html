@@ -1,10 +1,10 @@
 <hsm-state name="Interact" update-state="update" update-event="game" mouse-target-state="mouseTarget" move-state="move" parallel="true">
   <ng-include src="'mouseBounds.html'"></ng-include>
-  <hsm-state button-state="consoleButton">
+  <hsm-state button-control="consoleButton">
     <hsm-event on="console-button-click" goto="Console"></hsm-event>
-    <hsm-state button-state="settingsButton">
+    <hsm-state button-control="settingsButton">
       <hsm-event on="settings-button-click" goto="Settings"></hsm-event>
-      <hsm-state button-state="invButton">
+      <hsm-state button-control="invButton">
         <hsm-event on="inv-button-click" run="invWin.open(inv)" goto="Browse"></hsm-event>
         <hsm-state hsm-init="'Mousing'">
           <hsm-event on="update-game" run="physics.step($evt.dt)"></hsm-event>

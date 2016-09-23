@@ -1,17 +1,18 @@
 /* severed from demo.css; these styles only appear in a chrome app distribution. */
 
-main {
+body.entitled main {
   position: absolute;
   top: 32px;
 }
 
-div.ga-overgrey {
+body.entitled div.ga-overgrey {
   top: 32px;
 }
 
 
 /* ----------------------------------------------
  titlebars
+ entitled ,titleless
 */
 
 .titlebar {

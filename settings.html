@@ -2,8 +2,6 @@
   <hsm-event on="keys" when="$evt.escapeKey()" goto="Field"></hsm-event>
   <!--  -->
   <hsm-event on="settings-dismiss" goto="Field"></hsm-event>
-  <hsm-event on="settings-save" run="save.saveGame('normal-save')" goto="NormalSave"></hsm-event>
-  <hsm-event on="settings-exit" when="!track.manuallySaved()" goto="ConfirmExit"></hsm-event>
-  <hsm-event on="settings-exit" goto="Menus"></hsm-event>
+  <hsm-event on="settings-save" run="save.saveGame('normal-save')" goto="NormalSave"></hsm-event>  
   <hsm-event on="settings-play" goto="Field"></hsm-event>
 </hsm-state>

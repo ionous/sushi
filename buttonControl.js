@@ -5,7 +5,7 @@
  */
 angular.module('demo')
 
-.stateDirective("buttonState",
+.stateDirective("buttonControl",
   function(ElementSlotService, $log) {
     'use strict';
     'ngInject';
@@ -19,6 +19,7 @@ angular.module('demo')
     this.init = function(ctrl) {
       var slotName = ctrl.optional("buttonName", ctrl.name());
       var autoEnable = ctrl.optional("buttonEnable", "true") === "true";
+      var buttonBlur = ctrl.optional("buttonBlur", "false") === "true";
       //
       var btn;
       var enable = function(yes) {
@@ -37,6 +38,9 @@ angular.module('demo')
         btn = ElementSlotService.get(slotName, true);
         if (btn) {
           btn.scope.click = function() {
+            if (buttonBlur) {
+              btn.element[0].blur();
+            }
             ctrl.emit("click", {});
           };
         }

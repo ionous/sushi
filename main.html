@@ -1,11 +1,17 @@
 <hsm-state storage-control="store">
-  <hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()" closer-control="closeMe" button-state="closeButton" server-control="server" game-control="game" load-game-control="games" client-data-control="serial" text-control="textHistory" position-control="positions" key-state="keys" hsm-init="'AutoStart'">
+  <hsm-state name="Main" hsm-enter="path.listen()" hsm-exit="path.silence()" closer-control="appClose" button-control="closeButton" button-blur="true" server-control="server" game-control="game" load-game-control="games" client-data-control="serial" text-control="textHistory" position-control="positions" key-state="keys" hsm-init="'AutoStart'">
     <hsm-event on="serial-reset" run="positions.reset($evt)"></hsm-event>
+    <hsm-event on="close-button-click" run="appClose.requestExit('titlebar')"></hsm-event>
     <!-- AutoStart -->
     <ng-include src="'autoStart.html'"></ng-include>
     <!-- Menus -->
     <ng-include src="'menus.html'"></ng-include>
     <!-- Game -->
     <ng-include src="'game.html'"></ng-include>
+    <!-- closing the app, if its successful, can take a heartbeat; jumping to main menu directly causes a spurious paint cycle
+    some small amount of time (should) fix the issue -->
+    <hsm-state name="Restart" timeout-control="restart" hsm-enter="restart.timeout(150)">
+      <hsm-event on="restart-timeout" goto="MainMenu"></hsm-event>
+    </hsm-state>
   </hsm-state>
 </hsm-state>

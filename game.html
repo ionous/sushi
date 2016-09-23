@@ -1,5 +1,6 @@
-<hsm-state name="Game" hsm-exit="game.destroy()" visibility-state="gamevis" visibility-slot="gameWindow" status-state="status" status-slot="buttonBar" map-control="map" map-slot="gameMap" processor-state="stream" image-loader-control="playerSprite" change-control="track" parallel="true">
+<hsm-state name="Game" hsm-exit="game.destroy()" visibility-state="gamevis" visibility-slot="gameWindow" status-state="status" status-slot="buttonBar" map-control="map" map-slot="gameMap" processor-state="stream" image-loader-control="playerSprite" change-control="track" pause-control="pause" parallel="true">
   <ng-include src="'autoSaveCheck.html'"></ng-include>
+  <ng-include src="'confirmExit.html'"></ng-include>
   <hsm-state hsm-init="'Startup'">
     <!-- startup sequence to create the player graphics, locate the player object in the world, and loading the first map. -->
     <ng-include src="'startup.html'"></ng-include>

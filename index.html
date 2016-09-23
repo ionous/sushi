@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/script/bootstrap-css-only/css/bootstrap.min.css">
   <link rel="stylesheet" href="/script/components-font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="demo.css">
-  <!-- <link rel="stylesheet" href="titlebar.css"> -->
+  <link rel="stylesheet" href="titlebar.css">
   <!--  -->
   <script src="/script/angular/angular.min.js"></script>
   <script src="/script/angular-animate/angular-animate.min.js"></script>
@@ -85,6 +85,7 @@
   <script src="loadGameControl.js"></script>
   <script src="pathControl.js"></script>
   <script src="mapControl.js"></script>
+  <script src="pauseControl.js"></script>
   <script src="playerControl.js"></script>
   <script src="playerDialogControl.js"></script>
   <script src="playerItemControl.js"></script>
@@ -121,7 +122,7 @@
   <script src="mosaic/sprite.js"></script>
 </head>
 
-<body ng-app="demo" hsm-machine="machine" hsm-log="log" path-control="path" constant-control="constant" hsm-transition="0&& log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evtname)" hsm-enter="0&& $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0&& log.exit($state)" blur-control="blur">
+<body ng-app="demo" hsm-machine="machine" hsm-log="log" path-control="path" constant-control="constant" hsm-transition="0 && log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evtname)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)" blur-control="blur" ng-class="constant('TitleBar') ? 'entitled' : 'titleless'">
   <header>
     <div title-bar-control="titlebar" class="titlebar" ng-if="constant('TitleBar')">
       <span class="titlebar-icon">

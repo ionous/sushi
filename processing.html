@@ -21,11 +21,17 @@
         <!-- FIXIXIXIX -->
         <hsm-event on="item-browser-hack" goto="Speaking" run="speaker.say('player', $evt.msg)"></hsm-event>
       </hsm-state>
-      <hsm-state name="Speaking" hsm-exit="speaker.close()">
-        <hsm-event on="speaker-dismiss" when="speaker.finished()" goto="TalkEnabled"></hsm-event>
-        <hsm-event on="speaker-dismiss" goto="" run="speaker.next()"></hsm-event>
-        <hsm-event on="speaker-error" goto="TalkEnabled"></hsm-event>
-        <hsm-event on="keys" when="$evt.escapeKey(true) || $evt.actionKey(true)" run="speaker.dismiss()" goto=""></hsm-event>
+      <hsm-state name="Speaking" hsm-exit="speaker.close()" ng-init="pause.isPaused() ? 'SpeakingPaused' : 'SpeakingResume'">
+        <hsm-state name="SpeakingResume">
+          <hsm-event on="speaker-dismiss" when="speaker.finished()" goto="TalkEnabled"></hsm-event>
+          <hsm-event on="speaker-dismiss" goto="" run="speaker.next()"></hsm-event>
+          <hsm-event on="speaker-error" goto="TalkEnabled"></hsm-event>
+          <hsm-event on="keys" when="$evt.escapeKey(true) || $evt.actionKey(true)" run="speaker.dismiss()" goto=""></hsm-event>
+          <hsm-event on="pause-paused" goto="SpeakingPaused"></hsm-event>
+        </hsm-state>
+        <hsm-state name="SpeakingPaused">
+          <hsm-event on="pause-resume" goto="SpeakingResume"></hsm-event>
+        </hsm-state>
       </hsm-state>
     </hsm-state>
   </hsm-state>
@@ -33,7 +39,7 @@
   when we are zoomed in to a sub-scene in the automat and sam opens the door, zoom out. -->
   <hsm-event event-control="exitStageTwo" event-target="*" events="door-staging-two" on="exitStageTwo" when="map.currLoc.nextRoom('automat').changes(map.currLoc)" run="map.changeRoom('automat')" goto="PlaySpaceLoading"></hsm-event>
   <!--  -->
-  <hsm-state timeout-state="doorDelay">
+  <hsm-state timeout-control="doorDelay">
     <hsm-event event-control="exitStageFour" event-target="*" events="door-staging-four" on="exitStageFour" run="$evt.wait(doorDelay.timeout(300))"></hsm-event>
   </hsm-state>
   <!--  -->
@@ -76,10 +82,16 @@
                     <hsm-state name="PopupWaiting">
                       <hsm-event on="storyText" goto="PopupDisplayed" run="$evt.wait(popup.open($evt.data))"></hsm-event>
                     </hsm-state>
-                    <hsm-state name="PopupDisplayed" hsm-exit="popup.close('exit')">
-                      <hsm-event on="popup-dismiss" run="popup.close('dismissed')"></hsm-event>
-                      <hsm-event on="popup-closed" goto="PopupWaiting"></hsm-event>
-                      <hsm-event on="keys" when="$evt.escapeKey(true) || $evt.actionKey(true)" run="popup.dismiss()"></hsm-event>
+                    <hsm-state name="PopupDisplayed" hsm-exit="popup.close('exit')" ng-init="pause.isPaused() ? 'PopupPaused' : 'PopupResume'">
+                      <hsm-state name="PopupResume">
+                        <hsm-event on="popup-dismiss" run="popup.close('dismissed')"></hsm-event>
+                        <hsm-event on="popup-closed" goto="PopupWaiting"></hsm-event>
+                        <hsm-event on="keys" when="$evt.escapeKey(true) || $evt.actionKey(true)" run="popup.dismiss()"></hsm-event>
+                        <hsm-event on="pause-paused" goto="PopupPaused"></hsm-event>
+                      </hsm-state>
+                      <hsm-state name="PopupPaused">
+                        <hsm-event on="pause-resume" goto="PopupResume"></hsm-event>
+                      </hsm-state>
                     </hsm-state>
                   </hsm-state>
                   <!--  -->

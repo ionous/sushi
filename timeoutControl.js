@@ -1,6 +1,6 @@
 angular.module('demo')
 
-.stateDirective("timeoutState",
+.stateDirective("timeoutControl",
   function($log, $timeout) {
     'use strict';
     'ngInject';

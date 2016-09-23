@@ -24,7 +24,7 @@ angular.module('demo')
         };
       };
       //
-      var appwin, win, store;
+      var store;
 
       // FIX: could connect this to an event instead.
       // could hide storageControl behind clientDataControl for this and load game.

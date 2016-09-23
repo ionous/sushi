@@ -98,7 +98,13 @@ angular.module('demo')
         });
 
         this.displayEdge = displayEl.parent()[0];
+        if (!this.displayEdge) {
+          throw new Error("display element has no edge");
+        }
         this.focusEdge = focusEl[0];
+        if (!this.focusEdge) {
+          throw new Error("focus element has no edge");
+        }
         this.state = {
           rad: 0,
           dst: pt(0, 0),
@@ -133,8 +139,10 @@ angular.module('demo')
         }
       };
       Cursor.prototype.inBounds = function() {
-        var fr = this.focusEdge.getBoundingClientRect();
-        return (clientX >= fr.left && clientX <= fr.right && clientY >= fr.top && clientY <= fr.bottom);
+        if (this.focusEdge) {
+          var fr = this.focusEdge.getBoundingClientRect();
+          return (clientX >= fr.left && clientX <= fr.right && clientY >= fr.top && clientY <= fr.bottom);
+        }
       };
       Cursor.prototype.show = function(visible) {
         var shows = !!visible;
@@ -147,10 +155,21 @@ angular.module('demo')
         // the user moves the cursor enough to highlight something, 
         // the cursor moves its center enough to dehighlight itself,
         // the moves its center back, repeat.
-        var fr = this.focusEdge.getBoundingClientRect();
-        return pt(clientX - fr.left, clientY - fr.top);
+        var ret;
+        if (!this.focusEdge) {
+          $log.warn("cursorPos but destroyed");
+          ret = pt(0);
+        } else {
+          var fr = this.focusEdge.getBoundingClientRect();
+          ret = pt(clientX - fr.left, clientY - fr.top);
+        }
+        return ret;
       };
       Cursor.prototype.draw = function() {
+        if (!this.el || !this.displayEdge) {
+          $log.warn("drawing but destroyed", !!this.el, !!this.displayEdge);
+          return;
+        }
         var last = this.state;
 
         var show = !!(this.shows && this.enabled && this.shape);
@@ -219,7 +238,6 @@ angular.module('demo')
             scope.tooltip = apply;
           });
         }
-
       };
       Cursor.prototype.setCursor = function(name, tip, pointsTo) {
         var shape = cursors[name];

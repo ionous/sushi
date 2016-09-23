@@ -127,15 +127,10 @@ its actually nice to see some change in the cursor i think*/
   position: relative;
 }
 
-.ga-cursor i.fa-long-arrow-down {
-  /*margin-right: -10px;*/
-}
-
 .ga-tooltip {
   position: absolute;
   left: 18px;
   text-align: center;
-  /*font-size: small;*/
   transform: translateX(-50%);
   text-transform: capitalize;
 }
@@ -228,7 +223,6 @@ the real borders expand outside the measured ga-main-fg 100% height */
   width: 400px;
   margin-left: auto;
   margin-right: auto;
-  /*font-variant: small-caps;*/
   text-transform: uppercase;
   color: #f8d513;
   background-color: #e6311d;
@@ -349,7 +343,6 @@ the real borders expand outside the measured ga-main-fg 100% height */
 .ga-version {
   color: black;
   font-family: monospace;
-  text-transform: lowercase;
   text-align: center;
   margin-top: 10px;
   opacity: 0.8;
@@ -359,7 +352,6 @@ the real borders expand outside the measured ga-main-fg 100% height */
 .ga-tag-line {
   text-align: center;
   vertical-align: center;
-  /*font-variant: small-caps;*/
   text-transform: uppercase;
   color: #f4b256;
   font-size: 26px;
@@ -369,7 +361,6 @@ the real borders expand outside the measured ga-main-fg 100% height */
   font-stretch: ultra-condensed;
   font-weight: lighter;
   font-family: arial, sans-sarif;
-  /*text-shadow: 2px 2px black;*/
 }
 
 .ga-title-all {
@@ -995,6 +986,10 @@ combine box
 /* ----------------------------------------------
 popup 
 */
+
+.ga-exit {
+  z-index: 2000;
+}
 
 .ga-exit-prompt {
   padding-top: 10px;

@@ -29,7 +29,7 @@ angular.module('demo')
             win.scope.loadGame = yes;
           });
 
-          var ver = "Test Version " + constantControl.get('GameVersion') + "." + constantControl.get('SaveVersion');
+          var ver =  constantControl.get('GameVersion');
           var chrome = $window.chrome;
           if (chrome && chrome.runtime && chrome.runtime.getManifest) {
             var manifest = chrome.runtime.getManifest();
