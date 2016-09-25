@@ -7,7 +7,7 @@
         <hsm-event on="game-posting" goto="Post"></hsm-event>
         <hsm-state name="AwaitInput" hsm-init="pause.isPaused() ? 'PauseInput' : 'ResumeInput'">
           <hsm-state name="PauseInput">
-            <hsm-event on="pause-resume" goto="Field"></hsm-event>
+            <hsm-event on="pause-resume" goto="ResumeInput"></hsm-event>
           </hsm-state>
           <hsm-state name="ResumeInput" hsm-init="map.currLoc.room=='fini'?'Fini' : dialog.empty()?'Field':'Dialog'">
             <hsm-event on="pause-paused" goto="PauseInput"></hsm-event>
