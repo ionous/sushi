@@ -10,8 +10,8 @@
   <!--  -->
   <link rel="stylesheet" href="/script/bootstrap-css-only/css/bootstrap.min.css">
   <link rel="stylesheet" href="/script/components-font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" href="demo.css">
-  <link rel="stylesheet" href="titlebar.css">
+  <link rel="stylesheet" href="/css/demo.css">
+  <link rel="stylesheet" href="/css/titlebar.css">
   <!--  -->
   <script src="/script/angular/angular.min.js"></script>
   <script src="/script/angular-animate/angular-animate.min.js"></script>
@@ -117,9 +117,9 @@
   <script src="inputController.js"></script>
   <script src="itemSlideController.js"></script>
   <!--  -->
-  <script src="mosaic/map.js"></script>
-  <script src="mosaic/point.js"></script>
-  <script src="mosaic/sprite.js"></script>
+  <script src="/mosaic/map.js"></script>
+  <script src="/mosaic/point.js"></script>
+  <script src="/mosaic/sprite.js"></script>
 </head>
 
 <body ng-app="demo" hsm-machine="machine" hsm-log="log" path-control="path" constant-control="constant" hsm-transition="0 && log.warn('hsm: transitioning', $source.name, '->', $target.name, '@', $evtname)" hsm-enter="0 && $state.name.indexOf('hsmState') && log.enter($state)" hsm-exit="0 && log.exit($state)" blur-control="blur" ng-class="constant('TitleBar') ? 'entitled' : 'titleless'">
