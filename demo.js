@@ -9,21 +9,21 @@ angular.module('demo', ['ngAnimate', 'ui.bootstrap', 'hsm'],
       //aHrefSanitizationWhitelist ///^\s*(https?|ftp|mailto|tel|file|chrome-extension):/;
       $compileProvider.imgSrcSanitizationWhitelist(/^\s*((https?|ftp|file|blob|app|chrome-extension):|data:image\/)/);
     })
-  .constant("GameVersion", "Preview Version 0.4")
+  .constant("GameVersion", "Preview Edition - 0.5")
   .constant("SaveVersion", "01")
-  .constant("AutoStart", "Menu") // Menu,Begin,Resume
+  .constant("AutoStart", "Menu") //=> Menu, Begin, Resume
+  .constant("ShowHsm", false) //=> false
   .constant("MostRecentIn", "mostRecent") // false, "save-newbug"
   .constant("MostRecentOut", "mostRecent") // false, "save-newbug"
-  .constant("ShowHsm", false) // state chart
   .constant("Physics", true)
   .constant("Talk", true)
   .constant("Popups", true)
   .constant("FocusBlur", true)
-  .constant("GameServerUrl", "gopherjs")
+  .constant("GameServerUrl", "gopherjs") //=> gopherjs
   // .constant("GameServerUrl", "http://localhost:8080/game")
   .constant("PlayerSprite", "/bin/images/princess.png")
   .constant("PlayerSpriteSize", 64)
   .constant("ClickTime", 250)
-  .constant("RequireSave", true)
-  .constant("SaveProgress", true)
-  .constant("TitleBar", false);
+  .constant("RequireSave", true) //=> true
+  .constant("SaveProgress", true) //=> true
+  .constant("TitleBar", false); //=> false
